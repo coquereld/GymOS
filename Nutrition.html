@@ -163,7 +163,13 @@ button,input,select,textarea{font:inherit}button{cursor:pointer}
 .calc-row{display:flex;align-items:center;gap:.4rem;flex-wrap:wrap;background:var(--surfoff);border-radius:var(--rmd);padding:.5rem .65rem}
 .calc-res{font-size:.75rem;color:var(--tx);background:var(--surf);border-radius:var(--rmd);padding:.3rem .55rem;border:1px solid var(--bord);min-width:160px}
 
-@media(max-width:900px){.repas-layout{grid-template-columns:120px 1fr};.repas-right{display:none}.foods-layout{grid-template-columns:1fr}.dash-grid{grid-template-columns:1fr}}
+@media(max-width:900px){
+  .repas-layout{grid-template-columns:1fr;grid-template-rows:180px 1fr 220px}
+  .cal-sidebar{border-right:none;border-bottom:1px solid var(--bord)}
+  .repas-right{border-left:none;border-top:1px solid var(--bord)}
+  .foods-layout{grid-template-columns:1fr}
+  .dash-grid{grid-template-columns:1fr}
+}
 </style>
 </head>
 <body>
@@ -268,10 +274,7 @@ button,input,select,textarea{font:inherit}button{cursor:pointer}
     <div class="img-pick-btn" id="fv-imgPick"><img id="fv-imgPrev" class="ipt" src="" style="display:none"><span id="fv-imgName" style="font-size:.76rem;color:var(--txm)">Choisir une image…</span></div>
     <input type="hidden" id="fv-img">
   </div>
-  <div class="mr2">
-    <div class="fld"><label>Poids moyen/unité (g)</label><input class="inp" type="number" id="fv-unit" placeholder="Ex: 50g pour un œuf" min="1"></div>
-    <div id="fv-unitPreview" style="display:flex;align-items:center;font-size:.72rem;color:var(--txm);padding-top:1.1rem"></div>
-  </div>
+  <div class="fld"><label>Poids moyen/unité (g)</label><input class="inp" type="number" id="fv-unit" placeholder="Ex: 50g pour un œuf" min="1"></div>
   <hr class="sep">
   <div style="font-size:.7rem;font-weight:700;color:var(--prim);text-transform:uppercase;letter-spacing:.06em">Pour 100 g</div>
   <div class="mr2">
@@ -328,12 +331,12 @@ button,input,select,textarea{font:inherit}button{cursor:pointer}
   <div style="font-size:.7rem;font-weight:700;color:var(--txm);text-transform:uppercase;letter-spacing:.05em">Ingrédients</div>
   <div style="display:flex;gap:.4rem;flex-wrap:wrap;align-items:flex-end">
     <div class="fld" style="flex:2;min-width:140px"><label style="font-size:.65rem">Aliment</label><select class="sel" id="rv-ingFood"></select></div>
-    <div class="fld" style="flex:1;min-width:75px"><label style="font-size:.65rem" id="rv-ingQtyLbl">Quantité</label><input class="inp" type="number" id="rv-ingQty" placeholder="100" min="0.1" step="0.5" value="100"></div>
+    <div class="fld" style="flex:1;min-width:75px"><label style="font-size:.65rem">Quantité</label><input class="inp" type="number" id="rv-ingQty" placeholder="100" min="0.1" step="0.5" value="100"></div>
     <div class="fld" style="flex:1;min-width:90px"><label style="font-size:.65rem">Unité</label><select class="sel" id="rv-ingUnit"><option value="g">grammes</option></select></div>
     <button class="btn btn-sm btn-p" id="rv-addIng" style="align-self:flex-end;min-height:34px">+ Ajouter</button>
   </div>
   <div id="rv-ingPreview" style="font-size:.72rem;color:var(--prim);min-height:1.1em;padding:.1rem .2rem"></div>
-  <div id="rv-ingList" style="display:flex;flex-direction:column;gap:2px;max-height:180px;overflow-y:auto"></div>
+  <div id="rv-ingList" style="display:flex;flex-direction:column;gap:2px"></div>
   <div id="rv-macros" style="font-size:.75rem;color:var(--txm);padding:.3rem .5rem;background:var(--surfoff);border-radius:var(--rmd)"></div>
   <div class="ma">
     <button class="btn btn-sm" id="rv-del" style="color:var(--err);border-color:var(--err)44;display:none">Supprimer</button>
@@ -384,7 +387,7 @@ const MCOLS=['#2d6cdf','#5bb8d4','#3a8a3f','#5aaa3a','#8bc34a','#e8a025','#8b5a2
 let _d={goals:{cal:2000,prot:150,carb:250,fat:70},foods:[],supplements:[],recipes:[],smoothies:[],logs:{}};
 let _cur=dateToISO(new Date());
 let _selFoodId=null,_editFoodId=null,_editRecipeId=null,_editRecipeType=null;
-let _openMeal=null,_selPickFood=null;
+let _openMeal=null;
 let _rvIngs=[]; // ingrédients recette en cours d'édition
 let _atmData=null; // données pour ajouter au repas
 
@@ -397,7 +400,6 @@ function macros4qty(food,qty){const f=qty/100;return{cal:n1((food.per100.cal||0)
 function dayTotals(d){return(_d.logs[d]||[]).reduce((t,e)=>({cal:t.cal+(e.cal||0),prot:t.prot+(e.prot||0),carb:t.carb+(e.carb||0),fat:t.fat+(e.fat||0)}),{cal:0,prot:0,carb:0,fat:0});}
 function fmtD(iso){const d=new Date(iso+'T00:00'),t=todayISO(),y=addDaysTo(t,-1);if(iso===t)return"Aujourd'hui";if(iso===y)return'Hier';return d.toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long'});}
 function fmtShort(iso){const d=new Date(iso+'T00:00');return d.toLocaleDateString('fr-FR',{day:'numeric',month:'short'});}
-function foodImg(f){return f?.image?`<img class="fi" src="./img/${f.image}" onerror="this.className='fph';this.innerHTML='🍽'" alt="">`:`<div class="fph">🍽</div>`;}
 function recipeCalc(ings){return ings.reduce((t,ing)=>{const f=_d.foods.find(x=>x.id===ing.foodId);if(!f)return t;const m=macros4qty(f,ing.qty);return{cal:t.cal+m.cal,prot:t.prot+m.prot,carb:t.carb+m.carb,fat:t.fat+m.fat};},{cal:0,prot:0,carb:0,fat:0});}
 
 // ══ DATE HELPERS (local, pas UTC) ══
@@ -644,7 +646,7 @@ function renderMeals(){
     const hdrRow=document.createElement('div'); hdrRow.className='meal-hdr-row';
     hdrRow.innerHTML=`<span class="meal-emoji">${meal.e}</span><span class="meal-name-txt">${meal.n}</span><span class="meal-kcal-txt">${mCal} kcal</span>`;
     const addBtn=document.createElement('button'); addBtn.className='btn btn-sm'; addBtn.textContent='+ Ajouter';
-    addBtn.addEventListener('click',e=>{e.stopPropagation();_openMeal=_openMeal===meal.id?null:meal.id;_selPickFood=null;renderMeals();});
+    addBtn.addEventListener('click',e=>{e.stopPropagation();_openMeal=_openMeal===meal.id?null:meal.id;renderMeals();});
     hdrRow.appendChild(addBtn); block.appendChild(hdrRow);
     entries.forEach(e=>{
       const f=_d.foods.find(x=>x.id===e.foodId)||{name:e.name,image:e.image||''};
@@ -678,7 +680,7 @@ function buildMealPicker(mealId){
   const calc=document.createElement('div'); calc.className='fp-calc'; wrap.appendChild(calc);
   const footer=document.createElement('div'); footer.style.cssText='display:flex;gap:.4rem;justify-content:flex-end;padding:.45rem .75rem;border-top:1px solid var(--bord)';
   const closeBtn=document.createElement('button'); closeBtn.className='btn btn-sm'; closeBtn.textContent='Fermer';
-  closeBtn.addEventListener('click',()=>{_openMeal=null;_selPickFood=null;renderMeals();});
+  closeBtn.addEventListener('click',()=>{_openMeal=null;renderMeals();});
   const addBtn=document.createElement('button'); addBtn.className='btn btn-sm btn-p'; addBtn.textContent='Ajouter'; addBtn.disabled=true;
   footer.append(closeBtn,addBtn); wrap.appendChild(footer);
   let selFood=null;
@@ -735,7 +737,7 @@ function buildMealPicker(mealId){
     const entry={id:uid(),meal:mealId,foodId:food.id||'',name:food.name,image:food.image||'',qty:Math.round(qty),...m};
     if(!_d.logs[_cur])_d.logs[_cur]=[];
     _d.logs[_cur].push(entry); save();
-    _openMeal=null; _selPickFood=null; renderMeals(); renderMacroRings(); renderHist(); renderCalSidebar();
+    _openMeal=null; renderMeals(); renderMacroRings(); renderHist(); renderCalSidebar();
   });
   return wrap;
 }
@@ -785,7 +787,7 @@ function renderHist(){
 
 // ══ DATE NAV ══
 function setDate(iso){
-  _cur=iso; _openMeal=null; _selPickFood=null;
+  _cur=iso; _openMeal=null;
   document.getElementById('dateLbl').textContent=fmtD(iso);
   const today=todayISO();
   document.getElementById('nextDay').disabled=iso>=today;
@@ -920,11 +922,9 @@ function renderRecipeList(list,arr,type){
     card.querySelector('[data-edit]').addEventListener('click',()=>openRecipeModal(r.id,type==='smoothie'));
     card.querySelector('[data-add]').addEventListener('click',()=>{
       _atmData={food:{id:r.id,name:r.name,image:r.image||'',per100:{cal:tot.cal/r.portions,prot:tot.prot/r.portions,carb:tot.carb/r.portions,fat:tot.fat/r.portions},unitWeight:0},qty:100};
-      const entry={id:uid(),meal:'lunch',foodId:r.id,name:r.name,image:r.image||'',qty:1,...{cal:n1(tot.cal/r.portions),prot:n1(tot.prot/r.portions),carb:n1(tot.carb/r.portions),fat:n1(tot.fat/r.portions)}};
-      if(!_d.logs[_cur])_d.logs[_cur]=[];
-      _d.logs[_cur].push(entry);save();
-      if(document.getElementById('tab-repas').classList.contains('active')){renderMeals();renderMacroRings();renderHist();renderCalSidebar();}
-      alert(`"${r.name}" ajouté au déjeuner de ${fmtD(_cur)}`);
+      document.getElementById('atm-meal').innerHTML=MEALS.map(m=>`<option value="${m.id}">${m.e} ${m.n}</option>`).join('');
+      document.getElementById('atm-date').value=_cur;
+      document.getElementById('addToMealOv').style.display='flex';
     });
     list.appendChild(card);
   });
@@ -1119,8 +1119,6 @@ function updateRvIngUnit(){
   const fid=document.getElementById('rv-ingFood').value;
   const f=_d.foods.find(x=>x.id===fid);
   const unitSel=document.getElementById('rv-ingUnit');
-  const qtyInp=document.getElementById('rv-ingQty');
-  const preview=document.getElementById('rv-ingPreview');
   unitSel.innerHTML='<option value="g">grammes</option>';
   if(f?.unitWeight){
     unitSel.innerHTML+=`<option value="unit">unités (~${f.unitWeight}g/unité)</option>`;
@@ -1221,7 +1219,6 @@ document.getElementById('cp-cancel').addEventListener('click',()=>document.getEl
 document.addEventListener('keydown',e=>{if(e.key==='Escape')['foodOv','recipeOv','addToMealOv','goalsOv','copyOv'].forEach(id=>{const el=document.getElementById(id);if(el.style.display==='flex')el.style.display='none';});});
 
 // ══ THÈME ══
-document.getElementById('homeBtn').addEventListener('click',()=>window.location.href='index.html');
 document.getElementById('themeBtn').addEventListener('click',()=>applyTheme(document.documentElement.getAttribute('data-theme')==='dark'?'light':'dark'));
 
 // ══ INIT ══
