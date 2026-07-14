@@ -133,7 +133,6 @@
     th button{display:flex;align-items:center;gap:.4rem;font-weight:700;padding:0;color:inherit;background:none;border:none;cursor:pointer}
     tbody tr:hover{background:color-mix(in oklab,var(--color-primary) 4%,var(--color-surface))}
     td.cell{cursor:text;position:relative}
-    td.cell.editing::after{display:none}
     td[contenteditable="true"]{outline:none}
     td[contenteditable="true"]:focus,td.cell.editing{box-shadow:inset 0 0 0 2px var(--color-primary);background:var(--color-surface-2)}
     td:first-child{border-left:4px solid transparent}
@@ -257,10 +256,12 @@
     .eq-corps      {background:rgba(67,122,34,.12);color:#437a22;border:1px solid rgba(67,122,34,.3)}
     .eq-halteres   {background:rgba(250,123,1,.12);color:#c86000;border:1px solid rgba(250,123,1,.3)}
     .eq-elastique  {background:rgba(131,56,187,.12);color:#8338bb;border:1px solid rgba(131,56,187,.3)}
+    .eq-barre      {background:rgba(84,101,120,.12);color:#546578;border:1px solid rgba(84,101,120,.3)}
     [data-theme="dark"] .eq-machine  {background:rgba(1,97,190,.22);color:#4f98a3}
     [data-theme="dark"] .eq-corps    {background:rgba(67,122,34,.22);color:#6abf3a}
     [data-theme="dark"] .eq-halteres {background:rgba(250,123,1,.22);color:#fa7b01}
     [data-theme="dark"] .eq-elastique{background:rgba(131,56,187,.22);color:#b070e0}
+    [data-theme="dark"] .eq-barre    {background:rgba(84,101,120,.22);color:#9fb0c0}
 
     /* ── BADGE TYPE ── */
     .type-rm  {background:rgba(1,105,111,.12);color:var(--color-primary);border:1px solid rgba(1,105,111,.3)}
@@ -324,9 +325,6 @@
       width:15px;height:15px;accent-color:var(--item-color,var(--color-primary));
       flex-shrink:0;cursor:pointer;
     }
-
-    /* ── SELECTS COLORÉS ── */
-    .select-groupe option{font-weight:600}
 
     .obj-edit-btn{background:none;border:none;cursor:pointer;color:var(--color-text-faint);padding:.2rem;border-radius:var(--radius-sm);transition:all var(--transition);display:grid;place-items:center}
     .obj-edit-btn:hover{color:var(--obj-color,var(--color-primary));background:color-mix(in oklab,var(--obj-color,var(--color-primary)) 10%,transparent)}
@@ -762,6 +760,7 @@
           <option value="Poids du corps">🤸 Poids du corps</option>
           <option value="Haltères">💪 Haltères</option>
           <option value="Élastique">〰 Élastique</option>
+          <option value="Barre">🏋 Barre</option>
         </select>
       </div>
       <div class="field">
@@ -931,11 +930,6 @@
   </div>
 </div>
 
-<!-- ═══════════════════════ XML EMBARQUÉ (vide — à remplir via ajout ou import) -->
-<script id="embeddedXml" type="application/xml"><?xml version="1.0" encoding="UTF-8"?>
-<exercices>
-</exercices>
-</script>
 
 <script src="db.js"></script>
 <script src="gymos-utils.js"></script>
@@ -993,11 +987,8 @@ const MUSCLE_DATA = {
   }
 };
 
-const MUSCLE_COLORS = {
-  'Pectoraux':'#b90207','Abdominaux':'#8338bb','Bras':'#fa7b01','Avant-bras':'#f42d65',
-  'Cuisses (arrière)':'#974f1a','Cuisses (avant)':'#5a9d24','Cuisses (intérieur)':'#3fb5dc',
-  'Dos':'#0161be','Épaules':'#fbbd01','Fessiers':'#01969b','Mollets':'#a19e9f'
-};
+// Alias vers MC (gymos-utils.js) : évite une copie locale qui pourrait diverger.
+const MUSCLE_COLORS = MC;
 
 // ─── LISTE COMPLÈTE : muscles, chefs et faisceaux ───────────────────────────
 const FULL_MUSCLES = {
@@ -1158,7 +1149,7 @@ const labels = {
   subdivision:'Subdivision',muscle_secondaire:'Muscle secondaire',
   equipement:'Équipement',type_exercice:'Type'
 };
-const EQUIPEMENT_OPTS = ['Machine','Poids du corps','Haltères','Élastique'];
+const EQUIPEMENT_OPTS = ['Machine','Poids du corps','Haltères','Élastique','Barre'];
 const TYPE_OPTS       = ['Renforcement Musculaire','Cardio'];
 
 // ─── ÉTAT ─────────────────────────────────────────────────────────────────────
@@ -1316,8 +1307,9 @@ function setActiveGroup(g) {
 }
 
 // ─── HELPERS MULTI-GROUPES ────────────────────────────────────────────────────
+// Alias vers grpc() (gymos-utils.js) : même logique, évite une réimplémentation locale.
 function primaryGroupColor(gm) {
-  return MUSCLE_COLORS[(gm||'').split(',')[0].trim()] || '#9a9891';
+  return grpc(gm);
 }
 function groupeList(gm) {
   return (gm||'').split(',').map(g=>g.trim()).filter(Boolean);
@@ -1391,8 +1383,8 @@ function renderGroupBadge(value) {
 }
 function renderEquipBadge(value) {
   if (!value) return '<span style="color:var(--color-text-faint)">—</span>';
-  const icons = {'Machine':'🏋','Poids du corps':'🤸','Haltères':'💪','Élastique':'〰'};
-  const cls = value==='Machine'?'eq-machine':value==='Poids du corps'?'eq-corps':value==='Haltères'?'eq-halteres':value==='Élastique'?'eq-elastique':'';
+  const icons = {'Machine':'🏋','Poids du corps':'🤸','Haltères':'💪','Élastique':'〰','Barre':'🏋'};
+  const cls = value==='Machine'?'eq-machine':value==='Poids du corps'?'eq-corps':value==='Haltères'?'eq-halteres':value==='Élastique'?'eq-elastique':value==='Barre'?'eq-barre':'';
   return `<span class="eq-badge ${cls}">${icons[value]||''} ${escapeXml(value)}</span>`;
 }
 function renderTypeBadge(value) {
@@ -1490,27 +1482,6 @@ function confirmVideoEditModal(){
   row.video = document.getElementById('videoEditInput').value.trim();
   closeVideoEditModal(); renderTable(); saveAutosave();
   setStatus('Vidéo mise à jour.','ok');
-}
-
-// ─── SELECTS COLORÉS ──────────────────────────────────────────────────────────
-function applyGroupSelectColors(selEl) {
-  selEl.classList.add('select-groupe');
-  [...selEl.options].forEach(opt => {
-    if (!opt.value) { opt.style.cssText=''; return; }
-    const hex = MUSCLE_COLORS[opt.value];
-    if (!hex) return;
-    const [r,g,b] = hexToRgb(hex);
-    opt.style.background = `rgba(${r},${g},${b},.18)`;
-    opt.style.color = hex;
-    opt.style.fontWeight = '600';
-  });
-  syncGroupSelectColor(selEl);
-}
-function syncGroupSelectColor(selEl) {
-  const hex = MUSCLE_COLORS[selEl.value];
-  selEl.style.color = hex || '';
-  selEl.style.borderColor = hex || '';
-  selEl.style.boxShadow = hex ? `0 0 0 1px ${hex}33` : '';
 }
 
 // ─── MULTI-SELECT MUSCLE SECONDAIRE avec niveaux de sollicitation ─────────────
@@ -1839,6 +1810,21 @@ function startEdit(td) {
   const target = state.rows.find(r=>r.id===td.dataset.id);
   if (!target) return;
   state.selectedId = target.id; markSelectedRow();
+
+  // Champs multi-valeurs : l'édition rapide en cellule ne gère qu'une seule
+  // valeur et écraserait silencieusement les autres associations (perte de
+  // données). On redirige vers la fiche complète, seule à savoir les éditer
+  // sans perte.
+  if (field === 'muscle_secondaire') {
+    setStatus('Muscles secondaires : modifiez-les depuis la fiche complète.','warn');
+    openExoEditModal(target.id);
+    return;
+  }
+  if (field === 'groupe_musculaire' && (target.groupe_musculaire||'').includes(',')) {
+    setStatus('Exercice multi-groupes : modifiez-le depuis la fiche complète.','warn');
+    openExoEditModal(target.id);
+    return;
+  }
 
   // Sélects en cascade
   if (field === 'groupe_musculaire' || field === 'muscle' || field === 'subdivision'
@@ -3004,13 +2990,6 @@ function renderEmSecPills() {
     pill.innerHTML=escapeXml(m)+' '; pill.appendChild(starSpan); pill.appendChild(x);
     trigger.insertBefore(pill, trigger.querySelector('.multisel-arrow'));
   });
-}
-
-function resetEmMultisel(preselected='') {
-  // Utilise _secSelected partagé
-  _secSelected = typeof preselected==='string' ? parseSecValue(preselected) : preselected.map(m=>typeof m==='string'?{m,l:3}:m);
-  renderEmSecPills(); syncSecHidden();
-  document.getElementById('em-sec-multisel')?.classList.remove('open');
 }
 
 // Init du multisel édition (wiring trigger/dropdown)
