@@ -1,0 +1,34 @@
+[
+  {
+    "id": "cz1vpqt9rp24",
+    "nom": "test",
+    "description": "test",
+    "statut": "actif",
+    "dateCreation": "2026-05-28",
+    "seances": [
+      {
+        "id": "op799n3ns27p",
+        "nom": "Push A",
+        "type": "Full Body",
+        "jours": [
+          "Mardi",
+          "Vendredi"
+        ],
+        "exercices": [
+          {
+            "id": "5umhzm43u1qs",
+            "nom": "Abdo C",
+            "groupe": "Abdominaux",
+            "series": "4",
+            "reps": "12",
+            "poids": "73",
+            "recup": "90",
+            "duree": "",
+            "distance": "",
+            "note": ""
+          }
+        ]
+      }
+    ]
+  }
+]

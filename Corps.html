@@ -1,0 +1,2800 @@
+<!DOCTYPE html>
+<html lang="fr" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GymOS — Corps</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://api.fontshare.com/v2/css?f[]=satoshi@400,500,700&display=swap" rel="stylesheet">
+  <style>
+    :root,[data-theme="light"]{
+      --text-xs:clamp(.75rem,.7rem + .25vw,.875rem);
+      --text-sm:clamp(.875rem,.8rem + .35vw,1rem);
+      --text-base:clamp(1rem,.95rem + .25vw,1.125rem);
+      --text-lg:clamp(1.125rem,1rem + .75vw,1.5rem);
+      --text-xl:clamp(1.5rem,1.2rem + 1.25vw,2.25rem);
+      --space-1:.25rem;--space-2:.5rem;--space-3:.75rem;--space-4:1rem;
+      --space-5:1.25rem;--space-6:1.5rem;--space-8:2rem;--space-10:2.5rem;--space-12:3rem;
+      --color-bg:#f7f6f2;--color-surface:#f9f8f5;--color-surface-2:#fbfbf9;
+      --color-surface-offset:#f3f0ec;--color-border:#d4d1ca;
+      --color-text:#28251d;--color-text-muted:#6e6b64;--color-text-faint:#9a9891;
+      --color-primary:#01696f;--color-primary-hover:#0c4e54;--color-primary-highlight:#cedcd8;
+      --color-success:#437a22;--color-warning:#964219;--color-error:#a12c7b;
+      --radius-sm:.375rem;--radius-md:.5rem;--radius-lg:.75rem;--radius-xl:1rem;
+      --shadow-sm:0 1px 2px rgba(40,37,29,.06);--shadow-md:0 12px 32px rgba(40,37,29,.12);
+      --transition:180ms cubic-bezier(.16,1,.3,1);--font-body:'Satoshi',system-ui,sans-serif
+    }
+    [data-theme="dark"]{
+      --color-bg:#171614;--color-surface:#1c1b19;--color-surface-2:#201f1d;
+      --color-surface-offset:#1d1c1a;--color-border:#393836;
+      --color-text:#cdccca;--color-text-muted:#a09f9c;--color-text-faint:#74726e;
+      --color-primary:#4f98a3;--color-primary-hover:#227f8b;--color-primary-highlight:#313b3b;
+      --shadow-sm:0 1px 2px rgba(0,0,0,.2);--shadow-md:0 12px 32px rgba(0,0,0,.4)
+    }
+    *{box-sizing:border-box} html,body{height:100%;margin:0}
+    body{font-family:var(--font-body);font-size:var(--text-base);background:var(--color-bg);color:var(--color-text);line-height:1.5}
+    button,input,select{font:inherit} button{cursor:pointer}
+    table{border-collapse:collapse;width:100%} a{color:inherit;text-decoration:none}
+
+    /* ── LAYOUT ── */
+    .app{display:grid;grid-template-columns:280px 1fr;grid-template-rows:auto 1fr;height:100dvh;overflow:hidden}
+    .sidebar{grid-row:1 / -1;background:linear-gradient(180deg,var(--color-surface),var(--color-surface-2));border-right:1px solid var(--color-border);display:flex;flex-direction:column;overflow:hidden}
+    .sidebar-inner{flex:1;overflow-y:auto;padding:var(--space-4) var(--space-4) var(--space-6)}
+    .header{display:flex;align-items:center;justify-content:space-between;gap:var(--space-4);padding:var(--space-4) var(--space-6);border-bottom:1px solid var(--color-border);background:color-mix(in oklab,var(--color-surface) 92%,transparent);backdrop-filter:blur(10px)}
+    .main{overflow:auto;padding:var(--space-6)}
+
+    /* ── BRAND ── */
+    .brand{display:flex;align-items:center;gap:var(--space-3);padding:var(--space-5) var(--space-4) var(--space-4);border-bottom:1px solid var(--color-border)}
+    .logo{width:40px;height:40px;border-radius:12px;display:grid;place-items:center;background:var(--color-primary-highlight);color:var(--color-primary);flex-shrink:0}
+    .logo svg{width:22px;height:22px}
+    .brand-text{font-weight:700;font-size:var(--text-sm);line-height:1.2}
+    .brand-sub{font-size:var(--text-xs);color:var(--color-text-faint);margin-top:.1rem}
+
+    /* ── SIDEBAR SECTION ── */
+    .sidebar-section{margin-top:var(--space-2)}
+    .sidebar-label{font-size:.65rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--color-text-faint);padding:0 var(--space-2);margin-bottom:var(--space-2)}
+
+    /* ── GROUPE CARD ── */
+    .group-nav{display:flex;flex-direction:column;gap:var(--space-1)}
+    .group-card{display:flex;align-items:center;gap:var(--space-3);padding:.6rem var(--space-3);border-radius:var(--radius-lg);cursor:pointer;transition:all var(--transition);border:1px solid transparent;position:relative;overflow:hidden}
+    .group-card::before{content:'';position:absolute;inset:0;opacity:0;transition:opacity var(--transition)}
+    .group-card:hover{background:var(--color-surface-offset)}
+    .group-card.active{border-color:var(--current-color, var(--color-primary))44;background:color-mix(in oklab,var(--current-color,var(--color-primary)) 8%,var(--color-surface))}
+    .group-card.active .group-card-name{color:var(--current-color,var(--color-primary));font-weight:700}
+    .group-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;transition:transform var(--transition)}
+    .group-card.active .group-dot{transform:scale(1.3)}
+    .group-card-info{flex:1;min-width:0}
+    .group-card-name{font-size:var(--text-sm);font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;transition:color var(--transition)}
+    .group-card-meta{display:flex;align-items:center;gap:var(--space-2);margin-top:.15rem}
+    .group-card-count{font-size:.68rem;color:var(--color-text-faint)}
+    .group-card-recup{font-size:.62rem;font-weight:700;padding:.1rem .4rem;border-radius:999px;letter-spacing:.03em}
+    .recup-pill-24{background:rgba(67,122,34,.12);color:#437a22}
+    .recup-pill-48{background:rgba(150,66,25,.12);color:#964219}
+    .recup-pill-72{background:rgba(161,44,123,.12);color:#a12c7b}
+    [data-theme="dark"] .recup-pill-24{background:rgba(67,122,34,.2);color:#6abf3a}
+    [data-theme="dark"] .recup-pill-48{background:rgba(150,66,25,.2);color:#e07840}
+    [data-theme="dark"] .recup-pill-72{background:rgba(161,44,123,.2);color:#e060b8}
+    .group-card-arrow{color:var(--color-text-faint);opacity:0;transition:opacity var(--transition),transform var(--transition)}
+    .group-card:hover .group-card-arrow,.group-card.active .group-card-arrow{opacity:1;transform:translateX(2px)}
+    .group-card.active .group-card-arrow{color:var(--current-color,var(--color-primary))}
+
+    /* Carte "Tous" */
+    .group-card-all{display:flex;align-items:center;gap:var(--space-3);padding:.6rem var(--space-3);border-radius:var(--radius-lg);cursor:pointer;transition:all var(--transition);border:1px solid transparent;margin-bottom:var(--space-2)}
+    .group-card-all:hover{background:var(--color-surface-offset)}
+    .group-card-all.active{background:color-mix(in oklab,var(--color-primary) 8%,var(--color-surface));border-color:var(--color-primary)44}
+    .group-card-all.active .group-card-all-name{color:var(--color-primary);font-weight:700}
+    .group-card-all-name{font-size:var(--text-sm);font-weight:500;flex:1}
+    .group-card-all-total{font-size:.68rem;color:var(--color-text-faint);background:var(--color-surface-offset);padding:.15rem .5rem;border-radius:999px}
+
+    /* ── SIDEBAR FOOTER ── */
+    .sidebar-footer{padding:var(--space-4);border-top:1px solid var(--color-border);display:grid;gap:var(--space-2)}
+    .sidebar-footer-stat{display:flex;justify-content:space-between;align-items:center;font-size:var(--text-xs);color:var(--color-text-muted)}
+    .sidebar-footer-stat strong{color:var(--color-text);font-weight:700}
+
+    /* ── BOUTONS ── */
+    .panel{background:var(--color-surface);border:1px solid var(--color-border);border-radius:var(--radius-xl);box-shadow:var(--shadow-sm)}
+    .stack{display:grid;gap:var(--space-4)}
+    .toolbar{display:flex;flex-wrap:wrap;gap:var(--space-3);align-items:center}
+    .btn{display:inline-flex;align-items:center;justify-content:center;gap:var(--space-2);min-height:44px;padding:.75rem 1rem;border-radius:var(--radius-md);border:1px solid var(--color-border);background:var(--color-surface-2);color:var(--color-text);transition:all var(--transition)}
+    .icon-btn{width:44px;height:44px;padding:0;flex-shrink:0}
+    .icon-btn svg{width:20px;height:20px}
+    .btn:hover{background:var(--color-surface-offset)}
+    .btn-primary{background:var(--color-primary);color:#fff;border-color:transparent}
+    .btn-primary:hover{background:var(--color-primary-hover)}
+    .btn-ghost{background:transparent}
+    .btn-danger{background:#a12c7b;color:#fff;border-color:transparent}
+    .btn-danger:hover{background:#8a2268}
+    [data-theme="dark"] .btn-danger{background:#e060b8;color:#1a0a15}
+    [data-theme="dark"] .btn-danger:hover{background:#c84fa0}
+
+    /* ── SEARCH / SELECT ── */
+    .search{display:flex;align-items:center;gap:var(--space-3);padding:.85rem 1rem;background:var(--color-surface);border:1px solid var(--color-border);border-radius:var(--radius-lg);min-height:44px}
+    .search input,.field input{border:none;outline:none;background:transparent;width:100%;color:var(--color-text)}
+    .select-styled{padding:.6rem .75rem;border-radius:var(--radius-md);border:1px solid var(--color-border);background:var(--color-surface);color:var(--color-text);outline:none;width:100%;min-height:44px;transition:border-color var(--transition);appearance:auto}
+    .select-styled:hover,.select-styled:focus{border-color:var(--color-primary)}
+    .select-styled.is-placeholder{color:var(--color-text-faint)}
+    .field select{padding:.6rem .75rem;border-radius:var(--radius-md);border:1px solid var(--color-border);background:var(--color-surface);color:var(--color-text);outline:none;width:100%;transition:border-color var(--transition)}
+    .field select:hover,.field select:focus{border-color:var(--color-primary)}
+
+    /* ── IMAGE PICK ── */
+    .img-pick{display:flex;align-items:center;gap:var(--space-2);padding:.6rem .75rem;border-radius:var(--radius-md);border:1px solid var(--color-border);background:var(--color-surface);color:var(--color-text);cursor:pointer;transition:border-color var(--transition),background var(--transition);min-height:40px}
+    .img-pick:hover{background:var(--color-surface-offset);border-color:var(--color-primary)}
+    .img-pick svg{width:15px;height:15px;flex-shrink:0;color:var(--color-text-faint)}
+    .img-pick .img-pick-name{font-size:var(--text-sm);color:var(--color-text-faint);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1}
+    .img-pick .img-pick-name.has-file{color:var(--color-text)}
+
+    /* ── STATS ── */
+    .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:var(--space-4)}
+    .stat{padding:var(--space-4)}
+    .stat strong{display:block;font-size:var(--text-lg)}
+    .stat span{font-size:var(--text-sm);color:var(--color-text-muted)}
+
+    /* ── TABLE ── */
+    .table-wrap{overflow:auto;border-radius:var(--radius-xl);max-height:calc(100dvh - 290px)}
+    th,td{padding:.9rem 1rem;border-bottom:1px solid var(--color-border);text-align:left;vertical-align:middle}
+    th{position:sticky;top:0;background:var(--color-surface-offset);font-size:var(--text-sm);z-index:2;white-space:nowrap}
+    th button{display:flex;align-items:center;gap:.4rem;font-weight:700;padding:0;color:inherit;background:none;border:none}
+    tbody tr:hover{background:color-mix(in oklab,var(--color-primary) 4%,var(--color-surface))}
+    td.cell{cursor:text;position:relative}
+    td.cell.editing::after{display:none}
+    td[contenteditable="true"]{outline:none}
+    td[contenteditable="true"]:focus,td.cell.editing{box-shadow:inset 0 0 0 2px var(--color-primary);background:var(--color-surface-2)}
+    td:first-child{border-left:4px solid transparent}
+    .table-image{width:80px;height:80px;object-fit:contain;border-radius:.5rem;background:var(--color-surface-offset);border:1px solid var(--color-border);padding:.35rem}
+    .img-placeholder{width:80px;height:80px;display:grid;place-items:center;font-size:.7rem;text-align:center;color:var(--color-text-faint);background:var(--color-surface-offset);border:1px dashed var(--color-border);border-radius:.5rem;padding:.4rem;flex-shrink:0}
+
+    /* ── BADGES ── */
+    .recup-badge{display:inline-flex;align-items:center;justify-content:center;padding:.3rem .75rem;border-radius:999px;font-size:var(--text-xs);font-weight:700;letter-spacing:.04em;white-space:nowrap}
+    .recup-24{background:rgba(67,122,34,.18);color:#6abf3a;border:1px solid rgba(67,122,34,.35)}
+    .recup-48{background:rgba(150,66,25,.18);color:#e07840;border:1px solid rgba(150,66,25,.35)}
+    .recup-72{background:rgba(161,44,123,.18);color:#e060b8;border:1px solid rgba(161,44,123,.35)}
+    [data-theme="light"] .recup-24{background:rgba(67,122,34,.1);color:#437a22;border:1px solid rgba(67,122,34,.3)}
+    [data-theme="light"] .recup-48{background:rgba(150,66,25,.1);color:#964219;border:1px solid rgba(150,66,25,.3)}
+    [data-theme="light"] .recup-72{background:rgba(161,44,123,.1);color:#a12c7b;border:1px solid rgba(161,44,123,.3)}
+
+    /* ── MISC ── */
+    .title{font-size:var(--text-xl);font-weight:700;letter-spacing:-.02em}
+    .muted{color:var(--color-text-muted)}
+    .field{display:grid;gap:var(--space-2)}
+    .field label{font-size:var(--text-sm);font-weight:600}
+    .section-head{display:flex;align-items:end;justify-content:space-between;gap:var(--space-4);margin-bottom:var(--space-4)}
+    .badge{display:inline-flex;align-items:center;gap:.4rem;padding:.35rem .65rem;border-radius:999px;background:var(--color-primary-highlight);color:var(--color-primary);font-size:var(--text-xs);font-weight:700;text-transform:uppercase;letter-spacing:.06em}
+    .status{font-size:var(--text-sm);color:var(--color-text-muted)}
+    .empty{padding:var(--space-8);text-align:center;color:var(--color-text-muted)}
+    .note{font-size:var(--text-sm);color:var(--color-text-muted)}
+    .pill{display:inline-flex;align-items:center;padding:.25rem .6rem;border-radius:999px;background:var(--color-surface-offset);font-size:var(--text-xs);color:var(--color-text-muted)}
+    .topline{display:flex;flex-wrap:wrap;gap:var(--space-3);align-items:center}
+    .ok{color:var(--color-success)} .warn{color:var(--color-warning)} .danger{color:var(--color-error)}
+    .footer-actions{display:flex;flex-wrap:wrap;gap:var(--space-3)}
+
+    /* ── MODALES ── */
+    .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.55);backdrop-filter:blur(4px);z-index:100;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity 180ms ease}
+    .modal-overlay.open{opacity:1;pointer-events:all}
+    .modal{background:var(--color-surface);border:1px solid var(--color-border);border-radius:var(--radius-xl);padding:var(--space-6);width:min(520px,94vw);box-shadow:var(--shadow-md);display:grid;gap:var(--space-4);transform:translateY(8px);transition:transform 180ms ease}
+    .modal-overlay.open .modal{transform:translateY(0)}
+    .modal-title{font-weight:700;font-size:var(--text-base)}
+    .modal-actions{display:flex;gap:var(--space-3);justify-content:flex-end;margin-top:var(--space-2)}
+    .modal-grid{display:grid;grid-template-columns:1fr 1fr;gap:var(--space-4)}
+    .modal-grid .field-full{grid-column:1 / -1}
+
+    /* Modale ajout — header coloré */
+    .modal-add-header{display:flex;align-items:center;gap:var(--space-3);padding-bottom:var(--space-4);border-bottom:1px solid var(--color-border)}
+    .modal-add-icon{width:40px;height:40px;border-radius:var(--radius-md);display:grid;place-items:center;background:var(--color-primary-highlight);color:var(--color-primary);flex-shrink:0}
+    .modal-add-icon svg{width:20px;height:20px}
+
+    /* Modale image */
+    .modal-img-small{width:min(420px,90vw)}
+
+    /* Modale suppression */
+    .modal-icon-danger{width:48px;height:48px;border-radius:50%;background:rgba(161,44,123,.15);border:1px solid rgba(161,44,123,.3);display:grid;place-items:center;margin:0 auto var(--space-2)}
+    .modal-icon-danger svg{width:22px;height:22px;color:#e060b8}
+    [data-theme="light"] .modal-icon-danger{background:rgba(161,44,123,.08);border-color:rgba(161,44,123,.25)}
+    [data-theme="light"] .modal-icon-danger svg{color:#a12c7b}
+    .modal-body{text-align:center;display:grid;gap:var(--space-2)}
+    .modal-body .modal-title{font-size:var(--text-base)}
+    .modal-body .modal-desc{font-size:var(--text-sm);color:var(--color-text-muted);line-height:1.5}
+    .modal-body strong{color:var(--color-text);font-weight:700}
+
+    /* Modale mot de passe */
+    .modal-icon-lock{width:48px;height:48px;border-radius:50%;background:color-mix(in oklab,var(--color-primary) 12%,transparent);border:1px solid color-mix(in oklab,var(--color-primary) 30%,transparent);display:grid;place-items:center;margin:0 auto var(--space-2)}
+    .modal-icon-lock svg{width:22px;height:22px;color:var(--color-primary)}
+    .pwd-input-wrap{position:relative;display:flex;align-items:center}
+    .pwd-input-wrap input{width:100%;padding:.7rem 2.6rem .7rem .9rem;border-radius:var(--radius-md);border:1px solid var(--color-border);background:var(--color-surface);color:var(--color-text);font-size:var(--text-base);outline:none;letter-spacing:.12em;transition:border-color var(--transition)}
+    .pwd-input-wrap input:focus{border-color:var(--color-primary)}
+    .pwd-input-wrap input.error{border-color:var(--color-error);animation:shake .3s ease}
+    .pwd-toggle{position:absolute;right:.6rem;background:none;border:none;color:var(--color-text-faint);cursor:pointer;padding:.2rem;display:grid;place-items:center}
+    .pwd-toggle:hover{color:var(--color-text)}
+    .pwd-toggle svg{width:17px;height:17px}
+    .pwd-hint{font-size:var(--text-xs);color:var(--color-text-faint);text-align:center}
+    .pwd-error{font-size:var(--text-xs);color:var(--color-error);text-align:center;min-height:1.2em}
+    @keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+
+    /* Cellules images */
+    td.cell-img{cursor:pointer;position:relative;height:96px;vertical-align:middle}
+    td.cell-img-read{cursor:zoom-in;position:relative;height:96px;vertical-align:middle}
+    td.cell-img-read img.table-image{transition:opacity var(--transition),transform var(--transition)}
+    td.cell-img-read:hover img.table-image{opacity:.78;transform:scale(1.04)}
+    td.cell-img-read:hover::after{content:'⊕';position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:1.4rem;color:var(--color-primary);opacity:.9;pointer-events:none}
+
+    /* Lightbox */
+    .lightbox-box{background:transparent;border:none;padding:0;width:auto;max-width:min(860px,94vw);box-shadow:none;gap:var(--space-4);align-items:center;transform:scale(.94);transition:transform 200ms cubic-bezier(.16,1,.3,1)}
+    .modal-overlay.open .lightbox-box{transform:scale(1)}
+    .lightbox-img-wrap{position:relative;border-radius:var(--radius-xl);overflow:hidden;background:var(--color-surface-offset);border:1px solid var(--color-border);box-shadow:var(--shadow-md);line-height:0}
+    .lightbox-img-wrap img{display:block;max-width:min(820px,88vw);max-height:72vh;object-fit:contain;min-width:120px;min-height:80px}
+    .lightbox-img-wrap .img-placeholder{width:280px;height:200px;font-size:var(--text-sm);border-radius:0}
+    .lightbox-meta{text-align:center;display:grid;gap:.3rem;padding:0 var(--space-2)}
+    .lightbox-filename{font-size:var(--text-sm);font-weight:700;color:var(--color-text);word-break:break-all}
+    .lightbox-context{font-size:var(--text-xs);color:var(--color-text-muted)}
+    .lightbox-close-btn{position:absolute;top:-13px;right:-13px;width:34px;height:34px;border-radius:50%;background:var(--color-surface);border:1px solid var(--color-border);box-shadow:var(--shadow-sm);display:grid;place-items:center;cursor:pointer;color:var(--color-text-muted);transition:all var(--transition);z-index:2;padding:0}
+    .lightbox-close-btn:hover{color:var(--color-text);background:var(--color-surface-offset);border-color:var(--color-primary)}
+    .lightbox-close-btn svg{width:15px;height:15px}
+
+    /* ── LIGHTBOX NAV ── */
+    .lb-nav{position:absolute;top:50%;transform:translateY(-50%);width:36px;height:36px;border-radius:50%;background:color-mix(in oklab,var(--color-surface) 85%,transparent);backdrop-filter:blur(8px);border:1px solid var(--color-border);display:grid;place-items:center;cursor:pointer;color:var(--color-text);transition:all var(--transition);z-index:2;padding:0}
+    .lb-nav:hover{background:var(--color-surface);box-shadow:var(--shadow-sm)}
+    .lb-nav svg{width:16px;height:16px}
+    .lb-prev{left:8px} .lb-next{right:8px}
+    .lb-counter{font-size:var(--text-xs);font-weight:700;color:var(--color-text-muted);background:var(--color-surface-offset);padding:.2rem .55rem;border-radius:999px;border:1px solid var(--color-border)}
+    .lb-dots{display:flex;align-items:center;justify-content:center;gap:.4rem;margin-top:.3rem}
+    .lb-dot{width:7px;height:7px;border-radius:50%;background:var(--color-border);cursor:pointer;transition:all var(--transition)}
+    .lb-dot.active{background:var(--color-primary);transform:scale(1.3)}
+
+    /* ── CARD DOTS ── */
+    .mc-dots{display:flex;align-items:center;gap:.3rem}
+    .mc-dot{width:6px;height:6px;border-radius:50%;background:var(--color-border);cursor:pointer;transition:all var(--transition);flex-shrink:0}
+    .mc-dot.active{background:var(--card-group-color,var(--color-primary))}
+
+    /* ── MULTI-IMAGE SLOTS ── */
+    .img-slot{display:flex;align-items:flex-start;gap:var(--space-3);padding:var(--space-3);border-radius:var(--radius-lg);border:1px solid var(--color-border);background:var(--color-surface-2);transition:border-color var(--transition)}
+    .img-slot.slot-main{border-color:var(--color-primary)55;background:color-mix(in oklab,var(--color-primary) 4%,var(--color-surface))}
+    .img-slot-num{width:24px;height:24px;border-radius:50%;flex-shrink:0;display:grid;place-items:center;font-size:.7rem;font-weight:700;background:var(--color-primary-highlight);color:var(--color-primary)}
+    .img-slot-preview{width:56px;height:56px;border-radius:var(--radius-md);flex-shrink:0;object-fit:contain;background:var(--color-surface-offset);border:1px solid var(--color-border);padding:3px}
+    .img-slot-preview-ph{width:56px;height:56px;border-radius:var(--radius-md);flex-shrink:0;display:grid;place-items:center;background:var(--color-surface-offset);border:1px dashed var(--color-border);color:var(--color-text-faint);font-size:.6rem;text-align:center}
+    .img-slot-body{flex:1;display:grid;gap:var(--space-2)}
+    .img-slot-header{display:flex;align-items:center;gap:var(--space-2);margin-bottom:var(--space-1)}
+    .img-slot-label{font-size:.7rem;font-weight:700;color:var(--color-text-muted);flex:1}
+    .img-slot-input-row{display:flex;align-items:center;gap:var(--space-2)}
+    .img-slot-input{flex:1;padding:.4rem .6rem;border-radius:var(--radius-md);border:1px solid var(--color-border);background:var(--color-surface);color:var(--color-text);font-size:var(--text-xs);outline:none;transition:border-color var(--transition)}
+    .img-slot-input:focus{border-color:var(--color-primary)}
+    .img-slot-pick{display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;border-radius:var(--radius-sm);border:1px solid var(--color-border);background:var(--color-surface-2);cursor:pointer;color:var(--color-text-muted);transition:all var(--transition);flex-shrink:0}
+    .img-slot-pick:hover{background:var(--color-surface-offset)}
+    .img-slot-pick svg{width:13px;height:13px}
+    .slot-order-btn{width:26px;height:26px;border-radius:var(--radius-sm);border:1px solid var(--color-border);background:var(--color-surface-2);cursor:pointer;color:var(--color-text-muted);display:grid;place-items:center;transition:all var(--transition);padding:0}
+    .slot-order-btn:hover{background:var(--color-surface-offset);color:var(--color-text)}
+    .slot-order-btn:disabled{opacity:.3;cursor:not-allowed}
+    .slot-order-btn svg{width:12px;height:12px}
+    .slot-clear-btn{width:26px;height:26px;border-radius:var(--radius-sm);border:none;background:none;cursor:pointer;color:var(--color-text-faint);display:grid;place-items:center;transition:color var(--transition);padding:0}
+    .slot-clear-btn:hover{color:var(--color-error)}
+    .slot-clear-btn svg{width:13px;height:13px}
+
+    /* ── ANATOMIE IMAGE ── */
+    .sidebar-anatomy-wrap{
+      padding:var(--space-3) var(--space-4);
+      border-bottom:1px solid var(--color-border);
+      flex-shrink:0;
+    }
+    .sidebar-anatomy{
+      border-radius:var(--radius-lg);
+      overflow:hidden;
+      border:1px solid var(--color-border);
+      background:var(--color-surface-offset);
+      line-height:0;
+      position:relative;
+      margin-bottom:0;
+    }
+    .sidebar-anatomy img{
+      width:100%;height:auto;object-fit:contain;display:block;transition:opacity var(--transition);
+    }
+    .sidebar-anatomy img[src=""]{display:none}
+    /* ══════════════════════════════════════════════
+       MODALE DÉTAIL MUSCULAIRE
+    ══════════════════════════════════════════════ */
+    .detail-modal{
+      background:var(--color-surface);
+      border-radius:var(--radius-xl);
+      width:min(980px,97vw);
+      max-height:min(96dvh, 900px);
+      min-height:min(82dvh, 740px);
+      display:flex;flex-direction:column;
+      box-shadow:var(--shadow-md);
+      overflow:hidden;
+      border:1px solid var(--color-border);
+      transform:scale(.96) translateY(8px);
+      transition:transform 220ms cubic-bezier(.16,1,.3,1);
+    }
+    .modal-overlay.open .detail-modal{transform:scale(1) translateY(0)}
+
+    /* Header */
+    .dm-header{flex-shrink:0;background:color-mix(in oklab,var(--dm-color,var(--color-primary)) 8%,var(--color-surface))}
+    .dm-header-bar{height:4px;background:var(--dm-color,var(--color-primary))}
+    .dm-header-row{display:flex;align-items:center;gap:var(--space-3);padding:var(--space-3) var(--space-5)}
+    .dm-group-badge{display:inline-flex;align-items:center;padding:.3rem .75rem;border-radius:999px;font-size:var(--text-xs);font-weight:700;white-space:nowrap;border:1px solid color-mix(in oklab,var(--dm-color,var(--color-primary)) 40%,transparent);background:color-mix(in oklab,var(--dm-color,var(--color-primary)) 12%,var(--color-surface));color:var(--dm-color,var(--color-primary))}
+    .dm-titles{flex:1;min-width:0}
+    .dm-muscle{font-size:var(--text-base);font-weight:700;color:var(--dm-color,var(--color-text))}
+    .dm-sub{font-size:var(--text-xs);color:var(--color-text-muted);margin-top:.1rem}
+    .dm-close{width:36px;height:36px;border-radius:50%;border:1px solid var(--color-border);background:var(--color-surface-2);color:var(--color-text-muted);display:grid;place-items:center;cursor:pointer;flex-shrink:0;transition:all var(--transition)}
+    .dm-close:hover{background:var(--color-surface-offset);color:var(--color-text)}
+    .dm-close svg{width:15px;height:15px}
+
+    /* Body : 3 colonnes */
+    .dm-body{
+      display:grid;
+      grid-template-columns:23fr 52fr 25fr;
+      flex:1;overflow:hidden;
+      min-height:0;
+    }
+
+    /* ── Colonne texte (gauche) ── */
+    .dm-col-text{
+      border-right:1px solid var(--color-border);
+      overflow-y:auto;padding:var(--space-4);
+      display:flex;flex-direction:column;gap:var(--space-3);
+      background:color-mix(in oklab,var(--dm-color,var(--color-primary)) 3%,var(--color-surface));
+    }
+    .dm-ref{font-size:var(--text-xs);color:var(--dm-color,var(--color-primary));font-weight:700;text-transform:uppercase;letter-spacing:.06em}
+    .dm-faisceau-name{font-size:var(--text-sm);font-weight:700;color:var(--color-text);line-height:1.3}
+    .dm-latin{font-size:var(--text-xs);color:var(--color-text-muted);font-style:italic}
+    .dm-section{display:flex;flex-direction:column;gap:var(--space-1)}
+    .dm-section-title{font-size:.65rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--dm-color,var(--color-primary));padding-bottom:.2rem;border-bottom:1px solid color-mix(in oklab,var(--dm-color,var(--color-primary)) 25%,var(--color-border))}
+    .dm-section-text{font-size:var(--text-xs);color:var(--color-text);line-height:1.55;white-space:pre-wrap}
+    .dm-section-empty{font-size:var(--text-xs);color:var(--color-text-faint);font-style:italic}
+    .dm-textarea{width:100%;padding:.4rem .5rem;border-radius:var(--radius-sm);border:1px solid var(--color-border);background:var(--color-surface);color:var(--color-text);font-size:var(--text-xs);line-height:1.5;resize:vertical;min-height:56px;outline:none;font-family:inherit;transition:border-color var(--transition)}
+    .dm-textarea:focus{border-color:var(--dm-color,var(--color-primary))}
+    .dm-loc-row{display:grid;grid-template-columns:1fr 1fr;gap:var(--space-2);margin-top:var(--space-1)}
+    .dm-loc-img{width:100%;aspect-ratio:1;object-fit:contain;border-radius:var(--radius-md);background:var(--color-surface-offset);border:1px solid var(--color-border);padding:4px}
+    .dm-loc-ph{width:100%;aspect-ratio:1;border-radius:var(--radius-md);background:var(--color-surface-offset);border:1px dashed var(--color-border);display:grid;place-items:center;color:var(--color-text-faint);font-size:.6rem;text-align:center}
+
+    /* ── Colonne personnage (centre) ── */
+    .dm-col-fig{
+      border-right:1px solid var(--color-border);
+      display:flex;flex-direction:column;align-items:center;justify-content:center;
+      padding:var(--space-4);overflow:hidden;position:relative;
+      background:var(--color-surface);
+    }
+    .dm-fig-img{
+      max-width:100%;max-height:100%;object-fit:contain;
+      border-radius:var(--radius-md);display:block;
+    }
+    .dm-fig-ph{
+      display:flex;flex-direction:column;align-items:center;justify-content:center;
+      gap:var(--space-3);color:var(--color-text-faint);text-align:center;
+      opacity:.4;
+    }
+    .dm-fig-ph svg{width:64px;height:64px}
+    .dm-fig-ph span{font-size:var(--text-xs)}
+    .dm-fig-edit-btn{
+      position:absolute;bottom:var(--space-3);right:var(--space-3);
+      display:none;
+    }
+
+    /* ── Colonne encarts (droite) ── */
+    .dm-col-panels{
+      display:flex;flex-direction:column;
+      overflow-y:auto;background:var(--color-surface);
+    }
+    .dm-panel{
+      display:flex;flex-direction:column;
+      border-bottom:1px solid var(--color-border);
+      flex:1;min-height:0;
+    }
+    .dm-panel:last-child{border-bottom:none;flex:1.15}
+    .dm-panel-title{
+      font-size:.62rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase;
+      color:var(--dm-color,var(--color-primary));padding:var(--space-2) var(--space-3);
+      border-bottom:1px solid color-mix(in oklab,var(--dm-color,var(--color-primary)) 15%,var(--color-border));
+      background:color-mix(in oklab,var(--dm-color,var(--color-primary)) 6%,var(--color-surface));
+      flex-shrink:0;display:flex;align-items:center;justify-content:space-between;
+    }
+    .dm-panel-body{
+      flex:1;display:flex;align-items:center;justify-content:center;
+      padding:var(--space-3);overflow:hidden;position:relative;
+    }
+    .dm-panel-img{max-width:100%;max-height:100%;object-fit:contain;border-radius:var(--radius-sm)}
+    .dm-panel-ph{
+      width:100%;height:100%;display:flex;align-items:center;justify-content:center;
+      color:var(--color-text-faint);font-size:var(--text-xs);opacity:.5;font-style:italic;
+    }
+    /* Bouton pick image dans les panels (mode edit) */
+    .dm-panel-edit{position:absolute;bottom:var(--space-2);right:var(--space-2)}
+    .dm-img-pick-btn{
+      display:inline-flex;align-items:center;gap:.3rem;
+      padding:.2rem .55rem;border-radius:var(--radius-sm);
+      border:1px solid var(--color-border);background:var(--color-surface);
+      color:var(--color-text-muted);font-size:.65rem;font-weight:600;cursor:pointer;
+      transition:all var(--transition);
+    }
+    .dm-img-pick-btn:hover{border-color:var(--dm-color,var(--color-primary));color:var(--dm-color,var(--color-primary))}
+    .dm-img-pick-btn svg{width:11px;height:11px}
+
+    /* Legende faisceaux */
+    .dm-faisceau-legend{padding:0 var(--space-3) var(--space-2);display:flex;flex-direction:column;gap:2px;flex-shrink:0}
+    .dm-legend-item{display:flex;align-items:center;gap:.4rem;font-size:.65rem;color:var(--color-text-muted)}
+    .dm-legend-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+
+    #lightboxModal{z-index:200}
+    .dm-panel-img{cursor:zoom-in;transition:opacity var(--transition)}
+    .dm-panel-img:hover{opacity:.82}
+    .dm-loc-img{cursor:zoom-in;transition:opacity var(--transition)}
+    .dm-loc-img:hover{opacity:.82}
+    .mc-info-btn{
+      width:26px;height:26px;border-radius:50%;border:1px solid var(--color-border);
+      background:var(--color-surface-2);cursor:pointer;display:grid;place-items:center;
+      color:var(--color-text-faint);transition:all var(--transition);flex-shrink:0;padding:0;
+    }
+    .mc-info-btn:hover{background:color-mix(in oklab,var(--card-group-color,var(--color-primary)) 12%,var(--color-surface));color:var(--card-group-color,var(--color-primary));border-color:var(--card-group-color,var(--color-primary))}
+    .mc-info-btn svg{width:13px;height:13px}
+    .info-btn{
+      width:30px;height:30px;border-radius:50%;border:1px solid transparent;
+      background:none;cursor:pointer;display:grid;place-items:center;
+      color:var(--color-text-faint);transition:all var(--transition);margin:auto;
+    }
+    .info-btn:hover{background:color-mix(in oklab,var(--dm-color,var(--color-primary)) 12%,var(--color-surface));color:var(--dm-color,var(--color-primary));border-color:color-mix(in oklab,var(--dm-color,var(--color-primary)) 30%,transparent)}
+    .info-btn svg{width:16px;height:16px}
+    /* Colonne info : hauteur fixe comme les images */
+    td.cell-info{text-align:center;vertical-align:middle;height:96px}
+
+    /* ── Bouton édition image anatomie ── */
+    .anatomy-edit-btn{
+      position:absolute;bottom:var(--space-2);right:var(--space-2);
+      display:inline-flex;align-items:center;gap:.35rem;
+      padding:.3rem .65rem;border-radius:var(--radius-md);
+      border:1px solid rgba(255,255,255,.4);
+      background:rgba(0,0,0,.5);backdrop-filter:blur(6px);
+      color:#fff;font-size:.68rem;font-weight:700;cursor:pointer;
+      transition:all var(--transition);
+    }
+    .anatomy-edit-btn:hover{background:rgba(0,0,0,.75)}
+    .anatomy-edit-btn svg{width:12px;height:12px}
+
+    /* ── Modale images groupes ── */
+    .gi-row{
+      display:flex;align-items:center;gap:var(--space-3);
+      padding:var(--space-3);border-radius:var(--radius-lg);
+      border:1px solid var(--color-border);background:var(--color-surface-2);
+    }
+    .gi-row.is-tous{
+      border-color:var(--color-primary)55;
+      background:color-mix(in oklab,var(--color-primary) 4%,var(--color-surface));
+    }
+    .gi-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+    .gi-preview{
+      width:52px;height:52px;border-radius:var(--radius-md);
+      object-fit:contain;background:var(--color-surface-offset);
+      border:1px solid var(--color-border);padding:3px;flex-shrink:0;
+    }
+    .gi-ph{
+      width:52px;height:52px;border-radius:var(--radius-md);flex-shrink:0;
+      display:grid;place-items:center;font-size:.6rem;text-align:center;
+      background:var(--color-surface-offset);border:1px dashed var(--color-border);
+      color:var(--color-text-faint);
+    }
+    .gi-body{flex:1;display:grid;gap:var(--space-2)}
+    .gi-name{font-size:var(--text-xs);font-weight:700;color:var(--color-text)}
+    .gi-input-row{display:flex;align-items:center;gap:var(--space-2)}
+    .gi-input{flex:1;padding:.4rem .6rem;border-radius:var(--radius-md);border:1px solid var(--color-border);background:var(--color-surface);color:var(--color-text);font-size:var(--text-xs);outline:none;transition:border-color var(--transition)}
+    .gi-input:focus{border-color:var(--color-primary)}
+    .gi-pick{display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;border-radius:var(--radius-sm);border:1px solid var(--color-border);background:var(--color-surface-2);cursor:pointer;color:var(--color-text-muted);transition:all var(--transition);flex-shrink:0}
+    .gi-pick:hover{background:var(--color-surface-offset)}
+    .gi-pick svg{width:13px;height:13px}
+    .gi-clear{width:26px;height:26px;border-radius:var(--radius-sm);border:none;background:none;cursor:pointer;color:var(--color-text-faint);display:grid;place-items:center;transition:color var(--transition);padding:0}
+    .gi-clear:hover{color:var(--color-error)}
+    .gi-clear svg{width:13px;height:13px}
+
+    /* ── GALERIE CARTES ── */
+    .card-grid{
+      display:grid;
+      grid-template-columns:repeat(auto-fill,minmax(210px,1fr));
+      gap:var(--space-4);
+      padding:var(--space-4);
+    }
+    .muscle-card{
+      background:var(--color-surface);
+      border:1px solid var(--color-border);
+      border-radius:var(--radius-xl);
+      overflow:hidden;
+      display:flex;flex-direction:column;
+      transition:all var(--transition);
+      box-shadow:var(--shadow-sm);
+      cursor:pointer;
+      position:relative;
+    }
+    .muscle-card:hover{
+      transform:translateY(-3px);
+      box-shadow:0 8px 28px rgba(40,37,29,.13);
+      border-color:var(--card-group-color,var(--color-border));
+    }
+    .muscle-card.selected{
+      border-color:var(--card-group-color,var(--color-primary));
+      box-shadow:0 0 0 2px var(--card-group-color,var(--color-primary));
+    }
+    /* Barre couleur groupe en haut */
+    .muscle-card-bar{
+      height:4px;
+      background:var(--card-group-color,var(--color-border));
+      flex-shrink:0;
+    }
+    /* Zone image */
+    .muscle-card-img{
+      width:100%;aspect-ratio:4/3;
+      display:grid;place-items:center;
+      background:var(--color-surface-offset);
+      overflow:hidden;position:relative;
+    }
+    .muscle-card-img img{
+      width:100%;height:100%;object-fit:contain;
+      padding:.75rem;
+      transition:transform var(--transition);
+    }
+    .muscle-card:hover .muscle-card-img img{transform:scale(1.05)}
+    .muscle-card-img-placeholder{
+      display:flex;flex-direction:column;align-items:center;justify-content:center;
+      gap:var(--space-2);width:100%;height:100%;
+      color:var(--card-group-color,var(--color-text-faint));
+      opacity:.4;
+    }
+    .muscle-card-img-placeholder svg{width:36px;height:36px}
+    .muscle-card-img-placeholder span{font-size:.65rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase}
+    /* Badge groupe flottant sur l'image */
+    .muscle-card-group-badge{
+      position:absolute;top:var(--space-2);left:var(--space-2);
+      font-size:.62rem;font-weight:700;letter-spacing:.04em;
+      padding:.2rem .55rem;border-radius:999px;
+      background:color-mix(in oklab,var(--card-group-color,#888) 18%,var(--color-surface));
+      color:var(--card-group-color,var(--color-text-muted));
+      border:1px solid color-mix(in oklab,var(--card-group-color,#888) 35%,transparent);
+      backdrop-filter:blur(4px);
+    }
+    /* Corps de la carte */
+    .muscle-card-body{
+      padding:var(--space-3) var(--space-3) var(--space-2);
+      display:flex;flex-direction:column;gap:var(--space-1);flex:1;
+    }
+    .muscle-card-name{
+      font-weight:700;font-size:var(--text-sm);
+      line-height:1.25;color:var(--color-text);
+    }
+    .muscle-card-sub{
+      font-size:var(--text-xs);color:var(--color-text-muted);
+      white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+    }
+    .muscle-card-loc{
+      font-size:.68rem;color:var(--color-text-faint);
+      display:flex;align-items:center;gap:.3rem;
+    }
+    .muscle-card-loc svg{width:10px;height:10px;flex-shrink:0}
+    /* Pied de carte */
+    .muscle-card-footer{
+      display:flex;align-items:center;justify-content:space-between;
+      padding:var(--space-2) var(--space-3);
+      border-top:1px solid var(--color-border);
+      margin-top:auto;
+    }
+    .muscle-card-type{
+      font-size:.62rem;font-weight:600;color:var(--color-text-faint);
+      background:var(--color-surface-offset);
+      padding:.15rem .45rem;border-radius:999px;
+    }
+    /* Bouton toggle galerie/tableau */
+    .btn-layout-active{
+      background:var(--color-primary-highlight) !important;
+      color:var(--color-primary) !important;
+      border-color:var(--color-primary) !important;
+    }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width:1200px){
+      .app{grid-template-columns:1fr;grid-template-rows:auto auto 1fr}
+      .sidebar{grid-row:auto;border-right:none;border-bottom:1px solid var(--color-border);max-height:280px}
+      .sidebar-inner{display:flex;gap:var(--space-3);flex-wrap:wrap;padding:var(--space-3)}
+      .group-nav{flex-direction:row;flex-wrap:wrap}
+      .group-card,.group-card-all{flex-direction:row;min-width:0}
+      .stats{grid-template-columns:repeat(2,1fr)}
+      .table-wrap{max-height:none}
+    }
+    @media (max-width:700px){
+      .stats{grid-template-columns:1fr}
+      .header,.main{padding-inline:var(--space-4)}
+      .toolbar{width:100%}
+      .toolbar > *{width:100%}
+      .btn{width:100%}
+    }
+  </style>
+</head>
+<body>
+<div class="app">
+
+  <!-- ═══════════════════════════════════════════════════════ SIDEBAR -->
+  <aside class="sidebar">
+    <div class="brand">
+      <button class="logo" id="homeBtn" title="Menu de navigation" aria-label="Menu principal" style="background:none;border:none;cursor:pointer;padding:0">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M3 9.5L12 3l9 6.5V20a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1z"/>
+          <polyline points="9 21 9 12 15 12 15 21"/>
+        </svg>
+      </button>
+      <div>
+        <div class="brand-text">Corps</div>
+        <div class="brand-sub">Catalogue musculaire</div>
+      </div>
+    </div>
+
+    <div class="sidebar-anatomy-wrap">
+      <div class="sidebar-anatomy" id="anatomyWrap">
+        <img src="./img/Anatomie-Full-Color.png" alt="Anatomie musculaire" id="anatomyImg">
+        <button class="anatomy-edit-btn" id="anatomyEditBtn" style="display:none" title="Modifier les images des groupes">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4z"/></svg>
+          Modifier
+        </button>
+      </div>
+    </div>
+
+    <div class="sidebar-inner">
+      <div class="sidebar-section">
+        <div class="sidebar-label">Groupes musculaires</div>
+        <div class="group-nav" id="groupNav"></div>
+      </div>
+    </div>
+
+    <div class="sidebar-footer" id="sidebarFooter">
+      <div class="sidebar-footer-stat">
+        <span>Lignes totales</span>
+        <strong id="sfTotal">0</strong>
+      </div>
+      <div class="sidebar-footer-stat">
+        <span>Groupes actifs</span>
+        <strong id="sfGroups">0</strong>
+      </div>
+      <div class="sidebar-footer-stat">
+        <span>Autosave</span>
+        <strong id="statAutosave">Actif</strong>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ═══════════════════════════════════════════════════════ HEADER -->
+  <header class="header">
+    <div>
+      <div class="title">Corps</div>
+      <div class="muted">Catalogue anatomique · Groupes musculaires · Récupération</div>
+    </div>
+    <div class="toolbar">
+      <div style="display:flex;align-items:center;gap:var(--space-3);flex:1;min-width:0">
+        <div class="search" style="flex:1;min-width:0">
+          <span>🔎</span>
+          <input id="searchInput" placeholder="Rechercher muscle, subdivision..." />
+        </div>
+      </div>
+
+      <!-- Ajouter une entrée -->
+      <button class="btn btn-primary icon-btn" id="openAddModalBtn" title="Ajouter une entrée" aria-label="Ajouter une entrée">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      </button>
+
+      <!-- Supprimer sélection -->
+      <button class="btn icon-btn" id="deleteSelectedBtn" title="Supprimer la ligne sélectionnée" aria-label="Supprimer" style="color:#a12c7b;border-color:#a12c7b44">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
+          <path d="M10 11v6"/><path d="M14 11v6"/>
+          <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/>
+        </svg>
+      </button>
+
+      <!-- Import XML -->
+      <input id="xmlFile" type="file" accept=".xml,text/xml,application/xml" hidden />
+      <label class="btn icon-btn" for="xmlFile" title="Importer XML" aria-label="Importer XML">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+          <polyline points="17 8 12 3 7 8"/>
+          <line x1="12" y1="3" x2="12" y2="15"/>
+        </svg>
+      </label>
+
+      <!-- Recharger données intégrées -->
+      <button class="btn icon-btn" id="loadEmbeddedBtn" title="Recharger les données intégrées" aria-label="Recharger">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/>
+          <path d="M3.51 9a9 9 0 0 1 14.13-3.36L23 10"/>
+          <path d="M20.49 15a9 9 0 0 1-14.13 3.36L1 14"/>
+        </svg>
+      </button>
+
+      <!-- Export XML -->
+      <button class="btn icon-btn" id="saveBtn" title="Exporter XML" aria-label="Exporter XML">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
+          <polyline points="17 21 17 13 7 13 7 21"/>
+          <polyline points="7 3 7 8 15 8"/>
+        </svg>
+      </button>
+
+      <!-- Toggle Tableau / Galerie -->
+      <button class="btn icon-btn" id="toggleLayoutBtn" title="Mode Galerie" aria-label="Mode Galerie">
+        <svg id="layoutIconGrid" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/>
+          <rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>
+        </svg>
+        <svg id="layoutIconTable" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none">
+          <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>
+        </svg>
+      </button>
+
+      <!-- Mode lecture/édition -->
+      <button class="btn icon-btn" id="toggleViewBtn" title="Mode Édition" aria-label="Mode Édition">
+        <svg id="viewIconRead" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8S1 12 1 12z"/><circle cx="12" cy="12" r="3"/>
+        </svg>
+        <svg id="viewIconEdit" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:none">
+          <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+          <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+        </svg>
+      </button>
+
+      <!-- Thème -->
+      <button class="btn icon-btn" id="toggleThemeBtn" title="Basculer thème" aria-label="Basculer thème">
+        <svg id="themeIconDark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+        </svg>
+        <svg id="themeIconLight" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:none">
+          <circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/>
+          <line x1="12" y1="21" x2="12" y2="23"/>
+          <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/>
+          <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
+          <line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/>
+          <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/>
+          <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+        </svg>
+      </button>
+    </div>
+  </header>
+
+  <!-- ═══════════════════════════════════════════════════════ MAIN -->
+  <main class="main">
+    <section class="stats">
+      <div class="panel stat"><span>Lignes visibles</span><strong id="statRows">0</strong></div>
+      <div class="panel stat"><span>Groupes</span><strong id="statGroups">0</strong></div>
+      <div class="panel stat"><span>Muscles</span><strong id="statMuscles">0</strong></div>
+      <div class="panel stat"><span>Filtre actif</span><strong id="statFilter">Tous</strong></div>
+    </section>
+
+    <section style="margin-top:var(--space-6)" class="panel">
+      <div style="padding:var(--space-4) var(--space-4) 0">
+        <div class="section-head">
+          <div>
+            <div class="topline">
+              <div style="font-weight:700" id="sectionTitle">Tableau éditable</div>
+              <span class="pill" id="sortState">Tri : aucun</span>
+            </div>
+            <div class="status" id="statusText">Prêt.</div>
+          </div>
+        </div>
+      </div>
+      <div class="table-wrap">
+        <table id="dataTable">
+          <thead>
+            <tr>
+              <th style="width:46px">#</th>
+              <th><button type="button" data-sort="groupe_musculaire">Groupe <span>↕</span></button></th>
+              <th>Img groupe</th>
+              <th><button type="button" data-sort="muscle_cible">Muscle <span>↕</span></button></th>
+              <th>Img muscle</th>
+              <th><button type="button" data-sort="type_subdivision">Type subdiv. <span>↕</span></button></th>
+              <th><button type="button" data-sort="subdivision_anatomique">Subdivision <span>↕</span></button></th>
+              <th><button type="button" data-sort="localisation_fonctionnelle">Localisation <span>↕</span></button></th>
+              <th><button type="button" data-sort="jour_recup">Récup. <span>↕</span></button></th>
+              <th style="width:48px;text-align:center">Info</th>
+            </tr>
+          </thead>
+          <tbody id="tableBody"><tr><td colspan="9" class="empty">Aucune donnée chargée.</td></tr></tbody>
+        </table>
+      </div>
+      <!-- Galerie cartes -->
+      <div class="card-grid" id="cardGrid" style="display:none"></div>
+    </section>
+  </main>
+</div>
+
+<!-- ═══════════════════════════════════ XML EMBARQUÉ -->
+<script id="embeddedXml" type="application/xml"><?xml version="1.0" encoding="UTF-8"?>
+<muscles>
+  <entry><groupe_musculaire>Pectoraux</groupe_musculaire><muscle_cible>Grand pectoral</muscle_cible><type_subdivision>Faisceau</type_subdivision><subdivision_anatomique>Claviculaire</subdivision_anatomique><localisation_fonctionnelle>Supérieur</localisation_fonctionnelle><image_groupe></image_groupe><image_muscle></image_muscle><jour_recup>72h</jour_recup></entry>
+  <entry><groupe_musculaire>Pectoraux</groupe_musculaire><muscle_cible>Grand pectoral</muscle_cible><type_subdivision>Faisceau</type_subdivision><subdivision_anatomique>Sterno-costal</subdivision_anatomique><localisation_fonctionnelle>Moyen</localisation_fonctionnelle><image_groupe></image_groupe><image_muscle></image_muscle><jour_recup>72h</jour_recup></entry>
+  <entry><groupe_musculaire>Pectoraux</groupe_musculaire><muscle_cible>Grand pectoral</muscle_cible><type_subdivision>Faisceau</type_subdivision><subdivision_anatomique>Abdominal</subdivision_anatomique><localisation_fonctionnelle>Inférieur</localisation_fonctionnelle><image_groupe></image_groupe><image_muscle></image_muscle><jour_recup>72h</jour_recup></entry>
+  <entry><groupe_musculaire>Pectoraux</groupe_musculaire><muscle_cible>Petit pectoral</muscle_cible><type_subdivision>Aucune</type_subdivision><subdivision_anatomique>-</subdivision_anatomique><localisation_fonctionnelle>Profond</localisation_fonctionnelle><image_groupe></image_groupe><image_muscle></image_muscle><jour_recup>72h</jour_recup></entry>
+  <entry><groupe_musculaire>Épaules</groupe_musculaire><muscle_cible>Deltoïde</muscle_cible><type_subdivision>Faisceau</type_subdivision><subdivision_anatomique>Antérieur</subdivision_anatomique><localisation_fonctionnelle>Avant</localisation_fonctionnelle><image_groupe></image_groupe><image_muscle></image_muscle><jour_recup>48h</jour_recup></entry>
+  <entry><groupe_musculaire>Épaules</groupe_musculaire><muscle_cible>Deltoïde</muscle_cible><type_subdivision>Faisceau</type_subdivision><subdivision_anatomique>Moyen</subdivision_anatomique><localisation_fonctionnelle>Latéral</localisation_fonctionnelle><image_groupe></image_groupe><image_muscle></image_muscle><jour_recup>48h</jour_recup></entry>
+  <entry><groupe_musculaire>Épaules</groupe_musculaire><muscle_cible>Deltoïde</muscle_cible><type_subdivision>Faisceau</type_subdivision><subdivision_anatomique>Postérieur</subdivision_anatomique><localisation_fonctionnelle>Arrière</localisation_fonctionnelle><image_groupe></image_groupe><image_muscle></image_muscle><jour_recup>48h</jour_recup></entry>
+  <entry><groupe_musculaire>Dos</groupe_musculaire><muscle_cible>Trapèze</muscle_cible><type_subdivision>Faisceau</type_subdivision><subdivision_anatomique>Supérieur</subdivision_anatomique><localisation_fonctionnelle>Haut</localisation_fonctionnelle><image_groupe></image_groupe><image_muscle></image_muscle><jour_recup>48h</jour_recup></entry>
+  <entry><groupe_musculaire>Dos</groupe_musculaire><muscle_cible>Trapèze</muscle_cible><type_subdivision>Faisceau</type_subdivision><subdivision_anatomique>Moyen</subdivision_anatomique><localisation_fonctionnelle>Milieu</localisation_fonctionnelle><image_groupe></image_groupe><image_muscle></image_muscle><jour_recup>48h</jour_recup></entry>
+  <entry><groupe_musculaire>Dos</groupe_musculaire><muscle_cible>Trapèze</muscle_cible><type_subdivision>Faisceau</type_subdivision><subdivision_anatomique>Inférieur</subdivision_anatomique><localisation_fonctionnelle>Bas</localisation_fonctionnelle><image_groupe></image_groupe><image_muscle></image_muscle><jour_recup>48h</jour_recup></entry>
+  <entry><groupe_musculaire>Dos</groupe_musculaire><muscle_cible>Grand dorsal</muscle_cible><type_subdivision>Aucune</type_subdivision><subdivision_anatomique>-</subdivision_anatomique><localisation_fonctionnelle>Dos entier</localisation_fonctionnelle><image_groupe></image_groupe><image_muscle></image_muscle><jour_recup>72h</jour_recup></entry>
+  <entry><groupe_musculaire>Dos</groupe_musculaire><muscle_cible>Grand rond</muscle_cible><type_subdivision>Aucune</type_subdivision><subdivision_anatomique>-</subdivision_anatomique><localisation_fonctionnelle>Bas / arrière épaule</localisation_fonctionnelle><image_groupe></image_groupe><image_muscle></image_muscle><jour_recup>48h</jour_recup></entry>
+  <entry><groupe_musculaire>Dos</groupe_musculaire><muscle_cible>Petit rond</muscle_cible><type_subdivision>Aucune</type_subdivision><subdivision_anatomique>-</subdivision_anatomique><localisation_fonctionnelle>Haut / arrière épaule</localisation_fonctionnelle><image_groupe></image_groupe><image_muscle></image_muscle><jour_recup>48h</jour_recup></entry>
+  <entry><groupe_musculaire>Dos</groupe_musculaire><muscle_cible>Rhomboïdes</muscle_cible><type_subdivision>Aucune</type_subdivision><subdivision_anatomique>-</subdivision_anatomique><localisation_fonctionnelle>Haut du dos</localisation_fonctionnelle><image_groupe></image_groupe><image_muscle></image_muscle><jour_recup>48h</jour_recup></entry>
+  <entry><groupe_musculaire>Dos</groupe_musculaire><muscle_cible>Lombaires (érecteurs du rachis)</muscle_cible><type_subdivision>Faisceau</type_subdivision><subdivision_anatomique>Ilio-costal</subdivision_anatomique><localisation_fonctionnelle>Latéral</localisation_fonctionnelle><image_groupe></image_groupe><image_muscle></image_muscle><jour_recup>72h</jour_recup></entry>
+  <entry><groupe_musculaire>Dos</groupe_musculaire><muscle_cible>Lombaires (érecteurs du rachis)</muscle_cible><type_subdivision>Faisceau</type_subdivision><subdivision_anatomique>Longissimus</subdivision_anatomique><localisation_fonctionnelle>Central</localisation_fonctionnelle><image_groupe></image_groupe><image_muscle></image_muscle><jour_recup>72h</jour_recup></entry>
+  <entry><groupe_musculaire>Dos</groupe_musculaire><muscle_cible>Lombaires (érecteurs du rachis)</muscle_cible><type_subdivision>Faisceau</type_subdivision><subdivision_anatomique>Épineux</subdivision_anatomique><localisation_fonctionnelle>Médial</localisation_fonctionnelle><image_groupe></image_groupe><image_muscle></image_muscle><jour_recup>72h</jour_recup></entry>
+  <entry><groupe_musculaire>Bras</groupe_musculaire><muscle_cible>Biceps brachial</muscle_cible><type_subdivision>Chef</type_subdivision><subdivision_anatomique>Long</subdivision_anatomique><localisation_fonctionnelle>Extérieur</localisation_fonctionnelle><image_groupe></image_groupe><image_muscle></image_muscle><jour_recup>48h</jour_recup></entry>
+  <entry><groupe_musculaire>Bras</groupe_musculaire><muscle_cible>Biceps brachial</muscle_cible><type_subdivision>Chef</type_subdivision><subdivision_anatomique>Court</subdivision_anatomique><localisation_fonctionnelle>Intérieur</localisation_fonctionnelle><image_groupe></image_groupe><image_muscle></image_muscle><jour_recup>48h</jour_recup></entry>
+  <entry><groupe_musculaire>Bras</groupe_musculaire><muscle_cible>Triceps brachial</muscle_cible><type_subdivision>Chef</type_subdivision><subdivision_anatomique>Long</subdivision_anatomique><localisation_fonctionnelle>Arrière</localisation_fonctionnelle><image_groupe></image_groupe><image_muscle></image_muscle><jour_recup>48h</jour_recup></entry>
+  <entry><groupe_musculaire>Bras</groupe_musculaire><muscle_cible>Triceps brachial</muscle_cible><type_subdivision>Chef</type_subdivision><subdivision_anatomique>Latéral</subdivision_anatomique><localisation_fonctionnelle>Extérieur</localisation_fonctionnelle><image_groupe></image_groupe><image_muscle></image_muscle><jour_recup>48h</jour_recup></entry>
+  <entry><groupe_musculaire>Bras</groupe_musculaire><muscle_cible>Triceps brachial</muscle_cible><type_subdivision>Chef</type_subdivision><subdivision_anatomique>Médial</subdivision_anatomique><localisation_fonctionnelle>Profond</localisation_fonctionnelle><image_groupe></image_groupe><image_muscle></image_muscle><jour_recup>48h</jour_recup></entry>
+  <entry><groupe_musculaire>Bras</groupe_musculaire><muscle_cible>Brachial antérieur</muscle_cible><type_subdivision>Aucune</type_subdivision><subdivision_anatomique>-</subdivision_anatomique><localisation_fonctionnelle>Profond</localisation_fonctionnelle><image_groupe></image_groupe><image_muscle></image_muscle><jour_recup>48h</jour_recup></entry>
+  <entry><groupe_musculaire>Avant-bras</groupe_musculaire><muscle_cible>Fléchisseurs</muscle_cible><type_subdivision>Faisceau</type_subdivision><subdivision_anatomique>Groupe fléchisseur</subdivision_anatomique><localisation_fonctionnelle>Avant</localisation_fonctionnelle><image_groupe></image_groupe><image_muscle></image_muscle><jour_recup>24h</jour_recup></entry>
+  <entry><groupe_musculaire>Avant-bras</groupe_musculaire><muscle_cible>Extenseurs</muscle_cible><type_subdivision>Faisceau</type_subdivision><subdivision_anatomique>Groupe extenseur</subdivision_anatomique><localisation_fonctionnelle>Arrière</localisation_fonctionnelle><image_groupe></image_groupe><image_muscle></image_muscle><jour_recup>24h</jour_recup></entry>
+  <entry><groupe_musculaire>Avant-bras</groupe_musculaire><muscle_cible>Brachioradial</muscle_cible><type_subdivision>Aucune</type_subdivision><subdivision_anatomique>-</subdivision_anatomique><localisation_fonctionnelle>Latéral</localisation_fonctionnelle><image_groupe></image_groupe><image_muscle></image_muscle><jour_recup>24h</jour_recup></entry>
+  <entry><groupe_musculaire>Abdominaux</groupe_musculaire><muscle_cible>Grand droit</muscle_cible><type_subdivision>Faisceau</type_subdivision><subdivision_anatomique>Faisceaux verticaux</subdivision_anatomique><localisation_fonctionnelle>Centre</localisation_fonctionnelle><image_groupe></image_groupe><image_muscle></image_muscle><jour_recup>48h</jour_recup></entry>
+  <entry><groupe_musculaire>Abdominaux</groupe_musculaire><muscle_cible>Oblique externe</muscle_cible><type_subdivision>Faisceau</type_subdivision><subdivision_anatomique>Faisceaux obliques</subdivision_anatomique><localisation_fonctionnelle>Bas / avant</localisation_fonctionnelle><image_groupe></image_groupe><image_muscle></image_muscle><jour_recup>48h</jour_recup></entry>
+  <entry><groupe_musculaire>Abdominaux</groupe_musculaire><muscle_cible>Oblique interne</muscle_cible><type_subdivision>Faisceau</type_subdivision><subdivision_anatomique>Faisceaux obliques inverses</subdivision_anatomique><localisation_fonctionnelle>Profond</localisation_fonctionnelle><image_groupe></image_groupe><image_muscle></image_muscle><jour_recup>48h</jour_recup></entry>
+  <entry><groupe_musculaire>Abdominaux</groupe_musculaire><muscle_cible>Transverse</muscle_cible><type_subdivision>Faisceau</type_subdivision><subdivision_anatomique>Faisceaux horizontaux</subdivision_anatomique><localisation_fonctionnelle>Profond</localisation_fonctionnelle><image_groupe></image_groupe><image_muscle></image_muscle><jour_recup>48h</jour_recup></entry>
+  <entry><groupe_musculaire>Fessiers</groupe_musculaire><muscle_cible>Grand fessier</muscle_cible><type_subdivision>Faisceau</type_subdivision><subdivision_anatomique>Supérieur</subdivision_anatomique><localisation_fonctionnelle>Haut</localisation_fonctionnelle><image_groupe></image_groupe><image_muscle></image_muscle><jour_recup>72h</jour_recup></entry>
+  <entry><groupe_musculaire>Fessiers</groupe_musculaire><muscle_cible>Grand fessier</muscle_cible><type_subdivision>Faisceau</type_subdivision><subdivision_anatomique>Inférieur</subdivision_anatomique><localisation_fonctionnelle>Bas</localisation_fonctionnelle><image_groupe></image_groupe><image_muscle></image_muscle><jour_recup>72h</jour_recup></entry>
+  <entry><groupe_musculaire>Fessiers</groupe_musculaire><muscle_cible>Moyen fessier</muscle_cible><type_subdivision>Aucune</type_subdivision><subdivision_anatomique>-</subdivision_anatomique><localisation_fonctionnelle>Latéral</localisation_fonctionnelle><image_groupe></image_groupe><image_muscle></image_muscle><jour_recup>72h</jour_recup></entry>
+  <entry><groupe_musculaire>Fessiers</groupe_musculaire><muscle_cible>Petit fessier</muscle_cible><type_subdivision>Aucune</type_subdivision><subdivision_anatomique>-</subdivision_anatomique><localisation_fonctionnelle>Profond</localisation_fonctionnelle><image_groupe></image_groupe><image_muscle></image_muscle><jour_recup>72h</jour_recup></entry>
+  <entry><groupe_musculaire>Cuisses (avant)</groupe_musculaire><muscle_cible>Quadriceps</muscle_cible><type_subdivision>Chef</type_subdivision><subdivision_anatomique>Droit fémoral</subdivision_anatomique><localisation_fonctionnelle>Central</localisation_fonctionnelle><image_groupe></image_groupe><image_muscle></image_muscle><jour_recup>72h</jour_recup></entry>
+  <entry><groupe_musculaire>Cuisses (avant)</groupe_musculaire><muscle_cible>Quadriceps</muscle_cible><type_subdivision>Chef</type_subdivision><subdivision_anatomique>Vaste latéral</subdivision_anatomique><localisation_fonctionnelle>Extérieur</localisation_fonctionnelle><image_groupe></image_groupe><image_muscle></image_muscle><jour_recup>72h</jour_recup></entry>
+  <entry><groupe_musculaire>Cuisses (avant)</groupe_musculaire><muscle_cible>Quadriceps</muscle_cible><type_subdivision>Chef</type_subdivision><subdivision_anatomique>Vaste médial</subdivision_anatomique><localisation_fonctionnelle>Intérieur</localisation_fonctionnelle><image_groupe></image_groupe><image_muscle></image_muscle><jour_recup>72h</jour_recup></entry>
+  <entry><groupe_musculaire>Cuisses (avant)</groupe_musculaire><muscle_cible>Quadriceps</muscle_cible><type_subdivision>Chef</type_subdivision><subdivision_anatomique>Vaste intermédiaire</subdivision_anatomique><localisation_fonctionnelle>Profond</localisation_fonctionnelle><image_groupe></image_groupe><image_muscle></image_muscle><jour_recup>72h</jour_recup></entry>
+  <entry><groupe_musculaire>Cuisses (arrière)</groupe_musculaire><muscle_cible>Ischio-jambiers</muscle_cible><type_subdivision>Chef</type_subdivision><subdivision_anatomique>Biceps fémoral (long)</subdivision_anatomique><localisation_fonctionnelle>Extérieur</localisation_fonctionnelle><image_groupe></image_groupe><image_muscle></image_muscle><jour_recup>72h</jour_recup></entry>
+  <entry><groupe_musculaire>Cuisses (arrière)</groupe_musculaire><muscle_cible>Ischio-jambiers</muscle_cible><type_subdivision>Chef</type_subdivision><subdivision_anatomique>Biceps fémoral (court)</subdivision_anatomique><localisation_fonctionnelle>Extérieur</localisation_fonctionnelle><image_groupe></image_groupe><image_muscle></image_muscle><jour_recup>72h</jour_recup></entry>
+  <entry><groupe_musculaire>Cuisses (arrière)</groupe_musculaire><muscle_cible>Ischio-jambiers</muscle_cible><type_subdivision>Chef</type_subdivision><subdivision_anatomique>Semi-tendineux</subdivision_anatomique><localisation_fonctionnelle>Intérieur</localisation_fonctionnelle><image_groupe></image_groupe><image_muscle></image_muscle><jour_recup>72h</jour_recup></entry>
+  <entry><groupe_musculaire>Cuisses (arrière)</groupe_musculaire><muscle_cible>Ischio-jambiers</muscle_cible><type_subdivision>Chef</type_subdivision><subdivision_anatomique>Semi-membraneux</subdivision_anatomique><localisation_fonctionnelle>Intérieur</localisation_fonctionnelle><image_groupe></image_groupe><image_muscle></image_muscle><jour_recup>72h</jour_recup></entry>
+  <entry><groupe_musculaire>Cuisses (intérieur)</groupe_musculaire><muscle_cible>Adducteurs</muscle_cible><type_subdivision>Faisceau</type_subdivision><subdivision_anatomique>Long adducteur</subdivision_anatomique><localisation_fonctionnelle>Intérieur</localisation_fonctionnelle><image_groupe></image_groupe><image_muscle></image_muscle><jour_recup>72h</jour_recup></entry>
+  <entry><groupe_musculaire>Cuisses (intérieur)</groupe_musculaire><muscle_cible>Adducteurs</muscle_cible><type_subdivision>Faisceau</type_subdivision><subdivision_anatomique>Grand adducteur</subdivision_anatomique><localisation_fonctionnelle>Intérieur</localisation_fonctionnelle><image_groupe></image_groupe><image_muscle></image_muscle><jour_recup>72h</jour_recup></entry>
+  <entry><groupe_musculaire>Cuisses (intérieur)</groupe_musculaire><muscle_cible>Adducteurs</muscle_cible><type_subdivision>Faisceau</type_subdivision><subdivision_anatomique>Court adducteur</subdivision_anatomique><localisation_fonctionnelle>Intérieur</localisation_fonctionnelle><image_groupe></image_groupe><image_muscle></image_muscle><jour_recup>72h</jour_recup></entry>
+  <entry><groupe_musculaire>Cuisses (intérieur)</groupe_musculaire><muscle_cible>Adducteurs</muscle_cible><type_subdivision>Faisceau</type_subdivision><subdivision_anatomique>Pectiné</subdivision_anatomique><localisation_fonctionnelle>Haut intérieur</localisation_fonctionnelle><image_groupe></image_groupe><image_muscle></image_muscle><jour_recup>72h</jour_recup></entry>
+  <entry><groupe_musculaire>Mollets</groupe_musculaire><muscle_cible>Triceps sural</muscle_cible><type_subdivision>Chef</type_subdivision><subdivision_anatomique>Gastrocnémien médial</subdivision_anatomique><localisation_fonctionnelle>Intérieur</localisation_fonctionnelle><image_groupe></image_groupe><image_muscle></image_muscle><jour_recup>24h</jour_recup></entry>
+  <entry><groupe_musculaire>Mollets</groupe_musculaire><muscle_cible>Triceps sural</muscle_cible><type_subdivision>Chef</type_subdivision><subdivision_anatomique>Gastrocnémien latéral</subdivision_anatomique><localisation_fonctionnelle>Extérieur</localisation_fonctionnelle><image_groupe></image_groupe><image_muscle></image_muscle><jour_recup>24h</jour_recup></entry>
+  <entry><groupe_musculaire>Mollets</groupe_musculaire><muscle_cible>Triceps sural</muscle_cible><type_subdivision>Chef</type_subdivision><subdivision_anatomique>Soléaire</subdivision_anatomique><localisation_fonctionnelle>Profond</localisation_fonctionnelle><image_groupe></image_groupe><image_muscle></image_muscle><jour_recup>24h</jour_recup></entry>
+  <entry><groupe_musculaire>Mollets</groupe_musculaire><muscle_cible>Tibial antérieur</muscle_cible><type_subdivision>Aucune</type_subdivision><subdivision_anatomique>-</subdivision_anatomique><localisation_fonctionnelle>Avant jambe</localisation_fonctionnelle><image_groupe></image_groupe><image_muscle></image_muscle><jour_recup>24h</jour_recup></entry>
+</muscles>
+</script>
+
+<!-- ═══════════════════════════════════ MODALE — MOT DE PASSE RECHARGER -->
+<div class="modal-overlay" id="pwdModal" role="dialog" aria-modal="true" aria-labelledby="pwdModalTitle">
+  <div class="modal" style="width:min(400px,92vw)">
+    <div class="modal-body">
+      <div class="modal-icon-lock">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+        </svg>
+      </div>
+      <div class="modal-title" id="pwdModalTitle">Accès protégé</div>
+      <div class="modal-desc">Saisissez le mot de passe pour recharger les données intégrées.<br>Toutes les modifications non exportées seront perdues.</div>
+    </div>
+    <div class="field" style="margin-top:var(--space-2)">
+      <div class="pwd-input-wrap">
+        <input type="password" id="pwdInput" placeholder="ddmmyyyyhhmm" maxlength="12" autocomplete="off" inputmode="numeric">
+        <button class="pwd-toggle" id="pwdToggle" type="button" title="Afficher/masquer" tabindex="-1">
+          <svg id="pwdEyeOpen" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8S1 12 1 12z"/><circle cx="12" cy="12" r="3"/></svg>
+          <svg id="pwdEyeClosed" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:none"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+        </button>
+      </div>
+      <div class="pwd-error" id="pwdError"></div>
+      <div class="pwd-hint">Format : jour mois année heure minute<br>Exemple : <strong>230520261132</strong></div>
+    </div>
+    <div class="modal-actions" style="justify-content:center">
+      <button class="btn" id="pwdCancel" style="min-width:100px">Annuler</button>
+      <button class="btn btn-primary" id="pwdConfirm" style="min-width:100px">Valider</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════ MODALE — AJOUTER ENTRÉE -->
+<div class="modal-overlay" id="addModal" role="dialog" aria-modal="true" aria-labelledby="addModalTitle">
+  <div class="modal">
+    <div class="modal-add-header">
+      <div class="modal-add-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+          <path d="M6 18V8.5C6 6.57 7.57 5 9.5 5h.5v14H9.5A3.5 3.5 0 0 1 6 15.5"/>
+          <path d="M18 18V8.5C18 6.57 16.43 5 14.5 5H14v14h.5a3.5 3.5 0 0 0 3.5-3.5"/>
+        </svg>
+      </div>
+      <div>
+        <div class="modal-title" id="addModalTitle">Nouvelle entrée musculaire</div>
+        <div style="font-size:var(--text-xs);color:var(--color-text-faint);margin-top:.2rem">Tous les champs marqués * sont obligatoires</div>
+      </div>
+    </div>
+
+    <div class="modal-grid">
+      <!-- Ligne 1 : Groupe + Muscle -->
+      <div class="field">
+        <label>Groupe musculaire *</label>
+        <select id="am-groupe" class="select-styled">
+          <option value="">— Choisir —</option>
+          <option value="Abdominaux">Abdominaux</option>
+          <option value="Avant-bras">Avant-bras</option>
+          <option value="Bras">Bras</option>
+          <option value="Cuisses (arrière)">Cuisses (arrière)</option>
+          <option value="Cuisses (avant)">Cuisses (avant)</option>
+          <option value="Cuisses (intérieur)">Cuisses (intérieur)</option>
+          <option value="Dos">Dos</option>
+          <option value="Épaules">Épaules</option>
+          <option value="Fessiers">Fessiers</option>
+          <option value="Mollets">Mollets</option>
+          <option value="Pectoraux">Pectoraux</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Muscle cible *</label>
+        <input id="am-muscle" placeholder="Ex. Grand pectoral">
+      </div>
+
+      <!-- Ligne 2 : Type subdiv + Récupération -->
+      <div class="field">
+        <label>Type de subdivision</label>
+        <select id="am-type">
+          <option value="Faisceau">Faisceau</option>
+          <option value="Chef">Chef</option>
+          <option value="Aucune">Aucune</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Récupération</label>
+        <select id="am-recup">
+          <option value="48h">48h (défaut)</option>
+          <option value="24h">24h</option>
+          <option value="72h">72h</option>
+        </select>
+      </div>
+
+      <!-- Ligne 3 : Subdivision + Localisation -->
+      <div class="field">
+        <label>Subdivision anatomique</label>
+        <input id="am-sub" placeholder="Ex. Claviculaire">
+      </div>
+      <div class="field">
+        <label>Localisation fonctionnelle</label>
+        <input id="am-loc" placeholder="Ex. Supérieur">
+      </div>
+
+      <!-- Ligne 4 : Images -->
+      <div class="field">
+        <label>Image groupe</label>
+        <input type="file" id="am-img-group-file" accept="image/*" hidden>
+        <input type="hidden" id="am-img-group">
+        <div class="img-pick" id="am-img-group-wrap">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+          <span class="img-pick-name" id="am-img-group-name">Choisir un fichier…</span>
+        </div>
+      </div>
+      <div class="field">
+        <label>Image muscle</label>
+        <input type="file" id="am-img-muscle-file" accept="image/*" hidden>
+        <input type="hidden" id="am-img-muscle">
+        <div class="img-pick" id="am-img-muscle-wrap">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+          <span class="img-pick-name" id="am-img-muscle-name">Choisir un fichier…</span>
+        </div>
+      </div>
+
+      <!-- Message erreur -->
+      <div class="field-full" id="am-error" style="display:none">
+        <div style="font-size:var(--text-xs);color:var(--color-error);background:rgba(161,44,123,.08);border:1px solid rgba(161,44,123,.2);border-radius:var(--radius-md);padding:.5rem .75rem"></div>
+      </div>
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn" id="addModalCancel">Annuler</button>
+      <button class="btn btn-primary" id="addModalConfirm">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Ajouter
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════ MODALE — SUPPRESSION -->
+<div class="modal-overlay" id="deleteModal" role="dialog" aria-modal="true" aria-labelledby="deleteModalTitle">
+  <div class="modal" style="width:min(400px,92vw)">
+    <div class="modal-body">
+      <div class="modal-icon-danger">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
+          <path d="M10 11v6"/><path d="M14 11v6"/>
+          <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/>
+        </svg>
+      </div>
+      <div class="modal-title" id="deleteModalTitle">Supprimer cette entrée ?</div>
+      <div class="modal-desc" id="deleteModalDesc">Cette action est irréversible.</div>
+    </div>
+    <div class="modal-actions" style="justify-content:center;margin-top:var(--space-4)">
+      <button class="btn" id="deleteModalCancel" style="min-width:100px">Annuler</button>
+      <button class="btn btn-danger" id="deleteModalConfirm" style="min-width:100px">Supprimer</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════ MODALE — ÉDITION IMAGE -->
+<div class="modal-overlay" id="imgModal" role="dialog" aria-modal="true" aria-labelledby="imgModalTitle">
+  <div class="modal modal-img-small">
+    <div class="modal-title" id="imgModalTitle">Modifier l'image</div>
+    <div class="field">
+      <label id="imgModalLabel">Nom du fichier image</label>
+      <input type="text" id="imgModalInput" placeholder="Ex: grand_pectoral.jpg" autocomplete="off">
+    </div>
+    <div class="field">
+      <label>Ou choisir un fichier local</label>
+      <input type="file" id="imgModalFile" accept="image/*" hidden>
+      <div class="img-pick" id="imgModalPickWrap">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+        <span class="img-pick-name" id="imgModalPickName">Choisir un fichier…</span>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn" id="imgModalCancel">Annuler</button>
+      <button class="btn btn-primary" id="imgModalConfirm">Valider</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════ MODALE — LIGHTBOX -->
+<div class="modal-overlay" id="lightboxModal" role="dialog" aria-modal="true" aria-labelledby="lightboxTitle">
+  <div class="modal lightbox-box">
+    <div class="lightbox-img-wrap">
+      <button class="lightbox-close-btn" id="lightboxClose" aria-label="Fermer">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+      <!-- Nav prev -->
+      <button class="lb-nav lb-prev" id="lbPrev" aria-label="Image précédente" style="display:none">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="15 18 9 12 15 6"/></svg>
+      </button>
+      <img id="lightboxImg" src="" alt="" style="display:none">
+      <div id="lightboxPlaceholder" class="img-placeholder" style="display:none">Image introuvable</div>
+      <!-- Nav next -->
+      <button class="lb-nav lb-next" id="lbNext" aria-label="Image suivante" style="display:none">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg>
+      </button>
+    </div>
+    <div class="lightbox-meta">
+      <div class="lightbox-filename" id="lightboxTitle"></div>
+      <div style="display:flex;align-items:center;justify-content:center;gap:var(--space-4)">
+        <div class="lightbox-context" id="lightboxContext"></div>
+        <div class="lb-counter" id="lbCounter" style="display:none"></div>
+      </div>
+      <!-- Dots navigation -->
+      <div class="lb-dots" id="lbDots" style="display:none"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ MODALE DÉTAIL ═══ -->
+<div class="modal-overlay" id="detailModal" role="dialog" aria-modal="true">
+  <div class="detail-modal" id="detailModalBox">
+    <div class="dm-header" id="dmHeader">
+      <div class="dm-header-bar" id="dmBar"></div>
+      <div class="dm-header-row">
+        <span class="dm-group-badge" id="dmBadge"></span>
+        <div class="dm-titles">
+          <div class="dm-muscle" id="dmMuscle"></div>
+          <div class="dm-sub" id="dmSub"></div>
+        </div>
+        <div id="dmEditActions" style="display:none;margin-left:auto;margin-right:var(--space-3)">
+          <button class="btn btn-sm btn-primary" id="dmSaveBtn">Valider les modifications</button>
+        </div>
+        <button class="dm-close" id="dmClose" aria-label="Fermer">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+    </div>
+    <div class="dm-body" id="dmBody">
+      <!-- 3 colonnes générées par JS -->
+    </div>
+  </div>
+</div>
+
+<!-- ═══ MODALE IMAGES GROUPES MUSCULAIRES ═══ -->
+<div class="modal-overlay" id="groupImgModal" role="dialog" aria-modal="true">
+  <div class="modal" style="width:min(540px,94vw)">
+    <div style="display:flex;align-items:center;gap:var(--space-3);padding-bottom:var(--space-4);border-bottom:1px solid var(--color-border)">
+      <div style="width:40px;height:40px;border-radius:var(--radius-md);display:grid;place-items:center;background:var(--color-primary-highlight);color:var(--color-primary);flex-shrink:0">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+      </div>
+      <div>
+        <div style="font-weight:700;font-size:var(--text-base)">Images des groupes musculaires</div>
+        <div style="font-size:var(--text-xs);color:var(--color-text-faint);margin-top:.2rem">12 images · S'affiche automatiquement selon le groupe sélectionné</div>
+      </div>
+    </div>
+    <div id="groupImgList" style="display:grid;gap:var(--space-2);max-height:60dvh;overflow-y:auto;padding-right:2px"></div>
+    <div style="display:flex;gap:var(--space-3);justify-content:flex-end;margin-top:var(--space-2)">
+      <button class="btn" id="groupImgCancel">Annuler</button>
+      <button class="btn btn-primary" id="groupImgConfirm">Valider</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ MODALE MULTI-IMAGES MUSCLE ═══ -->
+<div class="modal-overlay" id="multiImgModal" role="dialog" aria-modal="true">
+  <div class="modal" style="width:min(560px,94vw);max-height:90dvh;display:flex;flex-direction:column;padding:0;overflow:hidden">
+    <div style="padding:var(--space-6) var(--space-6) var(--space-4);flex-shrink:0;border-bottom:1px solid var(--color-border)">
+      <div style="display:flex;align-items:center;gap:var(--space-3)">
+        <div style="width:40px;height:40px;border-radius:var(--radius-md);display:grid;place-items:center;background:var(--color-primary-highlight);color:var(--color-primary);flex-shrink:0">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+        </div>
+        <div>
+          <div style="font-weight:700;font-size:var(--text-base)">Images du muscle</div>
+          <div style="font-size:var(--text-xs);color:var(--color-text-faint);margin-top:.2rem">10 emplacements · Image n°1 = principale · ↑↓ pour réordonner les 4 premières</div>
+        </div>
+      </div>
+    </div>
+    <div id="multiImgSlots" style="flex:1;overflow-y:auto;overflow-x:hidden;padding:var(--space-4);display:grid;gap:var(--space-3)"></div>
+    <div style="padding:var(--space-4) var(--space-6);border-top:1px solid var(--color-border);display:flex;gap:var(--space-3);justify-content:flex-end;flex-shrink:0;background:var(--color-surface)">
+      <button class="btn" id="multiImgCancel">Annuler</button>
+      <button class="btn btn-primary" id="multiImgConfirm">Valider</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════ SCRIPT -->
+<script src="db.js"></script>
+<script>
+// ─── CONSTANTES ───────────────────────────────────────────────────────────────
+const STORAGE_KEY     = 'muscle-xml-studio-autosave-v9';
+const GI_STORAGE_KEY  = 'gymos-group-images-v1';
+const GROUPS_LIST = ['Abdominaux','Avant-bras','Bras','Cuisses (arrière)','Cuisses (avant)','Cuisses (intérieur)','Dos','Épaules','Fessiers','Mollets','Pectoraux'];
+// Image par défaut si aucune image de groupe configurée
+const ANATOMY_DEFAULT = 'Anatomie-Full-Color.png';
+// État des images de groupes : { '': 'tous.png', 'Pectoraux': 'pec.png', ... }
+let _groupImages = {};
+function loadGroupImages() {
+  try { _groupImages = JSON.parse(localStorage.getItem(GI_STORAGE_KEY) || '{}'); } catch { _groupImages = {}; }
+}
+function saveGroupImages() {
+  localStorage.setItem(GI_STORAGE_KEY, JSON.stringify(_groupImages));
+  GymDB.write('group-images.json', _groupImages);
+}
+async function loadGroupImagesFromDb() {
+  const data = await GymDB.read('group-images.json');
+  if (data && typeof data === 'object') { _groupImages = data; return true; }
+  return false;
+}
+// Met à jour l'image anatomique selon le groupe actif
+function updateAnatomyImage() {
+  const img = document.getElementById('anatomyImg');
+  if (!img) return;
+  const key = state.activeGroup || '';
+  const filename = _groupImages[key];
+  if (filename) {
+    img.src = './img/' + filename;
+    img.style.opacity = '0';
+    img.onload = () => { img.style.transition = 'opacity .25s'; img.style.opacity = '1'; };
+    img.onerror = () => {
+      // Fallback sur l'image "tous"
+      const fallback = _groupImages[''] || ANATOMY_DEFAULT;
+      img.src = './img/' + fallback;
+      img.style.opacity = '1';
+    };
+  } else if (key !== '') {
+    // Aucune image pour ce groupe → afficher l'image "tous" ou la valeur par défaut
+    const fallback = _groupImages[''] || ANATOMY_DEFAULT;
+    img.src = './img/' + fallback;
+    img.style.opacity = '1';
+  } else {
+    // Groupe "Tous" sans image configurée → image par défaut
+    img.src = './img/' + ANATOMY_DEFAULT;
+    img.style.opacity = '1';
+  }
+}
+const fields = [
+  'groupe_musculaire','muscle_cible','type_subdivision','subdivision_anatomique',
+  'localisation_fonctionnelle','image_groupe',
+  'image_muscle','image_muscle_2','image_muscle_3','image_muscle_4',
+  'image_localisation_1','image_localisation_2',
+  'image_zoom_insertion','image_vue_profonde','image_faisceau_groupe','image_personnage',
+  'jour_recup',
+  'fonction_principale','origine','insertion','innervation','action'
+];
+const searchableFields = ['groupe_musculaire','muscle_cible','type_subdivision','subdivision_anatomique','localisation_fonctionnelle','jour_recup'];
+const RECUP_VALUES = ['24h','48h','72h'];
+const MUSCLE_COLORS = {
+  'Pectoraux':          '#b90207',
+  'Abdominaux':         '#8338bb',
+  'Bras':               '#fa7b01',
+  'Avant-bras':         '#f42d65',
+  'Cuisses (arrière)':  '#974f1a',
+  'Cuisses (avant)':    '#5a9d24',
+  'Cuisses (intérieur)':'#3fb5dc',
+  'Dos':                '#0161be',
+  'Épaules':            '#fbbd01',
+  'Fessiers':           '#01969b',
+  'Mollets':            '#a19e9f'
+};
+const labels = {
+  groupe_musculaire:'Groupe musculaire',muscle_cible:'Muscle cible',
+  type_subdivision:'Type de subdivision',subdivision_anatomique:'Subdivision anatomique',
+  localisation_fonctionnelle:'Localisation fonctionnelle',image_groupe:'Image groupe',
+  image_muscle:'Image muscle',jour_recup:'Récupération'
+};
+
+// ─── ÉTAT ─────────────────────────────────────────────────────────────────────
+const state = {
+  rows: [], filteredRows: [], selectedId: null,
+  sortField: null, sortDirection: 'asc',
+  viewMode: 'edit', activeGroup: '',
+  displayMode: 'table' // 'table' | 'cards'
+};
+
+// ─── DOM ──────────────────────────────────────────────────────────────────────
+const els = {
+  tableBody:    document.getElementById('tableBody'),
+  searchInput:  document.getElementById('searchInput'),
+  statusText:   document.getElementById('statusText'),
+  sortState:    document.getElementById('sortState'),
+  statRows:     document.getElementById('statRows'),
+  statGroups:   document.getElementById('statGroups'),
+  statMuscles:  document.getElementById('statMuscles'),
+  statFilter:   document.getElementById('statFilter'),
+  statAutosave: document.getElementById('statAutosave'),
+  groupNav:     document.getElementById('groupNav'),
+  sfTotal:      document.getElementById('sfTotal'),
+  sfGroups:     document.getElementById('sfGroups'),
+  cardGrid:     document.getElementById('cardGrid'),
+  sectionTitle: document.getElementById('sectionTitle')
+};
+
+// ─── UTILITAIRES ──────────────────────────────────────────────────────────────
+function setStatus(text, kind='') {
+  els.statusText.className = 'status ' + kind;
+  els.statusText.textContent = text;
+}
+function uid() { return Math.random().toString(36).slice(2,10) + Date.now().toString(36).slice(-4); }
+function escapeXml(v) {
+  return String(v ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;').replace(/'/g,'&apos;');
+}
+function hexToRgb(hex) {
+  return [parseInt(hex.slice(1,3),16), parseInt(hex.slice(3,5),16), parseInt(hex.slice(5,7),16)];
+}
+// Retourne le tableau des images muscle (1 à 4), sans les vides
+function getMuscleImages(row) {
+  return ['image_muscle','image_muscle_2','image_muscle_3','image_muscle_4']
+    .map(f => row[f] || '').filter(Boolean);
+}
+
+// ─── XML ──────────────────────────────────────────────────────────────────────
+function rowsToXml(rows) {
+  const pure = rows.map(({id,...rest}) => rest);
+  return `<?xml version="1.0" encoding="UTF-8"?>\n<muscles>\n${pure.map(row =>
+    `  <entry>\n${fields.map(f=>`    <${f}>${escapeXml(row[f]??'')}</${f}>`).join('\n')}\n  </entry>`
+  ).join('\n')}\n</muscles>\n`;
+}
+function parseXmlString(xmlText) {
+  const parser = new DOMParser();
+  const xml = parser.parseFromString(xmlText, 'application/xml');
+  if (xml.querySelector('parsererror')) throw new Error('XML invalide.');
+  return [...xml.querySelectorAll('muscles > entry')].map(entry => ({
+    id: uid(),
+    ...Object.fromEntries(fields.map(f => [f, entry.querySelector(f)?.textContent?.trim() || '']))
+  }));
+}
+
+// ─── AUTOSAVE ─────────────────────────────────────────────────────────────────
+function saveAutosave() {
+  try {
+    const payload = {
+      rows: state.rows, sortField: state.sortField,
+      sortDirection: state.sortDirection, search: els.searchInput.value,
+      activeGroup: state.activeGroup
+    };
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
+    GymDB.write('corps.json', payload);
+    els.statAutosave.textContent = 'Sauvegardé';
+    setTimeout(() => els.statAutosave.textContent = 'Actif', 1200);
+  } catch { els.statAutosave.textContent = 'Indispo'; }
+}
+function loadAutosave() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return false;
+    const p = JSON.parse(raw);
+    if (Array.isArray(p.rows) && p.rows.length) {
+      state.rows = p.rows.map(r => ({id: r.id || uid(), ...r}));
+      state.sortField = p.sortField || null;
+      state.sortDirection = p.sortDirection || 'asc';
+      state.activeGroup = p.activeGroup || '';
+      return p;
+    }
+  } catch {}
+  return false;
+}
+
+// ─── SIDEBAR — NAVIGATION GROUPES ─────────────────────────────────────────────
+function getGroupStats() {
+  const stats = {};
+  state.rows.forEach(r => {
+    const g = r.groupe_musculaire;
+    if (!g) return;
+    if (!stats[g]) stats[g] = { count: 0, recups: {} };
+    stats[g].count++;
+    const rv = r.jour_recup || '48h';
+    stats[g].recups[rv] = (stats[g].recups[rv] || 0) + 1;
+  });
+  // recup dominante par groupe
+  Object.keys(stats).forEach(g => {
+    const r = stats[g].recups;
+    stats[g].mainRecup = Object.entries(r).sort((a,b)=>b[1]-a[1])[0]?.[0] || '48h';
+  });
+  return stats;
+}
+
+function renderGroupNav() {
+  const stats = getGroupStats();
+  const groups = Object.keys(stats).sort((a,b) => a.localeCompare(b,'fr',{sensitivity:'base'}));
+  const nav = els.groupNav;
+  nav.innerHTML = '';
+
+  // Carte "Tous"
+  const allCard = document.createElement('div');
+  allCard.className = 'group-card-all' + (state.activeGroup === '' ? ' active' : '');
+  allCard.innerHTML = `<span class="group-card-all-name">Tous les groupes</span>
+    <span class="group-card-all-total">${state.rows.length}</span>`;
+  allCard.addEventListener('click', () => setActiveGroup(''));
+  nav.appendChild(allCard);
+
+  groups.forEach(g => {
+    const hex = MUSCLE_COLORS[g] || '#888';
+    const [r,gr,b] = hexToRgb(hex);
+    const s = stats[g];
+    const recupCls = s.mainRecup === '24h' ? 'recup-pill-24' : s.mainRecup === '72h' ? 'recup-pill-72' : 'recup-pill-48';
+
+    const card = document.createElement('div');
+    card.className = 'group-card' + (state.activeGroup === g ? ' active' : '');
+    card.style.setProperty('--current-color', hex);
+    card.dataset.group = g;
+    card.innerHTML = `
+      <span class="group-dot" style="background:${hex};width:10px;height:10px;border-radius:50%;flex-shrink:0"></span>
+      <div class="group-card-info">
+        <div class="group-card-name">${escapeXml(g)}</div>
+        <div class="group-card-meta">
+          <span class="group-card-count">${s.count} entrée${s.count>1?'s':''}</span>
+          <span class="group-card-recup ${recupCls}">${s.mainRecup}</span>
+        </div>
+      </div>
+      <svg class="group-card-arrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>`;
+    card.addEventListener('click', () => setActiveGroup(g));
+    nav.appendChild(card);
+  });
+
+  // Footer sidebar
+  els.sfTotal.textContent = state.rows.length;
+  els.sfGroups.textContent = groups.length;
+}
+
+function setActiveGroup(group) {
+  state.activeGroup = group;
+  renderGroupNav();
+  renderTable();
+  saveAutosave();
+  els.statFilter.textContent = group || 'Tous';
+  updateAnatomyImage();
+}
+
+// ─── FILTRE + TRI ─────────────────────────────────────────────────────────────
+function getVisibleRows() {
+  const q = els.searchInput.value.trim().toLowerCase();
+  let rows = state.rows.filter(r =>
+    (!state.activeGroup || r.groupe_musculaire === state.activeGroup) &&
+    (!q || searchableFields.some(f => (r[f]||'').toLowerCase().includes(q)))
+  );
+  if (state.sortField) {
+    rows = [...rows].sort((a,b) => {
+      const av = (a[state.sortField]||'').toLowerCase();
+      const bv = (b[state.sortField]||'').toLowerCase();
+      const cmp = av.localeCompare(bv,'fr',{sensitivity:'base'});
+      return state.sortDirection === 'asc' ? cmp : -cmp;
+    });
+  }
+  return rows;
+}
+
+// ─── STATS ────────────────────────────────────────────────────────────────────
+function updateStats(visibleRows) {
+  els.statRows.textContent = visibleRows.length;
+  els.statGroups.textContent = new Set(state.rows.map(r=>r.groupe_musculaire).filter(Boolean)).size;
+  els.statMuscles.textContent = new Set(state.rows.map(r=>r.muscle_cible).filter(Boolean)).size;
+  els.statFilter.textContent = state.activeGroup || 'Tous';
+  els.sortState.textContent = state.sortField
+    ? `Tri : ${labels[state.sortField]} (${state.sortDirection==='asc'?'A → Z':'Z → A'})`
+    : 'Tri : aucun';
+}
+
+// ─── RENDU CELLULES ───────────────────────────────────────────────────────────
+function renderImageCell(filename, editMode, extraCount) {
+  if (editMode) {
+    const countBadge = extraCount > 1
+      ? `<span style="position:absolute;top:2px;right:2px;background:var(--color-primary);color:#fff;font-size:.55rem;font-weight:700;padding:.1rem .3rem;border-radius:999px;line-height:1">${extraCount}</span>`
+      : '';
+    return filename
+      ? `<span style="position:relative;font-size:var(--text-xs);color:var(--color-text-muted);display:inline-flex;align-items:center;gap:.3rem;flex-wrap:wrap">
+           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+           ${escapeXml(filename)}${countBadge}</span>`
+      : `<div class="img-placeholder" style="cursor:pointer;position:relative">+ image${countBadge}</div>`;
+  }
+  if (!filename) return '<div class="img-placeholder">Aucune image</div>';
+  return `<img class="table-image" src="./img/${filename}" alt="${escapeXml(filename)}" onerror="this.outerHTML='<div class=&quot;img-placeholder&quot;>Image introuvable</div>'">`;
+}
+function renderRecupBadge(value) {
+  if (!value) return '<span style="color:var(--color-text-faint)">—</span>';
+  const cls = value==='24h'?'recup-24':value==='48h'?'recup-48':value==='72h'?'recup-72':'';
+  return `<span class="recup-badge ${cls}">${escapeXml(value)}</span>`;
+}
+function renderGroupBadge(value) {
+  if (!value) return '<span style="color:var(--color-text-faint)">—</span>';
+  const hex = MUSCLE_COLORS[value];
+  if (!hex) return `<span class="recup-badge">${escapeXml(value)}</span>`;
+  const [r,g,b] = hexToRgb(hex);
+  return `<span class="recup-badge" style="background:rgba(${r},${g},${b},.15);color:${hex};border:1px solid rgba(${r},${g},${b},.4)">${escapeXml(value)}</span>`;
+}
+
+// ─── SÉLECTION ────────────────────────────────────────────────────────────────
+function markSelectedRow() {
+  document.querySelectorAll('#tableBody tr').forEach(tr => {
+    tr.style.background = tr.dataset.id === state.selectedId
+      ? 'color-mix(in oklab,var(--color-primary) 10%,var(--color-surface))'
+      : '';
+  });
+}
+
+// ─── ÉDITION INLINE ───────────────────────────────────────────────────────────
+function startEdit(td) {
+  const field = td.dataset.field;
+  const target = state.rows.find(r => r.id === td.dataset.id);
+  if (!target) return;
+  state.selectedId = target.id;
+  markSelectedRow();
+  setStatus('Mode édition actif. Entrée ou Échap pour valider / annuler.', 'ok');
+
+  if (field === 'groupe_musculaire') {
+    td.classList.add('editing');
+    const cur = target.groupe_musculaire || '';
+    const sel = document.createElement('select');
+    sel.className = 'select-styled';
+    sel.style.cssText = 'width:100%;min-height:unset;padding:.2rem .4rem;font-size:var(--text-sm)';
+    Object.keys(MUSCLE_COLORS).sort((a,b)=>a.localeCompare(b,'fr')).forEach(g => {
+      const opt = document.createElement('option');
+      opt.value = g; opt.textContent = g;
+      if (g === cur) opt.selected = true;
+      sel.appendChild(opt);
+    });
+    td.innerHTML = ''; td.appendChild(sel); sel.focus();
+    const commit = () => {
+      target.groupe_musculaire = sel.value;
+      td.classList.remove('editing');
+      td.innerHTML = renderGroupBadge(target.groupe_musculaire);
+      renderGroupNav(); updateStats(getVisibleRows()); saveAutosave();
+      setStatus(`Groupe mis à jour → ${target.groupe_musculaire}`, 'ok');
+    };
+    sel.addEventListener('change', commit); sel.addEventListener('blur', commit);
+    sel.addEventListener('keydown', e => {
+      if (e.key === 'Enter') { e.preventDefault(); sel.blur(); }
+      if (e.key === 'Escape') { td.classList.remove('editing'); td.innerHTML = renderGroupBadge(cur); setStatus('Annulé.','warn'); }
+    });
+    return;
+  }
+
+  if (field === 'jour_recup') {
+    td.classList.add('editing');
+    const cur = target.jour_recup || '48h';
+    const sel = document.createElement('select');
+    sel.className = 'select-styled';
+    sel.style.cssText = 'width:100%;min-height:unset;padding:.2rem .4rem;font-size:var(--text-sm)';
+    RECUP_VALUES.forEach(v => {
+      const opt = document.createElement('option');
+      opt.value = v; opt.textContent = v;
+      if (v === cur) opt.selected = true;
+      sel.appendChild(opt);
+    });
+    td.innerHTML = ''; td.appendChild(sel); sel.focus();
+    const commit = () => {
+      target.jour_recup = sel.value;
+      td.classList.remove('editing');
+      td.innerHTML = renderRecupBadge(target.jour_recup);
+      renderGroupNav(); updateStats(getVisibleRows()); saveAutosave();
+      setStatus(`Récupération → ${target.jour_recup}`, 'ok');
+    };
+    sel.addEventListener('change', commit); sel.addEventListener('blur', commit);
+    sel.addEventListener('keydown', e => {
+      if (e.key === 'Enter') { e.preventDefault(); sel.blur(); }
+      if (e.key === 'Escape') { td.classList.remove('editing'); td.innerHTML = renderRecupBadge(cur); setStatus('Annulé.','warn'); }
+    });
+    return;
+  }
+
+  td.contentEditable = 'true';
+  td.classList.add('editing');
+  td.focus();
+  const s = window.getSelection(), r = document.createRange();
+  r.selectNodeContents(td); s.removeAllRanges(); s.addRange(r);
+}
+
+function finishEdit(td, commit=true) {
+  const field = td.dataset.field;
+  const target = state.rows.find(r => r.id === td.dataset.id);
+  if (target && commit) {
+    target[field] = td.textContent.trim();
+    setStatus(`Modification enregistrée · ${target.muscle_cible || 'ligne'}`, 'ok');
+  }
+  td.contentEditable = 'false';
+  td.classList.remove('editing');
+  if (field === 'groupe_musculaire' || field === 'muscle_cible') renderTable();
+  else updateStats(getVisibleRows());
+  saveAutosave();
+}
+
+// ─── RENDU GALERIE CARTES ─────────────────────────────────────────────────────
+function renderCards() {
+  state.filteredRows = getVisibleRows();
+  els.cardGrid.innerHTML = '';
+
+  if (!state.filteredRows.length) {
+    els.cardGrid.innerHTML = '<div class="empty" style="grid-column:1/-1">Aucun résultat.</div>';
+    updateStats([]);
+    return;
+  }
+
+  state.filteredRows.forEach(row => {
+    const hex = MUSCLE_COLORS[row.groupe_musculaire] || '#9a9891';
+    const [r,g,b] = hexToRgb(hex);
+    const muscleImgs = getMuscleImages(row);
+    const hasGrpImg  = !!row.image_groupe;
+    const recupCls   = row.jour_recup === '24h' ? 'recup-24' : row.jour_recup === '72h' ? 'recup-72' : 'recup-48';
+
+    const card = document.createElement('div');
+    card.className = 'muscle-card' + (state.selectedId === row.id ? ' selected' : '');
+    card.dataset.id = row.id;
+    card.style.setProperty('--card-group-color', hex);
+
+    // ── Image zone (affiche l'image à l'index courant) ──
+    let currentImgIdx = 0;
+    const allImgs = muscleImgs.length ? muscleImgs : (hasGrpImg ? [row.image_groupe] : []);
+    const isMuscleSrc = muscleImgs.length > 0;
+
+    function buildImgHtml(src) {
+      if (!src) return `<div class="muscle-card-img-placeholder" style="display:flex;opacity:.55">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M6 18V8.5C6 6.57 7.57 5 9.5 5h.5v14H9.5A3.5 3.5 0 0 1 6 15.5"/><path d="M18 18V8.5C18 6.57 16.43 5 14.5 5H14v14h.5a3.5 3.5 0 0 0 3.5-3.5"/></svg>
+        <span>${escapeXml(row.groupe_musculaire)}</span>
+      </div>`;
+      return `<img src="./img/${escapeXml(src)}" alt="${escapeXml(row.muscle_cible)}"
+        onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+        <div class="muscle-card-img-placeholder" style="display:none">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6 18V8.5C6 6.57 7.57 5 9.5 5h.5v14H9.5A3.5 3.5 0 0 1 6 15.5"/><path d="M18 18V8.5C18 6.57 16.43 5 14.5 5H14v14h.5a3.5 3.5 0 0 0 3.5-3.5"/></svg>
+          <span>${escapeXml(row.groupe_musculaire)}</span>
+        </div>`;
+    }
+
+    const subLabel  = row.subdivision_anatomique && row.subdivision_anatomique !== '-' ? row.subdivision_anatomique : '';
+    const typeLabel = row.type_subdivision && row.type_subdivision !== 'Aucune' ? row.type_subdivision : '';
+
+    // Dots HTML (si > 1 image muscle)
+    const dotsHtml = muscleImgs.length > 1
+      ? `<div class="mc-dots" id="dots-${row.id}">
+          ${muscleImgs.map((_, i) => `<span class="mc-dot${i===0?' active':''}" data-idx="${i}"></span>`).join('')}
+         </div>`
+      : '';
+
+    card.innerHTML = `
+      <div class="muscle-card-bar"></div>
+      <div class="muscle-card-img" id="cardimg-${row.id}" style="background:rgba(${r},${g},${b},.07)">
+        ${buildImgHtml(allImgs[0] || '')}
+        <span class="muscle-card-group-badge">${escapeXml(row.groupe_musculaire)}</span>
+      </div>
+      <div class="muscle-card-body">
+        <div class="muscle-card-name">${escapeXml(row.muscle_cible)}</div>
+        ${subLabel ? `<div class="muscle-card-sub">${escapeXml(subLabel)}</div>` : ''}
+        ${row.localisation_fonctionnelle
+          ? `<div class="muscle-card-loc">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="10" r="3"/><path d="M12 2a8 8 0 0 0-8 8c0 5.25 8 13 8 13s8-7.75 8-13a8 8 0 0 0-8-8z"/></svg>
+              ${escapeXml(row.localisation_fonctionnelle)}
+            </div>` : ''}
+      </div>`;
+
+    const foot = document.createElement('div'); foot.className = 'muscle-card-footer';
+    const footLeft = document.createElement('div');
+    footLeft.style.cssText = 'display:flex;align-items:center;gap:var(--space-2)';
+    if (typeLabel) { const tb=document.createElement('span');tb.className='muscle-card-type';tb.textContent=typeLabel;footLeft.appendChild(tb); } else { footLeft.appendChild(document.createElement('span')); }
+    if (dotsHtml) { const d=document.createElement('div');d.innerHTML=dotsHtml;footLeft.appendChild(d.firstChild); }
+    // Icône info
+    const infoBtn = document.createElement('button');
+    infoBtn.className = 'mc-info-btn';
+    infoBtn.title = 'Informations détaillées';
+    infoBtn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="8"/><line x1="12" y1="12" x2="12" y2="16"/></svg>`;
+    infoBtn.addEventListener('click', e => { e.stopPropagation(); openDetailModal(row.id); });
+    const recupBadge = document.createElement('span');
+    recupBadge.className = `recup-badge ${recupCls}`; recupBadge.textContent = row.jour_recup || '—';
+    foot.append(footLeft, infoBtn, recupBadge);
+    if (muscleImgs.length > 1) {
+      card.querySelectorAll('.mc-dot').forEach(dot => {
+        dot.addEventListener('click', e => {
+          e.stopPropagation();
+          const idx = parseInt(dot.dataset.idx);
+          const imgZone = document.getElementById(`cardimg-${row.id}`);
+          // Swap image
+          imgZone.innerHTML = buildImgHtml(muscleImgs[idx])
+            + `<span class="muscle-card-group-badge">${escapeXml(row.groupe_musculaire)}</span>`;
+          // Update dots
+          card.querySelectorAll('.mc-dot').forEach((d,i) => d.classList.toggle('active', i===idx));
+          currentImgIdx = idx;
+        });
+      });
+    }
+
+    // ── Sélection au clic ──
+    card.addEventListener('click', () => {
+      state.selectedId = row.id;
+      els.cardGrid.querySelectorAll('.muscle-card').forEach(c => c.classList.toggle('selected', c.dataset.id === row.id));
+    });
+
+    // ── Clic image : lightbox (lecture) ou modale multi-images (édition) ──
+    const imgZone = card.querySelector('.muscle-card-img');
+    imgZone.addEventListener('dblclick', e => {
+      e.stopPropagation();
+      if (state.viewMode === 'edit') {
+        openMultiImgModal(row.id);
+      } else if (allImgs.length) {
+        // Ouvrir lightbox à l'index courant
+        _lbState = {
+          images: isMuscleSrc ? muscleImgs : [row.image_groupe],
+          idx: currentImgIdx,
+          context: 'Image muscle · ' + [row.groupe_musculaire, row.muscle_cible].filter(Boolean).join(' — ')
+        };
+        document.getElementById('lightboxContext').textContent = _lbState.context;
+        document.getElementById('lightboxModal').classList.add('open');
+        lbLoadImage(currentImgIdx);
+      }
+    });
+
+    card.appendChild(foot);
+    els.cardGrid.appendChild(card);
+  });
+
+  updateStats(state.filteredRows);
+}
+
+// ─── TOGGLE TABLEAU / GALERIE ─────────────────────────────────────────────────
+function applyDisplayMode(mode) {
+  state.displayMode = mode;
+  const isCards = mode === 'cards';
+  document.querySelector('.table-wrap').style.display = isCards ? 'none' : '';
+  els.cardGrid.style.display = isCards ? 'grid' : 'none';
+  document.getElementById('layoutIconGrid').style.display  = isCards ? 'none'  : 'block';
+  document.getElementById('layoutIconTable').style.display = isCards ? 'block' : 'none';
+  const btn = document.getElementById('toggleLayoutBtn');
+  btn.title = isCards ? 'Mode Tableau' : 'Mode Galerie';
+  btn.setAttribute('aria-label', btn.title);
+  btn.classList.toggle('btn-layout-active', isCards);
+  els.sectionTitle.textContent = isCards ? 'Galerie des muscles' : 'Tableau éditable';
+}
+function toggleLayout() {
+  const next = state.displayMode === 'table' ? 'cards' : 'table';
+  applyDisplayMode(next);
+  if (next === 'cards') renderCards();
+  else renderTable();
+  setStatus(next === 'cards' ? 'Mode galerie activé.' : 'Mode tableau activé.', 'ok');
+}
+
+// ─── RENDU TABLEAU ────────────────────────────────────────────────────────────
+function renderTable() {
+  if (state.displayMode === 'cards') { renderCards(); return; }
+  state.filteredRows = getVisibleRows();
+  els.tableBody.innerHTML = '';
+  if (!state.filteredRows.length) {
+    const tr = document.createElement('tr');
+    const td = document.createElement('td');
+    td.colSpan = 10; td.className = 'empty';
+    td.textContent = 'Aucun résultat.';
+    tr.appendChild(td); els.tableBody.appendChild(tr);
+    updateStats([]); return;
+  }
+  const orderedFields = ['groupe_musculaire','image_groupe','muscle_cible','image_muscle','type_subdivision','subdivision_anatomique','localisation_fonctionnelle','jour_recup'];
+  const isEdit = state.viewMode === 'edit';
+
+  state.filteredRows.forEach((row, index) => {
+    const tr = document.createElement('tr');
+    tr.dataset.id = row.id;
+    const num = document.createElement('td');
+    num.textContent = index + 1;
+    const rowColor = MUSCLE_COLORS[row.groupe_musculaire];
+    if (rowColor) { num.style.borderLeft = `4px solid ${rowColor}`; num.style.paddingLeft = 'calc(1rem - 4px)'; }
+    tr.appendChild(num);
+
+    orderedFields.forEach(f => {
+      const td = document.createElement('td');
+      td.dataset.id = row.id; td.dataset.field = f;
+      if (f === 'image_groupe' || f === 'image_muscle') {
+        const count = f === 'image_muscle' ? getMuscleImages(row).length : 1;
+        td.innerHTML = renderImageCell(row[f], isEdit, count);
+        td.className = isEdit ? 'cell-img' : (row[f] ? 'cell-img-read' : '');
+      } else if (f === 'jour_recup') {
+        td.innerHTML = renderRecupBadge(row[f]); td.className = 'cell'; td.contentEditable = 'false';
+      } else if (f === 'groupe_musculaire') {
+        td.innerHTML = renderGroupBadge(row[f]); td.className = 'cell'; td.contentEditable = 'false';
+      } else {
+        td.textContent = row[f] || ''; td.className = 'cell'; td.contentEditable = 'false';
+      }
+      tr.appendChild(td);
+    });
+
+    tr.addEventListener('click', e => {
+      if (e.target.closest('.cell.editing')) return;
+      state.selectedId = row.id; markSelectedRow();
+    });
+
+    // Cellule info
+    const tdInfo = document.createElement('td');
+    tdInfo.className = 'cell-info';
+    const hex = MUSCLE_COLORS[row.groupe_musculaire] || '#9a9891';
+    const infoBtn = document.createElement('button');
+    infoBtn.className = 'info-btn';
+    infoBtn.style.setProperty('--dm-color', hex);
+    infoBtn.title = 'Informations détaillées';
+    infoBtn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="8"/><line x1="12" y1="12" x2="12" y2="16"/></svg>`;
+    infoBtn.addEventListener('click', e => { e.stopPropagation(); openDetailModal(row.id); });
+    tdInfo.appendChild(infoBtn);
+    tr.appendChild(tdInfo);
+
+    els.tableBody.appendChild(tr);
+  });
+  markSelectedRow();
+  updateStats(state.filteredRows);
+}
+
+// ─── LIGHTBOX ─────────────────────────────────────────────────────────────────
+// ─── LIGHTBOX MULTI-IMAGES ────────────────────────────────────────────────────
+let _lbState = { images: [], idx: 0, context: '' };
+
+function lbLoadImage(idx) {
+  const imgEl = document.getElementById('lightboxImg');
+  const phEl  = document.getElementById('lightboxPlaceholder');
+  const filename = _lbState.images[idx] || '';
+  document.getElementById('lightboxTitle').textContent = filename;
+  imgEl.style.display='none'; phEl.style.display='none';
+  imgEl.onload  = () => { imgEl.style.display='block'; phEl.style.display='none'; };
+  imgEl.onerror = () => { imgEl.style.display='none'; phEl.style.display='grid'; };
+  imgEl.alt = filename; imgEl.src = './img/' + filename;
+  // Counter & dots
+  const n = _lbState.images.length;
+  const counter = document.getElementById('lbCounter');
+  const dots    = document.getElementById('lbDots');
+  const prevBtn = document.getElementById('lbPrev');
+  const nextBtn = document.getElementById('lbNext');
+  if (n > 1) {
+    counter.textContent = `${idx+1} / ${n}`; counter.style.display='inline-flex';
+    prevBtn.style.display = idx > 0 ? 'grid' : 'none';
+    nextBtn.style.display = idx < n-1 ? 'grid' : 'none';
+    dots.style.display = 'flex'; dots.innerHTML = '';
+    _lbState.images.forEach((_, i) => {
+      const dot = document.createElement('button');
+      dot.className = 'lb-dot' + (i===idx?' active':'');
+      dot.addEventListener('click', () => { _lbState.idx=i; lbLoadImage(i); });
+      dots.appendChild(dot);
+    });
+  } else {
+    counter.style.display='none'; prevBtn.style.display='none';
+    nextBtn.style.display='none'; dots.style.display='none';
+  }
+  _lbState.idx = idx;
+}
+
+function openLightbox(rowId, field) {
+  const row = state.rows.find(r => r.id === rowId);
+  if (!row) return;
+  let images, context;
+  if (field === 'image_groupe') {
+    images  = row.image_groupe ? [row.image_groupe] : [];
+    context = 'Image groupe · ' + [row.groupe_musculaire, row.muscle_cible].filter(Boolean).join(' — ');
+  } else {
+    images  = getMuscleImages(row);
+    const parts = [row.groupe_musculaire, row.muscle_cible];
+    if (row.subdivision_anatomique && row.subdivision_anatomique !== '-') parts.push(row.subdivision_anatomique);
+    context = 'Image muscle · ' + parts.filter(Boolean).join(' — ');
+  }
+  if (!images.length) return;
+  _lbState = { images, idx: 0, context };
+  document.getElementById('lightboxContext').textContent = context;
+  document.getElementById('lightboxModal').classList.add('open');
+  lbLoadImage(0);
+}
+
+function closeLightbox() {
+  document.getElementById('lightboxModal').classList.remove('open');
+  setTimeout(() => {
+    const imgEl = document.getElementById('lightboxImg');
+    imgEl.src = ''; imgEl.style.display = 'none';
+    document.getElementById('lightboxPlaceholder').style.display = 'none';
+  }, 220);
+}
+
+// Lightbox nav wiring
+document.getElementById('lightboxModal').addEventListener('click', e => {
+  if (e.target === document.getElementById('lightboxModal')) closeLightbox();
+});
+document.getElementById('lightboxClose').addEventListener('click', closeLightbox);
+document.getElementById('lbPrev').addEventListener('click', () => {
+  if (_lbState.idx > 0) lbLoadImage(_lbState.idx - 1);
+});
+document.getElementById('lbNext').addEventListener('click', () => {
+  if (_lbState.idx < _lbState.images.length - 1) lbLoadImage(_lbState.idx + 1);
+});
+
+function openLightboxDetail(src, caption) {
+  if (!src) return;
+  _lbState = { images: [src], idx: 0, context: caption };
+  document.getElementById('lightboxContext').textContent = caption;
+  document.getElementById('lightboxModal').classList.add('open');
+  lbLoadImage(0);
+}
+
+// ─── MODALE DÉTAIL ────────────────────────────────────────────────────────────
+let _detailRowId = null;
+
+const IMG_DETAIL_FIELDS = [
+  { key:'image_localisation_1',  label:'Localisation vue 1' },
+  { key:'image_localisation_2',  label:'Localisation vue 2' },
+  { key:'image_zoom_insertion',  label:'Zoom insertion' },
+  { key:'image_vue_profonde',    label:'Vue profonde' },
+  { key:'image_faisceau_groupe', label:'Faisceaux du groupe' },
+  { key:'image_personnage',      label:'Personnage principal' },
+];
+const TEXT_DETAIL_FIELDS = [
+  { key:'fonction_principale', label:'Fonction principale' },
+  { key:'origine',             label:'Origine' },
+  { key:'insertion',           label:'Insertion' },
+  { key:'innervation',         label:'Innervation' },
+  { key:'action',              label:'Action' },
+];
+
+function makeImgOrPh(src, cls='dm-panel-img') {
+  if (!src) return null;
+  const img = document.createElement('img');
+  img.className = cls; img.alt = '';
+  img.src = './img/' + src;
+  img.onerror = () => img.style.display='none';
+  return img;
+}
+
+function makeInputPick(row, fieldKey, onConfirm) {
+  const wrap = document.createElement('div');
+  wrap.style.cssText = 'display:flex;align-items:center;gap:4px;width:100%';
+  const inp = document.createElement('input');
+  inp.type='text'; inp.value=row[fieldKey]||'';
+  inp.className='dm-textarea'; inp.style.cssText='min-height:28px;resize:none';
+  inp.placeholder='nom_fichier.png';
+  const fileInp = document.createElement('input');
+  fileInp.type='file'; fileInp.accept='image/*'; fileInp.hidden=true;
+  const pickBtn = document.createElement('button');
+  pickBtn.className='dm-img-pick-btn';
+  pickBtn.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg> Choisir';
+  pickBtn.addEventListener('click', ()=>fileInp.click());
+  fileInp.addEventListener('change', ()=>{ if(fileInp.files?.[0]) inp.value=fileInp.files[0].name; if(onConfirm) onConfirm(inp.value); });
+  inp.addEventListener('change', ()=>{ if(onConfirm) onConfirm(inp.value); });
+  wrap.append(inp, pickBtn, fileInp);
+  return { wrap, inp };
+}
+
+function openDetailModal(rowId) {
+  const row = state.rows.find(r => r.id === rowId);
+  if (!row) return;
+  _detailRowId = rowId;
+  const hex = MUSCLE_COLORS[row.groupe_musculaire] || '#9a9891';
+  const [r,g,b] = hexToRgb(hex);
+  const isEdit = state.viewMode === 'edit';
+  const modal = document.getElementById('detailModalBox');
+  modal.style.setProperty('--dm-color', hex);
+
+  // Header
+  document.getElementById('dmBadge').textContent = row.groupe_musculaire || '';
+  document.getElementById('dmMuscle').textContent = [row.muscle_cible, row.type_subdivision !== 'Aucune' ? row.type_subdivision : ''].filter(Boolean).join(' · ');
+  document.getElementById('dmSub').textContent = [row.subdivision_anatomique !== '-' ? row.subdivision_anatomique : '', row.localisation_fonctionnelle].filter(Boolean).join(' — ');
+  document.getElementById('dmEditActions').style.display = isEdit ? 'flex' : 'none';
+
+  // Body
+  const body = document.getElementById('dmBody');
+  body.innerHTML = '';
+
+  // ── Colonne texte ──
+  const colText = document.createElement('div');
+  colText.className = 'dm-col-text';
+
+  // Champs texte — directement, sans répéter ce qui est dans le header
+  TEXT_DETAIL_FIELDS.forEach(({key, label}) => {
+    const sec = document.createElement('div'); sec.className='dm-section';
+    const title = document.createElement('div'); title.className='dm-section-title'; title.textContent=label;
+    sec.appendChild(title);
+    if (isEdit) {
+      const ta = document.createElement('textarea');
+      ta.className='dm-textarea'; ta.dataset.field=key;
+      ta.value = row[key]||''; ta.placeholder = label + '…';
+      ta.rows = 3; sec.appendChild(ta);
+    } else {
+      const text = document.createElement('div');
+      text.className = row[key] ? 'dm-section-text' : 'dm-section-empty';
+      text.textContent = row[key] || '—';
+      sec.appendChild(text);
+    }
+    colText.appendChild(sec);
+  });
+
+  // Localisation images
+  const locSec = document.createElement('div'); locSec.className='dm-section';
+  const locTitle = document.createElement('div'); locTitle.className='dm-section-title'; locTitle.textContent='Localisation';
+  locSec.appendChild(locTitle);
+
+  if (isEdit) {
+    // En mode édition : les deux champs empilés verticalement avec label
+    const locEditWrap = document.createElement('div');
+    locEditWrap.style.cssText = 'display:flex;flex-direction:column;gap:var(--space-2)';
+    ['image_localisation_1','image_localisation_2'].forEach((key, idx) => {
+      const lbl = document.createElement('div');
+      lbl.style.cssText = 'font-size:.65rem;color:var(--color-text-muted);font-weight:600';
+      lbl.textContent = `Vue ${idx+1}`;
+      const {wrap} = makeInputPick(row, key, ()=>{});
+      locEditWrap.append(lbl, wrap);
+    });
+    locSec.appendChild(locEditWrap);
+  } else {
+    // En mode lecture : 2 miniatures côte à côte
+    const locRow = document.createElement('div'); locRow.className='dm-loc-row';
+    ['image_localisation_1','image_localisation_2'].forEach((key, idx) => {
+      const slot = document.createElement('div');
+      const src = row[key]||'';
+      if (src) {
+        const img = document.createElement('img'); img.className='dm-loc-img';
+        img.src='./img/'+src; img.alt=''; img.onerror=()=>img.replaceWith(makeLPh());
+        img.addEventListener('click', () => openLightboxDetail(src, `Localisation Vue ${idx+1} · ${row.muscle_cible}`));
+        slot.appendChild(img);
+      } else { slot.appendChild(makeLPh()); }
+      locRow.appendChild(slot);
+    });
+    locSec.appendChild(locRow);
+  }
+  colText.appendChild(locSec);
+  body.appendChild(colText);
+
+  // ── Colonne personnage ──
+  const colFig = document.createElement('div'); colFig.className='dm-col-fig';
+  const figSrc = row.image_personnage || '';
+  if (figSrc) {
+    const img = document.createElement('img'); img.className='dm-fig-img';
+    img.src='./img/'+figSrc; img.alt='';
+    img.style.cursor = 'zoom-in';
+    img.onerror=()=>{ img.style.display='none'; colFig.appendChild(makeFigPh()); };
+    img.addEventListener('click', () => openLightboxDetail(figSrc, `Personnage · ${row.muscle_cible}`));
+    colFig.appendChild(img);
+  } else {
+    colFig.appendChild(makeFigPh());
+  }
+  if (isEdit) {
+    const editWrap = document.createElement('div');
+    editWrap.style.position='absolute'; editWrap.style.bottom='0'; editWrap.style.left='0'; editWrap.style.right='0';
+    editWrap.style.padding='var(--space-2) var(--space-3)';
+    editWrap.style.background='var(--color-surface-offset)';
+    editWrap.style.borderTop='1px solid var(--color-border)';
+    editWrap.style.backdropFilter='blur(6px)';
+    const lbl = document.createElement('div'); lbl.style.cssText='font-size:.65rem;color:var(--color-text-muted);font-weight:600;margin-bottom:4px'; lbl.textContent='Image personnage';
+    const {wrap} = makeInputPick(row, 'image_personnage', ()=>{});
+    editWrap.append(lbl, wrap);
+    colFig.appendChild(editWrap);
+    colFig.style.position = 'relative';
+  }
+  body.appendChild(colFig);
+
+  // ── Colonne encarts ──
+  const colPanels = document.createElement('div'); colPanels.className='dm-col-panels';
+  const panels = [
+    { key:'image_zoom_insertion',  title:'ZOOM · INSERTION' },
+    { key:'image_vue_profonde',    title:'VUE PROFONDE' },
+    { key:'image_faisceau_groupe', title:'FAISCEAUX DU GROUPE' },
+  ];
+  panels.forEach(({key, title}, pi) => {
+    const panel = document.createElement('div'); panel.className='dm-panel';
+    const ptitle = document.createElement('div'); ptitle.className='dm-panel-title';
+    ptitle.textContent = title;
+    const pbody = document.createElement('div'); pbody.className='dm-panel-body';
+    const src = row[key]||'';
+    if (src) {
+      const img = document.createElement('img'); img.className='dm-panel-img';
+      img.src='./img/'+src; img.alt='';
+      img.onerror=()=>{ img.style.display='none'; pbody.appendChild(makePanelPh()); };
+      img.addEventListener('click', () => openLightboxDetail(src, `${title} · ${row.muscle_cible}`));
+      pbody.appendChild(img);
+    } else {
+      pbody.appendChild(makePanelPh());
+    }
+    // Faisceaux : légende des autres muscles
+    if (pi === 2) {
+      panel.append(ptitle, pbody);
+    } else {
+      panel.append(ptitle, pbody);
+    }
+    if (isEdit) {
+      const pe = document.createElement('div');
+      pe.style.cssText = 'padding:var(--space-2) var(--space-3);border-top:1px solid var(--color-border);flex-shrink:0;background:var(--color-surface-offset)';
+      const {wrap} = makeInputPick(row, key, ()=>{});
+      pe.appendChild(wrap);
+      panel.appendChild(pe);
+    }
+    colPanels.appendChild(panel);
+  }); // fin panels.forEach
+  body.appendChild(colPanels);
+
+  document.getElementById('detailModal').classList.add('open');
+}
+
+function makeLPh() {
+  const d=document.createElement('div'); d.className='dm-loc-ph';
+  d.innerHTML='<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>';
+  return d;
+}
+function makeFigPh() {
+  const d=document.createElement('div'); d.className='dm-fig-ph';
+  d.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"><path d="M12 2a2 2 0 1 1 0 4 2 2 0 0 1 0-4z"/><path d="M7 8h10l1 8H6z"/><path d="M9 16l-1 6"/><path d="M15 16l1 6"/></svg><span>Image personnage</span>';
+  return d;
+}
+function makePanelPh() {
+  const d=document.createElement('div'); d.className='dm-panel-ph';
+  d.textContent='— Aucune image —'; return d;
+}
+
+function closeDetailModal() {
+  document.getElementById('detailModal').classList.remove('open');
+  _detailRowId = null;
+}
+
+function saveDetailModal() {
+  const row = state.rows.find(r => r.id === _detailRowId);
+  if (!row) return;
+  // Sauvegarder les textareas
+  document.querySelectorAll('#dmBody textarea.dm-textarea[data-field]').forEach(ta => {
+    row[ta.dataset.field] = ta.value.trim();
+  });
+  // Sauvegarder les inputs image
+  document.querySelectorAll('#dmBody input[type="text"][placeholder$=".png"]').forEach(inp => {
+    const key = inp.closest('[data-imgkey]')?.dataset.imgkey;
+    if (key) row[key] = inp.value.trim();
+  });
+  // Parcourir les pickInputs via la structure
+  const allImgFields = ['image_localisation_1','image_localisation_2','image_zoom_insertion','image_vue_profonde','image_faisceau_groupe','image_personnage'];
+  document.querySelectorAll('#dmBody input[type="text"]').forEach(inp => {
+    // Trouver quel champ correspond à cet input en cherchant sa position
+  });
+  // Approche directe : relire les inputs dans l'ordre de création
+  const imgInputs = [...document.querySelectorAll('#dmBody input[type="text"][placeholder="nom_fichier.png"]')];
+  const imgFieldOrder = ['image_localisation_1','image_localisation_2','image_personnage','image_zoom_insertion','image_vue_profonde','image_faisceau_groupe'];
+  imgInputs.forEach((inp, i) => { if (imgFieldOrder[i]) row[imgFieldOrder[i]] = inp.value.trim(); });
+  saveAutosave(); closeDetailModal(); renderTable();
+  setStatus('Fiche détail mise à jour.', 'ok');
+}
+
+document.getElementById('detailModal').addEventListener('click', e => { if(e.target===document.getElementById('detailModal')) closeDetailModal(); });
+document.getElementById('dmClose').addEventListener('click', closeDetailModal);
+document.getElementById('dmSaveBtn').addEventListener('click', saveDetailModal);
+
+// ─── MODALE MULTI-IMAGES ──────────────────────────────────────────────────────
+let _multiImgTarget = null; // rowId
+
+function buildImgSlots(allImages) {
+  // allImages = array of 10 {key, label, val}
+  const container = document.getElementById('multiImgSlots');
+  container.innerHTML = '';
+  allImages.forEach(({key, label, val}, i) => {
+    const isMain = i === 0;
+    const previewId = `slotPrev${i}`;
+    const phId      = `slotPh${i}`;
+    const inpId     = `slotInp${i}`;
+    const fileId    = `slotFile${i}`;
+
+    const slot = document.createElement('div');
+    slot.className = 'img-slot' + (isMain?' slot-main':'');
+
+    slot.innerHTML = `
+      <div style="display:flex;flex-direction:column;align-items:center;gap:var(--space-2);flex-shrink:0">
+        <div class="img-slot-num">${i+1}</div>
+        <img class="img-slot-preview" id="${previewId}" src="" alt="" style="display:none">
+        <div class="img-slot-preview-ph" id="${phId}">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+        </div>
+      </div>
+      <div class="img-slot-body">
+        <div class="img-slot-header">
+          <span class="img-slot-label">${label}${isMain?' <em style="font-size:.6rem;color:var(--color-primary)">(principale)</em>':''}</span>
+          ${i < 4 ? `<div style="display:flex;align-items:center;gap:3px">
+            <button class="slot-order-btn" data-dir="-1" data-slot="${i}" title="Monter" ${i===0?'disabled':''}>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="18 15 12 9 6 15"/></svg>
+            </button>
+            <button class="slot-order-btn" data-dir="1" data-slot="${i}" title="Descendre" ${i===3?'disabled':''}>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="6 9 12 15 18 9"/></svg>
+            </button>
+            <button class="slot-clear-btn" data-slot="${i}" title="Vider">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            </button>
+          </div>` : `<button class="slot-clear-btn" data-slot="${i}" title="Vider">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          </button>`}
+        </div>
+        <div class="img-slot-input-row">
+          <input type="text" class="img-slot-input" id="${inpId}" value="${escapeXml(val)}" placeholder="nom_fichier.png">
+          <button class="img-slot-pick" data-slot="${i}" title="Choisir fichier">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+          </button>
+          <input type="file" id="${fileId}" accept="image/*" hidden>
+        </div>
+      </div>`;
+
+    container.appendChild(slot);
+
+    if (val) {
+      const img = document.getElementById(previewId);
+      img.src = './img/' + val;
+      img.onload  = () => { img.style.display='block'; document.getElementById(phId).style.display='none'; };
+      img.onerror = () => { img.style.display='none'; document.getElementById(phId).style.display='grid'; };
+    }
+
+    slot.querySelector('.img-slot-pick').addEventListener('click', () => document.getElementById(fileId).click());
+    document.getElementById(fileId).addEventListener('change', function() {
+      const f = this.files?.[0]; if (!f) return;
+      document.getElementById(inpId).value = f.name;
+      const img = document.getElementById(previewId);
+      img.src = URL.createObjectURL(f);
+      img.onload = () => { img.style.display='block'; document.getElementById(phId).style.display='none'; };
+    });
+    document.getElementById(inpId).addEventListener('input', function() {
+      const v = this.value.trim();
+      const img = document.getElementById(previewId);
+      if (v) {
+        img.src = './img/' + v;
+        img.onload  = () => { img.style.display='block'; document.getElementById(phId).style.display='none'; };
+        img.onerror = () => { img.style.display='none'; document.getElementById(phId).style.display='grid'; };
+      } else {
+        img.style.display='none'; document.getElementById(phId).style.display='grid';
+      }
+    });
+    slot.querySelector('.slot-clear-btn')?.addEventListener('click', () => {
+      document.getElementById(inpId).value = '';
+      const img = document.getElementById(previewId);
+      img.style.display='none'; document.getElementById(phId).style.display='grid';
+    });
+  });
+
+  // Réordonner (slots 0-3 seulement)
+  container.querySelectorAll('.slot-order-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const slotIdx = parseInt(btn.dataset.slot);
+      const dir = parseInt(btn.dataset.dir);
+      const newIdx = slotIdx + dir;
+      if (newIdx < 0 || newIdx > 3) return;
+      const vals = getAllSlotValues();
+      // Échanger seulement les 4 premiers
+      [vals[slotIdx].val, vals[newIdx].val] = [vals[newIdx].val, vals[slotIdx].val];
+      openMultiImgModal(_multiImgTarget); // rebuild
+    });
+  });
+}
+
+const ALL_IMG_SLOTS = [
+  { key:'image_muscle',          label:'Image principale' },
+  { key:'image_muscle_2',        label:'Image 2' },
+  { key:'image_muscle_3',        label:'Image 3' },
+  { key:'image_muscle_4',        label:'Image 4' },
+  { key:'image_personnage',      label:'Personnage principal' },
+  { key:'image_localisation_1',  label:'Localisation vue 1' },
+  { key:'image_localisation_2',  label:'Localisation vue 2' },
+  { key:'image_zoom_insertion',  label:'Zoom insertion' },
+  { key:'image_vue_profonde',    label:'Vue profonde' },
+  { key:'image_faisceau_groupe', label:'Faisceaux du groupe' },
+];
+
+function getAllSlotValues() {
+  return ALL_IMG_SLOTS.map(({key, label}, i) => ({
+    key, label,
+    val: (document.getElementById(`slotInp${i}`)?.value || '').trim()
+  }));
+}
+
+function openMultiImgModal(rowId) {
+  const row = state.rows.find(r => r.id === rowId);
+  if (!row) return;
+  _multiImgTarget = rowId;
+  const allImages = ALL_IMG_SLOTS.map(({key, label}) => ({ key, label, val: row[key]||'' }));
+  buildImgSlots(allImages);
+  document.getElementById('multiImgModal').classList.add('open');
+}
+
+function closeMultiImgModal() {
+  document.getElementById('multiImgModal').classList.remove('open');
+  _multiImgTarget = null;
+}
+
+function confirmMultiImgModal() {
+  if (!_multiImgTarget) return;
+  const row = state.rows.find(r => r.id === _multiImgTarget);
+  if (!row) return;
+  const vals = getAllSlotValues();
+  vals.forEach(({key, val}) => row[key] = val);
+  closeMultiImgModal(); renderTable(); saveAutosave();
+  setStatus(`Images mises à jour — ${vals.filter(v=>v.val).length} image(s).`, 'ok');
+}
+
+document.getElementById('multiImgModal').addEventListener('click', e => { if(e.target===document.getElementById('multiImgModal')) closeMultiImgModal(); });
+document.getElementById('multiImgCancel').addEventListener('click', closeMultiImgModal);
+document.getElementById('multiImgConfirm').addEventListener('click', confirmMultiImgModal);
+
+// ─── MODALE IMAGE EDIT ────────────────────────────────────────────────────────
+let _imgModalTarget = null;
+function openImgModal(rowId, field) {
+  const row = state.rows.find(r => r.id === rowId);
+  if (!row) return;
+  _imgModalTarget = { rowId, field };
+  document.getElementById('imgModalLabel').textContent = field==='image_groupe'?'Image du groupe musculaire':'Image du muscle cible';
+  document.getElementById('imgModalInput').value = row[field] || '';
+  document.getElementById('imgModalPickName').textContent = 'Choisir un fichier…';
+  document.getElementById('imgModalPickName').classList.remove('has-file');
+  document.getElementById('imgModalFile').value = '';
+  document.getElementById('imgModal').classList.add('open');
+  setTimeout(() => document.getElementById('imgModalInput').focus(), 50);
+}
+function closeImgModal() { document.getElementById('imgModal').classList.remove('open'); _imgModalTarget = null; }
+function confirmImgModal() {
+  if (!_imgModalTarget) return;
+  const { rowId, field } = _imgModalTarget;
+  const row = state.rows.find(r => r.id === rowId);
+  if (!row) return;
+  const val = document.getElementById('imgModalInput').value.trim();
+  row[field] = val;
+  closeImgModal(); renderTable(); saveAutosave();
+  setStatus(`Image mise à jour → ${val || '(vide)'}`, 'ok');
+}
+
+// ─── MODALE AJOUT ─────────────────────────────────────────────────────────────
+function openAddModal() {
+  // Pré-remplir groupe si filtre actif
+  const sel = document.getElementById('am-groupe');
+  sel.value = state.activeGroup || '';
+  _syncAmGroupColor();
+  document.getElementById('am-muscle').value = '';
+  document.getElementById('am-sub').value = '';
+  document.getElementById('am-loc').value = '';
+  document.getElementById('am-type').value = 'Faisceau';
+  document.getElementById('am-recup').value = '48h';
+  document.getElementById('am-img-group').value = '';
+  document.getElementById('am-img-muscle').value = '';
+  document.getElementById('am-img-group-file').value = '';
+  document.getElementById('am-img-muscle-file').value = '';
+  document.getElementById('am-img-group-name').textContent = 'Choisir un fichier…';
+  document.getElementById('am-img-group-name').classList.remove('has-file');
+  document.getElementById('am-img-muscle-name').textContent = 'Choisir un fichier…';
+  document.getElementById('am-img-muscle-name').classList.remove('has-file');
+  const errEl = document.getElementById('am-error');
+  errEl.style.display = 'none';
+  document.getElementById('addModal').classList.add('open');
+  setTimeout(() => document.getElementById(state.activeGroup ? 'am-muscle' : 'am-groupe').focus(), 60);
+}
+function closeAddModal() { document.getElementById('addModal').classList.remove('open'); }
+function confirmAddModal() {
+  const groupe = document.getElementById('am-groupe').value.trim();
+  const muscle = document.getElementById('am-muscle').value.trim();
+  const errEl = document.getElementById('am-error');
+  if (!groupe || !muscle) {
+    errEl.style.display = 'block';
+    errEl.querySelector('div').textContent = 'Le groupe musculaire et le muscle cible sont obligatoires.';
+    return;
+  }
+  state.rows.push({
+    id: uid(),
+    groupe_musculaire: groupe,
+    muscle_cible: muscle,
+    type_subdivision: document.getElementById('am-type').value,
+    subdivision_anatomique: document.getElementById('am-sub').value.trim() || '-',
+    localisation_fonctionnelle: document.getElementById('am-loc').value.trim(),
+    image_groupe: document.getElementById('am-img-group').value.trim(),
+    image_muscle: document.getElementById('am-img-muscle').value.trim(),
+    jour_recup: document.getElementById('am-recup').value
+  });
+  closeAddModal();
+  renderGroupNav();
+  renderTable();
+  saveAutosave();
+  setStatus(`Entrée ajoutée : ${groupe} — ${muscle}`, 'ok');
+}
+function _syncAmGroupColor() {
+  const sel = document.getElementById('am-groupe');
+  const hex = MUSCLE_COLORS[sel.value];
+  sel.style.color = hex || '';
+  sel.style.borderColor = hex || '';
+  sel.style.boxShadow = hex ? `0 0 0 1px ${hex}44` : '';
+  sel.classList.toggle('is-placeholder', !sel.value);
+}
+
+// ─── MODALE SUPPRESSION ───────────────────────────────────────────────────────
+let _deleteTargetId = null;
+function openDeleteModal(rowId) {
+  const row = state.rows.find(r => r.id === rowId);
+  if (!row) return;
+  _deleteTargetId = rowId;
+  const label = [row.groupe_musculaire, row.muscle_cible, row.subdivision_anatomique !== '-' ? row.subdivision_anatomique : '']
+    .filter(Boolean).join(' — ');
+  document.getElementById('deleteModalDesc').innerHTML =
+    `Vous allez supprimer :<br><strong>${label}</strong><br><span style="font-size:var(--text-xs);opacity:.7">Cette action est irréversible.</span>`;
+  document.getElementById('deleteModal').classList.add('open');
+  setTimeout(() => document.getElementById('deleteModalCancel').focus(), 50);
+}
+function closeDeleteModal() { document.getElementById('deleteModal').classList.remove('open'); _deleteTargetId = null; }
+function confirmDelete() {
+  if (!_deleteTargetId) return;
+  const row = state.rows.find(r => r.id === _deleteTargetId);
+  const label = row ? `${row.groupe_musculaire} — ${row.muscle_cible}` : 'ligne';
+  state.rows = state.rows.filter(r => r.id !== _deleteTargetId);
+  if (state.selectedId === _deleteTargetId) state.selectedId = null;
+  closeDeleteModal();
+  renderGroupNav(); renderTable(); saveAutosave();
+  setStatus(`Ligne supprimée : ${label}.`, 'ok');
+}
+
+// ─── MODALE MOT DE PASSE ──────────────────────────────────────────────────────
+function getExpectedPassword() {
+  const now = new Date();
+  return String(now.getDate()).padStart(2,'0') + String(now.getMonth()+1).padStart(2,'0')
+    + String(now.getFullYear()) + String(now.getHours()).padStart(2,'0') + String(now.getMinutes()).padStart(2,'0');
+}
+function openPwdModal() {
+  document.getElementById('pwdInput').value = '';
+  document.getElementById('pwdError').textContent = '';
+  document.getElementById('pwdInput').classList.remove('error');
+  document.getElementById('pwdInput').type = 'password';
+  document.getElementById('pwdEyeOpen').style.display = 'block';
+  document.getElementById('pwdEyeClosed').style.display = 'none';
+  document.getElementById('pwdModal').classList.add('open');
+  setTimeout(() => document.getElementById('pwdInput').focus(), 50);
+}
+function closePwdModal() { document.getElementById('pwdModal').classList.remove('open'); }
+function confirmPwd() {
+  const input = document.getElementById('pwdInput').value.trim();
+  if (input === getExpectedPassword()) {
+    closePwdModal(); loadEmbedded();
+  } else {
+    const el = document.getElementById('pwdInput');
+    el.classList.remove('error'); void el.offsetWidth; el.classList.add('error');
+    document.getElementById('pwdError').textContent = 'Mot de passe incorrect.';
+    el.value = ''; el.focus();
+  }
+}
+
+// ─── CHARGEMENT / EXPORT ──────────────────────────────────────────────────────
+function loadFromXmlText(xmlText, message='XML chargé.') {
+  state.rows = parseXmlString(xmlText);
+  state.selectedId = null;
+  renderGroupNav(); renderTable(); saveAutosave();
+  setStatus(`${message} ${state.rows.length} lignes.`, 'ok');
+}
+function loadEmbedded() {
+  state.sortField = null; state.sortDirection = 'asc';
+  state.selectedId = null; state.activeGroup = '';
+  applyViewMode('read');
+  loadFromXmlText(document.getElementById('embeddedXml').textContent.trim(), 'Données intégrées rechargées.');
+}
+function exportXml() {
+  const blob = new Blob([rowsToXml(state.rows)], {type:'application/xml'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'muscles-edited.xml';
+  a.click(); URL.revokeObjectURL(a.href);
+  setStatus('Export XML généré.', 'ok');
+}
+
+// ─── TRI ──────────────────────────────────────────────────────────────────────
+function sortBy(field) {
+  if (state.sortField === field) state.sortDirection = state.sortDirection === 'asc' ? 'desc' : 'asc';
+  else { state.sortField = field; state.sortDirection = 'asc'; }
+  renderTable(); saveAutosave();
+}
+
+// ─── MODE VUE ─────────────────────────────────────────────────────────────────
+function applyViewMode(mode) {
+  state.viewMode = mode;
+  const isRead = mode === 'read';
+  document.getElementById('viewIconRead').style.display = isRead ? 'none' : 'block';
+  document.getElementById('viewIconEdit').style.display = isRead ? 'block' : 'none';
+  const btn = document.getElementById('toggleViewBtn');
+  btn.title = isRead ? 'Mode Édition' : 'Mode Lecture';
+  btn.setAttribute('aria-label', btn.title);
+  // Bouton édition image anatomie
+  const editBtn = document.getElementById('anatomyEditBtn');
+  if (editBtn) editBtn.style.display = isRead ? 'none' : 'inline-flex';
+}
+function toggleViewMode() {
+  applyViewMode(state.viewMode === 'edit' ? 'read' : 'edit');
+  renderTable();
+  setStatus(state.viewMode === 'edit' ? 'Mode édition activé.' : 'Mode lecture activé.', 'ok');
+}
+
+// ─── THÈME ────────────────────────────────────────────────────────────────────
+function applyTheme(theme) {
+  document.documentElement.setAttribute('data-theme', theme);
+  localStorage.setItem('muscle-xml-theme', theme);
+  document.getElementById('themeIconDark').style.display = theme === 'dark' ? 'block' : 'none';
+  document.getElementById('themeIconLight').style.display = theme === 'light' ? 'block' : 'none';
+  if (state.rows.length) renderTable();
+}
+function toggleTheme() {
+  applyTheme(document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark');
+}
+
+// ─── MODALE IMAGES GROUPES ────────────────────────────────────────────────────
+function buildGroupImgList() {
+  const container = document.getElementById('groupImgList');
+  container.innerHTML = '';
+  const allEntries = [
+    { key: '', label: 'Tous les groupes', color: null },
+    ...GROUPS_LIST.map(g => ({ key: g, label: g, color: MUSCLE_COLORS[g] || '#9a9891' }))
+  ];
+  allEntries.forEach(({ key, label, color }) => {
+    const val = _groupImages[key] || '';
+    const isTous = key === '';
+    const previewId = `gi-prev-${key.replace(/[^a-z]/gi,'_')}`;
+    const phId      = `gi-ph-${key.replace(/[^a-z]/gi,'_')}`;
+    const inpId     = `gi-inp-${key.replace(/[^a-z]/gi,'_')}`;
+    const fileId    = `gi-file-${key.replace(/[^a-z]/gi,'_')}`;
+    const [r,g,b]   = color ? hexToRgb(color) : [100,100,100];
+
+    const row = document.createElement('div');
+    row.className = 'gi-row' + (isTous ? ' is-tous' : '');
+
+    // Dot couleur ou icône "Tous"
+    let dotHtml = isTous
+      ? `<div style="width:10px;height:10px;border-radius:50%;background:var(--color-primary-highlight);border:2px solid var(--color-primary);flex-shrink:0"></div>`
+      : `<div class="gi-dot" style="background:${color}"></div>`;
+
+    row.innerHTML = `
+      ${dotHtml}
+      <img class="gi-preview" id="${previewId}" src="" alt="" style="display:none">
+      <div class="gi-ph" id="${phId}" style="color:${isTous?'var(--color-primary)':color}">
+        ${isTous ? '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6 18V8.5C6 6.57 7.57 5 9.5 5h.5v14H9.5A3.5 3.5 0 0 1 6 15.5"/><path d="M18 18V8.5C18 6.57 16.43 5 14.5 5H14v14h.5a3.5 3.5 0 0 0 3.5-3.5"/></svg>' : `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="${color}" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>`}
+      </div>
+      <div class="gi-body">
+        <div class="gi-name">${escapeXml(label)}${isTous?'<span style="font-size:.6rem;color:var(--color-primary);margin-left:.4rem;font-weight:400">(image par défaut)</span>':''}</div>
+        <div class="gi-input-row">
+          <input type="text" class="gi-input" id="${inpId}" value="${escapeXml(val)}" placeholder="nom_fichier.png">
+          <button class="gi-pick" data-key="${escapeXml(key)}" title="Choisir fichier">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+          </button>
+          <input type="file" id="${fileId}" accept="image/*" hidden>
+          <button class="gi-clear" data-inp="${inpId}" data-prev="${previewId}" data-ph="${phId}" title="Vider">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          </button>
+        </div>
+      </div>`;
+
+    container.appendChild(row);
+
+    // Afficher l'aperçu si valeur existante
+    if (val) {
+      const img = document.getElementById(previewId);
+      img.src = './img/' + val;
+      img.onload  = () => { img.style.display='block'; document.getElementById(phId).style.display='none'; };
+      img.onerror = () => { img.style.display='none'; document.getElementById(phId).style.display='grid'; };
+    }
+
+    // File picker
+    row.querySelector('.gi-pick').addEventListener('click', () => document.getElementById(fileId).click());
+    document.getElementById(fileId).addEventListener('change', function() {
+      const f = this.files?.[0]; if (!f) return;
+      document.getElementById(inpId).value = f.name;
+      const img = document.getElementById(previewId);
+      img.src = URL.createObjectURL(f);
+      img.onload = () => { img.style.display='block'; document.getElementById(phId).style.display='none'; };
+    });
+
+    // Input change → update preview
+    document.getElementById(inpId).addEventListener('input', function() {
+      const v = this.value.trim();
+      const img = document.getElementById(previewId);
+      if (v) {
+        img.src = './img/' + v;
+        img.onload  = () => { img.style.display='block'; document.getElementById(phId).style.display='none'; };
+        img.onerror = () => { img.style.display='none'; document.getElementById(phId).style.display='grid'; };
+      } else {
+        img.style.display='none'; document.getElementById(phId).style.display='grid';
+      }
+    });
+
+    // Bouton vider
+    row.querySelector('.gi-clear').addEventListener('click', function() {
+      document.getElementById(this.dataset.inp).value = '';
+      const img = document.getElementById(this.dataset.prev);
+      img.style.display='none'; document.getElementById(this.dataset.ph).style.display='grid';
+    });
+  });
+}
+
+function openGroupImgModal() {
+  buildGroupImgList();
+  document.getElementById('groupImgModal').classList.add('open');
+}
+function closeGroupImgModal() { document.getElementById('groupImgModal').classList.remove('open'); }
+function confirmGroupImgModal() {
+  const allEntries = [{ key: '' }, ...GROUPS_LIST.map(g => ({ key: g }))];
+  allEntries.forEach(({ key }) => {
+    const inpId = `gi-inp-${key.replace(/[^a-z]/gi,'_')}`;
+    const inp = document.getElementById(inpId);
+    if (inp) _groupImages[key] = inp.value.trim();
+  });
+  saveGroupImages();
+  closeGroupImgModal();
+  updateAnatomyImage();
+  setStatus('Images des groupes enregistrées.', 'ok');
+}
+
+document.getElementById('groupImgModal').addEventListener('click', e => { if (e.target===document.getElementById('groupImgModal')) closeGroupImgModal(); });
+document.getElementById('groupImgCancel').addEventListener('click', closeGroupImgModal);
+document.getElementById('groupImgConfirm').addEventListener('click', confirmGroupImgModal);
+document.getElementById('anatomyEditBtn').addEventListener('click', openGroupImgModal);
+
+// ─── ÉCOUTEURS ────────────────────────────────────────────────────────────────
+// Tableau
+document.querySelectorAll('[data-sort]').forEach(btn => btn.addEventListener('click', () => sortBy(btn.dataset.sort)));
+els.searchInput.addEventListener('input', () => { renderTable(); saveAutosave(); });
+
+els.tableBody.addEventListener('click', e => {
+  const tdRead = e.target.closest('td.cell-img-read');
+  if (tdRead) {
+    if (tdRead.dataset.field === 'image_muscle') {
+      openLightbox(tdRead.dataset.id, 'image_muscle');
+    } else {
+      openLightbox(tdRead.dataset.id, tdRead.dataset.field);
+    }
+    return;
+  }
+});
+els.tableBody.addEventListener('dblclick', e => {
+  if (state.viewMode !== 'edit') return; // lecture seule en mode lecteur
+
+  const tdImg = e.target.closest('td.cell-img');
+  if (tdImg) {
+    e.preventDefault();
+    if (tdImg.dataset.field === 'image_muscle') {
+      openMultiImgModal(tdImg.dataset.id);
+    } else {
+      openImgModal(tdImg.dataset.id, tdImg.dataset.field);
+    }
+    return;
+  }
+  const td = e.target.closest('td.cell');
+  if (!td) return;
+  e.preventDefault(); e.stopPropagation(); startEdit(td);
+});
+els.tableBody.addEventListener('input', e => {
+  const td = e.target.closest('td.cell.editing');
+  if (!td) return;
+  const target = state.rows.find(r => r.id === td.dataset.id);
+  if (!target) return;
+  target[td.dataset.field] = td.textContent.trim();
+  saveAutosave();
+});
+els.tableBody.addEventListener('keydown', e => {
+  const td = e.target.closest('td.cell.editing');
+  if (!td || td.dataset.field === 'jour_recup' || td.dataset.field === 'groupe_musculaire') return;
+  if (e.key === 'Enter') { e.preventDefault(); td.blur(); }
+  if (e.key === 'Escape') {
+    e.preventDefault();
+    const original = state.rows.find(r => r.id === td.dataset.id)?.[td.dataset.field] || '';
+    td.textContent = original;
+    finishEdit(td, false);
+    setStatus('Édition annulée.', 'warn');
+  }
+});
+els.tableBody.addEventListener('focusout', e => {
+  const td = e.target.closest('td.cell.editing');
+  if (!td || td.dataset.field === 'jour_recup' || td.dataset.field === 'groupe_musculaire') return;
+  finishEdit(td, true);
+});
+
+// Toolbar
+document.getElementById('saveBtn').addEventListener('click', exportXml);
+document.getElementById('loadEmbeddedBtn').addEventListener('click', openPwdModal);
+document.getElementById('toggleLayoutBtn').addEventListener('click', toggleLayout);
+document.getElementById('toggleViewBtn').addEventListener('click', toggleViewMode);
+document.getElementById('toggleThemeBtn').addEventListener('click', toggleTheme);
+document.getElementById('openAddModalBtn').addEventListener('click', openAddModal);
+document.getElementById('deleteSelectedBtn').addEventListener('click', () => {
+  if (!state.selectedId) { setStatus('Sélectionne une ligne (clic) avant de supprimer.', 'warn'); return; }
+  openDeleteModal(state.selectedId);
+});
+document.getElementById('xmlFile').addEventListener('change', async e => {
+  const file = e.target.files?.[0];
+  if (!file) return;
+  try { loadFromXmlText(await file.text(), `Fichier importé : ${file.name}.`); }
+  catch(err) { setStatus(err.message, 'danger'); }
+  e.target.value = '';
+});
+
+// Modale ajout
+document.getElementById('addModal').addEventListener('click', e => { if (e.target === document.getElementById('addModal')) closeAddModal(); });
+document.getElementById('addModalCancel').addEventListener('click', closeAddModal);
+document.getElementById('addModalConfirm').addEventListener('click', confirmAddModal);
+document.getElementById('am-groupe').addEventListener('change', _syncAmGroupColor);
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') {
+    if (document.getElementById('addModal').classList.contains('open')) { closeAddModal(); return; }
+  }
+});
+// File pickers modale ajout
+['img-group','img-muscle'].forEach(key => {
+  document.getElementById(`am-${key}-wrap`).addEventListener('click', () => document.getElementById(`am-${key}-file`).click());
+  document.getElementById(`am-${key}-file`).addEventListener('change', function() {
+    const file = this.files?.[0];
+    const name = file ? file.name : '';
+    document.getElementById(`am-${key}`).value = name;
+    const span = document.getElementById(`am-${key}-name`);
+    span.textContent = name || 'Choisir un fichier…';
+    span.classList.toggle('has-file', !!name);
+  });
+});
+// Modale image
+document.getElementById('imgModal').addEventListener('click', e => { if (e.target === document.getElementById('imgModal')) closeImgModal(); });
+document.getElementById('imgModalCancel').addEventListener('click', closeImgModal);
+document.getElementById('imgModalConfirm').addEventListener('click', confirmImgModal);
+document.getElementById('imgModalInput').addEventListener('keydown', e => {
+  if (e.key === 'Enter') confirmImgModal();
+  if (e.key === 'Escape') closeImgModal();
+});
+document.getElementById('imgModalPickWrap').addEventListener('click', () => document.getElementById('imgModalFile').click());
+document.getElementById('imgModalFile').addEventListener('change', function() {
+  const file = this.files?.[0];
+  if (!file) return;
+  document.getElementById('imgModalInput').value = file.name;
+  const span = document.getElementById('imgModalPickName');
+  span.textContent = file.name; span.classList.add('has-file');
+});
+
+// Modale suppression
+document.getElementById('deleteModal').addEventListener('click', e => { if (e.target === document.getElementById('deleteModal')) closeDeleteModal(); });
+document.getElementById('deleteModalCancel').addEventListener('click', closeDeleteModal);
+document.getElementById('deleteModalConfirm').addEventListener('click', confirmDelete);
+
+// Modale mot de passe
+document.getElementById('pwdModal').addEventListener('click', e => { if (e.target === document.getElementById('pwdModal')) closePwdModal(); });
+document.getElementById('pwdCancel').addEventListener('click', closePwdModal);
+document.getElementById('pwdConfirm').addEventListener('click', confirmPwd);
+document.getElementById('pwdInput').addEventListener('keydown', e => {
+  if (e.key === 'Enter') confirmPwd();
+  if (e.key === 'Escape') closePwdModal();
+});
+document.getElementById('pwdToggle').addEventListener('click', () => {
+  const inp = document.getElementById('pwdInput');
+  const isHidden = inp.type === 'password';
+  inp.type = isHidden ? 'text' : 'password';
+  document.getElementById('pwdEyeOpen').style.display   = isHidden ? 'none' : 'block';
+  document.getElementById('pwdEyeClosed').style.display = isHidden ? 'block' : 'none';
+});
+
+// Lightbox keyboard + multiImgModal
+document.addEventListener('keydown', e => {
+  // Lightbox navigation ← →
+  if (document.getElementById('lightboxModal').classList.contains('open')) {
+    if (e.key === 'ArrowLeft')  { e.preventDefault(); if (_lbState.idx > 0) lbLoadImage(_lbState.idx - 1); return; }
+    if (e.key === 'ArrowRight') { e.preventDefault(); if (_lbState.idx < _lbState.images.length-1) lbLoadImage(_lbState.idx + 1); return; }
+    if (e.key === 'Escape') { closeLightbox(); return; }
+  }
+  if (e.key === 'Escape') {
+    if (document.getElementById('detailModal').classList.contains('open'))   { closeDetailModal(); return; }
+    if (document.getElementById('multiImgModal').classList.contains('open')) { closeMultiImgModal(); return; }
+    if (document.getElementById('groupImgModal').classList.contains('open')) { closeGroupImgModal(); return; }
+    if (document.getElementById('deleteModal').classList.contains('open'))   { closeDeleteModal(); return; }
+    if (document.getElementById('imgModal').classList.contains('open'))      { closeImgModal(); return; }
+    if (document.getElementById('pwdModal').classList.contains('open'))      { closePwdModal(); return; }
+  }
+});
+
+// ─── INIT ─────────────────────────────────────────────────────────────────────
+async function loadFromCorpsDb() {
+  const d = await GymDB.read('corps.json');
+  if (d && Array.isArray(d.rows) && d.rows.length) {
+    state.rows = d.rows.map(r => ({id: r.id || uid(), ...r}));
+    state.sortField = d.sortField || null;
+    state.sortDirection = d.sortDirection || 'asc';
+    state.activeGroup = d.activeGroup || '';
+    return d;
+  }
+  return false;
+}
+
+(async function init() {
+  applyTheme(localStorage.getItem('muscle-xml-theme') || 'light');
+  loadGroupImages(); // Charger depuis localStorage d'abord
+
+  const dbState = await GymDB.init();
+
+  if (dbState === 'connected') {
+    // Charger images groupes depuis Db si disponibles
+    await loadGroupImagesFromDb();
+    const d = await loadFromCorpsDb();
+    if (d) {
+      els.searchInput.value = d.search || '';
+      applyViewMode('read'); renderGroupNav(); renderTable();
+      updateAnatomyImage();
+      setStatus('Données chargées depuis Db.', 'ok');
+      return;
+    }
+  }
+
+  const autosave = loadAutosave();
+  if (autosave) {
+    els.searchInput.value = autosave.search || '';
+    applyViewMode('read'); renderGroupNav(); renderTable();
+    setStatus("Session restaurée depuis l'autosave.", 'ok');
+  } else {
+    loadEmbedded();
+  }
+  updateAnatomyImage();
+})();
+</script>
+
+<!-- ═══════════════ GYMOS NAV PANEL ═══════════════ -->
+<div id="gymosNavPanel" style="display:none;position:fixed;inset:0;z-index:9999;align-items:flex-start;justify-content:flex-start">
+  <div id="gymosNavBackdrop" style="position:absolute;inset:0;background:rgba(0,0,0,.45);backdrop-filter:blur(5px)"></div>
+  <div style="position:relative;width:256px;height:100%;background:var(--color-surface,#f9f8f5);border-right:1px solid var(--color-border,#d4d1ca);box-shadow:12px 0 40px rgba(0,0,0,.18);display:flex;flex-direction:column;overflow-y:auto;z-index:1">
+    <!-- Logo + Fermer -->
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:1.1rem 1rem .9rem;border-bottom:1px solid var(--color-border,#d4d1ca);background:linear-gradient(135deg,var(--color-surface,#f9f8f5),var(--color-surface-offset,#f3f0ec))">
+      <div style="display:flex;align-items:center;gap:.6rem">
+        <div style="width:34px;height:34px;border-radius:.6rem;background:var(--color-primary-highlight,#cedcd8);display:grid;place-items:center">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#01696f" stroke-width="1.8" stroke-linecap="round"><path d="M6 18V8.5C6 6.57 7.57 5 9.5 5h.5v14H9.5A3.5 3.5 0 0 1 6 15.5"/><path d="M18 18V8.5C18 6.57 16.43 5 14.5 5H14v14h.5a3.5 3.5 0 0 0 3.5-3.5"/></svg>
+        </div>
+        <span style="font-weight:800;font-size:.95rem;color:var(--color-text,#28251d)">GymOS</span>
+      </div>
+      <button id="gymosNavClose" style="border:none;background:none;cursor:pointer;color:var(--color-text-muted,#6e6b64);font-size:1.3rem;line-height:1;padding:.2rem .5rem;border-radius:.35rem;transition:background .12s" onmouseenter="this.style.background='rgba(0,0,0,.06)'" onmouseleave="this.style.background='none'">×</button>
+    </div>
+    <!-- Items nav -->
+    <nav id="gymosNavItems" style="padding:.6rem .5rem;display:flex;flex-direction:column;gap:.15rem;flex:1"></nav>
+    <!-- Footer -->
+    <div style="padding:.65rem 1rem;border-top:1px solid var(--color-border,#d4d1ca);font-size:.62rem;color:var(--color-text-faint,#9a9891);text-align:center;letter-spacing:.04em">GymOS — Gestion Musculation</div>
+  </div>
+</div>
+
+<script>
+(function(){
+  const PAGES=[
+    {href:'index.html',     label:'Accueil',    emoji:'🏠', color:'#01696f'},
+    {href:'Dashboard.html', label:'Dashboard',  emoji:'📊', color:'#01696f'},
+    {href:'Corps.html',     label:'Corps',      emoji:'💪', color:'#b90207'},
+    {href:'Exercices.html', label:'Exercices',  emoji:'🏋', color:'#fa7b01'},
+    {href:'Programme.html', label:'Programme',  emoji:'📋', color:'#8338bb'},
+    {href:'Seance.html',    label:'Séance',     emoji:'⏱', color:'#437a22'},
+    {href:'Historique.html',label:'Historique', emoji:'📅', color:'#0161be'},
+    {href:'Progression.html',label:'Progression',emoji:'📈',color:'#5a9d24'},
+    {href:'Nutrition.html', label:'Nutrition',  emoji:'🥗', color:'#964219'},
+  ];
+  const cur=(window.location.pathname.split('/').pop()||'index.html');
+  const nav=document.getElementById('gymosNavItems');
+  if(nav){
+    PAGES.forEach(p=>{
+      const isC=cur===p.href||(cur===''&&p.href==='index.html');
+      const a=document.createElement('a');
+      a.href=p.href;
+      a.style.cssText=`display:flex;align-items:center;gap:.7rem;padding:.58rem .85rem;border-radius:.6rem;font-size:.82rem;font-weight:${isC?700:500};color:${isC?p.color:'var(--color-text,#28251d)'};background:${isC?p.color+'18':'transparent'};text-decoration:none;transition:background .12s,color .12s;border-left:3px solid ${isC?p.color:'transparent'}`;
+      const em=document.createElement('span');em.textContent=p.emoji;em.style.cssText='font-size:1rem;width:22px;text-align:center;flex-shrink:0';
+      const lb=document.createElement('span');lb.textContent=p.label;lb.style.flex='1';
+      a.append(em,lb);
+      if(isC){const d=document.createElement('span');d.style.cssText=`width:6px;height:6px;border-radius:50%;background:${p.color};flex-shrink:0`;a.appendChild(d);}
+      a.addEventListener('mouseenter',()=>{if(!isC){a.style.background='var(--color-surface-offset,#f3f0ec)';}});
+      a.addEventListener('mouseleave',()=>{if(!isC){a.style.background='transparent';}});
+      nav.appendChild(a);
+    });
+  }
+  function openNav(){document.getElementById('gymosNavPanel').style.display='flex';}
+  function closeNav(){document.getElementById('gymosNavPanel').style.display='none';}
+  // Remplacer le homeBtn pour ouvrir le nav panel
+  const hb=document.getElementById('homeBtn');
+  if(hb){
+    const nb=hb.cloneNode(true);
+    hb.parentNode.replaceChild(nb,hb);
+    nb.id='homeBtn';
+    nb.title='Navigation';
+    nb.addEventListener('click',e=>{e.stopPropagation();openNav();});
+  }
+  document.getElementById('gymosNavClose').addEventListener('click',closeNav);
+  document.getElementById('gymosNavBackdrop').addEventListener('click',closeNav);
+  document.addEventListener('keydown',e=>{if(e.key==='Escape')closeNav();});
+})();
+</script>
+
+</body>
+</html>

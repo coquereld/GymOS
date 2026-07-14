@@ -1,0 +1,647 @@
+<!DOCTYPE html>
+<html lang="fr" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GymOS</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://api.fontshare.com/v2/css?f[]=satoshi@400,500,700&display=swap" rel="stylesheet">
+  <style>
+    :root,[data-theme="light"]{
+      --text-xs:clamp(.75rem,.7rem + .25vw,.875rem);
+      --text-sm:clamp(.875rem,.8rem + .35vw,1rem);
+      --text-base:clamp(1rem,.95rem + .25vw,1.125rem);
+      --text-lg:clamp(1.125rem,1rem + .75vw,1.5rem);
+      --text-xl:clamp(1.5rem,1.2rem + 1.25vw,2.25rem);
+      --text-2xl:clamp(2rem,1.4rem + 2.5vw,3.75rem);
+      --space-1:.25rem;--space-2:.5rem;--space-3:.75rem;--space-4:1rem;
+      --space-5:1.25rem;--space-6:1.5rem;--space-8:2rem;--space-10:2.5rem;--space-12:3rem;
+      --color-bg:#f7f6f2;
+      --color-surface:#f9f8f5;
+      --color-surface-2:#fbfbf9;
+      --color-surface-offset:#f3f0ec;
+      --color-border:#d4d1ca;
+      --color-text:#28251d;
+      --color-text-muted:#6e6b64;
+      --color-text-faint:#9a9891;
+      --color-primary:#01696f;
+      --color-primary-hover:#0c4e54;
+      --color-primary-highlight:#cedcd8;
+      --radius-sm:.375rem;--radius-md:.5rem;--radius-lg:.75rem;--radius-xl:1rem;--radius-2xl:1.5rem;
+      --shadow-sm:0 1px 2px rgba(40,37,29,.06);
+      --shadow-md:0 8px 24px rgba(40,37,29,.1);
+      --shadow-lg:0 24px 56px rgba(40,37,29,.14);
+      --transition:180ms cubic-bezier(.16,1,.3,1);
+      --font-body:'Satoshi',system-ui,sans-serif
+    }
+    [data-theme="dark"]{
+      --color-bg:#131211;--color-surface:#1a1918;--color-surface-2:#1e1d1b;
+      --color-surface-offset:#222120;--color-border:#333230;
+      --color-text:#d0cfcd;--color-text-muted:#9e9d9a;--color-text-faint:#6e6c68;
+      --color-primary:#4f98a3;--color-primary-hover:#227f8b;--color-primary-highlight:#1a2e30;
+      --shadow-sm:0 1px 2px rgba(0,0,0,.4);--shadow-md:0 8px 24px rgba(0,0,0,.5);--shadow-lg:0 24px 56px rgba(0,0,0,.65)
+    }
+    *{box-sizing:border-box;margin:0;padding:0}
+    html{scroll-behavior:smooth}
+    body{font-family:var(--font-body);background:var(--color-bg);color:var(--color-text);line-height:1.55;min-height:100dvh;display:flex;flex-direction:column}
+    button,input{font:inherit;cursor:pointer} a{color:inherit;text-decoration:none}
+
+    /* ══ TOPBAR ══════════════════════════════════════════════════════════════ */
+    .topbar{
+      position:sticky;top:0;z-index:50;
+      display:flex;align-items:center;justify-content:space-between;
+      padding:.75rem var(--space-8);
+      background:color-mix(in oklab,var(--color-surface) 85%,transparent);
+      backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+      border-bottom:1px solid color-mix(in oklab,var(--color-border) 60%,transparent);
+    }
+    .topbar-brand{display:flex;align-items:center;gap:var(--space-3)}
+    .topbar-logo{
+      width:34px;height:34px;border-radius:10px;
+      display:grid;place-items:center;
+      background:var(--color-primary);color:#fff;flex-shrink:0;
+      box-shadow:0 2px 8px rgba(1,105,111,.35)
+    }
+    .topbar-logo svg{width:18px;height:18px}
+    .topbar-name{font-weight:700;font-size:var(--text-sm);letter-spacing:-.01em}
+    .topbar-version{font-size:.65rem;font-weight:600;color:var(--color-text-faint);background:var(--color-surface-offset);padding:.1rem .45rem;border-radius:999px;border:1px solid var(--color-border);margin-left:.2rem}
+    .theme-btn{
+      width:36px;height:36px;border-radius:var(--radius-md);
+      display:grid;place-items:center;
+      border:1px solid var(--color-border);background:var(--color-surface-2);
+      color:var(--color-text-muted);transition:all var(--transition)
+    }
+    .theme-btn:hover{background:var(--color-surface-offset);color:var(--color-text)}
+    .theme-btn svg{width:16px;height:16px}
+
+    /* ══ HERO ════════════════════════════════════════════════════════════════ */
+    .hero{
+      padding:clamp(3rem,8vw,6rem) var(--space-8) clamp(2rem,5vw,4rem);
+      display:grid;grid-template-columns:1fr auto;align-items:center;gap:var(--space-8);
+      max-width:1200px;margin:0 auto;width:100%;
+    }
+    .hero-content{display:grid;gap:var(--space-5);max-width:620px}
+    .hero-eyebrow{
+      display:inline-flex;align-items:center;gap:var(--space-2);
+      font-size:var(--text-xs);font-weight:700;letter-spacing:.1em;text-transform:uppercase;
+      color:var(--color-primary);
+      background:var(--color-primary-highlight);
+      padding:.4rem .9rem;border-radius:999px;width:fit-content;
+      border:1px solid color-mix(in oklab,var(--color-primary) 25%,transparent)
+    }
+    .hero-title{
+      font-size:var(--text-2xl);font-weight:700;letter-spacing:-.04em;line-height:1.05;
+      color:var(--color-text)
+    }
+    .hero-title .accent{
+      color:var(--color-primary);
+      position:relative;display:inline-block
+    }
+    .hero-desc{
+      font-size:var(--text-base);color:var(--color-text-muted);line-height:1.7;
+      max-width:500px
+    }
+    .hero-cta{
+      display:flex;align-items:center;gap:var(--space-3);flex-wrap:wrap;
+      margin-top:var(--space-2)
+    }
+    .btn-hero{
+      display:inline-flex;align-items:center;gap:var(--space-2);
+      padding:.75rem 1.5rem;border-radius:var(--radius-lg);
+      font-weight:700;font-size:var(--text-sm);
+      background:var(--color-primary);color:#fff;border:none;
+      box-shadow:0 4px 16px rgba(1,105,111,.3);
+      transition:all var(--transition);cursor:pointer
+    }
+    .btn-hero:hover{background:var(--color-primary-hover);transform:translateY(-1px);box-shadow:0 6px 20px rgba(1,105,111,.4)}
+    .btn-hero svg{width:16px;height:16px}
+    .hero-note{font-size:var(--text-xs);color:var(--color-text-faint)}
+    /* Stats rapides dans le hero */
+    .hero-stats{
+      display:grid;grid-template-columns:repeat(3,1fr);gap:1px;
+      background:var(--color-border);border-radius:var(--radius-xl);
+      border:1px solid var(--color-border);overflow:hidden;
+      box-shadow:var(--shadow-md);flex-shrink:0;width:240px
+    }
+    .hero-stat{
+      background:var(--color-surface);padding:var(--space-4) var(--space-3);
+      text-align:center;display:grid;gap:.3rem
+    }
+    .hero-stat-val{font-size:var(--text-lg);font-weight:700;color:var(--color-primary);letter-spacing:-.02em}
+    .hero-stat-lbl{font-size:.65rem;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:var(--color-text-faint)}
+
+    /* ══ MODULES ════════════════════════════════════════════════════════════ */
+    .modules-section{
+      flex:1;padding:0 var(--space-8) var(--space-12);
+      max-width:1200px;margin:0 auto;width:100%
+    }
+
+    /* Grille : 3 colonnes uniformes */
+    .modules-grid{
+      display:grid;
+      grid-template-columns:repeat(3,1fr);
+      gap:var(--space-4)
+    }
+    .mod-card{
+      background:var(--color-surface);
+      border:1px solid var(--color-border);
+      border-radius:var(--radius-2xl);
+      padding:var(--space-5);
+      display:flex;flex-direction:column;gap:var(--space-3);
+      transition:transform var(--transition),box-shadow var(--transition),border-color var(--transition);
+      box-shadow:var(--shadow-sm);
+      position:relative;overflow:hidden;
+    }
+    /* Bande couleur haut */
+    .mod-card-accent{
+      position:absolute;top:0;left:0;right:0;height:3px;
+      background:var(--card-color,var(--color-primary));
+      opacity:0;transition:opacity var(--transition)
+    }
+    .mod-card.available{cursor:pointer}
+    .mod-card.available:hover{
+      transform:translateY(-3px);
+      box-shadow:0 12px 32px color-mix(in oklab,var(--card-color,var(--color-primary)) 12%,rgba(40,37,29,.08));
+      border-color:color-mix(in oklab,var(--card-color,var(--color-primary)) 40%,var(--color-border))
+    }
+    .mod-card.available:hover .mod-card-accent{opacity:1}
+    /* Featured : 2 colonnes */
+
+    .mod-head{display:flex;align-items:flex-start;justify-content:space-between;gap:var(--space-3)}
+    .mod-icon{
+      width:46px;height:46px;border-radius:var(--radius-lg);
+      display:grid;place-items:center;flex-shrink:0;
+      background:color-mix(in oklab,var(--card-color,var(--color-primary)) 10%,var(--color-surface-offset));
+      color:var(--card-color,var(--color-primary));
+      transition:background var(--transition),transform var(--transition)
+    }
+    .mod-icon svg{width:22px;height:22px}
+    .mod-card.available:hover .mod-icon{
+      background:color-mix(in oklab,var(--card-color,var(--color-primary)) 18%,var(--color-surface-offset));
+      transform:scale(1.06)
+    }
+
+    /* Badge statut */
+    .mod-badge{font-size:.62rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:.2rem .6rem;border-radius:999px;white-space:nowrap;align-self:flex-start}
+    .mod-badge.ready{background:rgba(67,122,34,.1);color:#437a22;border:1px solid rgba(67,122,34,.25)}
+    .mod-badge.soon{background:var(--color-surface-offset);color:var(--color-text-faint);border:1px solid var(--color-border)}
+    [data-theme="dark"] .mod-badge.ready{background:rgba(106,191,58,.15);color:#6abf3a;border-color:rgba(106,191,58,.3)}
+
+    .mod-body{display:flex;flex-direction:column;gap:var(--space-2);flex:1}
+    .mod-title{font-size:var(--text-base);font-weight:700;letter-spacing:-.01em}
+    .mod-desc{font-size:var(--text-sm);color:var(--color-text-muted);line-height:1.6}
+
+    .mod-footer{
+      display:flex;align-items:center;justify-content:space-between;
+      padding-top:var(--space-3);border-top:1px solid var(--color-border);margin-top:auto
+    }
+    .mod-tags{display:flex;flex-wrap:wrap;gap:.3rem}
+    .mod-tag{font-size:.62rem;font-weight:600;padding:.15rem .5rem;border-radius:999px;background:var(--color-surface-offset);color:var(--color-text-faint);border:1px solid var(--color-border)}
+    .mod-cta{
+      display:inline-flex;align-items:center;gap:.35rem;
+      font-size:var(--text-xs);font-weight:700;
+      color:var(--card-color,var(--color-primary));
+      opacity:0;transform:translateX(-4px);
+      transition:all var(--transition);white-space:nowrap
+    }
+    .mod-card.available:hover .mod-cta{opacity:1;transform:translateX(0)}
+    .mod-cta svg{width:12px;height:12px}
+
+    /* ══ FOOTER ════════════════════════════════════════════════════════════ */
+    .page-footer{
+      padding:var(--space-5) var(--space-8);
+      border-top:1px solid var(--color-border);
+      display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:var(--space-3);
+      font-size:var(--text-xs);color:var(--color-text-faint);
+      max-width:1200px;margin:0 auto;width:100%
+    }
+    .footer-modules{display:flex;align-items:center;gap:var(--space-3)}
+    .footer-dot{width:6px;height:6px;border-radius:50%;background:rgba(67,122,34,.6)}
+    .footer-mod-active{color:var(--color-success);font-weight:600}
+    .footer-mod-soon{color:var(--color-text-faint)}
+
+    /* DB CONNECT */
+    
+
+    /* ══ RESPONSIVE ════════════════════════════════════════════════════════ */
+    @media(max-width:1024px){
+      .modules-grid{grid-template-columns:repeat(2,1fr)}
+    }
+    @media(max-width:700px){
+      .topbar,.hero,.modules-section,.page-footer{padding-inline:var(--space-4)}
+      .hero{grid-template-columns:1fr;gap:var(--space-6)}
+      .hero-stats{width:100%;grid-template-columns:repeat(3,1fr)}
+      .modules-grid{grid-template-columns:1fr}
+      .hero-title{letter-spacing:-.03em}
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ══ TOPBAR ══ -->
+  <nav class="topbar">
+    <div class="topbar-brand">
+      <div class="topbar-logo" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M6 18V8.5C6 6.57 7.57 5 9.5 5h.5v14H9.5A3.5 3.5 0 0 1 6 15.5"/>
+          <path d="M18 18V8.5C18 6.57 16.43 5 14.5 5H14v14h.5a3.5 3.5 0 0 0 3.5-3.5"/>
+        </svg>
+      </div>
+      <span class="topbar-name">GymOS</span>
+      <span class="topbar-version">v0.5</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:.75rem">
+      <span id="dbStatus" style="font-size:var(--text-xs);color:var(--color-text-faint)"></span>
+      <button class="theme-btn" id="toggleThemeBtn" title="Basculer thème" aria-label="Basculer thème">
+        <svg id="themeIconDark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+        <svg id="themeIconLight" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:none">
+          <circle cx="12" cy="12" r="5"/>
+          <line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/>
+          <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
+          <line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/>
+          <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+        </svg>
+      </button>
+    </div>
+  </nav>
+
+  <!-- ══ HERO ══ -->
+  <section style="background:linear-gradient(180deg,var(--color-surface) 0%,var(--color-bg) 100%)">
+    <div class="hero">
+      <div class="hero-content">
+        <div class="hero-eyebrow">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+          Gestion de séances de musculation
+        </div>
+        <h1 class="hero-title">
+          Planifiez.<br>
+          Entraînez-vous.<br>
+          <span class="accent">Progressez.</span>
+        </h1>
+        <p class="hero-desc">GymOS centralise votre catalogue musculaire, vos exercices, vos programmes et le suivi de chaque séance — pour vous concentrer sur l'essentiel : la performance.</p>
+      </div>
+      <div class="hero-stats">
+        <div class="hero-stat">
+          <div class="hero-stat-val">11</div>
+          <div class="hero-stat-lbl">Groupes</div>
+        </div>
+        <div class="hero-stat">
+          <div class="hero-stat-val">50+</div>
+          <div class="hero-stat-lbl">Muscles</div>
+        </div>
+        <div class="hero-stat">
+          <div class="hero-stat-val">7</div>
+          <div class="hero-stat-lbl">Modules</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ MODULES ══ -->
+  <section class="modules-section">
+    <div class="modules-grid">
+
+      <!-- ── Exercices ── -->
+      <div class="mod-card available" style="--card-color:#fa7b01" onclick="window.location.href='Exercices.html'">
+        <div class="mod-card-accent"></div>
+        <div class="mod-head">
+          <div class="mod-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M6.5 6.5h11"/><path d="M6.5 17.5h11"/>
+              <path d="M3 8.5v7"/><path d="M21 8.5v7"/>
+              <path d="M1 10.5v3"/><path d="M23 10.5v3"/>
+            </svg>
+          </div>
+          <span class="mod-badge ready">Disponible</span>
+        </div>
+        <div class="mod-body">
+          <div class="mod-title">Exercices</div>
+          <div class="mod-desc">Bibliothèque d'exercices avec groupes musculaires, équipement, type, références et objectifs personnels.</div>
+        </div>
+        <div class="mod-footer">
+          <div class="mod-tags">
+            <span class="mod-tag">Références</span>
+            <span class="mod-tag">Objectifs</span>
+            <span class="mod-tag">Vidéos</span>
+          </div>
+          <span class="mod-cta">Ouvrir <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg></span>
+        </div>
+      </div>
+
+      <!-- ── Programme Séance ── -->
+      <div class="mod-card available" style="--card-color:#8338bb" onclick="window.location.href='Programme.html'">
+        <div class="mod-card-accent"></div>
+        <div class="mod-head">
+          <div class="mod-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
+              <rect x="3" y="4" width="18" height="18" rx="2"/>
+              <line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/>
+              <line x1="3" y1="10" x2="21" y2="10"/>
+              <path d="M8 14h.01"/><path d="M12 14h.01"/><path d="M16 14h.01"/>
+              <path d="M8 18h.01"/><path d="M12 18h.01"/>
+            </svg>
+          </div>
+          <span class="mod-badge ready">Disponible</span>
+        </div>
+        <div class="mod-body">
+          <div class="mod-title">Programme</div>
+          <div class="mod-desc">Créez vos programmes Push / Pull / Legs et planifiez votre semaine d'entraînement.</div>
+        </div>
+        <div class="mod-footer">
+          <div class="mod-tags">
+            <span class="mod-tag">Push · Pull</span>
+            <span class="mod-tag">Planification</span>
+          </div>
+          <span class="mod-cta">Ouvrir <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg></span>
+        </div>
+      </div>
+
+      <!-- ── Séance ── -->
+      <div class="mod-card available" style="--card-color:#b90207" onclick="window.location.href='Seance.html'">
+        <div class="mod-card-accent"></div>
+        <div class="mod-head">
+          <div class="mod-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
+              <circle cx="12" cy="12" r="10"/>
+              <polyline points="12 6 12 12 16 14"/>
+            </svg>
+          </div>
+          <span class="mod-badge ready">Disponible</span>
+        </div>
+        <div class="mod-body">
+          <div class="mod-title">Séance</div>
+          <div class="mod-desc">Démarrez ou reprenez une séance. Cochez séries, reps, poids, durée et distance en temps réel.</div>
+        </div>
+        <div class="mod-footer">
+          <div class="mod-tags">
+            <span class="mod-tag">Séries</span>
+            <span class="mod-tag">Reps · Poids</span>
+            <span class="mod-tag">Timer</span>
+          </div>
+          <span class="mod-cta">Ouvrir <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg></span>
+        </div>
+      </div>
+
+      <!-- ── Tableau de bord ── -->
+      <div class="mod-card available" style="--card-color:#01969b" onclick="window.location.href='Dashboard.html'">
+        <div class="mod-card-accent"></div>
+        <div class="mod-head">
+          <div class="mod-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
+              <rect x="3" y="3" width="7" height="7" rx="1"/>
+              <rect x="14" y="3" width="7" height="7" rx="1"/>
+              <rect x="14" y="14" width="7" height="7" rx="1"/>
+              <rect x="3" y="14" width="7" height="7" rx="1"/>
+            </svg>
+          </div>
+          <span class="mod-badge ready">Disponible</span>
+        </div>
+        <div class="mod-body">
+          <div class="mod-title">Tableau de bord</div>
+          <div class="mod-desc">Stats clés, volume par groupe, fréquence, progression des exercices et séances récentes.</div>
+        </div>
+        <div class="mod-footer">
+          <div class="mod-tags">
+            <span class="mod-tag">Stats</span>
+            <span class="mod-tag">Progression</span>
+            <span class="mod-tag">Heatmap</span>
+          </div>
+          <span class="mod-cta">Ouvrir <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg></span>
+        </div>
+      </div>
+
+      <!-- ── Historique ── -->
+      <div class="mod-card available" style="--card-color:#5a9d24" onclick="window.location.href='Historique.html'">
+        <div class="mod-card-accent"></div>
+        <div class="mod-head">
+          <div class="mod-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
+              <path d="M12 8v4l3 3"/>
+              <path d="M3.05 11a9 9 0 1 0 .5-3"/>
+              <polyline points="3 5 3 11 9 11"/>
+            </svg>
+          </div>
+          <span class="mod-badge ready">Disponible</span>
+        </div>
+        <div class="mod-body">
+          <div class="mod-title">Historique</div>
+          <div class="mod-desc">Toutes vos séances passées, visualisez, modifiez ou supprimez chaque séance enregistrée.</div>
+        </div>
+        <div class="mod-footer">
+          <div class="mod-tags">
+            <span class="mod-tag">Visualiser</span>
+            <span class="mod-tag">Modifier</span>
+            <span class="mod-tag">Supprimer</span>
+          </div>
+          <span class="mod-cta">Ouvrir <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg></span>
+        </div>
+      </div>
+
+      <!-- ── Progression ── -->
+      <div class="mod-card available" style="--card-color:#f42d65" onclick="window.location.href='Progression.html'">
+        <div class="mod-card-accent"></div>
+        <div class="mod-head">
+          <div class="mod-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
+              <polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/>
+              <polyline points="16 7 22 7 22 13"/>
+            </svg>
+          </div>
+          <span class="mod-badge ready">Disponible</span>
+        </div>
+        <div class="mod-body">
+          <div class="mod-title">Progression</div>
+          <div class="mod-desc">Courbe de progression par exercice, estimation 1RM, records personnels, volume par groupe et fréquence.</div>
+        </div>
+        <div class="mod-footer">
+          <div class="mod-tags">
+            <span class="mod-tag">Courbes</span>
+            <span class="mod-tag">PRs</span>
+            <span class="mod-tag">1RM Epley</span>
+          </div>
+          <span class="mod-cta">Ouvrir <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg></span>
+        </div>
+      </div>
+
+      <!-- ── Nutrition ── -->
+      <div class="mod-card available" style="--card-color:#437a22" onclick="window.location.href='Nutrition.html'">
+        <div class="mod-card-accent"></div>
+        <div class="mod-head">
+          <div class="mod-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
+              <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"/>
+              <path d="M12 6v6l4 2"/>
+            </svg>
+          </div>
+          <span class="mod-badge ready">Disponible</span>
+        </div>
+        <div class="mod-body">
+          <div class="mod-title">Nutrition</div>
+          <div class="mod-desc">Suivi journalier calories, protéines, glucides et lipides. Base d'aliments personnelle, log par repas.</div>
+        </div>
+        <div class="mod-footer">
+          <div class="mod-tags">
+            <span class="mod-tag">Calories</span>
+            <span class="mod-tag">Macros</span>
+            <span class="mod-tag">Repas</span>
+          </div>
+          <span class="mod-cta">Ouvrir <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg></span>
+        </div>
+      </div>
+
+      <!-- ── Corps (en dernier) ── -->
+      <div class="mod-card available" style="--card-color:#01696f" onclick="window.location.href='Corps.html'">
+        <div class="mod-card-accent"></div>
+        <div class="mod-head">
+          <div class="mod-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M6 18V8.5C6 6.57 7.57 5 9.5 5h.5v14H9.5A3.5 3.5 0 0 1 6 15.5"/>
+              <path d="M18 18V8.5C18 6.57 16.43 5 14.5 5H14v14h.5a3.5 3.5 0 0 0 3.5-3.5"/>
+            </svg>
+          </div>
+          <span class="mod-badge ready">Disponible</span>
+        </div>
+        <div class="mod-body">
+          <div class="mod-title">Corps</div>
+          <div class="mod-desc">Catalogue anatomique complet — 11 groupes musculaires, muscles cibles, subdivisions, images et temps de récupération.</div>
+        </div>
+        <div class="mod-footer">
+          <div class="mod-tags">
+            <span class="mod-tag">11 groupes</span>
+            <span class="mod-tag">50+ muscles</span>
+            <span class="mod-tag">Récupération</span>
+          </div>
+          <span class="mod-cta">Ouvrir <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg></span>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ══ FOOTER ══ -->
+  <footer style="border-top:1px solid var(--color-border);background:var(--color-surface)">
+    <div class="page-footer">
+      <span>GymOS &mdash; <strong style="color:var(--color-text-muted)">v0.3</strong></span>
+      <div class="footer-modules">
+        <span class="footer-dot" style="background:#437a22"></span>
+        <span class="footer-mod-active">Corps</span>
+        <span class="footer-dot" style="background:#437a22"></span>
+        <span class="footer-mod-active">Exercices</span>
+        <span style="color:var(--color-border)">·</span>
+        <span class="footer-mod-soon">Programme · Séance · Dashboard · Historique · Progression</span>
+      </div>
+    </div>
+  </footer>
+
+<script src="db.js"></script>
+<script>
+  function applyTheme(theme) {
+    document.documentElement.setAttribute('data-theme', theme);
+    localStorage.setItem('muscle-xml-theme', theme);
+    document.getElementById('themeIconDark').style.display  = theme === 'dark'  ? 'block' : 'none';
+    document.getElementById('themeIconLight').style.display = theme === 'light' ? 'block' : 'none';
+  }
+  document.getElementById('toggleThemeBtn').addEventListener('click', () => {
+    applyTheme(document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark');
+  });
+  applyTheme(localStorage.getItem('muscle-xml-theme') || 'light');
+
+  // ── DB Status ──
+  GymDB.init().then(state => {
+    const el = document.getElementById('dbStatus');
+    if (!el) return;
+    if (state === 'connected') el.textContent = '📁 ' + (GymDB.getFolderName() || 'Db connectée');
+    else if (state === 'needs-permission') el.textContent = '🔓 Db — non autorisée';
+  });
+
+  // Animation cartes
+  const cards = document.querySelectorAll('.mod-card');
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.style.opacity = '1';
+        entry.target.style.transform = 'translateY(0)';
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.1 });
+
+  cards.forEach((card, i) => {
+    card.style.opacity = '0';
+    card.style.transform = 'translateY(20px)';
+    card.style.transition = `opacity 400ms ease ${i * 55}ms, transform 500ms cubic-bezier(.16,1,.3,1) ${i * 55}ms, border-color var(--transition), box-shadow var(--transition)`;
+    observer.observe(card);
+  });
+</script>
+
+<!-- ═══════════════ GYMOS NAV PANEL ═══════════════ -->
+<div id="gymosNavPanel" style="display:none;position:fixed;inset:0;z-index:9999;align-items:flex-start;justify-content:flex-start">
+  <div id="gymosNavBackdrop" style="position:absolute;inset:0;background:rgba(0,0,0,.45);backdrop-filter:blur(5px)"></div>
+  <div style="position:relative;width:256px;height:100%;background:var(--color-surface,#f9f8f5);border-right:1px solid var(--color-border,#d4d1ca);box-shadow:12px 0 40px rgba(0,0,0,.18);display:flex;flex-direction:column;overflow-y:auto;z-index:1">
+    <!-- Logo + Fermer -->
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:1.1rem 1rem .9rem;border-bottom:1px solid var(--color-border,#d4d1ca);background:linear-gradient(135deg,var(--color-surface,#f9f8f5),var(--color-surface-offset,#f3f0ec))">
+      <div style="display:flex;align-items:center;gap:.6rem">
+        <div style="width:34px;height:34px;border-radius:.6rem;background:var(--color-primary-highlight,#cedcd8);display:grid;place-items:center">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#01696f" stroke-width="1.8" stroke-linecap="round"><path d="M6 18V8.5C6 6.57 7.57 5 9.5 5h.5v14H9.5A3.5 3.5 0 0 1 6 15.5"/><path d="M18 18V8.5C18 6.57 16.43 5 14.5 5H14v14h.5a3.5 3.5 0 0 0 3.5-3.5"/></svg>
+        </div>
+        <span style="font-weight:800;font-size:.95rem;color:var(--color-text,#28251d)">GymOS</span>
+      </div>
+      <button id="gymosNavClose" style="border:none;background:none;cursor:pointer;color:var(--color-text-muted,#6e6b64);font-size:1.3rem;line-height:1;padding:.2rem .5rem;border-radius:.35rem;transition:background .12s" onmouseenter="this.style.background='rgba(0,0,0,.06)'" onmouseleave="this.style.background='none'">×</button>
+    </div>
+    <!-- Items nav -->
+    <nav id="gymosNavItems" style="padding:.6rem .5rem;display:flex;flex-direction:column;gap:.15rem;flex:1"></nav>
+    <!-- Footer -->
+    <div style="padding:.65rem 1rem;border-top:1px solid var(--color-border,#d4d1ca);font-size:.62rem;color:var(--color-text-faint,#9a9891);text-align:center;letter-spacing:.04em">GymOS — Gestion Musculation</div>
+  </div>
+</div>
+
+<script>
+(function(){
+  const PAGES=[
+    {href:'index.html',     label:'Accueil',    emoji:'🏠', color:'#01696f'},
+    {href:'Dashboard.html', label:'Dashboard',  emoji:'📊', color:'#01696f'},
+    {href:'Corps.html',     label:'Corps',      emoji:'💪', color:'#b90207'},
+    {href:'Exercices.html', label:'Exercices',  emoji:'🏋', color:'#fa7b01'},
+    {href:'Programme.html', label:'Programme',  emoji:'📋', color:'#8338bb'},
+    {href:'Seance.html',    label:'Séance',     emoji:'⏱', color:'#437a22'},
+    {href:'Historique.html',label:'Historique', emoji:'📅', color:'#0161be'},
+    {href:'Progression.html',label:'Progression',emoji:'📈',color:'#5a9d24'},
+    {href:'Nutrition.html', label:'Nutrition',  emoji:'🥗', color:'#964219'},
+  ];
+  const cur=(window.location.pathname.split('/').pop()||'index.html');
+  const nav=document.getElementById('gymosNavItems');
+  if(nav){
+    PAGES.forEach(p=>{
+      const isC=cur===p.href||(cur===''&&p.href==='index.html');
+      const a=document.createElement('a');
+      a.href=p.href;
+      a.style.cssText=`display:flex;align-items:center;gap:.7rem;padding:.58rem .85rem;border-radius:.6rem;font-size:.82rem;font-weight:${isC?700:500};color:${isC?p.color:'var(--color-text,#28251d)'};background:${isC?p.color+'18':'transparent'};text-decoration:none;transition:background .12s,color .12s;border-left:3px solid ${isC?p.color:'transparent'}`;
+      const em=document.createElement('span');em.textContent=p.emoji;em.style.cssText='font-size:1rem;width:22px;text-align:center;flex-shrink:0';
+      const lb=document.createElement('span');lb.textContent=p.label;lb.style.flex='1';
+      a.append(em,lb);
+      if(isC){const d=document.createElement('span');d.style.cssText=`width:6px;height:6px;border-radius:50%;background:${p.color};flex-shrink:0`;a.appendChild(d);}
+      a.addEventListener('mouseenter',()=>{if(!isC){a.style.background='var(--color-surface-offset,#f3f0ec)';}});
+      a.addEventListener('mouseleave',()=>{if(!isC){a.style.background='transparent';}});
+      nav.appendChild(a);
+    });
+  }
+  function openNav(){document.getElementById('gymosNavPanel').style.display='flex';}
+  function closeNav(){document.getElementById('gymosNavPanel').style.display='none';}
+  // Remplacer le homeBtn pour ouvrir le nav panel
+  const hb=document.getElementById('homeBtn');
+  if(hb){
+    const nb=hb.cloneNode(true);
+    hb.parentNode.replaceChild(nb,hb);
+    nb.id='homeBtn';
+    nb.title='Navigation';
+    nb.addEventListener('click',e=>{e.stopPropagation();openNav();});
+  }
+  document.getElementById('gymosNavClose').addEventListener('click',closeNav);
+  document.getElementById('gymosNavBackdrop').addEventListener('click',closeNav);
+  document.addEventListener('keydown',e=>{if(e.key==='Escape')closeNav();});
+})();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,22 @@
+{
+  "rows": [
+    {
+      "id": "kewo0h7bqzid",
+      "image": "Abdominal (machine abdos).png",
+      "exercice": "Abdo C",
+      "descriptif": "lkfdsj",
+      "execution": "",
+      "video": "",
+      "groupe_musculaire": "Abdominaux",
+      "muscle": "Grand droit",
+      "subdivision": "",
+      "muscle_secondaire": "",
+      "equipement": "Machine",
+      "type_exercice": "Renforcement Musculaire"
+    }
+  ],
+  "sortField": null,
+  "sortDirection": "asc",
+  "search": "",
+  "activeGroup": ""
+}

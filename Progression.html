@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="fr" data-theme="light">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>GymOS — Progression</title>
+<link href="https://api.fontshare.com/v2/css?f[]=satoshi@400,500,700&display=swap" rel="stylesheet">
+<style>
+:root,[data-theme="light"]{
+  --bg:#f7f6f2;--surf:#f9f8f5;--surf2:#fbfbf9;--surfoff:#f3f0ec;--bord:#d4d1ca;
+  --tx:#28251d;--txm:#6e6b64;--txf:#9a9891;
+  --prim:#01696f;--primh:#0c4e54;--primhi:#cedcd8;
+  --ok:#437a22;--warn:#964219;--err:#a12c7b;
+  --shsm:0 1px 3px rgba(40,37,29,.08);--shmd:0 8px 24px rgba(40,37,29,.12);
+  --tr:180ms cubic-bezier(.16,1,.3,1);--font:'Satoshi',system-ui,sans-serif;
+  --rsm:.375rem;--rmd:.5rem;--rlg:.75rem;--rxl:1rem;
+}
+[data-theme="dark"]{
+  --bg:#131211;--surf:#1a1918;--surf2:#1e1d1b;--surfoff:#222120;--bord:#333230;
+  --tx:#d0cfcd;--txm:#9e9d9a;--txf:#6e6c68;--prim:#4f98a3;--primhi:#1a2e30;
+  --shmd:0 8px 24px rgba(0,0,0,.4);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{min-height:100%;font-family:var(--font);background:var(--bg);color:var(--tx);font-size:clamp(14px,1.4vw,16px)}
+button,input,select,textarea{font:inherit} button{cursor:pointer}
+
+.hdr{display:flex;align-items:center;gap:.75rem;padding:.85rem 1.5rem;border-bottom:1px solid var(--bord);background:color-mix(in oklab,var(--surf) 92%,transparent);backdrop-filter:blur(10px);position:sticky;top:0;z-index:10}
+.page{padding:1.5rem;max-width:1280px;margin:0 auto}
+.btn{display:inline-flex;align-items:center;gap:.35rem;padding:.5rem .9rem;min-height:36px;border-radius:var(--rmd);border:1px solid var(--bord);background:var(--surf2);color:var(--tx);font-size:.82rem;font-weight:500;cursor:pointer;transition:all var(--tr)}
+.btn:hover{background:var(--surfoff)} .btn-p{background:var(--prim);color:#fff;border-color:transparent}.btn-p:hover{background:var(--primh)}
+.btn-icon{width:38px;height:38px;padding:0;border-radius:50%;display:grid;place-items:center;border:1px solid var(--bord);background:var(--surf2);color:var(--txm);transition:all var(--tr)}
+.btn-icon:hover{background:var(--surfoff);color:var(--tx)} .btn-icon svg{width:17px;height:17px}
+.panel{background:var(--surf);border:1px solid var(--bord);border-radius:var(--rxl);box-shadow:var(--shsm);overflow:hidden}
+.panel-hdr{display:flex;align-items:center;justify-content:space-between;padding:.85rem 1.25rem;border-bottom:1px solid var(--bord)}
+.panel-title{font-weight:700;font-size:.9rem}
+.panel-body{padding:1.25rem}
+.stat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;margin-bottom:1.25rem}
+.stat-card{background:var(--surf);border:1px solid var(--bord);border-radius:var(--rxl);padding:1rem 1.25rem;box-shadow:var(--shsm);border-top:3px solid var(--sc-color,var(--bord))}
+.stat-val{font-size:1.7rem;font-weight:700;letter-spacing:-.03em;line-height:1;margin:.25rem 0}
+.stat-lbl{font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--txm)}
+.stat-sub{font-size:.7rem;color:var(--txf);margin-top:.25rem}
+.grid-2{display:grid;grid-template-columns:3fr 2fr;gap:1.25rem;margin-bottom:1.25rem}
+.grid-2b{display:grid;grid-template-columns:1fr 1fr;gap:1.25rem;margin-bottom:1.25rem}
+.chart-area{width:100%;height:200px;position:relative}
+.chart-area svg{width:100%;height:100%;overflow:visible}
+.chart-empty{display:flex;align-items:center;justify-content:center;height:200px;color:var(--txf);font-size:.82rem;font-style:italic;flex-direction:column;gap:.5rem}
+.chart-empty svg{width:36px;height:36px;opacity:.25}
+.sel{padding:.5rem .65rem;border-radius:var(--rmd);border:1px solid var(--bord);background:var(--surf);color:var(--tx);font-size:.8rem;outline:none;cursor:pointer;transition:border-color var(--tr)}
+.sel:focus{border-color:var(--prim)}
+/* PR Table */
+.pr-table{width:100%;border-collapse:collapse;font-size:.8rem}
+.pr-table th{padding:.4rem .75rem;text-align:left;font-size:.62rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--txm);background:var(--surfoff);border-bottom:1px solid var(--bord)}
+.pr-table td{padding:.45rem .75rem;border-bottom:1px solid var(--bord);vertical-align:middle}
+.pr-table tr:last-child td{border-bottom:none}
+.pr-table tr:hover td{background:var(--surfoff)}
+.pr-badge{font-size:.62rem;font-weight:700;padding:.15rem .45rem;border-radius:999px}
+/* Bars */
+.bar-row{display:flex;align-items:center;gap:.75rem;margin-bottom:.55rem}
+.bar-row:last-child{margin-bottom:0}
+.bar-label{font-size:.75rem;font-weight:600;width:130px;flex-shrink:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.bar-bg{flex:1;height:10px;border-radius:999px;background:var(--surfoff);overflow:hidden}
+.bar-fill{height:100%;border-radius:999px;transition:width .6s cubic-bezier(.16,1,.3,1)}
+.bar-val{font-size:.7rem;color:var(--txm);width:72px;text-align:right;flex-shrink:0}
+/* Freq */
+.freq-grid{display:flex;gap:4px;align-items:flex-end;height:120px}
+.freq-bar-wrap{display:flex;flex-direction:column;align-items:center;gap:4px;flex:1}
+.freq-bar-outer{width:100%;flex:1;display:flex;align-items:flex-end;position:relative}
+.freq-bar-inner{width:100%;border-radius:3px 3px 0 0;transition:height .5s cubic-bezier(.16,1,.3,1);min-height:2px}
+.freq-lbl{font-size:.6rem;color:var(--txf);white-space:nowrap}
+.chart-tooltip{position:fixed;background:var(--surf);border:1px solid var(--bord);border-radius:var(--rlg);padding:.4rem .7rem;font-size:.72rem;box-shadow:var(--shmd);pointer-events:none;display:none;z-index:100;color:var(--tx)}
+@media(max-width:900px){.stat-grid{grid-template-columns:1fr 1fr}.grid-2,.grid-2b{grid-template-columns:1fr}.page{padding:1rem}}
+</style>
+</head>
+<body>
+<header class="hdr">
+  <button class="btn-icon" id="homeBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M3 9.5L12 3l9 6.5V20a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1z"/><polyline points="9 21 9 12 15 12 15 21"/></svg></button>
+  <div style="font-weight:700;font-size:1.05rem;flex:1">Progression</div>
+  <div style="display:flex;align-items:center;gap:.6rem">
+    <select class="sel" id="periodSel" style="min-width:120px">
+      <option value="30">30 jours</option>
+      <option value="90">3 mois</option>
+      <option value="180">6 mois</option>
+      <option value="365" selected>1 an</option>
+      <option value="0">Tout</option>
+    </select>
+    <button class="btn-icon" id="themeBtn"><svg id="thDark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg><svg id="thLight" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:none"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg></button>
+  </div>
+</header>
+
+<div class="page">
+  <!-- Stats -->
+  <div class="stat-grid" id="statGrid"></div>
+
+  <!-- Progression chart + Sélecteur exercice -->
+  <div class="grid-2" style="margin-bottom:1.25rem">
+    <div class="panel">
+      <div class="panel-hdr">
+        <div><div class="panel-title">Courbe de progression</div><div style="font-size:.7rem;color:var(--txm);margin-top:.1rem">Poids max par séance · Estimation 1RM</div></div>
+        <select class="sel" id="exoSel" style="min-width:180px"><option value="">— Choisir un exercice —</option></select>
+      </div>
+      <div class="panel-body" style="padding:.85rem 1.25rem 1rem">
+        <div class="chart-area" id="progChart">
+          <div class="chart-empty"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>Choisissez un exercice</div>
+        </div>
+      </div>
+    </div>
+    <div class="panel">
+      <div class="panel-hdr"><div class="panel-title">Records personnels (PRs)</div></div>
+      <div style="overflow-y:auto;max-height:280px">
+        <table class="pr-table" id="prTable">
+          <thead><tr><th>Exercice</th><th>Max kg</th><th>1RM est.</th><th>Date</th></tr></thead>
+          <tbody id="prBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Volume par groupe + Fréquence -->
+  <div class="grid-2b">
+    <div class="panel">
+      <div class="panel-hdr">
+        <div class="panel-title">Volume par groupe musculaire</div>
+      </div>
+      <div class="panel-body" id="volChart"></div>
+    </div>
+    <div class="panel">
+      <div class="panel-hdr"><div class="panel-title">Fréquence hebdomadaire</div><div style="font-size:.7rem;color:var(--txm)">Séances par semaine</div></div>
+      <div class="panel-body">
+        <div class="freq-grid" id="freqChart"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="chart-tooltip" id="tooltip"></div>
+
+<script src="db.js"></script>
+<script>
+const MC={'Pectoraux':'#b90207','Abdominaux':'#8338bb','Bras':'#fa7b01','Avant-bras':'#f42d65','Cuisses (arrière)':'#974f1a','Cuisses (avant)':'#5a9d24','Cuisses (intérieur)':'#3fb5dc','Dos':'#0161be','Épaules':'#fbbd01','Fessiers':'#01969b','Mollets':'#a19e9f'};
+const HIST_KEY='gymos-historique-v1';
+let _hist=[];
+
+function hexRgb(h){return[parseInt(h.slice(1,3),16),parseInt(h.slice(3,5),16),parseInt(h.slice(5,7),16)];}
+function grpc(g){return MC[(g||'').split(',')[0].trim()]||'#9a9891';}
+function esc(v){return String(v??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function fmtDateShort(iso){return new Date(iso+'T00:00').toLocaleDateString('fr-FR',{day:'numeric',month:'short'});}
+function epley1RM(w,r){return r===1?w:Math.round(parseFloat(w)*(1+parseInt(r)/30)*10)/10;}
+function loadHist(){try{_hist=JSON.parse(localStorage.getItem(HIST_KEY)||'[]');}catch{_hist=[];}}
+
+function filterByDays(days){
+  if(!days)return _hist;
+  const cutoff=new Date();cutoff.setDate(cutoff.getDate()-days);
+  const cut=cutoff.toISOString().split('T')[0];
+  return _hist.filter(h=>h.date>=cut);
+}
+
+function getPeriod(){return parseInt(document.getElementById('periodSel').value);}
+
+// ── STATS ──
+function renderStats(){
+  const h=filterByDays(getPeriod());
+  const allExo=new Set(h.flatMap(s=>(s.exercices||[]).map(e=>e.nom)));
+  const vol=h.reduce((t,s)=>t+(s.volumeTotal||0),0);
+  const maxVol=Math.max(0,...h.map(s=>s.volumeTotal||0));
+  const grid=document.getElementById('statGrid'); grid.innerHTML='';
+  [{val:h.length,lbl:'Séances',sub:'sur la période',color:'#01696f',ico:'<path d="M12 8v4l3 3"/><path d="M3.05 11a9 9 0 1 0 .5-3"/><polyline points="3 5 3 11 9 11"/>'},
+   {val:vol>0?vol.toLocaleString('fr-FR')+'kg':'—',lbl:'Volume total',sub:vol>0?`${Math.round(vol/Math.max(h.length,1)).toLocaleString('fr-FR')} kg/séance`:'',color:'#0161be',ico:'<path d="M6 18V8.5C6 6.57 7.57 5 9.5 5h.5v14H9.5A3.5 3.5 0 0 1 6 15.5"/><path d="M18 18V8.5C18 6.57 16.43 5 14.5 5H14v14h.5a3.5 3.5 0 0 0 3.5-3.5"/>'},
+   {val:allExo.size,lbl:'Exercices pratiqués',sub:'sur la période',color:'#437a22',ico:'<polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>'},
+   {val:maxVol>0?maxVol.toLocaleString('fr-FR')+'kg':'—',lbl:'Meilleure séance',sub:'volume total',color:'#964219',ico:'<polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>'}
+  ].forEach(({val,lbl,sub,color,ico})=>{
+    const c=document.createElement('div'); c.className='stat-card'; c.style.setProperty('--sc-color',color);
+    c.innerHTML=`<div style="width:32px;height:32px;border-radius:.6rem;background:color-mix(in oklab,${color} 12%,var(--surf));display:grid;place-items:center;margin-bottom:.35rem"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="${color}" stroke-width="2" stroke-linecap="round">${ico}</svg></div><div class="stat-val">${esc(String(val))}</div><div class="stat-lbl">${lbl}</div><div class="stat-sub">${sub}</div>`;
+    grid.appendChild(c);
+  });
+}
+
+// ── EXERCICE LIST ──
+function buildExoList(){
+  const exoMap={};
+  _hist.forEach(h=>(h.exercices||[]).forEach(e=>{
+    if(!exoMap[e.nom]) exoMap[e.nom]={nom:e.nom,groupe:e.groupe,count:0};
+    exoMap[e.nom].count+=(e.series||[]).length;
+  }));
+  const sel=document.getElementById('exoSel');
+  const sorted=Object.values(exoMap).sort((a,b)=>b.count-a.count);
+  sel.innerHTML='<option value="">— Choisir un exercice —</option>'+sorted.map(e=>`<option value="${esc(e.nom)}">${esc(e.nom)}</option>`).join('');
+  if(sorted.length){sel.value=sorted[0].nom;renderProgChart();}
+  sel.addEventListener('change',renderProgChart);
+}
+
+// ── PROGRESSION CHART ──
+function renderProgChart(){
+  const nom=document.getElementById('exoSel').value;
+  const container=document.getElementById('progChart'); container.innerHTML='';
+  if(!nom){container.innerHTML='<div class="chart-empty"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>Choisissez un exercice</div>';return;}
+  const pts=[];
+  _hist.slice().reverse().forEach(h=>{
+    const e=(h.exercices||[]).find(x=>x.nom===nom); if(!e) return;
+    const maxPset=(e.series||[]).reduce((best,s)=>{
+      const p=parseFloat(s.poids)||0, r=parseInt(s.reps)||1;
+      const est=epley1RM(p,r); return est>best.est?{p,r,est}:best;
+    },{p:0,r:1,est:0});
+    if(maxPset.p>0) pts.push({date:h.date,poids:maxPset.p,reps:maxPset.r,est1rm:maxPset.est});
+  });
+  if(pts.length<2){container.innerHTML=`<div class="chart-empty"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>${pts.length===0?'Aucune donnée pour cet exercice':'Au moins 2 séances nécessaires'}</div>`;return;}
+  const exoGrp=((_hist.flatMap(h=>h.exercices||[])).find(e=>e.nom===nom)||{}).groupe||'';
+  const hex=grpc(exoGrp);
+  const [r,g,b]=hexRgb(hex);
+  const W=600,H=180,PAD={t:12,r:20,b:32,l:50};
+  const cW=W-PAD.l-PAD.r, cH=H-PAD.t-PAD.b;
+  const minV=Math.min(...pts.map(p=>p.poids)); const maxV=Math.max(...pts.map(p=>p.est1rm));
+  const rangeV=Math.max(maxV-minV,1);
+  const toX=i=>PAD.l+i*(cW/(pts.length-1));
+  const toY=v=>PAD.t+cH-(v-minV)/rangeV*cH;
+  const svg=document.createElementNS('http://www.w3.org/2000/svg','svg');
+  svg.setAttribute('viewBox',`0 0 ${W} ${H}`); svg.style.cssText='width:100%;height:100%;display:block;overflow:visible';
+  // Grid
+  for(let i=0;i<=3;i++){
+    const y=PAD.t+cH*i/3; const val=maxV-(rangeV*i/3);
+    const line=document.createElementNS('http://www.w3.org/2000/svg','line');
+    line.setAttribute('x1',PAD.l);line.setAttribute('x2',W-PAD.r);line.setAttribute('y1',y);line.setAttribute('y2',y);
+    line.setAttribute('stroke','var(--bord)');line.setAttribute('stroke-width','1');svg.appendChild(line);
+    const lbl=document.createElementNS('http://www.w3.org/2000/svg','text');
+    lbl.setAttribute('x',PAD.l-6);lbl.setAttribute('y',y+4);lbl.setAttribute('text-anchor','end');
+    lbl.setAttribute('fill','var(--txf)');lbl.setAttribute('font-size','10');lbl.textContent=Math.round(val)+'kg';svg.appendChild(lbl);
+  }
+  // Zone poids réel
+  let pd=`M ${toX(0)} ${toY(pts[0].poids)}`; pts.slice(1).forEach((p,i)=>pd+=` L ${toX(i+1)} ${toY(p.poids)}`);
+  const areaPoids=document.createElementNS('http://www.w3.org/2000/svg','path');
+  areaPoids.setAttribute('d',pd+` L ${toX(pts.length-1)} ${PAD.t+cH} L ${toX(0)} ${PAD.t+cH} Z`);
+  areaPoids.setAttribute('fill',`rgba(${r},${g},${b},.12)`);svg.appendChild(areaPoids);
+  const linePoids=document.createElementNS('http://www.w3.org/2000/svg','path');
+  linePoids.setAttribute('d',pd);linePoids.setAttribute('fill','none');linePoids.setAttribute('stroke',hex);linePoids.setAttribute('stroke-width','2.5');linePoids.setAttribute('stroke-linecap','round');svg.appendChild(linePoids);
+  // Courbe 1RM estimé (tirets)
+  let pe=`M ${toX(0)} ${toY(pts[0].est1rm)}`; pts.slice(1).forEach((p,i)=>pe+=` L ${toX(i+1)} ${toY(p.est1rm)}`);
+  const line1rm=document.createElementNS('http://www.w3.org/2000/svg','path');
+  line1rm.setAttribute('d',pe);line1rm.setAttribute('fill','none');line1rm.setAttribute('stroke',hex);line1rm.setAttribute('stroke-width','1.5');line1rm.setAttribute('stroke-dasharray','5,4');line1rm.setAttribute('opacity','.55');svg.appendChild(line1rm);
+  // Points
+  pts.forEach((p,i)=>{
+    const cx=toX(i),cy=toY(p.poids);
+    const dot=document.createElementNS('http://www.w3.org/2000/svg','circle');
+    dot.setAttribute('cx',cx);dot.setAttribute('cy',cy);dot.setAttribute('r',4);
+    dot.setAttribute('fill',hex);dot.setAttribute('stroke','var(--surf)');dot.setAttribute('stroke-width',2);
+    dot.style.cursor='pointer';
+    dot.addEventListener('mouseenter',ev=>showTip(`${fmtDateShort(p.date)} · ${p.poids}kg × ${p.reps} = 1RM ~${p.est1rm}kg`,ev));
+    dot.addEventListener('mouseleave',hideTip);svg.appendChild(dot);
+    // Label X
+    const every=Math.max(1,Math.floor(pts.length/5));
+    if(i%every===0||i===pts.length-1){
+      const lbl=document.createElementNS('http://www.w3.org/2000/svg','text');
+      lbl.setAttribute('x',cx);lbl.setAttribute('y',H-4);lbl.setAttribute('text-anchor','middle');
+      lbl.setAttribute('fill','var(--txf)');lbl.setAttribute('font-size','9');lbl.textContent=fmtDateShort(p.date);svg.appendChild(lbl);
+    }
+  });
+  // Légende
+  const legY=PAD.t-2;
+  [{color:hex,dash:false,label:'Poids réel'},{color:hex,dash:true,label:'1RM estimé'}].forEach(({color,dash,label},li)=>{
+    const gx=PAD.l+li*130;
+    const lline=document.createElementNS('http://www.w3.org/2000/svg','line');
+    lline.setAttribute('x1',gx);lline.setAttribute('x2',gx+20);lline.setAttribute('y1',legY);lline.setAttribute('y2',legY);
+    lline.setAttribute('stroke',color);lline.setAttribute('stroke-width',dash?1.5:2.5);
+    if(dash)lline.setAttribute('stroke-dasharray','5,4');svg.appendChild(lline);
+    const ltxt=document.createElementNS('http://www.w3.org/2000/svg','text');
+    ltxt.setAttribute('x',gx+24);ltxt.setAttribute('y',legY+4);ltxt.setAttribute('fill','var(--txm)');ltxt.setAttribute('font-size','10');ltxt.textContent=label;svg.appendChild(ltxt);
+  });
+  const wrap=document.createElement('div');wrap.style.cssText='width:100%;height:200px';wrap.appendChild(svg);
+  container.appendChild(wrap);
+}
+
+// ── PRs ──
+function renderPRs(){
+  const h=filterByDays(getPeriod());
+  const prs={};
+  h.forEach(s=>(s.exercices||[]).forEach(e=>{
+    (e.series||[]).forEach(sr=>{
+      const p=parseFloat(sr.poids)||0,r=parseInt(sr.reps)||1;
+      if(p<=0)return;
+      const est=epley1RM(p,r);
+      if(!prs[e.nom]||est>prs[e.nom].est) prs[e.nom]={nom:e.nom,groupe:e.groupe,p,r,est,date:s.date};
+    });
+  }));
+  const sorted=Object.values(prs).sort((a,b)=>b.est-a.est);
+  const tbody=document.getElementById('prBody'); tbody.innerHTML='';
+  if(!sorted.length){tbody.innerHTML='<tr><td colspan="4" style="text-align:center;padding:1rem;color:var(--txf);font-style:italic">Aucune donnée</td></tr>';return;}
+  sorted.slice(0,20).forEach((pr,i)=>{
+    const hex=grpc(pr.groupe);
+    const tr=document.createElement('tr');
+    tr.innerHTML=`<td style="font-weight:600;max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(pr.nom)}</td>
+      <td><span style="font-weight:700">${pr.p}kg</span> <span style="color:var(--txm);font-size:.7rem">× ${pr.r}</span></td>
+      <td><span style="font-weight:700;color:${hex}">${pr.est}kg</span></td>
+      <td style="color:var(--txm)">${fmtDateShort(pr.date)}</td>`;
+    tbody.appendChild(tr);
+  });
+}
+
+// ── VOLUME PAR GROUPE ──
+function renderVolChart(){
+  const h=filterByDays(getPeriod());
+  const vols={};
+  h.forEach(s=>(s.exercices||[]).forEach(e=>{
+    const g=(e.groupe||'').split(',')[0].trim()||'Autre';
+    const v=(e.series||[]).reduce((t,sr)=>{const p=parseFloat(sr.poids)||0,r=parseInt(sr.reps)||0;return t+p*r;},0);
+    vols[g]=(vols[g]||0)+v;
+  }));
+  const sorted=Object.entries(vols).sort((a,b)=>b[1]-a[1]);
+  const container=document.getElementById('volChart'); container.innerHTML='';
+  if(!sorted.length){container.innerHTML='<div style="color:var(--txf);font-size:.8rem;font-style:italic;text-align:center;padding:1rem">Aucune donnée</div>';return;}
+  const maxV=sorted[0][1];
+  sorted.slice(0,10).forEach(([g,v])=>{
+    const hex=grpc(g);
+    const pct=maxV>0?Math.round(v/maxV*100):0;
+    const row=document.createElement('div'); row.className='bar-row';
+    row.innerHTML=`<div class="bar-label" title="${esc(g)}">${esc(g)}</div>
+      <div class="bar-bg"><div class="bar-fill" style="width:${pct}%;background:${hex}"></div></div>
+      <div class="bar-val">${v>0?v.toLocaleString('fr-FR')+' kg':'—'}</div>`;
+    container.appendChild(row);
+  });
+}
+
+// ── FRÉQUENCE HEBDOMADAIRE ──
+function renderFreqChart(){
+  const h=filterByDays(getPeriod());
+  const weeks={};
+  h.forEach(s=>{
+    const d=new Date(s.date+'T00:00');
+    const mon=new Date(d); mon.setDate(d.getDate()-(d.getDay()+6)%7);
+    const wk=mon.toISOString().split('T')[0];
+    weeks[wk]=(weeks[wk]||0)+1;
+  });
+  const container=document.getElementById('freqChart'); container.innerHTML='';
+  if(!Object.keys(weeks).length){container.innerHTML='<div style="color:var(--txf);font-size:.8rem;font-style:italic;text-align:center;height:120px;display:flex;align-items:center;justify-content:center">Aucune donnée</div>';return;}
+  const sorted=Object.entries(weeks).sort((a,b)=>a[0].localeCompare(b[0])).slice(-16);
+  const maxW=Math.max(...sorted.map(([,v])=>v));
+  sorted.forEach(([wk,v])=>{
+    const pct=maxW>0?v/maxW*100:0;
+    const wrap=document.createElement('div'); wrap.className='freq-bar-wrap';
+    const outer=document.createElement('div'); outer.className='freq-bar-outer';
+    const inner=document.createElement('div'); inner.className='freq-bar-inner';
+    inner.style.cssText=`height:${pct}%;background:var(--prim);opacity:${.4+pct/100*.6}`;
+    inner.title=`Semaine du ${fmtDateShort(wk)} : ${v} séance${v>1?'s':''}`;
+    outer.appendChild(inner);
+    const lbl=document.createElement('div'); lbl.className='freq-lbl';
+    const d=new Date(wk+'T00:00'); lbl.textContent=`${d.getDate()}/${d.getMonth()+1}`;
+    wrap.append(outer,lbl); container.appendChild(wrap);
+  });
+}
+
+// ── TOOLTIP ──
+const tip=document.getElementById('tooltip');
+function showTip(txt,e){tip.textContent=txt;tip.style.display='block';moveTip(e);}
+function hideTip(){tip.style.display='none';}
+function moveTip(e){tip.style.left=Math.min(e.clientX+14,window.innerWidth-180)+'px';tip.style.top=(e.clientY-36)+'px';}
+document.addEventListener('mousemove',e=>{if(tip.style.display==='block')moveTip(e);});
+
+// ── THÈME ──
+function applyTheme(t){document.documentElement.setAttribute('data-theme',t);localStorage.setItem('muscle-xml-theme',t);document.getElementById('thDark').style.display=t==='dark'?'block':'none';document.getElementById('thLight').style.display=t==='light'?'block':'none';}
+document.getElementById('homeBtn').addEventListener('click',()=>window.location.href='index.html');
+document.getElementById('themeBtn').addEventListener('click',()=>applyTheme(document.documentElement.getAttribute('data-theme')==='dark'?'light':'dark'));
+document.getElementById('periodSel').addEventListener('change',()=>{renderStats();renderProgChart();renderPRs();renderVolChart();renderFreqChart();});
+
+// ── INIT ──
+(async function init(){
+  applyTheme(localStorage.getItem('muscle-xml-theme')||'light');
+  loadHist();
+  await GymDB.init();
+  try{const h=await GymDB.read('historique.json');if(Array.isArray(h)&&h.length){_hist=h;localStorage.setItem(HIST_KEY,JSON.stringify(h));}}catch{}
+  renderStats(); buildExoList(); renderPRs(); renderVolChart(); renderFreqChart();
+})();
+</script>
+
+<!-- ═══════════════ GYMOS NAV PANEL ═══════════════ -->
+<div id="gymosNavPanel" style="display:none;position:fixed;inset:0;z-index:9999;align-items:flex-start;justify-content:flex-start">
+  <div id="gymosNavBackdrop" style="position:absolute;inset:0;background:rgba(0,0,0,.45);backdrop-filter:blur(5px)"></div>
+  <div style="position:relative;width:256px;height:100%;background:var(--color-surface,#f9f8f5);border-right:1px solid var(--color-border,#d4d1ca);box-shadow:12px 0 40px rgba(0,0,0,.18);display:flex;flex-direction:column;overflow-y:auto;z-index:1">
+    <!-- Logo + Fermer -->
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:1.1rem 1rem .9rem;border-bottom:1px solid var(--color-border,#d4d1ca);background:linear-gradient(135deg,var(--color-surface,#f9f8f5),var(--color-surface-offset,#f3f0ec))">
+      <div style="display:flex;align-items:center;gap:.6rem">
+        <div style="width:34px;height:34px;border-radius:.6rem;background:var(--color-primary-highlight,#cedcd8);display:grid;place-items:center">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#01696f" stroke-width="1.8" stroke-linecap="round"><path d="M6 18V8.5C6 6.57 7.57 5 9.5 5h.5v14H9.5A3.5 3.5 0 0 1 6 15.5"/><path d="M18 18V8.5C18 6.57 16.43 5 14.5 5H14v14h.5a3.5 3.5 0 0 0 3.5-3.5"/></svg>
+        </div>
+        <span style="font-weight:800;font-size:.95rem;color:var(--color-text,#28251d)">GymOS</span>
+      </div>
+      <button id="gymosNavClose" style="border:none;background:none;cursor:pointer;color:var(--color-text-muted,#6e6b64);font-size:1.3rem;line-height:1;padding:.2rem .5rem;border-radius:.35rem;transition:background .12s" onmouseenter="this.style.background='rgba(0,0,0,.06)'" onmouseleave="this.style.background='none'">×</button>
+    </div>
+    <!-- Items nav -->
+    <nav id="gymosNavItems" style="padding:.6rem .5rem;display:flex;flex-direction:column;gap:.15rem;flex:1"></nav>
+    <!-- Footer -->
+    <div style="padding:.65rem 1rem;border-top:1px solid var(--color-border,#d4d1ca);font-size:.62rem;color:var(--color-text-faint,#9a9891);text-align:center;letter-spacing:.04em">GymOS — Gestion Musculation</div>
+  </div>
+</div>
+
+<script>
+(function(){
+  const PAGES=[
+    {href:'index.html',     label:'Accueil',    emoji:'🏠', color:'#01696f'},
+    {href:'Dashboard.html', label:'Dashboard',  emoji:'📊', color:'#01696f'},
+    {href:'Corps.html',     label:'Corps',      emoji:'💪', color:'#b90207'},
+    {href:'Exercices.html', label:'Exercices',  emoji:'🏋', color:'#fa7b01'},
+    {href:'Programme.html', label:'Programme',  emoji:'📋', color:'#8338bb'},
+    {href:'Seance.html',    label:'Séance',     emoji:'⏱', color:'#437a22'},
+    {href:'Historique.html',label:'Historique', emoji:'📅', color:'#0161be'},
+    {href:'Progression.html',label:'Progression',emoji:'📈',color:'#5a9d24'},
+    {href:'Nutrition.html', label:'Nutrition',  emoji:'🥗', color:'#964219'},
+  ];
+  const cur=(window.location.pathname.split('/').pop()||'index.html');
+  const nav=document.getElementById('gymosNavItems');
+  if(nav){
+    PAGES.forEach(p=>{
+      const isC=cur===p.href||(cur===''&&p.href==='index.html');
+      const a=document.createElement('a');
+      a.href=p.href;
+      a.style.cssText=`display:flex;align-items:center;gap:.7rem;padding:.58rem .85rem;border-radius:.6rem;font-size:.82rem;font-weight:${isC?700:500};color:${isC?p.color:'var(--color-text,#28251d)'};background:${isC?p.color+'18':'transparent'};text-decoration:none;transition:background .12s,color .12s;border-left:3px solid ${isC?p.color:'transparent'}`;
+      const em=document.createElement('span');em.textContent=p.emoji;em.style.cssText='font-size:1rem;width:22px;text-align:center;flex-shrink:0';
+      const lb=document.createElement('span');lb.textContent=p.label;lb.style.flex='1';
+      a.append(em,lb);
+      if(isC){const d=document.createElement('span');d.style.cssText=`width:6px;height:6px;border-radius:50%;background:${p.color};flex-shrink:0`;a.appendChild(d);}
+      a.addEventListener('mouseenter',()=>{if(!isC){a.style.background='var(--color-surface-offset,#f3f0ec)';}});
+      a.addEventListener('mouseleave',()=>{if(!isC){a.style.background='transparent';}});
+      nav.appendChild(a);
+    });
+  }
+  function openNav(){document.getElementById('gymosNavPanel').style.display='flex';}
+  function closeNav(){document.getElementById('gymosNavPanel').style.display='none';}
+  // Remplacer le homeBtn pour ouvrir le nav panel
+  const hb=document.getElementById('homeBtn');
+  if(hb){
+    const nb=hb.cloneNode(true);
+    hb.parentNode.replaceChild(nb,hb);
+    nb.id='homeBtn';
+    nb.title='Navigation';
+    nb.addEventListener('click',e=>{e.stopPropagation();openNav();});
+  }
+  document.getElementById('gymosNavClose').addEventListener('click',closeNav);
+  document.getElementById('gymosNavBackdrop').addEventListener('click',closeNav);
+  document.addEventListener('keydown',e=>{if(e.key==='Escape')closeNav();});
+})();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,1435 @@
+<!DOCTYPE html>
+<html lang="fr" data-theme="light">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>GymOS — Programme</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://api.fontshare.com/v2/css?f[]=satoshi@400,500,700&display=swap" rel="stylesheet">
+  <style>
+    :root,[data-theme="light"]{
+      --text-xs:clamp(.75rem,.7rem + .25vw,.875rem);--text-sm:clamp(.875rem,.8rem + .35vw,1rem);
+      --text-base:clamp(1rem,.95rem + .25vw,1.125rem);--text-lg:clamp(1.125rem,1rem + .75vw,1.5rem);
+      --text-xl:clamp(1.5rem,1.2rem + 1.25vw,2.25rem);
+      --sp1:.25rem;--sp2:.5rem;--sp3:.75rem;--sp4:1rem;--sp5:1.25rem;--sp6:1.5rem;--sp8:2rem;
+      --bg:#f7f6f2;--surf:#f9f8f5;--surf2:#fbfbf9;--surfoff:#f3f0ec;--bord:#d4d1ca;
+      --tx:#28251d;--txm:#6e6b64;--txf:#9a9891;
+      --prim:#01696f;--primh:#0c4e54;--primhi:#cedcd8;
+      --ok:#437a22;--warn:#964219;--err:#a12c7b;
+      --rsm:.375rem;--rmd:.5rem;--rlg:.75rem;--rxl:1rem;--r2xl:1.5rem;
+      --shsm:0 1px 2px rgba(40,37,29,.06);--shmd:0 12px 32px rgba(40,37,29,.12);
+      --tr:180ms cubic-bezier(.16,1,.3,1);--font:'Satoshi',system-ui,sans-serif
+    }
+    [data-theme="dark"]{
+      --bg:#131211;--surf:#1a1918;--surf2:#1e1d1b;--surfoff:#222120;--bord:#333230;
+      --tx:#d0cfcd;--txm:#9e9d9a;--txf:#6e6c68;--prim:#4f98a3;--primh:#227f8b;--primhi:#1a2e30;
+      --shsm:0 1px 2px rgba(0,0,0,.4);--shmd:0 12px 32px rgba(0,0,0,.5)
+    }
+    *{box-sizing:border-box;margin:0;padding:0}
+    html,body{height:100%}
+    body{font-family:var(--font);font-size:var(--text-base);background:var(--bg);color:var(--tx);line-height:1.5}
+    button,input,select,textarea{font:inherit}
+    button{cursor:pointer} a{color:inherit;text-decoration:none}
+
+    /* LAYOUT */
+    .app{display:grid;grid-template-columns:280px 1fr;grid-template-rows:auto 1fr;height:100dvh;overflow:hidden}
+    .sidebar{grid-row:1/-1;background:linear-gradient(180deg,var(--surf),var(--surf2));border-right:1px solid var(--bord);display:flex;flex-direction:column;overflow:hidden}
+    .sidebar-inner{flex:1;overflow-y:auto;padding:var(--sp4)}
+    .hdr{display:flex;align-items:center;justify-content:space-between;gap:var(--sp4);padding:var(--sp4) var(--sp6);border-bottom:1px solid var(--bord);background:color-mix(in oklab,var(--surf) 92%,transparent);backdrop-filter:blur(10px)}
+    .main{overflow:auto;padding:var(--sp6);display:flex;flex-direction:column;gap:var(--sp6)}
+
+    /* BRAND */
+    .brand{display:flex;align-items:center;gap:var(--sp3);padding:var(--sp5) var(--sp4) var(--sp4);border-bottom:1px solid var(--bord)}
+    .logo{width:40px;height:40px;border-radius:12px;display:grid;place-items:center;background:var(--primhi);color:var(--prim);flex-shrink:0;cursor:pointer}
+    .logo svg{width:22px;height:22px}
+
+    /* SIDEBAR PROG LIST */
+    .sl-label{font-size:.65rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--txf);margin-bottom:var(--sp2);padding:0 var(--sp2)}
+    .sl-list{display:flex;flex-direction:column;gap:2px;margin-bottom:var(--sp4)}
+    .sl-item{display:flex;flex-direction:column;gap:.2rem;padding:var(--sp3);border-radius:var(--rlg);cursor:pointer;transition:all var(--tr);border:1px solid transparent;border-left:3px solid transparent}
+    .sl-item:hover{background:var(--surfoff)}
+    .sl-item.active{background:color-mix(in oklab,var(--prim) 8%,var(--surf));border-color:var(--prim)33;border-left-color:var(--prim)}
+    .sl-item-name{font-size:var(--text-sm);font-weight:600;color:var(--tx)}
+    .sl-item.active .sl-item-name{color:var(--prim)}
+    .sl-item-meta{display:flex;align-items:center;gap:var(--sp2)}
+    .sl-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+    .sl-dot.actif{background:var(--ok)}
+    .sl-dot.archive{background:var(--txf)}
+    .sl-count{font-size:.68rem;color:var(--txf)}
+    .new-prog-btn{display:flex;align-items:center;justify-content:center;gap:var(--sp2);width:100%;padding:var(--sp3);border-radius:var(--rlg);border:1px dashed var(--bord);background:transparent;color:var(--txm);font-size:var(--text-sm);font-weight:600;transition:all var(--tr);margin-bottom:var(--sp4)}
+    .new-prog-btn:hover{border-color:var(--prim);color:var(--prim);background:var(--primhi)}
+    .new-prog-btn svg{width:16px;height:16px}
+
+    /* SIDEBAR FOOTER */
+    .sf{padding:var(--sp4);border-top:1px solid var(--bord);display:grid;gap:var(--sp2)}
+    .sf-row{display:flex;justify-content:space-between;font-size:var(--text-xs);color:var(--txm)}
+    .sf-row strong{color:var(--tx)}
+
+    /* BUTTONS */
+    .btn{display:inline-flex;align-items:center;justify-content:center;gap:var(--sp2);min-height:44px;padding:.75rem 1rem;border-radius:var(--rmd);border:1px solid var(--bord);background:var(--surf2);color:var(--tx);transition:all var(--tr)}
+    .btn:hover:not(:disabled){background:var(--surfoff)}
+    .btn:disabled{opacity:.5;cursor:not-allowed}
+    .iBtn{width:44px;height:44px;padding:0;flex-shrink:0}
+    .iBtn svg{width:20px;height:20px}
+    .btn-p{background:var(--prim);color:#fff;border-color:transparent}
+    .btn-p:hover:not(:disabled){background:var(--primh)}
+    .btn-sm{min-height:36px;padding:.4rem .85rem;font-size:var(--text-sm)}
+    .btn-d{background:#a12c7b;color:#fff;border-color:transparent}
+    .btn-d:hover:not(:disabled){background:#8a2268}
+    [data-theme="dark"] .btn-d{background:#e060b8;color:#1a0a15}
+
+    /* STATUS BAR */
+    .status-bar{font-size:var(--text-xs);padding:.3rem .8rem;border-radius:999px;font-weight:600;transition:opacity .3s}
+
+    /* EMPTY STATE */
+    .empty-state{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:var(--sp5);text-align:center;padding:var(--sp8)}
+    .es-icon{width:72px;height:72px;border-radius:var(--rxl);display:grid;place-items:center;background:var(--primhi);color:var(--prim)}
+    .es-icon svg{width:36px;height:36px}
+    .es-title{font-size:var(--text-lg);font-weight:700}
+    .es-desc{font-size:var(--text-sm);color:var(--txm);max-width:340px;line-height:1.6}
+
+    /* PROG HEADER */
+    .prog-hdr{background:var(--surf);border:1px solid var(--bord);border-radius:var(--rxl);padding:var(--sp5) var(--sp6);display:flex;align-items:flex-start;justify-content:space-between;gap:var(--sp6);box-shadow:var(--shsm)}
+    .ph-left{display:flex;flex-direction:column;gap:var(--sp2)}
+    .ph-name{font-size:var(--text-lg);font-weight:700;letter-spacing:-.02em}
+    .ph-desc{font-size:var(--text-sm);color:var(--txm);line-height:1.5}
+    .ph-badges{display:flex;align-items:center;gap:var(--sp2);flex-wrap:wrap}
+    .ph-actions{display:flex;align-items:center;gap:var(--sp2);flex-shrink:0}
+    .stbadge{display:inline-flex;align-items:center;gap:.35rem;padding:.25rem .65rem;border-radius:999px;font-size:var(--text-xs);font-weight:700}
+    .stbadge.actif{background:rgba(67,122,34,.1);color:var(--ok);border:1px solid rgba(67,122,34,.25)}
+    .stbadge.archive{background:var(--surfoff);color:var(--txf);border:1px solid var(--bord)}
+    [data-theme="dark"] .stbadge.actif{background:rgba(106,191,58,.15);color:#6abf3a;border-color:rgba(106,191,58,.3)}
+    .count-badge{display:inline-flex;align-items:center;padding:.25rem .65rem;border-radius:999px;font-size:var(--text-xs);font-weight:600;background:var(--surfoff);color:var(--txm);border:1px solid var(--bord)}
+
+    /* TYPE COLORS */
+    :root{--tpush:#fa7b01;--tpull:#0161be;--tlegs:#5a9d24;--tfull:#8338bb;--tcardio:#b90207;--thaut:#01969b;--tbas:#974f1a;--tautre:#9a9891}
+
+    /* SEANCES GRID */
+    .sec-head{display:flex;align-items:center;justify-content:space-between;gap:var(--sp4);margin-bottom:var(--sp4)}
+    .sec-title{font-weight:700;font-size:var(--text-sm);color:var(--txm);text-transform:uppercase;letter-spacing:.06em}
+    .seances-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:var(--sp4)}
+
+    /* SEANCE CARD */
+    .sc{background:var(--surf);border:1px solid var(--bord);border-radius:var(--rxl);overflow:hidden;cursor:pointer;transition:all var(--tr);box-shadow:var(--shsm);display:flex;flex-direction:column}
+    .sc:hover{transform:translateY(-2px);box-shadow:var(--shmd)}
+    .sc.active{box-shadow:0 0 0 2px var(--sc-color,var(--prim))}
+    .sc-bar{height:4px;background:var(--sc-color,var(--bord))}
+    .sc-body{padding:var(--sp4);display:flex;flex-direction:column;gap:var(--sp2);flex:1}
+    .sc-head{display:flex;align-items:flex-start;justify-content:space-between;gap:var(--sp2)}
+    .sc-name{font-weight:700;font-size:var(--text-sm);flex:1}
+    .type-badge{display:inline-flex;padding:.2rem .55rem;border-radius:999px;font-size:.62rem;font-weight:700;white-space:nowrap}
+    .sc-jours{display:flex;flex-wrap:wrap;gap:.3rem}
+    .jour-pill{background:var(--surfoff);padding:.1rem .45rem;border-radius:999px;font-size:.65rem;font-weight:600;color:var(--txm)}
+    .sc-footer{padding:var(--sp2) var(--sp4);border-top:1px solid var(--bord);display:flex;align-items:center;justify-content:space-between}
+    .sc-cnt{font-size:var(--text-xs);color:var(--txf)}
+    .sc-acts{display:flex;gap:2px}
+    .sc-btn{width:28px;height:28px;border-radius:var(--rsm);border:none;background:none;color:var(--txf);display:grid;place-items:center;cursor:pointer;transition:all var(--tr)}
+    .sc-btn:hover{background:var(--surfoff);color:var(--tx)}
+    .sc-btn svg{width:14px;height:14px}
+    .sc-add{background:transparent;border:1px dashed var(--bord);border-radius:var(--rxl);cursor:pointer;transition:all var(--tr);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:var(--sp2);padding:var(--sp6);min-height:130px;color:var(--txm)}
+    .sc-add:hover{border-color:var(--prim);color:var(--prim);background:var(--primhi)}
+    .sc-add svg{width:22px;height:22px}
+    .sc-add span{font-size:var(--text-sm);font-weight:600}
+
+    /* EXO PANEL */
+    .exo-panel{background:var(--surf);border:1px solid var(--bord);border-radius:var(--rxl);overflow:hidden;box-shadow:var(--shsm);animation:slideDown 220ms cubic-bezier(.16,1,.3,1)}
+    @keyframes slideDown{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:translateY(0)}}
+    .ep-bar{height:4px;background:var(--ep-color,var(--prim))}
+    .ep-hdr{display:flex;align-items:center;gap:var(--sp4);padding:var(--sp4) var(--sp5);border-bottom:1px solid var(--bord);background:color-mix(in oklab,var(--ep-color,var(--prim)) 5%,var(--surf))}
+    .ep-icon{width:36px;height:36px;border-radius:var(--rmd);display:grid;place-items:center;background:color-mix(in oklab,var(--ep-color,var(--prim)) 15%,var(--surf));color:var(--ep-color,var(--prim));flex-shrink:0}
+    .ep-icon svg{width:18px;height:18px}
+    .ep-close{margin-left:auto;background:none;border:none;color:var(--txf);cursor:pointer;padding:.3rem;border-radius:var(--rsm);display:grid;place-items:center;transition:all var(--tr)}
+    .ep-close:hover{color:var(--tx);background:var(--surfoff)}
+    .ep-close svg{width:16px;height:16px}
+    .ep-body{padding:var(--sp4) var(--sp5)}
+
+    /* EXO TABLE */
+    .et-wrap{overflow-x:auto;overflow-y:auto;max-height:380px;border-radius:var(--rmd);border:1px solid var(--bord)}
+    .et{width:100%;border-collapse:collapse;font-size:var(--text-xs);min-width:640px}
+    .et-img{width:52px;height:52px;object-fit:contain;border-radius:var(--rsm);background:var(--surfoff);border:1px solid var(--bord);padding:3px;display:block}
+    .et-img-ph{width:52px;height:52px;border-radius:var(--rsm);background:var(--surfoff);border:1px solid var(--bord);display:grid;place-items:center}
+    .et-img-ph svg{width:18px;height:18px}
+    .et th{background:var(--surfoff);padding:.5rem .75rem;font-weight:700;text-align:left;white-space:nowrap;border-bottom:1px solid var(--bord);color:var(--txm)}
+    .et td{padding:.55rem .75rem;border-bottom:1px solid var(--bord);vertical-align:middle}
+    .et tbody tr:last-child td{border-bottom:none}
+    .et tbody tr:hover{background:var(--surfoff)}
+    .et-num{width:32px;text-align:center;color:var(--txf);font-weight:600}
+    .et-name{font-weight:600}
+    .grp-dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:.4rem}
+    .et-empty{padding:var(--sp6);text-align:center;color:var(--txf);font-style:italic}
+    .et-acts{display:flex;align-items:center;gap:2px}
+    .et-btn{background:none;border:none;cursor:pointer;color:var(--txf);padding:.2rem;border-radius:var(--rsm);transition:all var(--tr);display:grid;place-items:center}
+    .et-btn:hover{background:var(--surfoff);color:var(--tx)}
+    .et-btn.d:hover{background:rgba(161,44,123,.1);color:var(--err)}
+    .et-btn svg{width:13px;height:13px}
+
+    /* INLINE EDIT */
+    .et-inp{width:100%;min-width:50px;padding:.2rem .35rem;border-radius:var(--rsm);border:1px solid var(--bord);background:var(--surf);color:var(--tx);font-size:var(--text-xs);outline:none;font-family:inherit;transition:border-color var(--tr)}
+    .et-inp:focus{border-color:var(--ep-color,var(--prim))}
+    .et tr.editing td{background:color-mix(in oklab,var(--ep-color,var(--prim)) 4%,var(--surf))}
+    .et-save{background:var(--ep-color,var(--prim));border:none;color:#fff;cursor:pointer;padding:.2rem .5rem;border-radius:var(--rsm);font-size:.65rem;font-weight:700}
+    .et-cancel{background:none;border:1px solid var(--bord);color:var(--txm);cursor:pointer;padding:.2rem .5rem;border-radius:var(--rsm);font-size:.65rem;font-weight:700}
+
+    /* MODALS */
+    .ov{position:fixed;inset:0;background:rgba(0,0,0,.55);backdrop-filter:blur(4px);z-index:100;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity 180ms ease}
+    .ov.open{opacity:1;pointer-events:all}
+    .modal{background:var(--surf);border:1px solid var(--bord);border-radius:var(--rxl);padding:var(--sp6);width:min(520px,94vw);box-shadow:var(--shmd);display:grid;gap:var(--sp4);transform:translateY(8px);transition:transform 180ms ease;max-height:90dvh;overflow-y:auto}
+    .ov.open .modal{transform:translateY(0)}
+    .modal-sm{width:min(420px,92vw)}
+    .modal-hdr{display:flex;align-items:center;gap:var(--sp3);padding-bottom:var(--sp4);border-bottom:1px solid var(--bord)}
+    .modal-icon{width:40px;height:40px;border-radius:var(--rmd);display:grid;place-items:center;background:var(--primhi);color:var(--prim);flex-shrink:0}
+    .modal-icon svg{width:20px;height:20px}
+    .modal-title{font-weight:700;font-size:var(--text-base)}
+    .modal-actions{display:flex;gap:var(--sp3);justify-content:flex-end;margin-top:var(--sp2)}
+    .mgrid{display:grid;grid-template-columns:1fr 1fr;gap:var(--sp4)}
+    .ffull{grid-column:1/-1}
+    .field{display:grid;gap:var(--sp2)}
+    .field label{font-size:var(--text-sm);font-weight:600}
+    .finp{padding:.6rem .75rem;border-radius:var(--rmd);border:1px solid var(--bord);background:var(--surf);transition:border-color var(--tr)}
+    .finp:focus-within{border-color:var(--prim)}
+    .finp input,.finp textarea{border:none;outline:none;background:transparent;width:100%;color:var(--tx)}
+    .finp textarea{resize:vertical;min-height:64px;line-height:1.5}
+    .fsel{padding:.6rem .75rem;border-radius:var(--rmd);border:1px solid var(--bord);background:var(--surf);color:var(--tx);outline:none;width:100%;min-height:40px;transition:border-color var(--tr)}
+    .fsel:focus{border-color:var(--prim)}
+    .jours-grid{display:flex;flex-wrap:wrap;gap:var(--sp2)}
+    .jck{display:none}
+    .jlbl{display:inline-flex;align-items:center;padding:.3rem .75rem;border-radius:999px;border:1px solid var(--bord);font-size:var(--text-xs);font-weight:600;cursor:pointer;transition:all var(--tr);color:var(--txm);background:var(--surfoff)}
+    .jck:checked+.jlbl{background:var(--primhi);color:var(--prim);border-color:var(--prim)}
+    .merr{font-size:var(--text-xs);color:var(--err);background:rgba(161,44,123,.08);border:1px solid rgba(161,44,123,.2);border-radius:var(--rmd);padding:.5rem .75rem}
+    .modal-danger-icon{width:48px;height:48px;border-radius:50%;background:rgba(161,44,123,.1);border:1px solid rgba(161,44,123,.25);display:grid;place-items:center;margin:0 auto var(--sp2)}
+    .modal-danger-icon svg{width:22px;height:22px;color:#a12c7b}
+    [data-theme="dark"] .modal-danger-icon{background:rgba(224,96,184,.15)}
+    [data-theme="dark"] .modal-danger-icon svg{color:#e060b8}
+    .modal-center{text-align:center;display:grid;gap:var(--sp2)}
+    .modal-desc{font-size:var(--text-sm);color:var(--txm);line-height:1.5}
+
+    /* ── CUSTOM EXERCISE PICKER ── */
+    .exo-picker{position:relative;user-select:none}
+    .exo-picker-trigger{display:flex;align-items:center;gap:var(--sp2);padding:.5rem .75rem;border-radius:var(--rmd);border:1px solid var(--bord);background:var(--surf);cursor:pointer;transition:border-color var(--tr);min-height:42px}
+    .exo-picker.open .exo-picker-trigger{border-color:var(--prim)}
+    .exo-picker-search{flex:1;border:none;outline:none;background:transparent;color:var(--tx);font-size:var(--text-sm);font-family:inherit;min-width:0}
+    .exo-picker-arrow{width:16px;height:16px;flex-shrink:0;color:var(--txf);transition:transform var(--tr)}
+    .exo-picker.open .exo-picker-arrow{transform:rotate(180deg)}
+    .exo-picker-preview{display:flex;align-items:center;gap:var(--sp2);flex-shrink:0}
+    .epp-img{width:30px;height:30px;border-radius:var(--rsm);object-fit:contain;background:var(--surfoff);border:1px solid var(--bord);flex-shrink:0;padding:2px}
+    .epp-ph{width:30px;height:30px;border-radius:var(--rsm);background:var(--surfoff);border:1px solid var(--bord);display:grid;place-items:center;flex-shrink:0}
+    .epp-ph svg{width:14px;height:14px;color:var(--txf)}
+    .epp-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+    .exo-picker-list{position:absolute;top:calc(100% + 4px);left:0;right:0;z-index:300;background:var(--surf);border:1px solid var(--bord);border-radius:var(--rlg);box-shadow:var(--shmd);max-height:240px;overflow-y:auto;display:none}
+    .exo-picker.open .exo-picker-list{display:block}
+    .epi-empty{padding:var(--sp4);text-align:center;color:var(--txf);font-size:var(--text-sm);font-style:italic}
+    .epi{display:flex;align-items:center;gap:var(--sp3);padding:.55rem .75rem;cursor:pointer;transition:background var(--tr);border-bottom:1px solid var(--bord)}
+    .epi:last-child{border-bottom:none}
+    .epi:hover,.epi.active{background:var(--surfoff)}
+    .epi-img{width:36px;height:36px;border-radius:var(--rsm);object-fit:contain;background:var(--surfoff);border:1px solid var(--bord);flex-shrink:0;padding:2px}
+    .epi-ph{width:36px;height:36px;border-radius:var(--rsm);background:var(--surfoff);border:1px solid var(--bord);display:grid;place-items:center;flex-shrink:0}
+    .epi-ph svg{width:16px;height:16px;color:var(--txf)}
+    .epi-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0}
+    .epi-info{flex:1;min-width:0}
+    .epi-name{font-size:var(--text-sm);font-weight:600;color:var(--tx);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .epi-grp{font-size:.68rem;color:var(--txm);margin-top:.1rem}
+    /* ── GROUP DISPLAY ── */
+    .grp-display{display:flex;align-items:center;gap:var(--sp3);padding:.6rem .75rem;border-radius:var(--rmd);border:1px solid var(--bord);background:var(--surfoff);min-height:52px}
+    .grp-display-ph{width:40px;height:40px;border-radius:var(--rmd);flex-shrink:0;display:grid;place-items:center;background:var(--surf);border:1px solid var(--bord);color:var(--txf)}
+    .grp-display-img{width:40px;height:40px;border-radius:var(--rmd);object-fit:contain;background:var(--surf);border:1px solid var(--bord);padding:3px;flex-shrink:0}
+    .grp-display-info{flex:1;min-width:0}
+    .grp-display-name{font-size:var(--text-sm);font-weight:700}
+    .grp-display-muscle{font-size:var(--text-xs);color:var(--txf);margin-top:.1rem}
+    .grp-display-badge{font-size:.65rem;font-weight:700;padding:.2rem .55rem;border-radius:999px;white-space:nowrap;flex-shrink:0}
+
+    /* RESPONSIVE */
+    @media(max-width:1100px){
+      .app{grid-template-columns:1fr;grid-template-rows:auto auto 1fr}
+      .sidebar{grid-row:auto;border-right:none;border-bottom:1px solid var(--bord);max-height:200px}
+      .sidebar-inner{flex-direction:row;flex-wrap:wrap;display:flex;gap:var(--sp2);padding:var(--sp3)}
+    }
+    @media(max-width:700px){
+      .hdr,.main{padding-inline:var(--sp4)}
+      .mgrid{grid-template-columns:1fr}
+    }
+  </style>
+</head>
+<body>
+<div class="app">
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="logo" id="homeBtn" title="Accueil">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M3 9.5L12 3l9 6.5V20a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1z"/><polyline points="9 21 9 12 15 12 15 21"/></svg>
+      </div>
+      <div>
+        <div style="font-weight:700;font-size:var(--text-sm)">Programme</div>
+        <div style="font-size:var(--text-xs);color:var(--txf)">Plans d'entraînement</div>
+      </div>
+    </div>
+    <div class="sidebar-inner">
+      <button class="new-prog-btn" id="newProgBtn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Nouveau programme
+      </button>
+      <div id="slActive">
+        <div class="sl-label">Actifs</div>
+        <div class="sl-list" id="slActiveList"></div>
+      </div>
+      <div id="slArchived" style="display:none">
+        <div class="sl-label">Archivés</div>
+        <div class="sl-list" id="slArchivedList"></div>
+      </div>
+    </div>
+    <div class="sf">
+      <div class="sf-row"><span>Programmes</span><strong id="sfProgs">0</strong></div>
+      <div class="sf-row"><span>Séances types</span><strong id="sfSeances">0</strong></div>
+    </div>
+  </aside>
+
+  <!-- HEADER -->
+  <header class="hdr">
+    <div>
+      <div style="font-size:var(--text-xl);font-weight:700;letter-spacing:-.02em">Programme</div>
+      <div style="color:var(--txm)">Créez et organisez vos plans d'entraînement</div>
+    </div>
+    <div style="display:flex;align-items:center;gap:var(--sp3)">
+      <button class="btn btn-p iBtn" id="hdrNewBtn" title="Nouveau programme"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></button>
+      <!-- Import XML -->
+      <input id="xmlFile" type="file" accept=".xml,text/xml,application/xml" hidden/>
+      <label class="btn iBtn" for="xmlFile" title="Importer XML" aria-label="Importer XML" style="cursor:pointer">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+      </label>
+      <!-- Export XML -->
+      <button class="btn iBtn" id="saveBtn" title="Exporter XML" aria-label="Exporter XML">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+      </button>
+      <div id="statusBar" style="font-size:var(--text-xs);color:var(--txm);display:none;white-space:nowrap"></div>
+      <button class="btn iBtn" id="themeBtn" title="Thème"><svg id="thDark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg><svg id="thLight" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:none"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg></button>
+    </div>
+  </header>
+
+  <!-- MAIN -->
+  <main class="main" id="mainArea"></main>
+</div>
+
+<!-- MODAL: PROGRAMME -->
+<div class="ov" id="mProg"><div class="modal">
+  <div class="modal-hdr">
+    <div class="modal-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div>
+    <div class="modal-title" id="mProgTitle">Nouveau programme</div>
+  </div>
+  <div class="mgrid">
+    <div class="field ffull"><label>Nom *</label><div class="finp"><input id="mpNom" placeholder="Ex. PPL — Cycle Force"></div></div>
+    <div class="field ffull"><label>Description</label><div class="finp"><textarea id="mpDesc" placeholder="Objectifs, fréquence…"></textarea></div></div>
+    <div class="field"><label>Statut</label><select id="mpStatut" class="fsel"><option value="actif">Actif</option><option value="archive">Archivé</option></select></div>
+  </div>
+  <div id="mpErr" style="display:none"><div class="merr"></div></div>
+  <div class="modal-actions">
+    <button class="btn" id="mpCancel">Annuler</button>
+    <button class="btn btn-p" id="mpOk">Créer</button>
+  </div>
+</div></div>
+
+<!-- MODAL: SÉANCE -->
+<div class="ov" id="mSeance"><div class="modal">
+  <div class="modal-hdr">
+    <div class="modal-icon" style="background:color-mix(in oklab,var(--prim) 12%,var(--surfoff))"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
+    <div class="modal-title" id="mSeanceTitle">Nouvelle séance</div>
+  </div>
+  <div class="mgrid">
+    <div class="field"><label>Nom *</label><div class="finp"><input id="msNom" placeholder="Ex. Push A"></div></div>
+    <div class="field"><label>Type</label><select id="msType" class="fsel">
+      <option value="Push">Push</option><option value="Pull">Pull</option><option value="Legs">Legs</option>
+      <option value="Full Body">Full Body</option><option value="Haut du corps">Haut du corps</option>
+      <option value="Bas du corps">Bas du corps</option><option value="Cardio">Cardio</option><option value="Autre">Autre</option>
+    </select></div>
+    <div class="field ffull"><label>Jours</label>
+      <div class="jours-grid">
+        <input type="checkbox" class="jck" id="jL" value="Lundi"><label class="jlbl" for="jL">Lun</label>
+        <input type="checkbox" class="jck" id="jM" value="Mardi"><label class="jlbl" for="jM">Mar</label>
+        <input type="checkbox" class="jck" id="jMe" value="Mercredi"><label class="jlbl" for="jMe">Mer</label>
+        <input type="checkbox" class="jck" id="jJ" value="Jeudi"><label class="jlbl" for="jJ">Jeu</label>
+        <input type="checkbox" class="jck" id="jV" value="Vendredi"><label class="jlbl" for="jV">Ven</label>
+        <input type="checkbox" class="jck" id="jS" value="Samedi"><label class="jlbl" for="jS">Sam</label>
+        <input type="checkbox" class="jck" id="jD" value="Dimanche"><label class="jlbl" for="jD">Dim</label>
+      </div>
+    </div>
+  </div>
+  <div id="msErr" style="display:none"><div class="merr"></div></div>
+  <div class="modal-actions"><button class="btn" id="msCancel">Annuler</button><button class="btn btn-p" id="msOk">Créer</button></div>
+</div></div>
+
+<!-- MODAL: AJOUT EXERCICE -->
+<div class="ov" id="mExo"><div class="modal">
+  <div class="modal-hdr">
+    <div class="modal-icon" id="mExoIcon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6.5 6.5h11"/><path d="M6.5 17.5h11"/><path d="M3 8.5v7"/><path d="M21 8.5v7"/><path d="M1 10.5v3"/><path d="M23 10.5v3"/></svg></div>
+    <div><div class="modal-title">Ajouter un exercice</div><div id="mExoSub" style="font-size:var(--text-xs);color:var(--txf);margin-top:.2rem"></div></div>
+  </div>
+  <div class="mgrid">
+    <!-- Exercice : picker custom -->
+    <div class="field ffull">
+      <label>Exercice *</label>
+      <div class="exo-picker" id="exoPicker">
+        <div class="exo-picker-trigger" id="exoTrigger">
+          <div class="exo-picker-preview" id="exoPreview" style="display:none"></div>
+          <input type="text" id="exoSearch" class="exo-picker-search" placeholder="Rechercher un exercice…" autocomplete="off">
+          <svg class="exo-picker-arrow" id="exoArrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
+        <div class="exo-picker-list" id="exoList"></div>
+      </div>
+      <input type="hidden" id="exNom">
+      <div id="exHint" style="display:none;font-size:.7rem;font-weight:600;margin-top:.4rem;color:var(--prim)"></div>
+    </div>
+    <!-- Groupe musculaire : lecture seule avec image + couleur -->
+    <div class="field ffull">
+      <label>Groupe musculaire <span style="font-size:.68rem;color:var(--txf);font-weight:400">(rempli automatiquement)</span></label>
+      <input type="hidden" id="exGroupe">
+      <div class="grp-display" id="grpDisplay">
+        <div class="grp-display-ph" id="grpPh">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6 18V8.5C6 6.57 7.57 5 9.5 5h.5v14H9.5A3.5 3.5 0 0 1 6 15.5"/><path d="M18 18V8.5C18 6.57 16.43 5 14.5 5H14v14h.5a3.5 3.5 0 0 0 3.5-3.5"/></svg>
+        </div>
+        <img class="grp-display-img" id="grpImg" src="" alt="" style="display:none">
+        <div class="grp-display-info">
+          <div class="grp-display-name" id="grpName">Sélectionner un exercice</div>
+          <div class="grp-display-muscle" id="grpMuscle"></div>
+        </div>
+        <span class="grp-display-badge" id="grpBadge"></span>
+      </div>
+    </div>
+    <div class="field"><label>Séries</label><div class="finp"><input type="number" id="exSeries" placeholder="4" min="1"></div></div>
+    <div class="field"><label>Répétitions</label><div class="finp"><input type="text" id="exReps" placeholder="8-12"></div></div>
+    <div class="field"><label>Poids (kg)</label><div class="finp"><input type="number" id="exPoids" placeholder="80" step="0.5"></div></div>
+    <div class="field"><label>Récupération</label><div class="finp"><input type="text" id="exRecup" placeholder="90 s"></div></div>
+    <div class="field"><label>Durée</label><div class="finp"><input type="text" id="exDuree" placeholder="45 min"></div></div>
+    <div class="field"><label>Distance</label><div class="finp"><input type="text" id="exDist" placeholder="5 km"></div></div>
+    <div class="field ffull"><label>Note</label><div class="finp"><input type="text" id="exNote" placeholder="Observations…"></div></div>
+  </div>
+  <div id="exErr" style="display:none"><div class="merr"></div></div>
+  <div class="modal-actions"><button class="btn" id="exCancel">Annuler</button><button class="btn btn-p" id="exOk">Ajouter</button></div>
+</div></div>
+
+<!-- MODAL: SUPPRIMER -->
+<div class="ov" id="mDel"><div class="modal modal-sm">
+  <div class="modal-center">
+    <div class="modal-danger-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg></div>
+    <div class="modal-title" id="mDelTitle">Supprimer ?</div>
+    <div class="modal-desc" id="mDelDesc"></div>
+  </div>
+  <div class="modal-actions" style="justify-content:center;margin-top:var(--sp4)">
+    <button class="btn" id="mDelCancel" style="min-width:100px">Annuler</button>
+    <button class="btn btn-d" id="mDelOk" style="min-width:100px">Supprimer</button>
+  </div>
+</div></div>
+
+<script src="db.js"></script>
+<script>
+// ═══════════════════════════════════════════════════════════════════════════════
+// CONSTANTES
+// ═══════════════════════════════════════════════════════════════════════════════
+const STORAGE_KEY  = 'gymos-programmes-v2';
+const EXO_LIB_KEY  = 'exercices-studio-autosave-v2';
+const OBJ_KEY      = 'exercices-objectifs-v1';
+const JOURS_MAP    = {jL:'Lundi',jM:'Mardi',jMe:'Mercredi',jJ:'Jeudi',jV:'Vendredi',jS:'Samedi',jD:'Dimanche'};
+const MC = {'Pectoraux':'#b90207','Abdominaux':'#8338bb','Bras':'#fa7b01','Avant-bras':'#f42d65','Cuisses (arrière)':'#974f1a','Cuisses (avant)':'#5a9d24','Cuisses (intérieur)':'#3fb5dc','Dos':'#0161be','Épaules':'#fbbd01','Fessiers':'#01969b','Mollets':'#a19e9f'};
+const TC = {Push:'#fa7b01',Pull:'#0161be',Legs:'#5a9d24','Full Body':'#8338bb','Haut du corps':'#01969b','Bas du corps':'#974f1a',Cardio:'#b90207',Autre:'#9a9891'};
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════════════════════════════════════════
+const S = { progs:[], selProg:null, selSeance:null };
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// UTILS
+// ═══════════════════════════════════════════════════════════════════════════════
+const uid = () => Math.random().toString(36).slice(2,10) + Date.now().toString(36).slice(-4);
+const esc = v => String(v??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+const typeColor = t => TC[t] || '#9a9891';
+const getProg   = id => S.progs.find(p => p.id === id);
+const getSeance = (prog, id) => prog?.seances?.find(s => s.id === id);
+
+function hexRgb(hex){ return [parseInt(hex.slice(1,3),16),parseInt(hex.slice(3,5),16),parseInt(hex.slice(5,7),16)]; }
+function typeBadgeStyle(hex){ const[r,g,b]=hexRgb(hex); return `background:rgba(${r},${g},${b},.15);color:${hex};border:1px solid rgba(${r},${g},${b},.35)`; }
+
+let statusTimer;
+function showStatus(msg, ok=true){
+  const el = document.getElementById('statusBar');
+  el.textContent = msg;
+  el.style.color = ok ? 'var(--ok)' : 'var(--err)';
+  el.style.display = 'block';
+  clearTimeout(statusTimer);
+  statusTimer = setTimeout(() => el.style.display = 'none', 3000);
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// DB STATUS UI
+// ═══════════════════════════════════════════════════════════════════════════════
+function updateDbBtn(state) {
+  const btn = document.getElementById('dbBtn');
+  const txt = document.getElementById('dbTxt');
+  if(!btn) return;
+  const name = GymDB.getFolderName();
+  if (state === 'connected') {
+    btn.style.cssText = 'display:inline-flex;align-items:center;gap:.4rem;padding:.35rem .85rem;border-radius:999px;border:1px solid rgba(67,122,34,.4);background:rgba(67,122,34,.07);font-size:var(--text-xs);font-weight:600;cursor:pointer;color:#437a22;white-space:nowrap;transition:all var(--tr)';
+    txt.textContent = '📁 ' + (name || 'Db');
+    btn.title = 'Connecté — cliquer pour changer';
+  } else if (state === 'needs-permission') {
+    btn.style.cssText = 'display:inline-flex;align-items:center;gap:.4rem;padding:.35rem .85rem;border-radius:999px;border:1px solid rgba(150,66,25,.4);background:rgba(150,66,25,.07);font-size:var(--text-xs);font-weight:600;cursor:pointer;color:#964219;white-space:nowrap;transition:all var(--tr)';
+    txt.textContent = '🔓 ' + (name||'Db') + ' — reconnecter';
+    btn.title = 'Cliquer pour réautoriser (pas de sélection nécessaire)';
+  } else {
+    btn.style.cssText = 'display:inline-flex;align-items:center;gap:.4rem;padding:.35rem .85rem;border-radius:999px;border:1px solid var(--bord);background:var(--surf2);font-size:var(--text-xs);font-weight:600;cursor:pointer;color:var(--txm);white-space:nowrap;transition:all var(--tr)';
+    txt.textContent = '📂 Db';
+    btn.title = 'Connecter le dossier Db';
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// PERSISTANCE
+// ═══════════════════════════════════════════════════════════════════════════════
+function save(){
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(S.progs)); } catch(e){ showStatus('Erreur sauvegarde.', false); }
+  GymDB.write('programmes.json', S.progs);
+}
+function load(){
+  try {
+    const r = localStorage.getItem(STORAGE_KEY);
+    S.progs = r ? JSON.parse(r) : [];
+    if(!Array.isArray(S.progs)) S.progs = [];
+  } catch { S.progs = []; }
+}
+async function loadFromDb(){
+  const data = await GymDB.read('programmes.json');
+  if(Array.isArray(data) && data.length){ S.progs = data; return true; }
+  return false;
+}
+function getExoLib(){ try { return JSON.parse(localStorage.getItem(EXO_LIB_KEY)||'{}').rows||[]; } catch{ return []; } }
+function getLatestRef(nom){
+  try {
+    const lib = getExoLib();
+    const objs = JSON.parse(localStorage.getItem(OBJ_KEY)||'{}');
+    const row = lib.find(e => e.exercice?.toLowerCase() === nom.toLowerCase());
+    if(!row) return null;
+    const entries = objs[row.id];
+    if(!entries?.length) return null;
+    return entries.slice().sort((a,b) => b.date.localeCompare(a.date))[0];
+  } catch{ return null; }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// SIDEBAR
+// ═══════════════════════════════════════════════════════════════════════════════
+function renderSidebar(){
+  const active   = S.progs.filter(p => p.statut === 'actif');
+  const archived = S.progs.filter(p => p.statut !== 'actif');
+  document.getElementById('sfProgs').textContent   = S.progs.length;
+  document.getElementById('sfSeances').textContent = S.progs.reduce((n,p) => n+(p.seances?.length||0), 0);
+
+  function buildList(arr, listId){
+    const el = document.getElementById(listId);
+    el.innerHTML = '';
+    if(!arr.length){ el.innerHTML = '<div style="font-size:var(--text-xs);color:var(--txf);padding:.5rem var(--sp2)">Aucun</div>'; return; }
+    arr.forEach(p => {
+      const item = document.createElement('div');
+      item.className = 'sl-item' + (p.id === S.selProg ? ' active' : '');
+      const sc = p.seances?.length || 0;
+      const dot = document.createElement('span'); dot.className = `sl-dot ${p.statut}`;
+      const name = document.createElement('div'); name.className = 'sl-item-name'; name.textContent = p.nom;
+      const meta = document.createElement('div'); meta.className = 'sl-item-meta';
+      const cnt = document.createElement('span'); cnt.className = 'sl-count'; cnt.textContent = `${sc} séance${sc!==1?'s':''}`;
+      meta.append(dot, cnt);
+      item.append(name, meta);
+      item.addEventListener('click', () => selectProg(p.id));
+      el.appendChild(item);
+    });
+  }
+
+  buildList(active, 'slActiveList');
+  const archDiv = document.getElementById('slArchived');
+  archDiv.style.display = archived.length ? 'block' : 'none';
+  if(archived.length) buildList(archived, 'slArchivedList');
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// MAIN
+// ═══════════════════════════════════════════════════════════════════════════════
+function renderMain(){
+  const main = document.getElementById('mainArea');
+  main.innerHTML = '';
+
+  const prog = getProg(S.selProg);
+  if(!prog){
+    const es = document.createElement('div'); es.className = 'empty-state';
+    es.innerHTML = `<div class="es-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div>
+      <div class="es-title">Aucun programme sélectionné</div>
+      <div class="es-desc">Créez votre premier programme ou sélectionnez-en un dans la liste.</div>`;
+    const btn = document.createElement('button'); btn.className = 'btn btn-p';
+    btn.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> Nouveau programme`;
+    btn.addEventListener('click', () => openProgModal());
+    es.appendChild(btn);
+    main.appendChild(es);
+    return;
+  }
+
+  // Programme header
+  const ph = document.createElement('div'); ph.className = 'prog-hdr';
+  const phl = document.createElement('div'); phl.className = 'ph-left';
+  const phName = document.createElement('div'); phName.className = 'ph-name'; phName.textContent = prog.nom;
+  phl.appendChild(phName);
+  if(prog.description){ const d = document.createElement('div'); d.className = 'ph-desc'; d.textContent = prog.description; phl.appendChild(d); }
+  const badges = document.createElement('div'); badges.className = 'ph-badges';
+  const stBadge = document.createElement('span'); stBadge.className = `stbadge ${prog.statut}`; stBadge.textContent = prog.statut === 'actif' ? '● Actif' : '● Archivé';
+  const cntBadge = document.createElement('span'); cntBadge.className = 'count-badge'; cntBadge.textContent = `${prog.seances?.length||0} séance${(prog.seances?.length||0)!==1?'s':''}`;
+  badges.append(stBadge, cntBadge);
+  phl.appendChild(badges);
+
+  const pha = document.createElement('div'); pha.className = 'ph-actions';
+  const btnMod = document.createElement('button'); btnMod.className = 'btn btn-sm'; btnMod.textContent = 'Modifier';
+  btnMod.addEventListener('click', () => openProgModal(prog.id));
+  const btnArch = document.createElement('button'); btnArch.className = 'btn btn-sm';
+  btnArch.textContent = prog.statut === 'actif' ? 'Archiver' : 'Réactiver';
+  btnArch.addEventListener('click', () => toggleArchive(prog.id));
+  const btnDel = document.createElement('button'); btnDel.className = 'btn btn-sm';
+  btnDel.style.cssText = 'color:#a12c7b;border-color:#a12c7b44';
+  btnDel.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>`;
+  btnDel.addEventListener('click', () => openDelModal('prog', prog.id));
+  pha.append(btnMod, btnArch, btnDel);
+  ph.append(phl, pha);
+  main.appendChild(ph);
+
+  // Seances section
+  const sec = document.createElement('div');
+  const secHd = document.createElement('div'); secHd.className = 'sec-head';
+  const secTit = document.createElement('div'); secTit.className = 'sec-title'; secTit.textContent = 'Séances types';
+  secHd.append(secTit);
+  sec.appendChild(secHd);
+
+  const grid = document.createElement('div'); grid.className = 'seances-grid';
+
+  (prog.seances||[]).forEach(s => {
+    const hex = typeColor(s.type);
+    const card = document.createElement('div'); card.className = 'sc' + (s.id === S.selSeance ? ' active' : '');
+    card.style.setProperty('--sc-color', hex);
+    const bar = document.createElement('div'); bar.className = 'sc-bar';
+    const body = document.createElement('div'); body.className = 'sc-body';
+    const head = document.createElement('div'); head.className = 'sc-head';
+    const name = document.createElement('div'); name.className = 'sc-name'; name.textContent = s.nom;
+    const tb = document.createElement('span'); tb.className = 'type-badge'; tb.style.cssText = typeBadgeStyle(hex); tb.textContent = s.type;
+    head.append(name, tb); body.appendChild(head);
+    if(s.jours?.length){ const jd = document.createElement('div'); jd.className = 'sc-jours'; s.jours.forEach(j=>{ const p=document.createElement('span');p.className='jour-pill';p.textContent=j.slice(0,3);jd.appendChild(p); }); body.appendChild(jd); }
+    const foot = document.createElement('div'); foot.className = 'sc-footer';
+    const cnt = document.createElement('span'); cnt.className = 'sc-cnt'; cnt.textContent = `${s.exercices?.length||0} exercice${(s.exercices?.length||0)!==1?'s':''}`;
+    const acts = document.createElement('div'); acts.className = 'sc-acts';
+    const btnE = document.createElement('button'); btnE.className = 'sc-btn'; btnE.title = 'Modifier';
+    btnE.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4z"/></svg>`;
+    btnE.addEventListener('click', e => { e.stopPropagation(); openSeanceModal(s.id); });
+    const btnD = document.createElement('button'); btnD.className = 'sc-btn'; btnD.title = 'Supprimer';
+    btnD.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>`;
+    btnD.addEventListener('click', e => { e.stopPropagation(); openDelModal('seance', s.id); });
+    acts.append(btnE, btnD); foot.append(cnt, acts);
+    card.append(bar, body, foot);
+    card.addEventListener('click', () => selectSeance(s.id));
+    grid.appendChild(card);
+  });
+
+  // + Add card
+  const addCard = document.createElement('div'); addCard.className = 'sc-add';
+  addCard.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg><span>Ajouter une séance</span>`;
+  addCard.addEventListener('click', () => openSeanceModal());
+  grid.appendChild(addCard);
+  sec.appendChild(grid);
+  main.appendChild(sec);
+
+  // Exercise panel
+  if(S.selSeance){
+    const seance = getSeance(prog, S.selSeance);
+    if(seance) main.appendChild(buildExoPanel(seance));
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// EXERCISE PANEL (DOM-built)
+// ═══════════════════════════════════════════════════════════════════════════════
+function buildExoPanel(seance){
+  const hex = typeColor(seance.type);
+  const panel = document.createElement('div'); panel.className = 'exo-panel'; panel.id = 'exoPanel';
+  panel.style.setProperty('--ep-color', hex);
+
+  const bar = document.createElement('div'); bar.className = 'ep-bar';
+  const hdr = document.createElement('div'); hdr.className = 'ep-hdr';
+  const icon = document.createElement('div'); icon.className = 'ep-icon';
+  icon.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M6.5 6.5h11"/><path d="M6.5 17.5h11"/><path d="M3 8.5v7"/><path d="M21 8.5v7"/><path d="M1 10.5v3"/><path d="M23 10.5v3"/></svg>`;
+  const info = document.createElement('div'); info.style.flex='1';
+  const title = document.createElement('div'); title.style.cssText='font-weight:700;font-size:var(--text-sm)'; title.textContent = seance.nom;
+  const sub = document.createElement('div'); sub.style.cssText='font-size:var(--text-xs);color:var(--txm);margin-top:.1rem';
+  sub.textContent = seance.type + (seance.jours?.length ? ' · ' + seance.jours.join(', ') : '');
+  info.append(title, sub);
+  const addBtn = document.createElement('button'); addBtn.className = 'btn btn-sm btn-p'; addBtn.style.flexShrink='0';
+  addBtn.innerHTML = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> Ajouter un exercice`;
+  addBtn.addEventListener('click', () => openExoModal(seance.id));
+  const closeBtn = document.createElement('button'); closeBtn.className = 'ep-close'; closeBtn.style.marginLeft='var(--sp2)';
+  closeBtn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>`;
+  closeBtn.addEventListener('click', () => { S.selSeance = null; renderMain(); });
+  hdr.append(icon, info, addBtn, closeBtn);
+
+  const body = document.createElement('div'); body.className = 'ep-body';
+  const lbl = document.createElement('div'); lbl.style.cssText='font-size:.65rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--txf);margin-bottom:var(--sp3)'; lbl.textContent='Exercices de la séance';
+  const wrap = document.createElement('div'); wrap.className = 'et-wrap';
+  const table = document.createElement('table'); table.className = 'et';
+  table.innerHTML = `<thead><tr><th style="width:32px">#</th><th style="width:60px">Image</th><th>Exercice</th><th>Groupe</th><th>Séries</th><th>Reps</th><th>Poids</th><th>Durée</th><th>Distance</th><th>Récup</th><th style="width:110px"></th></tr></thead>`;
+  const tbody = document.createElement('tbody');
+
+  const exos = seance.exercices||[];
+  if(!exos.length){
+    const tr = document.createElement('tr'); const td = document.createElement('td'); td.colSpan=11; td.className='et-empty'; td.textContent='Aucun exercice. Cliquez sur "+ Ajouter un exercice".'; tr.appendChild(td); tbody.appendChild(tr);
+  } else {
+    exos.forEach((e,i) => tbody.appendChild(buildExoRow(seance, e, i, exos.length)));
+  }
+
+  table.appendChild(tbody); wrap.appendChild(table);
+  body.append(lbl, wrap);
+  panel.append(bar, hdr, body);
+  setTimeout(() => panel.scrollIntoView({behavior:'smooth',block:'nearest'}), 50);
+  return panel;
+}
+
+function buildEtImgPh(hex) {
+  const [r,g,b] = hexRgb(hex);
+  const ph = document.createElement('div'); ph.className='et-img-ph';
+  ph.style.borderColor=`rgba(${r},${g},${b},.3)`;
+  ph.innerHTML=`<svg viewBox="0 0 24 24" fill="none" stroke="${hex}" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>`;
+  return ph;
+}
+
+function buildExoRow(seance, e, i, total){
+  const gc = MC[e.groupe]||'#9a9891';
+  const tr = document.createElement('tr'); tr.dataset.exoId = e.id;
+
+  // Cellule # et cellule image
+  const tdNum = document.createElement('td'); tdNum.className='et-num'; tdNum.textContent=i+1;
+  tr.appendChild(tdNum);
+
+  const tdImg = document.createElement('td'); tdImg.style.cssText='padding:.3rem .5rem;vertical-align:middle;width:60px';
+  const imgSrc = e.image || getExoImage(e.nom);
+  if (imgSrc) {
+    const img = document.createElement('img'); img.className='et-img';
+    img.src=`./img/${imgSrc}`; img.alt=e.nom||'';
+    img.style.cursor='zoom-in'; img.title='Voir la fiche exercice';
+    img.onerror=()=>{ img.replaceWith(buildEtImgPh(gc)); };
+    img.addEventListener('click', () => openExoInfoFromTable(e.nom));
+    tdImg.appendChild(img);
+  } else {
+    const ph = buildEtImgPh(gc);
+    ph.style.cursor='pointer'; ph.title='Voir la fiche exercice';
+    ph.addEventListener('click', () => openExoInfoFromTable(e.nom));
+    tdImg.appendChild(ph);
+  }
+  tr.appendChild(tdImg);
+
+  const cells = [
+    `<td class="et-name"><span class="grp-dot" style="background:${gc}"></span>${esc(e.nom)}</td>`,
+    `<td style="color:var(--txm);font-size:var(--text-xs)">${esc(e.groupe||'')}</td>`,
+    `<td>${e.series||'—'}</td>`,
+    `<td>${e.reps||'—'}</td>`,
+    `<td>${e.poids?e.poids+' kg':'—'}</td>`,
+    `<td>${e.duree||'—'}</td>`,
+    `<td>${e.distance||'—'}</td>`,
+    `<td>${e.recup||'—'}</td>`,
+  ].join('');
+  tr.insertAdjacentHTML('beforeend', cells);
+
+  const actTd = document.createElement('td');
+  const acts = document.createElement('div'); acts.className = 'et-acts';
+
+  if(i>0){ const u=document.createElement('button');u.className='et-btn';u.title='Monter';u.innerHTML=`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="18 15 12 9 6 15"/></svg>`;u.addEventListener('click',()=>moveExo(seance.id,e.id,-1));acts.appendChild(u); }
+  else { const sp=document.createElement('span');sp.style.width='20px';acts.appendChild(sp); }
+  if(i<total-1){ const d=document.createElement('button');d.className='et-btn';d.title='Descendre';d.innerHTML=`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="6 9 12 15 18 9"/></svg>`;d.addEventListener('click',()=>moveExo(seance.id,e.id,1));acts.appendChild(d); }
+  else { const sp=document.createElement('span');sp.style.width='20px';acts.appendChild(sp); }
+
+  const ed=document.createElement('button');ed.className='et-btn';ed.title='Modifier';ed.innerHTML=`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4z"/></svg>`;
+  ed.addEventListener('click',()=>inlineEditExo(seance,e,tr));
+  const dl=document.createElement('button');dl.className='et-btn d';dl.title='Supprimer';dl.innerHTML=`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>`;
+  dl.addEventListener('click',()=>{ seance.exercices=seance.exercices.filter(x=>x.id!==e.id); save(); S.selSeance=seance.id; renderMain(); });
+  acts.append(ed,dl); actTd.appendChild(acts); tr.appendChild(actTd);
+  return tr;
+}
+
+function inlineEditExo(seance, e, tr){
+  tr.classList.add('editing');
+  const fields = [
+    {name:'nom',val:e.nom,wide:true},{name:'groupe',val:e.groupe||''},{name:'series',val:e.series||''},{name:'reps',val:e.reps||''},
+    {name:'poids',val:e.poids||''},{name:'duree',val:e.duree||''},{name:'distance',val:e.distance||''},{name:'recup',val:e.recup||''}
+  ];
+  const cells = [...tr.querySelectorAll('td')];
+  cells[0].textContent = '✎';
+  // cells[1] = image (on la laisse telle quelle)
+  fields.forEach((f,i)=>{
+    const inp=document.createElement('input'); inp.className='et-inp'; inp.value=f.val; inp.dataset.field=f.name;
+    cells[i+2].innerHTML=''; cells[i+2].appendChild(inp);
+  });
+  const actTd = cells[cells.length-1]; actTd.innerHTML='';
+  const acts=document.createElement('div');acts.style.cssText='display:flex;gap:4px;flex-wrap:wrap';
+  const sv=document.createElement('button');sv.className='et-save';sv.textContent='✓ OK';
+  sv.addEventListener('click',()=>{
+    tr.querySelectorAll('.et-inp').forEach(inp=>{ e[inp.dataset.field]=inp.value.trim(); });
+    save(); S.selSeance=seance.id; renderMain();
+  });
+  const cn=document.createElement('button');cn.className='et-cancel';cn.textContent='✗';
+  cn.addEventListener('click',()=>{ S.selSeance=seance.id; renderMain(); });
+  acts.append(sv,cn); actTd.appendChild(acts);
+  cells[2].querySelector('input')?.focus();
+}
+
+function moveExo(seanceId,exoId,dir){
+  const prog=getProg(S.selProg); const seance=getSeance(prog,seanceId); if(!seance?.exercices)return;
+  const arr=seance.exercices; const idx=arr.findIndex(e=>e.id===exoId); const ni=idx+dir;
+  if(ni<0||ni>=arr.length)return; [arr[idx],arr[ni]]=[arr[ni],arr[idx]];
+  save(); S.selSeance=seanceId; renderMain();
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// SÉLECTION
+// ═══════════════════════════════════════════════════════════════════════════════
+function selectProg(id){
+  S.selProg = id; S.selSeance = null;
+  renderSidebar(); renderMain();
+}
+function selectSeance(id){
+  S.selSeance = S.selSeance === id ? null : id;
+  renderMain();
+}
+function toggleArchive(progId){
+  const p=getProg(progId); if(!p)return;
+  p.statut = p.statut==='actif' ? 'archive' : 'actif';
+  save(); renderSidebar(); renderMain();
+  showStatus(`Programme ${p.statut==='actif'?'réactivé':'archivé'}.`);
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// MODALES
+// ═══════════════════════════════════════════════════════════════════════════════
+function openModal(id){ document.getElementById(id).classList.add('open'); }
+function closeModal(id){ document.getElementById(id).classList.remove('open'); }
+
+// --- Programme ---
+let _editProgId = null;
+function openProgModal(progId=null){
+  _editProgId = progId||null;
+  const p = _editProgId ? getProg(_editProgId) : null;
+  document.getElementById('mProgTitle').textContent = p ? 'Modifier le programme' : 'Nouveau programme';
+  document.getElementById('mpOk').textContent = p ? 'Enregistrer' : 'Créer';
+  document.getElementById('mpOk').disabled = false;
+  document.getElementById('mpNom').value = p?.nom||'';
+  document.getElementById('mpDesc').value = p?.description||'';
+  document.getElementById('mpStatut').value = p?.statut||'actif';
+  document.getElementById('mpErr').style.display = 'none';
+  openModal('mProg');
+  setTimeout(()=>document.getElementById('mpNom').focus(),60);
+}
+function closeProgModal(){ closeModal('mProg'); _editProgId=null; }
+function confirmProgModal(){
+  const nom = document.getElementById('mpNom').value.trim();
+  if(!nom){ document.getElementById('mpErr').style.display='block'; document.getElementById('mpErr').querySelector('div').textContent='Le nom est obligatoire.'; return; }
+  document.getElementById('mpOk').disabled = true;
+  const desc   = document.getElementById('mpDesc').value.trim();
+  const statut = document.getElementById('mpStatut').value;
+  if(_editProgId){
+    const p=getProg(_editProgId); if(p){ p.nom=nom; p.description=desc; p.statut=statut; }
+    save(); closeProgModal(); renderSidebar(); renderMain(); showStatus(`"${nom}" modifié.`);
+  } else {
+    const newId = uid();
+    S.progs.push({id:newId,nom,description:desc,statut,dateCreation:new Date().toISOString().split('T')[0],seances:[]});
+    S.selProg=newId; S.selSeance=null;
+    save(); closeProgModal(); renderSidebar(); renderMain(); showStatus(`"${nom}" créé.`);
+  }
+}
+
+// --- Séance ---
+let _editSeanceId = null;
+function openSeanceModal(seanceId=null){
+  const prog=getProg(S.selProg); if(!prog)return;
+  _editSeanceId=seanceId||null;
+  const s=_editSeanceId?getSeance(prog,_editSeanceId):null;
+  document.getElementById('mSeanceTitle').textContent=s?'Modifier la séance':'Nouvelle séance';
+  document.getElementById('msOk').textContent=s?'Enregistrer':'Créer';
+  document.getElementById('msOk').disabled=false;
+  document.getElementById('msNom').value=s?.nom||'';
+  document.getElementById('msType').value=s?.type||'Push';
+  Object.keys(JOURS_MAP).forEach(id=>{ document.getElementById(id).checked=false; });
+  if(s?.jours) s.jours.forEach(j=>{ const id=Object.entries(JOURS_MAP).find(([,v])=>v===j)?.[0]; if(id) document.getElementById(id).checked=true; });
+  document.getElementById('msErr').style.display='none';
+  openModal('mSeance');
+  setTimeout(()=>document.getElementById('msNom').focus(),60);
+}
+function closeSeanceModal(){ closeModal('mSeance'); _editSeanceId=null; }
+function confirmSeanceModal(){
+  const nom=document.getElementById('msNom').value.trim();
+  if(!nom){ document.getElementById('msErr').style.display='block'; document.getElementById('msErr').querySelector('div').textContent='Le nom est obligatoire.'; return; }
+  document.getElementById('msOk').disabled=true;
+  const type=document.getElementById('msType').value;
+  const jours=Object.entries(JOURS_MAP).filter(([id])=>document.getElementById(id).checked).map(([,v])=>v);
+  const prog=getProg(S.selProg); if(!prog){closeSeanceModal();return;}
+  if(_editSeanceId){
+    const s=getSeance(prog,_editSeanceId); if(s){s.nom=nom;s.type=type;s.jours=jours;}
+  } else {
+    if(!prog.seances)prog.seances=[];
+    prog.seances.push({id:uid(),nom,type,jours,exercices:[]});
+  }
+  save(); closeSeanceModal(); renderMain(); showStatus(`Séance "${nom}" ${_editSeanceId?'modifiée':'créée'}.`);
+}
+
+// --- Exercice ---
+let _exoSeanceId=null;
+let _exoLibCache=[];
+
+function buildExoPicker(lib) {
+  let filtered = [...lib];
+  const picker  = document.getElementById('exoPicker');
+  const search  = document.getElementById('exoSearch');
+  const list    = document.getElementById('exoList');
+  const preview = document.getElementById('exoPreview');
+  const nomInp  = document.getElementById('exNom');
+
+  function renderList(items) {
+    list.innerHTML = '';
+    if (!items.length) {
+      const el = document.createElement('div'); el.className = 'epi-empty';
+      el.textContent = 'Aucun exercice trouvé.'; list.appendChild(el); return;
+    }
+    items.forEach(e => {
+      const hex = MC[e.groupe_musculaire] || '#9a9891';
+      const [r,g,b] = hexRgb(hex);
+      const imgSrc = e.image || e.image_muscle || e.image_groupe || '';
+      const item = document.createElement('div'); item.className = 'epi';
+      if (e.exercice === nomInp.value) item.classList.add('active');
+      // Image ou placeholder coloré
+      if (imgSrc) {
+        const img = document.createElement('img'); img.className='epi-img';
+        img.src=`./img/${imgSrc}`; img.alt=e.exercice;
+        img.onerror=()=>{ img.replaceWith(makePh(hex)); };
+        item.appendChild(img);
+      } else { item.appendChild(makePh(hex)); }
+      const dot = document.createElement('span'); dot.className='epi-dot'; dot.style.background=hex;
+      const info = document.createElement('div'); info.className='epi-info';
+      const name = document.createElement('div'); name.className='epi-name'; name.textContent=e.exercice||'';
+      const grp  = document.createElement('div'); grp.className='epi-grp';
+      grp.textContent=(e.groupe_musculaire||'') + (e.muscle?' · '+e.muscle:'');
+      info.append(name,grp); item.append(dot,info);
+      item.addEventListener('mousedown', ev => { ev.preventDefault(); selectExo(e); });
+      list.appendChild(item);
+    });
+  }
+
+  function makePh(hex) {
+    const [r,g,b]=hexRgb(hex);
+    const ph=document.createElement('div'); ph.className='epi-ph';
+    ph.style.background=`rgba(${r},${g},${b},.15)`;
+    ph.style.borderColor=`rgba(${r},${g},${b},.3)`;
+    ph.innerHTML=`<svg viewBox="0 0 24 24" fill="none" stroke="${hex}" stroke-width="1.5"><path d="M6 18V8.5C6 6.57 7.57 5 9.5 5h.5v14H9.5A3.5 3.5 0 0 1 6 15.5"/><path d="M18 18V8.5C18 6.57 16.43 5 14.5 5H14v14h.5a3.5 3.5 0 0 0 3.5-3.5"/></svg>`;
+    return ph;
+  }
+
+  let _selectedExoImage = '';
+
+  function selectExo(e) {
+    nomInp.value = e.exercice;
+    search.value = e.exercice;
+    _selectedExoImage = e.image || e.image_muscle || e.image_groupe || '';
+    picker.classList.remove('open');
+    // Preview dans le trigger
+    const hex = MC[e.groupe_musculaire]||'#9a9891';
+    const imgSrc = _selectedExoImage;
+    preview.innerHTML='';
+    if (imgSrc) {
+      const img=document.createElement('img'); img.className='epp-img';
+      img.src=`./img/${imgSrc}`; img.alt=e.exercice;
+      img.onerror=()=>{ img.replaceWith(makePph(hex)); };
+      preview.appendChild(img);
+    } else { preview.appendChild(makePph(hex)); }
+    const dot=document.createElement('span'); dot.className='epp-dot'; dot.style.background=hex;
+    preview.append(dot); preview.style.display='flex';
+    updateGroupDisplay(e);
+    autoFillRef(e.exercice);
+  }
+
+  function makePph(hex) {
+    const [r,g,b]=hexRgb(hex);
+    const ph=document.createElement('div'); ph.className='epp-ph';
+    ph.style.background=`rgba(${r},${g},${b},.15)`;
+    ph.innerHTML=`<svg viewBox="0 0 24 24" fill="none" stroke="${hex}" stroke-width="1.5"><path d="M6 18V8.5C6 6.57 7.57 5 9.5 5h.5v14H9.5A3.5 3.5 0 0 1 6 15.5"/><path d="M18 18V8.5C18 6.57 16.43 5 14.5 5H14v14h.5a3.5 3.5 0 0 0 3.5-3.5"/></svg>`;
+    return ph;
+  }
+
+  search.addEventListener('focus', () => {
+    picker.classList.add('open');
+    filtered = lib.filter(e => !search.value || e.exercice?.toLowerCase().includes(search.value.toLowerCase()));
+    renderList(filtered);
+  });
+  search.addEventListener('input', () => {
+    picker.classList.add('open');
+    filtered = lib.filter(e => e.exercice?.toLowerCase().includes(search.value.toLowerCase()));
+    renderList(filtered);
+  });
+  document.addEventListener('click', e => {
+    if (!picker.contains(e.target)) picker.classList.remove('open');
+  }, { capture: true });
+
+  renderList(lib);
+}
+
+function updateGroupDisplay(exoData) {
+  const grp = exoData?.groupe_musculaire || '';
+  document.getElementById('exGroupe').value = grp;
+  const hex = MC[grp] || '#9a9891';
+  const [r,g,b] = hexRgb(hex);
+  const ph    = document.getElementById('grpPh');
+  const img   = document.getElementById('grpImg');
+  const gname = document.getElementById('grpName');
+  const gmusc = document.getElementById('grpMuscle');
+  const gbadge= document.getElementById('grpBadge');
+  gname.textContent  = grp || 'Sélectionner un exercice';
+  gname.style.color  = grp ? hex : 'var(--txm)';
+  gmusc.textContent  = exoData?.muscle ? exoData.muscle + (exoData.subdivision && exoData.subdivision!=='-'?' · '+exoData.subdivision:'') : '';
+  gbadge.textContent = grp;
+  gbadge.style.cssText= grp
+    ? `background:rgba(${r},${g},${b},.15);color:${hex};border:1px solid rgba(${r},${g},${b},.35);font-size:.65rem;font-weight:700;padding:.2rem .55rem;border-radius:999px;white-space:nowrap;flex-shrink:0`
+    : 'display:none';
+  const imgSrc = exoData?.image_groupe || '';
+  if (imgSrc) {
+    img.src=`./img/${imgSrc}`; img.alt=grp;
+    img.onload=()=>{ img.style.display='block'; ph.style.display='none'; };
+    img.onerror=()=>{ img.style.display='none'; ph.style.display='grid'; showPhColor(ph,hex); };
+    img.style.display='block'; ph.style.display='none';
+  } else { img.style.display='none'; ph.style.display='grid'; showPhColor(ph,hex); }
+}
+
+function showPhColor(ph, hex) {
+  const [r,g,b]=hexRgb(hex);
+  ph.style.background=`rgba(${r},${g},${b},.12)`;
+  ph.style.borderColor=`rgba(${r},${g},${b},.3)`;
+  ph.innerHTML=`<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="${hex}" stroke-width="1.5"><path d="M6 18V8.5C6 6.57 7.57 5 9.5 5h.5v14H9.5A3.5 3.5 0 0 1 6 15.5"/><path d="M18 18V8.5C18 6.57 16.43 5 14.5 5H14v14h.5a3.5 3.5 0 0 0 3.5-3.5"/></svg>`;
+}
+
+function autoFillRef(nom) {
+  const ref = getLatestRef(nom);
+  if(ref){
+    if(ref.series)   document.getElementById('exSeries').value=ref.series;
+    if(ref.reps)     document.getElementById('exReps').value=ref.reps;
+    if(ref.poids)    document.getElementById('exPoids').value=ref.poids;
+    if(ref.duree)    document.getElementById('exDuree').value=ref.duree;
+    if(ref.distance) document.getElementById('exDist').value=ref.distance;
+    if(ref.recup)    document.getElementById('exRecup').value=ref.recup;
+    const hint=document.getElementById('exHint');
+    hint.textContent=`↩ Référence du ${new Date(ref.date+'T00:00:00').toLocaleDateString('fr-FR',{day:'2-digit',month:'short',year:'numeric'})} chargée`;
+    hint.style.display='block';
+    setTimeout(()=>hint.style.display='none',3500);
+  }
+}
+
+function openExoModal(seanceId){
+  _exoSeanceId=seanceId;
+  const prog=getProg(S.selProg); const seance=getSeance(prog,seanceId);
+  const hex=typeColor(seance?.type||'Autre');
+  document.getElementById('mExoIcon').style.background=`color-mix(in oklab,${hex} 15%,var(--surfoff))`;
+  document.getElementById('mExoIcon').style.color=hex;
+  document.getElementById('mExoSub').textContent=seance?`${seance.nom} · ${seance.type}`:'';
+  // Reset champs
+  document.getElementById('exNom').value='';
+  document.getElementById('exoSearch').value='';
+  document.getElementById('exoPreview').innerHTML=''; document.getElementById('exoPreview').style.display='none';
+  document.getElementById('exGroupe').value='';
+  ['exSeries','exReps','exPoids','exRecup','exDuree','exDist','exNote'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('exHint').style.display='none';
+  document.getElementById('exErr').style.display='none';
+  document.getElementById('exOk').disabled=false;
+  document.getElementById('exoPicker').classList.remove('open');
+  updateGroupDisplay(null);
+  // Build picker
+  _exoLibCache = getExoLib();
+  buildExoPicker(_exoLibCache);
+  openModal('mExo');
+  setTimeout(()=>document.getElementById('exoSearch').focus(),60);
+}
+function closeExoModal(){ closeModal('mExo'); _exoSeanceId=null; }
+function getExoImage(nom) {
+  try {
+    const lib = getExoLib();
+    const e = lib.find(x => x.exercice?.toLowerCase() === nom?.toLowerCase());
+    return e ? (e.image || e.image_muscle || e.image_groupe || '') : '';
+  } catch { return ''; }
+}
+
+function confirmExoModal(){
+  const nom=document.getElementById('exNom').value.trim();
+  if(!nom){ document.getElementById('exErr').style.display='block'; document.getElementById('exErr').querySelector('div').textContent="Sélectionnez un exercice dans la liste."; document.getElementById('exoSearch').focus(); return; }
+  document.getElementById('exOk').disabled=true;
+  const prog=getProg(S.selProg); const seance=getSeance(prog,_exoSeanceId); if(!seance){closeExoModal();return;}
+  if(!seance.exercices)seance.exercices=[];
+  seance.exercices.push({
+    id:uid(),nom,groupe:document.getElementById('exGroupe').value,
+    image: getExoImage(nom),
+    series:document.getElementById('exSeries').value.trim(),reps:document.getElementById('exReps').value.trim(),
+    poids:document.getElementById('exPoids').value.trim(),recup:document.getElementById('exRecup').value.trim(),
+    duree:document.getElementById('exDuree').value.trim(),distance:document.getElementById('exDist').value.trim(),
+    note:document.getElementById('exNote').value.trim()
+  });
+  const keepSeanceId = _exoSeanceId;
+  save(); closeExoModal(); S.selSeance=keepSeanceId; renderMain(); showStatus(`"${nom}" ajouté.`);
+}
+
+// --- Suppression ---
+let _delAction=null;
+function openDelModal(type,id){
+  if(type==='prog'){
+    const p=getProg(id); if(!p)return;
+    document.getElementById('mDelTitle').textContent='Supprimer ce programme ?';
+    document.getElementById('mDelDesc').innerHTML=`Vous allez supprimer <strong>${esc(p.nom)}</strong> et toutes ses séances.<br><small>Action irréversible.</small>`;
+    _delAction=()=>{ S.progs=S.progs.filter(x=>x.id!==id); if(S.selProg===id){S.selProg=null;S.selSeance=null;} save(); closeDelModal(); renderSidebar(); renderMain(); showStatus('Programme supprimé.'); };
+  } else {
+    const prog=getProg(S.selProg); const s=getSeance(prog,id); if(!s)return;
+    document.getElementById('mDelTitle').textContent='Supprimer cette séance ?';
+    document.getElementById('mDelDesc').innerHTML=`Vous allez supprimer <strong>${esc(s.nom)}</strong> et ses exercices.<br><small>Action irréversible.</small>`;
+    _delAction=()=>{ prog.seances=prog.seances.filter(x=>x.id!==id); if(S.selSeance===id)S.selSeance=null; save(); closeDelModal(); renderMain(); showStatus('Séance supprimée.'); };
+  }
+  document.getElementById('mDelOk').disabled=false;
+  openModal('mDel');
+  setTimeout(()=>document.getElementById('mDelCancel').focus(),50);
+}
+function closeDelModal(){ closeModal('mDel'); _delAction=null; }
+function confirmDelModal(){ if(_delAction){ document.getElementById('mDelOk').disabled=true; _delAction(); } }
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// THÈME
+// ═══════════════════════════════════════════════════════════════════════════════
+function applyTheme(t){
+  document.documentElement.setAttribute('data-theme',t); localStorage.setItem('muscle-xml-theme',t);
+  document.getElementById('thDark').style.display=t==='dark'?'block':'none';
+  document.getElementById('thLight').style.display=t==='light'?'block':'none';
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════════════════════
+// IMPORT / EXPORT XML
+// ═══════════════════════════════════════════════════════════════════════════════
+function progsToXml(progs) {
+  const ex = v => String(v??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  const lines = ['<?xml version="1.0" encoding="UTF-8"?>', '<programmes>'];
+  progs.forEach(p => {
+    lines.push('  <programme>');
+    lines.push(`    <nom>${ex(p.nom)}</nom>`);
+    lines.push(`    <description>${ex(p.description||'')}</description>`);
+    lines.push(`    <statut>${ex(p.statut||'actif')}</statut>`);
+    lines.push(`    <dateCreation>${ex(p.dateCreation||'')}</dateCreation>`);
+    lines.push('    <seances>');
+    (p.seances||[]).forEach(s => {
+      lines.push('      <seance>');
+      lines.push(`        <nom>${ex(s.nom)}</nom>`);
+      lines.push(`        <type>${ex(s.type||'')}</type>`);
+      lines.push('        <jours>');
+      (s.jours||[]).forEach(j => lines.push(`          <jour>${ex(j)}</jour>`));
+      lines.push('        </jours>');
+      lines.push('        <exercices>');
+      (s.exercices||[]).forEach(e => {
+        lines.push('          <exercice>');
+        ['nom','groupe','series','reps','poids','recup','duree','distance','note'].forEach(f =>
+          lines.push(`            <${f}>${ex(e[f]||'')}</${f}>`)
+        );
+        lines.push('          </exercice>');
+      });
+      lines.push('        </exercices>');
+      lines.push('      </seance>');
+    });
+    lines.push('    </seances>');
+    lines.push('  </programme>');
+  });
+  lines.push('</programmes>');
+  return lines.join('\n');
+}
+
+function parseProgsXml(xmlText) {
+  const parser = new DOMParser();
+  const xml = parser.parseFromString(xmlText, 'application/xml');
+  if (xml.querySelector('parsererror')) throw new Error('XML invalide.');
+  const txt = el => el?.textContent?.trim() || '';
+  return [...xml.querySelectorAll('programmes > programme')].map(p => ({
+    id: uid(),
+    nom:          txt(p.querySelector('nom')),
+    description:  txt(p.querySelector('description')),
+    statut:       txt(p.querySelector('statut')) || 'actif',
+    dateCreation: txt(p.querySelector('dateCreation')),
+    seances: [...p.querySelectorAll('seances > seance')].map(s => ({
+      id: uid(),
+      nom:  txt(s.querySelector('nom')),
+      type: txt(s.querySelector('type')) || 'Autre',
+      jours: [...s.querySelectorAll('jours > jour')].map(j => j.textContent.trim()).filter(Boolean),
+      exercices: [...s.querySelectorAll('exercices > exercice')].map(e => ({
+        id: uid(),
+        nom:      txt(e.querySelector('nom')),
+        groupe:   txt(e.querySelector('groupe')),
+        series:   txt(e.querySelector('series')),
+        reps:     txt(e.querySelector('reps')),
+        poids:    txt(e.querySelector('poids')),
+        recup:    txt(e.querySelector('recup')),
+        duree:    txt(e.querySelector('duree')),
+        distance: txt(e.querySelector('distance')),
+        note:     txt(e.querySelector('note')),
+      }))
+    }))
+  }));
+}
+
+function exportXml() {
+  const xml  = progsToXml(S.progs);
+  const blob = new Blob([xml], { type: 'application/xml' });
+  const a    = document.createElement('a');
+  a.href     = URL.createObjectURL(blob);
+  a.download = 'programmes.xml';
+  a.click(); URL.revokeObjectURL(a.href);
+  showStatus('Export XML généré.');
+}
+
+async function importXml(file) {
+  try {
+    const text  = await file.text();
+    const progs = parseProgsXml(text);
+    if (!progs.length) { showStatus('Aucun programme trouvé dans le fichier.', false); return; }
+    S.progs = progs; S.selProg = null; S.selSeance = null;
+    save(); renderSidebar(); renderMain();
+    showStatus(`${progs.length} programme(s) importé(s) depuis ${file.name}`);
+  } catch(e) { showStatus('Erreur XML : ' + e.message, false); }
+}
+
+// WIRING
+// ═══════════════════════════════════════════════════════════════════════════════
+document.getElementById('homeBtn').addEventListener('click',()=>window.location.href='index.html');
+document.getElementById('newProgBtn').addEventListener('click',()=>openProgModal());
+document.getElementById('hdrNewBtn').addEventListener('click',()=>openProgModal());
+document.getElementById('saveBtn').addEventListener('click', exportXml);
+document.getElementById('xmlFile').addEventListener('change', async e => {
+  const file = e.target.files?.[0]; if(!file) return;
+  await importXml(file); e.target.value='';
+});
+document.getElementById('themeBtn').addEventListener('click',()=>applyTheme(document.documentElement.getAttribute('data-theme')==='dark'?'light':'dark'));
+// mProg
+document.getElementById('mProg').addEventListener('click',e=>{if(e.target===document.getElementById('mProg'))closeProgModal();});
+document.getElementById('mpCancel').addEventListener('click',closeProgModal);
+document.getElementById('mpOk').addEventListener('click',e=>{e.stopPropagation();confirmProgModal();});
+document.getElementById('mpNom').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();confirmProgModal();}if(e.key==='Escape')closeProgModal();});
+
+// mSeance
+document.getElementById('mSeance').addEventListener('click',e=>{if(e.target===document.getElementById('mSeance'))closeSeanceModal();});
+document.getElementById('msCancel').addEventListener('click',closeSeanceModal);
+document.getElementById('msOk').addEventListener('click',e=>{e.stopPropagation();confirmSeanceModal();});
+document.getElementById('msNom').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();confirmSeanceModal();}if(e.key==='Escape')closeSeanceModal();});
+
+// mExo
+document.getElementById('mExo').addEventListener('click',e=>{if(e.target===document.getElementById('mExo'))closeExoModal();});
+document.getElementById('exCancel').addEventListener('click',closeExoModal);
+document.getElementById('exOk').addEventListener('click',e=>{e.stopPropagation();confirmExoModal();});
+
+// mDel
+document.getElementById('mDel').addEventListener('click',e=>{if(e.target===document.getElementById('mDel'))closeDelModal();});
+document.getElementById('mDelCancel').addEventListener('click',closeDelModal);
+document.getElementById('mDelOk').addEventListener('click',e=>{e.stopPropagation();confirmDelModal();});
+
+document.addEventListener('keydown',e=>{
+  if(e.key!=='Escape')return;
+  if(document.getElementById('mProg').classList.contains('open')){closeProgModal();return;}
+  if(document.getElementById('mSeance').classList.contains('open')){closeSeanceModal();return;}
+  if(document.getElementById('mExo').classList.contains('open')){closeExoModal();return;}
+  if(document.getElementById('mDel').classList.contains('open')){closeDelModal();return;}
+});
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════════════════════════════════
+(async function init(){
+  applyTheme(localStorage.getItem('muscle-xml-theme')||'light');
+  const dbState = await GymDB.init();
+  if(dbState === 'connected'){
+    const fromDb = await loadFromDb();
+    if(fromDb){ renderSidebar(); renderMain(); return; }
+  }
+  load(); renderSidebar(); renderMain();
+})();
+</script>
+<!-- ═══ MODALE FICHE EXERCICE ═══ -->
+<div id="exoInfoOv" style="position:fixed;inset:0;background:rgba(0,0,0,.55);backdrop-filter:blur(4px);z-index:500;display:none;align-items:center;justify-content:center">
+  <div id="exoInfoBox" style="background:var(--surf);border:1px solid var(--bord);border-radius:1rem;width:min(720px,96vw);max-height:90dvh;display:flex;flex-direction:column;box-shadow:0 24px 64px rgba(0,0,0,.2);overflow:hidden">
+    <div id="exoInfoHdr" style="flex-shrink:0">
+      <div id="exoInfoTopBar" style="height:4px"></div>
+      <div style="display:flex;align-items:center;gap:.75rem;padding:.85rem 1.25rem">
+        <span id="exoInfoGrpBadge" style="font-size:.65rem;font-weight:800;padding:.25rem .7rem;border-radius:999px;white-space:nowrap;flex-shrink:0"></span>
+        <div style="flex:1;min-width:0">
+          <div id="exoInfoExoName" style="font-weight:700;font-size:1rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap"></div>
+          <div id="exoInfoMuscleInfo" style="font-size:.72rem;color:var(--txm);margin-top:.1rem"></div>
+        </div>
+        <button id="exoInfoCloseBtn" style="width:34px;height:34px;border-radius:50%;border:1px solid var(--bord);background:var(--surf2);cursor:pointer;display:grid;place-items:center;color:var(--txm);padding:0;flex-shrink:0;transition:all var(--tr)">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+    </div>
+    <div style="display:grid;grid-template-columns:260px 1fr;flex:1;overflow:hidden;min-height:0">
+      <!-- Image + tags -->
+      <div id="exoInfoImgCol" style="border-right:1px solid var(--bord);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:1.25rem;gap:.75rem;background:var(--surfoff)">
+        <img id="exoInfoBigImg" src="" alt="" style="max-width:100%;max-height:240px;object-fit:contain;border-radius:.75rem;display:none">
+        <div id="exoInfoImgPh" style="display:flex;flex-direction:column;align-items:center;gap:.5rem;color:var(--txf);opacity:.35">
+          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+          <span style="font-size:.7rem">Aucune image</span>
+        </div>
+        <div id="exoInfoTagRow" style="display:flex;flex-wrap:wrap;gap:.3rem;justify-content:center"></div>
+      </div>
+      <!-- Détails -->
+      <div style="overflow-y:auto;padding:1.25rem;display:flex;flex-direction:column;gap:.85rem" id="exoInfoDetails"></div>
+    </div>
+  </div>
+</div>
+
+<style>
+  .ei-sec{display:flex;flex-direction:column;gap:.3rem}
+  .ei-sec-ttl{font-size:.62rem;font-weight:800;letter-spacing:.09em;text-transform:uppercase;padding-bottom:.2rem;border-bottom:1px solid currentColor;opacity:.6}
+  .ei-sec-txt{font-size:.82rem;line-height:1.6;color:var(--tx);white-space:pre-wrap}
+  .ei-tag-sm{display:inline-flex;align-items:center;padding:.2rem .5rem;border-radius:999px;font-size:.65rem;font-weight:600;background:var(--surf);color:var(--txm);border:1px solid var(--bord)}
+</style>
+
+<script>
+function openExoInfoFromTable(nom) {
+  const lib = getExoLib();
+  const exo = lib.find(e => e.exercice?.toLowerCase() === nom?.toLowerCase());
+  if (!exo) {
+    // Afficher juste le nom si pas trouvé dans la bibliothèque
+    openExoInfoModal({ exercice: nom });
+    return;
+  }
+  openExoInfoModal(exo);
+}
+
+function openExoInfoModal(exo) {
+  const hex = MC[exo.groupe_musculaire] || '#01696f';
+  const [r,g,b] = hexRgb(hex);
+
+  document.getElementById('exoInfoTopBar').style.background = hex;
+  document.getElementById('exoInfoHdr').style.background = `rgba(${r},${g},${b},.07)`;
+
+  const badge = document.getElementById('exoInfoGrpBadge');
+  badge.textContent = exo.groupe_musculaire || '—';
+  badge.style.cssText = `font-size:.65rem;font-weight:800;padding:.25rem .7rem;border-radius:999px;white-space:nowrap;flex-shrink:0;background:rgba(${r},${g},${b},.15);color:${hex};border:1px solid rgba(${r},${g},${b},.35)`;
+
+  document.getElementById('exoInfoExoName').textContent = exo.exercice || '—';
+  document.getElementById('exoInfoExoName').style.color = hex;
+  document.getElementById('exoInfoMuscleInfo').textContent = [exo.muscle, exo.subdivision && exo.subdivision !== '—' ? exo.subdivision : ''].filter(Boolean).join(' · ');
+
+  // Image
+  const imgSrc = exo.image || exo.image_muscle || exo.image_groupe || '';
+  const bigImg = document.getElementById('exoInfoBigImg');
+  const imgPh  = document.getElementById('exoInfoImgPh');
+  if (imgSrc) {
+    bigImg.src = './img/' + imgSrc; bigImg.alt = exo.exercice || '';
+    bigImg.style.display = 'block'; imgPh.style.display = 'none';
+    bigImg.onerror = () => { bigImg.style.display='none'; imgPh.style.display='flex'; };
+  } else {
+    bigImg.style.display = 'none'; imgPh.style.display = 'flex';
+  }
+
+  // Tags
+  const tagRow = document.getElementById('exoInfoTagRow');
+  tagRow.innerHTML = '';
+  [exo.equipement, exo.type_exercice].filter(Boolean).forEach(t => {
+    const s=document.createElement('span');s.className='ei-tag-sm';s.textContent=t;tagRow.appendChild(s);
+  });
+
+  // Sections détails
+  const details = document.getElementById('exoInfoDetails');
+  details.innerHTML = '';
+  const infos = [
+    { lbl:'Muscles secondaires', val:exo.muscle_secondaire },
+    { lbl:'Descriptif',          val:exo.descriptif },
+    { lbl:'Exécution / Technique', val:exo.execution },
+  ];
+  infos.forEach(({lbl,val}) => {
+    if (!val) return;
+    const sec = document.createElement('div'); sec.className='ei-sec';
+    const t = document.createElement('div'); t.className='ei-sec-ttl'; t.style.color=hex; t.textContent=lbl;
+    const tx= document.createElement('div'); tx.className='ei-sec-txt'; tx.textContent=val;
+    sec.append(t,tx); details.appendChild(sec);
+  });
+  if (!details.children.length) {
+    details.innerHTML=`<div style="color:var(--txf);font-size:.85rem;font-style:italic;padding:.5rem 0">Aucune information renseignée dans la bibliothèque.</div>`;
+  }
+
+  document.getElementById('exoInfoOv').style.display = 'flex';
+}
+
+function closeExoInfoModal() { document.getElementById('exoInfoOv').style.display='none'; }
+
+document.getElementById('exoInfoOv').addEventListener('click', e => { if(e.target===document.getElementById('exoInfoOv')) closeExoInfoModal(); });
+document.getElementById('exoInfoCloseBtn').addEventListener('click', closeExoInfoModal);
+document.addEventListener('keydown', e => { if(e.key==='Escape' && document.getElementById('exoInfoOv').style.display==='flex') closeExoInfoModal(); });
+</script>
+
+<!-- ═══════════════ GYMOS NAV PANEL ═══════════════ -->
+<div id="gymosNavPanel" style="display:none;position:fixed;inset:0;z-index:9999;align-items:flex-start;justify-content:flex-start">
+  <div id="gymosNavBackdrop" style="position:absolute;inset:0;background:rgba(0,0,0,.45);backdrop-filter:blur(5px)"></div>
+  <div style="position:relative;width:256px;height:100%;background:var(--color-surface,#f9f8f5);border-right:1px solid var(--color-border,#d4d1ca);box-shadow:12px 0 40px rgba(0,0,0,.18);display:flex;flex-direction:column;overflow-y:auto;z-index:1">
+    <!-- Logo + Fermer -->
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:1.1rem 1rem .9rem;border-bottom:1px solid var(--color-border,#d4d1ca);background:linear-gradient(135deg,var(--color-surface,#f9f8f5),var(--color-surface-offset,#f3f0ec))">
+      <div style="display:flex;align-items:center;gap:.6rem">
+        <div style="width:34px;height:34px;border-radius:.6rem;background:var(--color-primary-highlight,#cedcd8);display:grid;place-items:center">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#01696f" stroke-width="1.8" stroke-linecap="round"><path d="M6 18V8.5C6 6.57 7.57 5 9.5 5h.5v14H9.5A3.5 3.5 0 0 1 6 15.5"/><path d="M18 18V8.5C18 6.57 16.43 5 14.5 5H14v14h.5a3.5 3.5 0 0 0 3.5-3.5"/></svg>
+        </div>
+        <span style="font-weight:800;font-size:.95rem;color:var(--color-text,#28251d)">GymOS</span>
+      </div>
+      <button id="gymosNavClose" style="border:none;background:none;cursor:pointer;color:var(--color-text-muted,#6e6b64);font-size:1.3rem;line-height:1;padding:.2rem .5rem;border-radius:.35rem;transition:background .12s" onmouseenter="this.style.background='rgba(0,0,0,.06)'" onmouseleave="this.style.background='none'">×</button>
+    </div>
+    <!-- Items nav -->
+    <nav id="gymosNavItems" style="padding:.6rem .5rem;display:flex;flex-direction:column;gap:.15rem;flex:1"></nav>
+    <!-- Footer -->
+    <div style="padding:.65rem 1rem;border-top:1px solid var(--color-border,#d4d1ca);font-size:.62rem;color:var(--color-text-faint,#9a9891);text-align:center;letter-spacing:.04em">GymOS — Gestion Musculation</div>
+  </div>
+</div>
+
+<script>
+(function(){
+  const PAGES=[
+    {href:'index.html',     label:'Accueil',    emoji:'🏠', color:'#01696f'},
+    {href:'Dashboard.html', label:'Dashboard',  emoji:'📊', color:'#01696f'},
+    {href:'Corps.html',     label:'Corps',      emoji:'💪', color:'#b90207'},
+    {href:'Exercices.html', label:'Exercices',  emoji:'🏋', color:'#fa7b01'},
+    {href:'Programme.html', label:'Programme',  emoji:'📋', color:'#8338bb'},
+    {href:'Seance.html',    label:'Séance',     emoji:'⏱', color:'#437a22'},
+    {href:'Historique.html',label:'Historique', emoji:'📅', color:'#0161be'},
+    {href:'Progression.html',label:'Progression',emoji:'📈',color:'#5a9d24'},
+    {href:'Nutrition.html', label:'Nutrition',  emoji:'🥗', color:'#964219'},
+  ];
+  const cur=(window.location.pathname.split('/').pop()||'index.html');
+  const nav=document.getElementById('gymosNavItems');
+  if(nav){
+    PAGES.forEach(p=>{
+      const isC=cur===p.href||(cur===''&&p.href==='index.html');
+      const a=document.createElement('a');
+      a.href=p.href;
+      a.style.cssText=`display:flex;align-items:center;gap:.7rem;padding:.58rem .85rem;border-radius:.6rem;font-size:.82rem;font-weight:${isC?700:500};color:${isC?p.color:'var(--color-text,#28251d)'};background:${isC?p.color+'18':'transparent'};text-decoration:none;transition:background .12s,color .12s;border-left:3px solid ${isC?p.color:'transparent'}`;
+      const em=document.createElement('span');em.textContent=p.emoji;em.style.cssText='font-size:1rem;width:22px;text-align:center;flex-shrink:0';
+      const lb=document.createElement('span');lb.textContent=p.label;lb.style.flex='1';
+      a.append(em,lb);
+      if(isC){const d=document.createElement('span');d.style.cssText=`width:6px;height:6px;border-radius:50%;background:${p.color};flex-shrink:0`;a.appendChild(d);}
+      a.addEventListener('mouseenter',()=>{if(!isC){a.style.background='var(--color-surface-offset,#f3f0ec)';}});
+      a.addEventListener('mouseleave',()=>{if(!isC){a.style.background='transparent';}});
+      nav.appendChild(a);
+    });
+  }
+  function openNav(){document.getElementById('gymosNavPanel').style.display='flex';}
+  function closeNav(){document.getElementById('gymosNavPanel').style.display='none';}
+  // Remplacer le homeBtn pour ouvrir le nav panel
+  const hb=document.getElementById('homeBtn');
+  if(hb){
+    const nb=hb.cloneNode(true);
+    hb.parentNode.replaceChild(nb,hb);
+    nb.id='homeBtn';
+    nb.title='Navigation';
+    nb.addEventListener('click',e=>{e.stopPropagation();openNav();});
+  }
+  document.getElementById('gymosNavClose').addEventListener('click',closeNav);
+  document.getElementById('gymosNavBackdrop').addEventListener('click',closeNav);
+  document.addEventListener('keydown',e=>{if(e.key==='Escape')closeNav();});
+})();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,503 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<muscles>
+  <entry>
+    <groupe_musculaire>Pectoraux</groupe_musculaire>
+    <muscle_cible>Grand pectoral</muscle_cible>
+    <type_subdivision>Faisceau</type_subdivision>
+    <subdivision_anatomique>Claviculaire</subdivision_anatomique>
+    <localisation_fonctionnelle>Supérieur</localisation_fonctionnelle>
+    <image_groupe>Pectoraux.png</image_groupe>
+    <image_muscle></image_muscle>
+    <jour_recup>72h</jour_recup>
+  </entry>
+  <entry>
+    <groupe_musculaire>Pectoraux</groupe_musculaire>
+    <muscle_cible>Grand pectoral</muscle_cible>
+    <type_subdivision>Faisceau</type_subdivision>
+    <subdivision_anatomique>Sterno-costal</subdivision_anatomique>
+    <localisation_fonctionnelle>Moyen</localisation_fonctionnelle>
+    <image_groupe>Pectoraux.png</image_groupe>
+    <image_muscle></image_muscle>
+    <jour_recup>72h</jour_recup>
+  </entry>
+  <entry>
+    <groupe_musculaire>Pectoraux</groupe_musculaire>
+    <muscle_cible>Grand pectoral</muscle_cible>
+    <type_subdivision>Faisceau</type_subdivision>
+    <subdivision_anatomique>Abdominal</subdivision_anatomique>
+    <localisation_fonctionnelle>Inférieur</localisation_fonctionnelle>
+    <image_groupe>Pectoraux.png</image_groupe>
+    <image_muscle></image_muscle>
+    <jour_recup>72h</jour_recup>
+  </entry>
+  <entry>
+    <groupe_musculaire>Pectoraux</groupe_musculaire>
+    <muscle_cible>Petit pectoral</muscle_cible>
+    <type_subdivision>Aucune</type_subdivision>
+    <subdivision_anatomique>-</subdivision_anatomique>
+    <localisation_fonctionnelle>Profond</localisation_fonctionnelle>
+    <image_groupe>Pectoraux.png</image_groupe>
+    <image_muscle></image_muscle>
+    <jour_recup>72h</jour_recup>
+  </entry>
+  <entry>
+    <groupe_musculaire>Épaules</groupe_musculaire>
+    <muscle_cible>Deltoïde</muscle_cible>
+    <type_subdivision>Faisceau</type_subdivision>
+    <subdivision_anatomique>Antérieur</subdivision_anatomique>
+    <localisation_fonctionnelle>Avant</localisation_fonctionnelle>
+    <image_groupe>Epaules.png</image_groupe>
+    <image_muscle></image_muscle>
+    <jour_recup>48h</jour_recup>
+  </entry>
+  <entry>
+    <groupe_musculaire>Épaules</groupe_musculaire>
+    <muscle_cible>Deltoïde</muscle_cible>
+    <type_subdivision>Faisceau</type_subdivision>
+    <subdivision_anatomique>Moyen</subdivision_anatomique>
+    <localisation_fonctionnelle>Latéral</localisation_fonctionnelle>
+    <image_groupe>Epaules.png</image_groupe>
+    <image_muscle></image_muscle>
+    <jour_recup>48h</jour_recup>
+  </entry>
+  <entry>
+    <groupe_musculaire>Épaules</groupe_musculaire>
+    <muscle_cible>Deltoïde</muscle_cible>
+    <type_subdivision>Faisceau</type_subdivision>
+    <subdivision_anatomique>Postérieur</subdivision_anatomique>
+    <localisation_fonctionnelle>Arrière</localisation_fonctionnelle>
+    <image_groupe>Epaules.png</image_groupe>
+    <image_muscle></image_muscle>
+    <jour_recup>48h</jour_recup>
+  </entry>
+  <entry>
+    <groupe_musculaire>Dos</groupe_musculaire>
+    <muscle_cible>Trapèze</muscle_cible>
+    <type_subdivision>Faisceau</type_subdivision>
+    <subdivision_anatomique>Supérieur</subdivision_anatomique>
+    <localisation_fonctionnelle>Haut</localisation_fonctionnelle>
+    <image_groupe>Dos.png</image_groupe>
+    <image_muscle></image_muscle>
+    <jour_recup>48h</jour_recup>
+  </entry>
+  <entry>
+    <groupe_musculaire>Dos</groupe_musculaire>
+    <muscle_cible>Trapèze</muscle_cible>
+    <type_subdivision>Faisceau</type_subdivision>
+    <subdivision_anatomique>Moyen</subdivision_anatomique>
+    <localisation_fonctionnelle>Milieu</localisation_fonctionnelle>
+    <image_groupe>Dos.png</image_groupe>
+    <image_muscle></image_muscle>
+    <jour_recup>48h</jour_recup>
+  </entry>
+  <entry>
+    <groupe_musculaire>Dos</groupe_musculaire>
+    <muscle_cible>Trapèze</muscle_cible>
+    <type_subdivision>Faisceau</type_subdivision>
+    <subdivision_anatomique>Inférieur</subdivision_anatomique>
+    <localisation_fonctionnelle>Bas</localisation_fonctionnelle>
+    <image_groupe>Dos.png</image_groupe>
+    <image_muscle></image_muscle>
+    <jour_recup>48h</jour_recup>
+  </entry>
+  <entry>
+    <groupe_musculaire>Dos</groupe_musculaire>
+    <muscle_cible>Grand dorsal</muscle_cible>
+    <type_subdivision>Aucune</type_subdivision>
+    <subdivision_anatomique>-</subdivision_anatomique>
+    <localisation_fonctionnelle>Dos entier</localisation_fonctionnelle>
+    <image_groupe>Dos.png</image_groupe>
+    <image_muscle></image_muscle>
+    <jour_recup>72h</jour_recup>
+  </entry>
+  <entry>
+    <groupe_musculaire>Dos</groupe_musculaire>
+    <muscle_cible>Grand rond</muscle_cible>
+    <type_subdivision>Aucune</type_subdivision>
+    <subdivision_anatomique>-</subdivision_anatomique>
+    <localisation_fonctionnelle>Bas / arrière épaule</localisation_fonctionnelle>
+    <image_groupe>Dos.png</image_groupe>
+    <image_muscle></image_muscle>
+    <jour_recup>48h</jour_recup>
+  </entry>
+  <entry>
+    <groupe_musculaire>Dos</groupe_musculaire>
+    <muscle_cible>Petit rond</muscle_cible>
+    <type_subdivision>Aucune</type_subdivision>
+    <subdivision_anatomique>-</subdivision_anatomique>
+    <localisation_fonctionnelle>Haut / arrière épaule</localisation_fonctionnelle>
+    <image_groupe>Dos.png</image_groupe>
+    <image_muscle></image_muscle>
+    <jour_recup>48h</jour_recup>
+  </entry>
+  <entry>
+    <groupe_musculaire>Dos</groupe_musculaire>
+    <muscle_cible>Rhomboïdes</muscle_cible>
+    <type_subdivision>Aucune</type_subdivision>
+    <subdivision_anatomique>-</subdivision_anatomique>
+    <localisation_fonctionnelle>Haut du dos</localisation_fonctionnelle>
+    <image_groupe>Dos.png</image_groupe>
+    <image_muscle></image_muscle>
+    <jour_recup>48h</jour_recup>
+  </entry>
+  <entry>
+    <groupe_musculaire>Dos</groupe_musculaire>
+    <muscle_cible>Lombaires (érecteurs du rachis)</muscle_cible>
+    <type_subdivision>Faisceau</type_subdivision>
+    <subdivision_anatomique>Ilio-costal</subdivision_anatomique>
+    <localisation_fonctionnelle>Latéral</localisation_fonctionnelle>
+    <image_groupe>Dos.png</image_groupe>
+    <image_muscle></image_muscle>
+    <jour_recup>72h</jour_recup>
+  </entry>
+  <entry>
+    <groupe_musculaire>Dos</groupe_musculaire>
+    <muscle_cible>Lombaires (érecteurs du rachis)</muscle_cible>
+    <type_subdivision>Faisceau</type_subdivision>
+    <subdivision_anatomique>Longissimus</subdivision_anatomique>
+    <localisation_fonctionnelle>Central</localisation_fonctionnelle>
+    <image_groupe>Dos.png</image_groupe>
+    <image_muscle></image_muscle>
+    <jour_recup>72h</jour_recup>
+  </entry>
+  <entry>
+    <groupe_musculaire>Dos</groupe_musculaire>
+    <muscle_cible>Lombaires (érecteurs du rachis)</muscle_cible>
+    <type_subdivision>Faisceau</type_subdivision>
+    <subdivision_anatomique>Épineux</subdivision_anatomique>
+    <localisation_fonctionnelle>Médial</localisation_fonctionnelle>
+    <image_groupe>Dos.png</image_groupe>
+    <image_muscle></image_muscle>
+    <jour_recup>72h</jour_recup>
+  </entry>
+  <entry>
+    <groupe_musculaire>Bras</groupe_musculaire>
+    <muscle_cible>Biceps brachial</muscle_cible>
+    <type_subdivision>Chef</type_subdivision>
+    <subdivision_anatomique>Long</subdivision_anatomique>
+    <localisation_fonctionnelle>Extérieur</localisation_fonctionnelle>
+    <image_groupe>Bras.png</image_groupe>
+    <image_muscle></image_muscle>
+    <jour_recup>48h</jour_recup>
+  </entry>
+  <entry>
+    <groupe_musculaire>Bras</groupe_musculaire>
+    <muscle_cible>Biceps brachial</muscle_cible>
+    <type_subdivision>Chef</type_subdivision>
+    <subdivision_anatomique>Court</subdivision_anatomique>
+    <localisation_fonctionnelle>Intérieur</localisation_fonctionnelle>
+    <image_groupe>Bras.png</image_groupe>
+    <image_muscle></image_muscle>
+    <jour_recup>48h</jour_recup>
+  </entry>
+  <entry>
+    <groupe_musculaire>Bras</groupe_musculaire>
+    <muscle_cible>Triceps brachial</muscle_cible>
+    <type_subdivision>Chef</type_subdivision>
+    <subdivision_anatomique>Long</subdivision_anatomique>
+    <localisation_fonctionnelle>Arrière</localisation_fonctionnelle>
+    <image_groupe>Bras.png</image_groupe>
+    <image_muscle></image_muscle>
+    <jour_recup>48h</jour_recup>
+  </entry>
+  <entry>
+    <groupe_musculaire>Bras</groupe_musculaire>
+    <muscle_cible>Triceps brachial</muscle_cible>
+    <type_subdivision>Chef</type_subdivision>
+    <subdivision_anatomique>Latéral</subdivision_anatomique>
+    <localisation_fonctionnelle>Extérieur</localisation_fonctionnelle>
+    <image_groupe>Bras.png</image_groupe>
+    <image_muscle></image_muscle>
+    <jour_recup>48h</jour_recup>
+  </entry>
+  <entry>
+    <groupe_musculaire>Bras</groupe_musculaire>
+    <muscle_cible>Triceps brachial</muscle_cible>
+    <type_subdivision>Chef</type_subdivision>
+    <subdivision_anatomique>Médial</subdivision_anatomique>
+    <localisation_fonctionnelle>Profond</localisation_fonctionnelle>
+    <image_groupe>Bras.png</image_groupe>
+    <image_muscle></image_muscle>
+    <jour_recup>48h</jour_recup>
+  </entry>
+  <entry>
+    <groupe_musculaire>Bras</groupe_musculaire>
+    <muscle_cible>Brachial antérieur</muscle_cible>
+    <type_subdivision>Aucune</type_subdivision>
+    <subdivision_anatomique>-</subdivision_anatomique>
+    <localisation_fonctionnelle>Profond</localisation_fonctionnelle>
+    <image_groupe>Bras.png</image_groupe>
+    <image_muscle></image_muscle>
+    <jour_recup>48h</jour_recup>
+  </entry>
+  <entry>
+    <groupe_musculaire>Avant-bras</groupe_musculaire>
+    <muscle_cible>Fléchisseurs</muscle_cible>
+    <type_subdivision>Faisceau</type_subdivision>
+    <subdivision_anatomique>Groupe fléchisseur</subdivision_anatomique>
+    <localisation_fonctionnelle>Avant</localisation_fonctionnelle>
+    <image_groupe></image_groupe>
+    <image_muscle></image_muscle>
+    <jour_recup>24h</jour_recup>
+  </entry>
+  <entry>
+    <groupe_musculaire>Avant-bras</groupe_musculaire>
+    <muscle_cible>Extenseurs</muscle_cible>
+    <type_subdivision>Faisceau</type_subdivision>
+    <subdivision_anatomique>Groupe extenseur</subdivision_anatomique>
+    <localisation_fonctionnelle>Arrière</localisation_fonctionnelle>
+    <image_groupe></image_groupe>
+    <image_muscle></image_muscle>
+    <jour_recup>24h</jour_recup>
+  </entry>
+  <entry>
+    <groupe_musculaire>Avant-bras</groupe_musculaire>
+    <muscle_cible>Brachioradial</muscle_cible>
+    <type_subdivision>Aucune</type_subdivision>
+    <subdivision_anatomique>-</subdivision_anatomique>
+    <localisation_fonctionnelle>Latéral</localisation_fonctionnelle>
+    <image_groupe></image_groupe>
+    <image_muscle></image_muscle>
+    <jour_recup>24h</jour_recup>
+  </entry>
+  <entry>
+    <groupe_musculaire>Abdominaux</groupe_musculaire>
+    <muscle_cible>Grand droit</muscle_cible>
+    <type_subdivision>Faisceau</type_subdivision>
+    <subdivision_anatomique>Faisceaux verticaux</subdivision_anatomique>
+    <localisation_fonctionnelle>Centre</localisation_fonctionnelle>
+    <image_groupe>Abdominaux.png</image_groupe>
+    <image_muscle></image_muscle>
+    <jour_recup>48h</jour_recup>
+  </entry>
+  <entry>
+    <groupe_musculaire>Abdominaux</groupe_musculaire>
+    <muscle_cible>Oblique externe</muscle_cible>
+    <type_subdivision>Faisceau</type_subdivision>
+    <subdivision_anatomique>Faisceaux obliques</subdivision_anatomique>
+    <localisation_fonctionnelle>Bas / avant</localisation_fonctionnelle>
+    <image_groupe>Abdominaux.png</image_groupe>
+    <image_muscle></image_muscle>
+    <jour_recup>48h</jour_recup>
+  </entry>
+  <entry>
+    <groupe_musculaire>Abdominaux</groupe_musculaire>
+    <muscle_cible>Oblique interne</muscle_cible>
+    <type_subdivision>Faisceau</type_subdivision>
+    <subdivision_anatomique>Faisceaux obliques inverses</subdivision_anatomique>
+    <localisation_fonctionnelle>Profond</localisation_fonctionnelle>
+    <image_groupe>Abdominaux.png</image_groupe>
+    <image_muscle></image_muscle>
+    <jour_recup>48h</jour_recup>
+  </entry>
+  <entry>
+    <groupe_musculaire>Abdominaux</groupe_musculaire>
+    <muscle_cible>Transverse</muscle_cible>
+    <type_subdivision>Faisceau</type_subdivision>
+    <subdivision_anatomique>Faisceaux horizontaux</subdivision_anatomique>
+    <localisation_fonctionnelle>Profond</localisation_fonctionnelle>
+    <image_groupe>Abdominaux.png</image_groupe>
+    <image_muscle></image_muscle>
+    <jour_recup>48h</jour_recup>
+  </entry>
+  <entry>
+    <groupe_musculaire>Fessiers</groupe_musculaire>
+    <muscle_cible>Grand fessier</muscle_cible>
+    <type_subdivision>Faisceau</type_subdivision>
+    <subdivision_anatomique>Supérieur</subdivision_anatomique>
+    <localisation_fonctionnelle>Haut</localisation_fonctionnelle>
+    <image_groupe>Fessiers.png</image_groupe>
+    <image_muscle></image_muscle>
+    <jour_recup>72h</jour_recup>
+  </entry>
+  <entry>
+    <groupe_musculaire>Fessiers</groupe_musculaire>
+    <muscle_cible>Grand fessier</muscle_cible>
+    <type_subdivision>Faisceau</type_subdivision>
+    <subdivision_anatomique>Inférieur</subdivision_anatomique>
+    <localisation_fonctionnelle>Bas</localisation_fonctionnelle>
+    <image_groupe>Fessiers.png</image_groupe>
+    <image_muscle></image_muscle>
+    <jour_recup>72h</jour_recup>
+  </entry>
+  <entry>
+    <groupe_musculaire>Fessiers</groupe_musculaire>
+    <muscle_cible>Moyen fessier</muscle_cible>
+    <type_subdivision>Aucune</type_subdivision>
+    <subdivision_anatomique>-</subdivision_anatomique>
+    <localisation_fonctionnelle>Latéral</localisation_fonctionnelle>
+    <image_groupe>Fessiers.png</image_groupe>
+    <image_muscle></image_muscle>
+    <jour_recup>72h</jour_recup>
+  </entry>
+  <entry>
+    <groupe_musculaire>Fessiers</groupe_musculaire>
+    <muscle_cible>Petit fessier</muscle_cible>
+    <type_subdivision>Aucune</type_subdivision>
+    <subdivision_anatomique>-</subdivision_anatomique>
+    <localisation_fonctionnelle>Profond</localisation_fonctionnelle>
+    <image_groupe>Fessiers.png</image_groupe>
+    <image_muscle></image_muscle>
+    <jour_recup>72h</jour_recup>
+  </entry>
+  <entry>
+    <groupe_musculaire>Cuisses (avant)</groupe_musculaire>
+    <muscle_cible>Quadriceps</muscle_cible>
+    <type_subdivision>Chef</type_subdivision>
+    <subdivision_anatomique>Droit fémoral</subdivision_anatomique>
+    <localisation_fonctionnelle>Central</localisation_fonctionnelle>
+    <image_groupe>Quadriceps.png</image_groupe>
+    <image_muscle></image_muscle>
+    <jour_recup>72h</jour_recup>
+  </entry>
+  <entry>
+    <groupe_musculaire>Cuisses (avant)</groupe_musculaire>
+    <muscle_cible>Quadriceps</muscle_cible>
+    <type_subdivision>Chef</type_subdivision>
+    <subdivision_anatomique>Vaste latéral</subdivision_anatomique>
+    <localisation_fonctionnelle>Extérieur</localisation_fonctionnelle>
+    <image_groupe>Quadriceps.png</image_groupe>
+    <image_muscle></image_muscle>
+    <jour_recup>72h</jour_recup>
+  </entry>
+  <entry>
+    <groupe_musculaire>Cuisses (avant)</groupe_musculaire>
+    <muscle_cible>Quadriceps</muscle_cible>
+    <type_subdivision>Chef</type_subdivision>
+    <subdivision_anatomique>Vaste médial</subdivision_anatomique>
+    <localisation_fonctionnelle>Intérieur</localisation_fonctionnelle>
+    <image_groupe>Quadriceps.png</image_groupe>
+    <image_muscle></image_muscle>
+    <jour_recup>72h</jour_recup>
+  </entry>
+  <entry>
+    <groupe_musculaire>Cuisses (avant)</groupe_musculaire>
+    <muscle_cible>Quadriceps</muscle_cible>
+    <type_subdivision>Chef</type_subdivision>
+    <subdivision_anatomique>Vaste intermédiaire</subdivision_anatomique>
+    <localisation_fonctionnelle>Profond</localisation_fonctionnelle>
+    <image_groupe>Quadriceps.png</image_groupe>
+    <image_muscle></image_muscle>
+    <jour_recup>72h</jour_recup>
+  </entry>
+  <entry>
+    <groupe_musculaire>Cuisses (arrière)</groupe_musculaire>
+    <muscle_cible>Ischio-jambiers</muscle_cible>
+    <type_subdivision>Chef</type_subdivision>
+    <subdivision_anatomique>Biceps fémoral (long)</subdivision_anatomique>
+    <localisation_fonctionnelle>Extérieur</localisation_fonctionnelle>
+    <image_groupe>Ischio.png</image_groupe>
+    <image_muscle></image_muscle>
+    <jour_recup>72h</jour_recup>
+  </entry>
+  <entry>
+    <groupe_musculaire>Cuisses (arrière)</groupe_musculaire>
+    <muscle_cible>Ischio-jambiers</muscle_cible>
+    <type_subdivision>Chef</type_subdivision>
+    <subdivision_anatomique>Biceps fémoral (court)</subdivision_anatomique>
+    <localisation_fonctionnelle>Extérieur</localisation_fonctionnelle>
+    <image_groupe>Ischio.png</image_groupe>
+    <image_muscle></image_muscle>
+    <jour_recup>72h</jour_recup>
+  </entry>
+  <entry>
+    <groupe_musculaire>Cuisses (arrière)</groupe_musculaire>
+    <muscle_cible>Ischio-jambiers</muscle_cible>
+    <type_subdivision>Chef</type_subdivision>
+    <subdivision_anatomique>Semi-tendineux</subdivision_anatomique>
+    <localisation_fonctionnelle>Intérieur</localisation_fonctionnelle>
+    <image_groupe>Ischio.png</image_groupe>
+    <image_muscle></image_muscle>
+    <jour_recup>72h</jour_recup>
+  </entry>
+  <entry>
+    <groupe_musculaire>Cuisses (arrière)</groupe_musculaire>
+    <muscle_cible>Ischio-jambiers</muscle_cible>
+    <type_subdivision>Chef</type_subdivision>
+    <subdivision_anatomique>Semi-membraneux</subdivision_anatomique>
+    <localisation_fonctionnelle>Intérieur</localisation_fonctionnelle>
+    <image_groupe>Ischio.png</image_groupe>
+    <image_muscle></image_muscle>
+    <jour_recup>72h</jour_recup>
+  </entry>
+  <entry>
+    <groupe_musculaire>Cuisses (intérieur)</groupe_musculaire>
+    <muscle_cible>Adducteurs</muscle_cible>
+    <type_subdivision>Faisceau</type_subdivision>
+    <subdivision_anatomique>Long adducteur</subdivision_anatomique>
+    <localisation_fonctionnelle>Intérieur</localisation_fonctionnelle>
+    <image_groupe>Adducteurs.png</image_groupe>
+    <image_muscle></image_muscle>
+    <jour_recup>72h</jour_recup>
+  </entry>
+  <entry>
+    <groupe_musculaire>Cuisses (intérieur)</groupe_musculaire>
+    <muscle_cible>Adducteurs</muscle_cible>
+    <type_subdivision>Faisceau</type_subdivision>
+    <subdivision_anatomique>Grand adducteur</subdivision_anatomique>
+    <localisation_fonctionnelle>Intérieur</localisation_fonctionnelle>
+    <image_groupe>Adducteurs.png</image_groupe>
+    <image_muscle></image_muscle>
+    <jour_recup>72h</jour_recup>
+  </entry>
+  <entry>
+    <groupe_musculaire>Cuisses (intérieur)</groupe_musculaire>
+    <muscle_cible>Adducteurs</muscle_cible>
+    <type_subdivision>Faisceau</type_subdivision>
+    <subdivision_anatomique>Court adducteur</subdivision_anatomique>
+    <localisation_fonctionnelle>Intérieur</localisation_fonctionnelle>
+    <image_groupe>Adducteurs.png</image_groupe>
+    <image_muscle></image_muscle>
+    <jour_recup>72h</jour_recup>
+  </entry>
+  <entry>
+    <groupe_musculaire>Cuisses (intérieur)</groupe_musculaire>
+    <muscle_cible>Adducteurs</muscle_cible>
+    <type_subdivision>Faisceau</type_subdivision>
+    <subdivision_anatomique>Pectiné</subdivision_anatomique>
+    <localisation_fonctionnelle>Haut intérieur</localisation_fonctionnelle>
+    <image_groupe>Adducteurs.png</image_groupe>
+    <image_muscle></image_muscle>
+    <jour_recup>72h</jour_recup>
+  </entry>
+  <entry>
+    <groupe_musculaire>Mollets</groupe_musculaire>
+    <muscle_cible>Triceps sural</muscle_cible>
+    <type_subdivision>Chef</type_subdivision>
+    <subdivision_anatomique>Gastrocnémien médial</subdivision_anatomique>
+    <localisation_fonctionnelle>Intérieur</localisation_fonctionnelle>
+    <image_groupe></image_groupe>
+    <image_muscle></image_muscle>
+    <jour_recup>24h</jour_recup>
+  </entry>
+  <entry>
+    <groupe_musculaire>Mollets</groupe_musculaire>
+    <muscle_cible>Triceps sural</muscle_cible>
+    <type_subdivision>Chef</type_subdivision>
+    <subdivision_anatomique>Gastrocnémien latéral</subdivision_anatomique>
+    <localisation_fonctionnelle>Extérieur</localisation_fonctionnelle>
+    <image_groupe></image_groupe>
+    <image_muscle></image_muscle>
+    <jour_recup>24h</jour_recup>
+  </entry>
+  <entry>
+    <groupe_musculaire>Mollets</groupe_musculaire>
+    <muscle_cible>Triceps sural</muscle_cible>
+    <type_subdivision>Chef</type_subdivision>
+    <subdivision_anatomique>Soléaire</subdivision_anatomique>
+    <localisation_fonctionnelle>Profond</localisation_fonctionnelle>
+    <image_groupe></image_groupe>
+    <image_muscle></image_muscle>
+    <jour_recup>24h</jour_recup>
+  </entry>
+  <entry>
+    <groupe_musculaire>Mollets</groupe_musculaire>
+    <muscle_cible>Tibial antérieur</muscle_cible>
+    <type_subdivision>Aucune</type_subdivision>
+    <subdivision_anatomique>-</subdivision_anatomique>
+    <localisation_fonctionnelle>Avant jambe</localisation_fonctionnelle>
+    <image_groupe></image_groupe>
+    <image_muscle></image_muscle>
+    <jour_recup>24h</jour_recup>
+  </entry>
+</muscles>

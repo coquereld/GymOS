@@ -1,0 +1,714 @@
+<!DOCTYPE html>
+<html lang="fr" data-theme="light">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>GymOS — Tableau de bord</title>
+<link href="https://api.fontshare.com/v2/css?f[]=satoshi@400,500,700&display=swap" rel="stylesheet">
+<style>
+:root,[data-theme="light"]{
+  --bg:#f7f6f2;--surf:#f9f8f5;--surf2:#fbfbf9;--surfoff:#f3f0ec;--bord:#d4d1ca;
+  --tx:#28251d;--txm:#6e6b64;--txf:#9a9891;
+  --prim:#01696f;--primh:#0c4e54;--primhi:#cedcd8;
+  --ok:#437a22;--warn:#964219;--err:#a12c7b;
+  --rsm:.375rem;--rmd:.5rem;--rlg:.75rem;--rxl:1rem;
+  --shsm:0 1px 3px rgba(40,37,29,.08);--shmd:0 12px 32px rgba(40,37,29,.12);
+  --tr:180ms cubic-bezier(.16,1,.3,1);--font:'Satoshi',system-ui,sans-serif;
+}
+[data-theme="dark"]{
+  --bg:#131211;--surf:#1a1918;--surf2:#1e1d1b;--surfoff:#222120;--bord:#333230;
+  --tx:#d0cfcd;--txm:#9e9d9a;--txf:#6e6c68;
+  --prim:#4f98a3;--primh:#227f8b;--primhi:#1a2e30;
+  --shmd:0 12px 32px rgba(0,0,0,.4);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{min-height:100%;font-family:var(--font);background:var(--bg);color:var(--tx);font-size:clamp(14px,1.4vw,16px)}
+button,input,select{font:inherit} button{cursor:pointer} a{text-decoration:none;color:inherit}
+
+/* ── LAYOUT ── */
+.page{max-width:1200px;margin:0 auto;padding:1.5rem}
+.hdr{display:flex;align-items:center;justify-content:space-between;gap:1rem;margin-bottom:2rem;flex-wrap:wrap}
+.hdr-left h1{font-size:clamp(1.3rem,2.5vw,1.8rem);font-weight:700;letter-spacing:-.02em}
+.hdr-left p{color:var(--txm);font-size:.85rem;margin-top:.2rem;text-transform:capitalize}
+.hdr-actions{display:flex;gap:.5rem;align-items:center}
+.btn-icon{width:38px;height:38px;border-radius:50%;border:1px solid var(--bord);background:var(--surf);display:grid;place-items:center;cursor:pointer;color:var(--txm);transition:all var(--tr)}
+.btn-icon:hover{background:var(--surfoff);color:var(--tx)}
+.btn-icon svg{width:17px;height:17px}
+.btn-home{display:inline-flex;align-items:center;gap:.4rem;padding:.45rem .9rem;border-radius:var(--rmd);border:1px solid var(--bord);background:var(--surf);color:var(--txm);font-size:.78rem;font-weight:600;cursor:pointer;transition:all var(--tr)}
+.btn-home:hover{background:var(--surfoff);color:var(--tx)}
+
+/* ── STAT CARDS ── */
+.stat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;margin-bottom:1.5rem}
+.stat-card{background:var(--surf);border:1px solid var(--bord);border-radius:var(--rxl);padding:1.1rem 1.25rem;box-shadow:var(--shsm);display:flex;flex-direction:column;gap:.4rem;border-top:3px solid var(--sc-color,var(--bord))}
+.stat-card-icon{width:36px;height:36px;border-radius:var(--rlg);display:grid;place-items:center;background:color-mix(in oklab,var(--sc-color,var(--prim)) 12%,var(--surf));color:var(--sc-color,var(--prim));margin-bottom:.2rem}
+.stat-card-icon svg{width:18px;height:18px}
+.stat-card-val{font-size:1.8rem;font-weight:700;letter-spacing:-.03em;color:var(--tx);line-height:1}
+.stat-card-lbl{font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--txm)}
+.stat-card-sub{font-size:.72rem;color:var(--txf);margin-top:.1rem}
+
+/* ── GRILLES ── */
+.grid-2{display:grid;grid-template-columns:3fr 2fr;gap:1.25rem;margin-bottom:1.25rem}
+.grid-2b{display:grid;grid-template-columns:1fr 1fr;gap:1.25rem;margin-bottom:1.25rem}
+.grid-3{display:grid;grid-template-columns:1fr;gap:1.25rem;margin-bottom:1.25rem}
+
+/* ── PANEL ── */
+.panel{background:var(--surf);border:1px solid var(--bord);border-radius:var(--rxl);box-shadow:var(--shsm);overflow:hidden}
+.panel-hdr{display:flex;align-items:center;justify-content:space-between;padding:.85rem 1.25rem;border-bottom:1px solid var(--bord)}
+.panel-title{font-weight:700;font-size:.9rem}
+.panel-sub{font-size:.7rem;color:var(--txm);margin-top:.1rem}
+.panel-body{padding:1.25rem}
+.panel-select{padding:.35rem .6rem;border-radius:var(--rmd);border:1px solid var(--bord);background:var(--surf);color:var(--tx);font-size:.75rem;outline:none;cursor:pointer;transition:border-color var(--tr)}
+.panel-select:focus{border-color:var(--prim)}
+
+/* ── BARRE VOLUME GROUPE ── */
+.vol-row{display:flex;align-items:center;gap:.75rem;margin-bottom:.65rem}
+.vol-row:last-child{margin-bottom:0}
+.vol-grp-name{font-size:.75rem;font-weight:600;width:130px;flex-shrink:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--tx)}
+.vol-bar-bg{flex:1;height:10px;border-radius:999px;background:var(--surfoff);overflow:hidden}
+.vol-bar-fill{height:100%;border-radius:999px;transition:width .6s cubic-bezier(.16,1,.3,1)}
+.vol-val{font-size:.7rem;color:var(--txm);width:70px;text-align:right;flex-shrink:0}
+
+/* ── HEATMAP ── */
+.heatmap-grid{display:grid;grid-template-columns:auto repeat(8,1fr);gap:3px;align-items:center}
+.hm-dow{font-size:.6rem;color:var(--txf);text-align:right;padding-right:4px}
+.hm-cell{aspect-ratio:1;border-radius:.25rem;transition:all var(--tr);cursor:default}
+.hm-cell:hover{transform:scale(1.3);z-index:1}
+.hm-week-lbl{font-size:.58rem;color:var(--txf);text-align:center;grid-column:span 1}
+.hm-legend{display:flex;align-items:center;gap:.4rem;margin-top:.75rem;font-size:.65rem;color:var(--txf)}
+.hm-legend-cell{width:10px;height:10px;border-radius:.2rem}
+
+/* ── LIGNE PROGRESSION ── */
+.chart-wrap{position:relative;width:100%;height:180px}
+.chart-wrap svg{width:100%;height:100%}
+.chart-empty{display:flex;align-items:center;justify-content:center;height:180px;color:var(--txf);font-size:.82rem;font-style:italic}
+.chart-axis-lbl{font-size:.6rem;fill:var(--txf);font-family:var(--font)}
+.chart-grid-line{stroke:var(--bord);stroke-width:1}
+.chart-line{fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round}
+.chart-dot{cursor:pointer;transition:r .15s}
+.chart-dot:hover{r:6}
+
+/* ── SÉANCES RÉCENTES ── */
+.rec-row{display:flex;align-items:center;gap:.75rem;padding:.65rem 0;border-bottom:1px solid var(--bord)}
+.rec-row:last-child{border-bottom:none}
+.rec-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0}
+.rec-info{flex:1;min-width:0}
+.rec-name{font-size:.82rem;font-weight:700;color:var(--tx);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rec-meta{font-size:.68rem;color:var(--txm);margin-top:.1rem}
+.rec-stats{display:flex;flex-direction:column;align-items:flex-end;gap:.2rem;flex-shrink:0}
+.rec-vol{font-size:.75rem;font-weight:700;color:var(--prim)}
+.rec-dur{font-size:.65rem;color:var(--txm)}
+
+/* ── TOP EXERCICES ── */
+.top-exo-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:.75rem}
+.top-exo-card{background:var(--surf2);border:1px solid var(--bord);border-radius:var(--rlg);padding:.85rem;display:flex;flex-direction:column;gap:.4rem;border-left:3px solid var(--te-color,var(--bord))}
+.top-exo-name{font-size:.82rem;font-weight:700;color:var(--tx);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.top-exo-stats{display:flex;gap:.6rem;flex-wrap:wrap}
+.top-exo-stat{font-size:.68rem;color:var(--txm)}
+.top-exo-stat strong{color:var(--tx);font-weight:700}
+.top-exo-bar{height:3px;border-radius:999px;background:var(--surfoff);margin-top:.3rem;overflow:hidden}
+.top-exo-bar-fill{height:100%;border-radius:999px}
+
+/* ── TOOLTIP ── */
+.chart-tooltip{position:fixed;background:var(--surf);border:1px solid var(--bord);border-radius:var(--rlg);padding:.4rem .7rem;font-size:.72rem;box-shadow:var(--shmd);pointer-events:none;display:none;z-index:100;color:var(--tx)}
+
+/* ── EMPTY ── */
+.empty-box{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:2rem;gap:.6rem;color:var(--txf);text-align:center}
+.empty-box svg{width:36px;height:36px;opacity:.3}
+.empty-box p{font-size:.78rem;max-width:240px;line-height:1.5}
+
+/* ── BADGE STREAK ── */
+.streak-flame{font-size:1.6rem;line-height:1}
+
+@media(max-width:900px){
+  .stat-grid{grid-template-columns:repeat(2,1fr)}
+  .grid-2,.grid-2b{grid-template-columns:1fr}
+}
+@media(max-width:600px){
+  .stat-grid{grid-template-columns:1fr 1fr}
+  .page{padding:1rem}
+}
+</style>
+</head>
+<body>
+<div class="page">
+  <!-- HEADER -->
+  <div class="hdr">
+    <div class="hdr-left">
+      <h1 id="greeting">Bonjour 👋</h1>
+      <p id="todayDate">—</p>
+    </div>
+    <div class="hdr-actions">
+      <button class="btn-home" id="homeBtn">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 9.5L12 3l9 6.5V20a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1z"/><polyline points="9 21 9 12 15 12 15 21"/></svg>
+        Accueil
+      </button>
+      <button class="btn-icon" id="themeBtn">
+        <svg id="thDark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+        <svg id="thLight" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:none"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- STAT CARDS -->
+  <div class="stat-grid" id="statGrid"></div>
+
+  <!-- ROW 1 : Volume par groupe + Fréquence -->
+  <div class="grid-2">
+    <div class="panel">
+      <div class="panel-hdr">
+        <div><div class="panel-title">Volume par groupe musculaire</div><div class="panel-sub" id="volPeriodLabel">30 derniers jours</div></div>
+        <select class="panel-select" id="volPeriodSel">
+          <option value="30">30 jours</option>
+          <option value="90">3 mois</option>
+          <option value="365">12 mois</option>
+          <option value="0">Tout</option>
+        </select>
+      </div>
+      <div class="panel-body" id="volChart"></div>
+    </div>
+    <div class="panel">
+      <div class="panel-hdr">
+        <div><div class="panel-title">Fréquence d'entraînement</div><div class="panel-sub">8 dernières semaines</div></div>
+      </div>
+      <div class="panel-body" id="heatmapChart"></div>
+    </div>
+  </div>
+
+  <!-- ROW 2 : Progression + Séances récentes -->
+  <div class="grid-2b">
+    <div class="panel">
+      <div class="panel-hdr">
+        <div><div class="panel-title">Progression</div><div class="panel-sub">Poids max par séance</div></div>
+        <select class="panel-select" id="progExoSel"><option value="">— Choisir un exercice —</option></select>
+      </div>
+      <div class="panel-body" id="progChart" style="padding:.75rem 1.25rem 1rem"></div>
+    </div>
+    <div class="panel">
+      <div class="panel-hdr"><div class="panel-title">Séances récentes</div></div>
+      <div class="panel-body" id="recentList" style="padding:.5rem 1.25rem"></div>
+    </div>
+  </div>
+
+  <!-- ROW 3 : Top exercices -->
+  <div class="panel">
+    <div class="panel-hdr">
+      <div><div class="panel-title">Exercices les plus pratiqués</div><div class="panel-sub">Classés par nombre de séries totales</div></div>
+    </div>
+    <div class="panel-body" id="topExoGrid"></div>
+  </div>
+</div>
+
+<div class="chart-tooltip" id="tooltip"></div>
+
+<script src="db.js"></script>
+<script>
+// ══════════════════════════════════════════════════════════════
+// CONSTANTES
+// ══════════════════════════════════════════════════════════════
+const MC={'Pectoraux':'#b90207','Abdominaux':'#8338bb','Bras':'#fa7b01','Avant-bras':'#f42d65','Cuisses (arrière)':'#974f1a','Cuisses (avant)':'#5a9d24','Cuisses (intérieur)':'#3fb5dc','Dos':'#0161be','Épaules':'#fbbd01','Fessiers':'#01969b','Mollets':'#a19e9f'};
+const TC={Push:'#fa7b01',Pull:'#0161be',Legs:'#5a9d24','Full Body':'#8338bb','Haut du corps':'#01969b','Bas du corps':'#974f1a',Cardio:'#b90207',Autre:'#9a9891'};
+const HIST_KEY='gymos-historique-v1';
+
+// ══════════════════════════════════════════════════════════════
+// DONNÉES
+// ══════════════════════════════════════════════════════════════
+let _hist=[];
+function loadHist(){ try{ _hist=JSON.parse(localStorage.getItem(HIST_KEY)||'[]'); }catch{ _hist=[]; } }
+function hexRgb(hex){ return [parseInt(hex.slice(1,3),16),parseInt(hex.slice(3,5),16),parseInt(hex.slice(5,7),16)]; }
+function grpc(g){ return MC[(g||'').split(',')[0].trim()]||'#9a9891'; }
+function fmtDur(min){ if(!min) return '—'; return min<60?min+'min':Math.floor(min/60)+'h'+String(min%60).padStart(2,'0'); }
+function fmtDateShort(iso){ return new Date(iso+'T00:00').toLocaleDateString('fr-FR',{day:'numeric',month:'short'}); }
+function esc(v){ return String(v??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+// Filtrer par période (jours; 0=tout)
+function filterByDays(hist,days){
+  if(!days) return hist;
+  const cutoff=new Date(); cutoff.setDate(cutoff.getDate()-days);
+  const cutStr=cutoff.toISOString().split('T')[0];
+  return hist.filter(h=>h.date>=cutStr);
+}
+
+// Volume par groupe
+function computeVolByGroupe(hist){
+  const vols={};
+  hist.forEach(h=>{
+    (h.exercices||[]).forEach(e=>{
+      const g=(e.groupe||'').split(',')[0].trim()||'Autre';
+      const vol=(e.series||[]).reduce((s,sr)=>{
+        const p=parseFloat(sr.poids)||0, r=parseInt(sr.reps)||0; return s+p*r;
+      },0);
+      vols[g]=(vols[g]||0)+vol;
+    });
+  });
+  return Object.entries(vols).sort((a,b)=>b[1]-a[1]);
+}
+
+// Streak (jours consécutifs)
+function computeStreak(){
+  if(!_hist.length) return 0;
+  const dates=[...new Set(_hist.map(h=>h.date))].sort().reverse();
+  const today=new Date().toISOString().split('T')[0];
+  let streak=0, cur=today;
+  for(const d of dates){
+    if(d===cur){ streak++; const c=new Date(cur+'T00:00'); c.setDate(c.getDate()-1); cur=c.toISOString().split('T')[0]; }
+    else if(d<cur) break;
+  }
+  return streak;
+}
+
+// ══════════════════════════════════════════════════════════════
+// STAT CARDS
+// ══════════════════════════════════════════════════════════════
+function renderStatCards(){
+  const now=new Date();
+  const m0=`${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-01`;
+  const thisMonth=_hist.filter(h=>h.date>=m0);
+  const totalVol=thisMonth.reduce((s,h)=>s+(h.volumeTotal||0),0);
+  const streak=computeStreak();
+  const nbExos=new Set(_hist.flatMap(h=>(h.exercices||[]).map(e=>e.nom))).size;
+
+  const cards=[
+    {
+      label:'Séances ce mois',
+      val:thisMonth.length,
+      sub:`${_hist.length} au total`,
+      color:'#01696f',
+      icon:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>`
+    },
+    {
+      label:'Volume ce mois (kg)',
+      val:totalVol>0?totalVol.toLocaleString('fr-FR'):'—',
+      sub:totalVol>0?`${Math.round(totalVol/Math.max(thisMonth.length,1)).toLocaleString('fr-FR')} kg/séance`:'Aucune donnée',
+      color:'#0161be',
+      icon:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 18V8.5C6 6.57 7.57 5 9.5 5h.5v14H9.5A3.5 3.5 0 0 1 6 15.5"/><path d="M18 18V8.5C18 6.57 16.43 5 14.5 5H14v14h.5a3.5 3.5 0 0 0 3.5-3.5"/></svg>`
+    },
+    {
+      label:'Série actuelle',
+      val:streak>0?`${streak}j`:'—',
+      sub:streak>0?`${streak} jour${streak>1?'s':''} consécutif${streak>1?'s':''}`:'Pas d\'entraînement récent',
+      color:'#964219',
+      icon:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>`,
+      isFlame: streak>=3
+    },
+    {
+      label:'Exercices pratiqués',
+      val:nbExos,
+      sub:`${new Set(_hist.map(h=>h.seanceType)).size} types de séances`,
+      color:'#437a22',
+      icon:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>`
+    },
+  ];
+
+  const grid=document.getElementById('statGrid');
+  grid.innerHTML='';
+  cards.forEach(c=>{
+    const card=document.createElement('div'); card.className='stat-card'; card.style.setProperty('--sc-color',c.color);
+    card.innerHTML=`<div class="stat-card-icon">${c.icon}</div>
+      <div class="stat-card-val">${c.isFlame?'🔥':''} ${esc(String(c.val))}</div>
+      <div class="stat-card-lbl">${esc(c.label)}</div>
+      <div class="stat-card-sub">${esc(c.sub)}</div>`;
+    grid.appendChild(card);
+  });
+}
+
+// ══════════════════════════════════════════════════════════════
+// VOLUME PAR GROUPE
+// ══════════════════════════════════════════════════════════════
+function renderVolChart(days){
+  const filtered=filterByDays(_hist,days);
+  const vols=computeVolByGroupe(filtered);
+  const container=document.getElementById('volChart');
+  container.innerHTML='';
+
+  if(!vols.length){
+    container.innerHTML='<div class="empty-box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6 18V8.5C6 6.57 7.57 5 9.5 5h.5v14H9.5A3.5 3.5 0 0 1 6 15.5"/><path d="M18 18V8.5C18 6.57 16.43 5 14.5 5H14v14h.5a3.5 3.5 0 0 0 3.5-3.5"/></svg><p>Aucune donnée sur cette période</p></div>';
+    return;
+  }
+
+  const maxVol=vols[0][1];
+  vols.slice(0,10).forEach(([g,v])=>{
+    const hex=grpc(g)||'#9a9891';
+    const pct=maxVol>0?Math.round(v/maxVol*100):0;
+    const row=document.createElement('div'); row.className='vol-row';
+    row.innerHTML=`<div class="vol-grp-name" title="${esc(g)}">${esc(g)}</div>
+      <div class="vol-bar-bg"><div class="vol-bar-fill" style="width:${pct}%;background:${hex}"></div></div>
+      <div class="vol-val">${v>0?v.toLocaleString('fr-FR')+' kg':'—'}</div>`;
+    container.appendChild(row);
+  });
+
+  // Nb de séances
+  const note=document.createElement('div'); note.style.cssText='font-size:.65rem;color:var(--txf);margin-top:.75rem;text-align:right';
+  note.textContent=`Basé sur ${filtered.length} séance${filtered.length!==1?'s':''}`;
+  container.appendChild(note);
+}
+
+// ══════════════════════════════════════════════════════════════
+// HEATMAP FRÉQUENCE
+// ══════════════════════════════════════════════════════════════
+function renderHeatmap(){
+  const container=document.getElementById('heatmapChart');
+  container.innerHTML='';
+  const WEEKS=8;
+  const today=new Date(); today.setHours(0,0,0,0);
+  const startDow=(today.getDay()+6)%7; // 0=lundi
+  // Reculer jusqu'au prochain lundi
+  const start=new Date(today);
+  start.setDate(start.getDate()-startDow-(WEEKS-1)*7);
+
+  // Volumes par date
+  const volByDate={};
+  _hist.forEach(h=>{ volByDate[h.date]=(volByDate[h.date]||0)+(h.volumeTotal||1); });
+  const maxV=Math.max(1,...Object.values(volByDate));
+
+  const DOW=['L','M','M','J','V','S','D'];
+  const grid=document.createElement('div'); grid.className='heatmap-grid';
+
+  // Headers semaines (vide pour colonne jours)
+  const emptyHdr=document.createElement('div'); grid.appendChild(emptyHdr);
+  for(let w=0;w<WEEKS;w++){
+    const wStart=new Date(start); wStart.setDate(wStart.getDate()+w*7);
+    const lbl=document.createElement('div'); lbl.className='hm-week-lbl';
+    lbl.textContent=wStart.toLocaleDateString('fr-FR',{day:'numeric',month:'numeric'});
+    grid.appendChild(lbl);
+  }
+
+  for(let d=0;d<7;d++){
+    const dowLbl=document.createElement('div'); dowLbl.className='hm-dow'; dowLbl.textContent=DOW[d];
+    grid.appendChild(dowLbl);
+    for(let w=0;w<WEEKS;w++){
+      const date=new Date(start); date.setDate(date.getDate()+w*7+d);
+      const dateStr=date.toISOString().split('T')[0];
+      const vol=volByDate[dateStr]||0;
+      const isToday=dateStr===today.toISOString().split('T')[0];
+      const cell=document.createElement('div'); cell.className='hm-cell';
+      const intensity=vol>0?Math.max(.2,vol/maxV):0;
+      if(vol>0){
+        const hex=grpc((_hist.find(h=>h.date===dateStr)||{}).seanceType||'Cardio');
+        const [r,g,b]=hexRgb(hex);
+        cell.style.background=`rgba(${r},${g},${b},${intensity.toFixed(2)})`;
+        cell.title=`${fmtDateShort(dateStr)}: ${(_hist.filter(h=>h.date===dateStr)).map(h=>h.seanceNom).join(', ')}`;
+      } else {
+        cell.style.background='var(--surfoff)';
+      }
+      if(isToday) cell.style.outline='2px solid var(--prim)';
+      grid.appendChild(cell);
+    }
+  }
+  container.appendChild(grid);
+
+  // Légende
+  const leg=document.createElement('div'); leg.className='hm-legend';
+  leg.innerHTML='<span>Moins</span>';
+  [.1,.3,.55,.8,1].forEach(v=>{
+    const c=document.createElement('div'); c.className='hm-legend-cell';
+    c.style.background=`rgba(1,105,111,${v})`;
+    leg.appendChild(c);
+  });
+  leg.innerHTML+='<span>Plus</span>';
+  container.appendChild(leg);
+}
+
+// ══════════════════════════════════════════════════════════════
+// PROGRESSION
+// ══════════════════════════════════════════════════════════════
+function buildProgExoList(){
+  const sel=document.getElementById('progExoSel');
+  const exoMap={};
+  _hist.forEach(h=>{
+    (h.exercices||[]).forEach(e=>{
+      if(!exoMap[e.nom]) exoMap[e.nom]=0;
+      exoMap[e.nom]+=(e.series||[]).length;
+    });
+  });
+  const sorted=Object.entries(exoMap).filter(([,n])=>n>=2).sort((a,b)=>b[1]-a[1]);
+  sel.innerHTML='<option value="">— Choisir un exercice —</option>';
+  sorted.forEach(([nom])=>{
+    const o=document.createElement('option'); o.value=nom; o.textContent=nom; sel.appendChild(o);
+  });
+  if(sorted.length){ sel.value=sorted[0][0]; renderProgChart(); }
+  sel.addEventListener('change',renderProgChart);
+}
+
+function renderProgChart(){
+  const nom=document.getElementById('progExoSel').value;
+  const container=document.getElementById('progChart');
+  container.innerHTML='';
+  if(!nom){ container.innerHTML='<div class="chart-empty">Sélectionnez un exercice</div>'; return; }
+
+  // Collecter max poids par séance
+  const pts=[];
+  _hist.slice().reverse().forEach(h=>{
+    const e=(h.exercices||[]).find(x=>x.nom===nom);
+    if(!e) return;
+    const maxP=Math.max(0,...(e.series||[]).map(s=>parseFloat(s.poids)||0));
+    if(maxP>0) pts.push({date:h.date,val:maxP,seance:h.seanceNom||''});
+  });
+
+  if(pts.length<2){
+    container.innerHTML=`<div class="chart-empty">${pts.length===0?'Aucune donnée pour cet exercice':'Au moins 2 séances nécessaires pour la progression'}</div>`;
+    return;
+  }
+
+  const hex=grpc((_hist.flatMap(h=>h.exercices||[]).find(e=>e.nom===nom)||{}).groupe||'');
+  const W=600,H=160,PAD={t:10,r:20,b:30,l:46};
+  const cW=W-PAD.l-PAD.r, cH=H-PAD.t-PAD.b;
+  const minV=Math.min(...pts.map(p=>p.val));
+  const maxV=Math.max(...pts.map(p=>p.val));
+  const rangeV=maxV-minV||1;
+  const xStep=cW/(pts.length-1);
+  const toX=(i)=>PAD.l+i*xStep;
+  const toY=(v)=>PAD.t+cH-(v-minV)/rangeV*cH;
+
+  const svg=document.createElementNS('http://www.w3.org/2000/svg','svg');
+  svg.setAttribute('viewBox',`0 0 ${W} ${H}`);
+  svg.style.cssText='width:100%;height:100%;display:block;overflow:visible';
+
+  // Grille Y (3 lignes)
+  for(let i=0;i<=2;i++){
+    const y=PAD.t+cH*i/2;
+    const val=maxV-(rangeV*i/2);
+    const line=document.createElementNS('http://www.w3.org/2000/svg','line');
+    line.setAttribute('x1',PAD.l); line.setAttribute('x2',W-PAD.r);
+    line.setAttribute('y1',y); line.setAttribute('y2',y);
+    line.setAttribute('stroke','var(--bord)'); line.setAttribute('stroke-width','1');
+    svg.appendChild(line);
+    const lbl=document.createElementNS('http://www.w3.org/2000/svg','text');
+    lbl.setAttribute('x',PAD.l-6); lbl.setAttribute('y',y+4);
+    lbl.setAttribute('text-anchor','end'); lbl.setAttribute('class','chart-axis-lbl');
+    lbl.textContent=Math.round(val)+'kg'; svg.appendChild(lbl);
+  }
+
+  // Zone sous la courbe
+  let pathD=`M ${toX(0)} ${toY(pts[0].val)}`;
+  pts.slice(1).forEach((p,i)=>{ pathD+=` L ${toX(i+1)} ${toY(p.val)}`; });
+  const [r,g,b]=hexRgb(hex);
+  const area=document.createElementNS('http://www.w3.org/2000/svg','path');
+  area.setAttribute('d',pathD+` L ${toX(pts.length-1)} ${PAD.t+cH} L ${toX(0)} ${PAD.t+cH} Z`);
+  area.setAttribute('fill',`rgba(${r},${g},${b},.1)`); svg.appendChild(area);
+
+  // Ligne
+  const line=document.createElementNS('http://www.w3.org/2000/svg','path');
+  line.setAttribute('d',pathD); line.setAttribute('class','chart-line'); line.setAttribute('stroke',hex); svg.appendChild(line);
+
+  // Points + labels X
+  pts.forEach((p,i)=>{
+    const cx=toX(i), cy=toY(p.val);
+    const circle=document.createElementNS('http://www.w3.org/2000/svg','circle');
+    circle.setAttribute('cx',cx); circle.setAttribute('cy',cy); circle.setAttribute('r',4);
+    circle.setAttribute('fill',hex); circle.setAttribute('stroke','var(--surf)'); circle.setAttribute('stroke-width',2);
+    circle.setAttribute('class','chart-dot');
+    circle.addEventListener('mouseenter',e=>showTooltip(`${p.date} · ${p.val}kg`,e));
+    circle.addEventListener('mouseleave',hideTooltip);
+    svg.appendChild(circle);
+    // Label X (tous les N points)
+    const every=Math.max(1,Math.floor(pts.length/5));
+    if(i%every===0||i===pts.length-1){
+      const lbl=document.createElementNS('http://www.w3.org/2000/svg','text');
+      lbl.setAttribute('x',cx); lbl.setAttribute('y',H-4);
+      lbl.setAttribute('text-anchor','middle'); lbl.setAttribute('class','chart-axis-lbl');
+      lbl.textContent=fmtDateShort(p.date); svg.appendChild(lbl);
+    }
+  });
+
+  const wrap=document.createElement('div'); wrap.className='chart-wrap'; wrap.appendChild(svg);
+  container.appendChild(wrap);
+}
+
+// ══════════════════════════════════════════════════════════════
+// SÉANCES RÉCENTES
+// ══════════════════════════════════════════════════════════════
+function renderRecent(){
+  const container=document.getElementById('recentList');
+  container.innerHTML='';
+  if(!_hist.length){
+    container.innerHTML='<div class="empty-box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg><p>Aucune séance enregistrée</p></div>';
+    return;
+  }
+  const TC_={Push:'#fa7b01',Pull:'#0161be',Legs:'#5a9d24','Full Body':'#8338bb','Haut du corps':'#01969b','Bas du corps':'#974f1a',Cardio:'#b90207',Autre:'#9a9891'};
+  _hist.slice(0,7).forEach(h=>{
+    const hex=TC_[h.seanceType]||'#9a9891';
+    const nbS=h.exercices?.reduce((n,e)=>n+(e.series?.length||0),0)||0;
+    const row=document.createElement('div'); row.className='rec-row';
+    row.innerHTML=`<span class="rec-dot" style="background:${hex}"></span>
+      <div class="rec-info">
+        <div class="rec-name">${esc(h.seanceNom||'Séance libre')}</div>
+        <div class="rec-meta">${fmtDateShort(h.date)}${h.heure?' · '+h.heure:''} · ${esc(h.programmeNom||'')}</div>
+      </div>
+      <div class="rec-stats">
+        <span class="rec-vol">${h.volumeTotal>0?h.volumeTotal+'kg':nbS+' séries'}</span>
+        <span class="rec-dur">${fmtDur(h.dureeMin)}</span>
+      </div>`;
+    container.appendChild(row);
+  });
+}
+
+// ══════════════════════════════════════════════════════════════
+// TOP EXERCICES
+// ══════════════════════════════════════════════════════════════
+function renderTopExos(){
+  const container=document.getElementById('topExoGrid');
+  container.innerHTML='';
+  const exoStats={};
+  _hist.forEach(h=>{
+    (h.exercices||[]).forEach(e=>{
+      if(!exoStats[e.nom]) exoStats[e.nom]={nom:e.nom,groupe:e.groupe,series:0,sessions:0,maxPoids:0};
+      const s=exoStats[e.nom];
+      s.sessions++; s.series+=(e.series||[]).length;
+      const mp=Math.max(0,...(e.series||[]).map(x=>parseFloat(x.poids)||0));
+      if(mp>s.maxPoids) s.maxPoids=mp;
+    });
+  });
+  const sorted=Object.values(exoStats).sort((a,b)=>b.series-a.series).slice(0,10);
+  if(!sorted.length){
+    container.innerHTML='<div class="empty-box"><p>Aucune donnée disponible</p></div>';
+    return;
+  }
+  const maxSeries=sorted[0].series;
+  const grid=document.createElement('div'); grid.className='top-exo-grid';
+  sorted.forEach(e=>{
+    const hex=grpc(e.groupe);
+    const pct=Math.round(e.series/maxSeries*100);
+    const card=document.createElement('div'); card.className='top-exo-card'; card.style.setProperty('--te-color',hex);
+    card.innerHTML=`<div class="top-exo-name" title="${esc(e.nom)}">${esc(e.nom)}</div>
+      <div class="top-exo-stats">
+        <div class="top-exo-stat"><strong>${e.sessions}</strong> séance${e.sessions!==1?'s':''}</div>
+        <div class="top-exo-stat"><strong>${e.series}</strong> séries</div>
+        ${e.maxPoids>0?`<div class="top-exo-stat">Max <strong>${e.maxPoids}kg</strong></div>`:''}
+      </div>
+      <div class="top-exo-bar"><div class="top-exo-bar-fill" style="width:${pct}%;background:${hex}"></div></div>`;
+    grid.appendChild(card);
+  });
+  container.appendChild(grid);
+}
+
+// ══════════════════════════════════════════════════════════════
+// TOOLTIP
+// ══════════════════════════════════════════════════════════════
+const tooltip=document.getElementById('tooltip');
+function showTooltip(txt,e){ tooltip.textContent=txt; tooltip.style.display='block'; moveTooltip(e); }
+function hideTooltip(){ tooltip.style.display='none'; }
+function moveTooltip(e){ tooltip.style.left=Math.min(e.clientX+12,window.innerWidth-160)+'px'; tooltip.style.top=(e.clientY-36)+'px'; }
+document.addEventListener('mousemove',e=>{ if(tooltip.style.display==='block') moveTooltip(e); });
+
+// ══════════════════════════════════════════════════════════════
+// THÈME + HEADER
+// ══════════════════════════════════════════════════════════════
+function applyTheme(t){
+  document.documentElement.setAttribute('data-theme',t);
+  localStorage.setItem('muscle-xml-theme',t);
+  document.getElementById('thDark').style.display=t==='dark'?'block':'none';
+  document.getElementById('thLight').style.display=t==='light'?'block':'none';
+}
+
+function renderHeader(){
+  const now=new Date();
+  const h=now.getHours();
+  const greet=h<12?'Bonjour':h<18?'Bon après-midi':'Bonsoir';
+  document.getElementById('greeting').textContent=greet+' 💪';
+  document.getElementById('todayDate').textContent=now.toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+}
+
+// ══════════════════════════════════════════════════════════════
+// PÉRIODE VOL
+// ══════════════════════════════════════════════════════════════
+document.getElementById('volPeriodSel').addEventListener('change',function(){
+  const days=parseInt(this.value);
+  const labels={30:'30 derniers jours',90:'3 derniers mois',365:'12 derniers mois',0:'Depuis le début'};
+  document.getElementById('volPeriodLabel').textContent=labels[this.value]||'';
+  renderVolChart(days);
+});
+
+// ══════════════════════════════════════════════════════════════
+// EVENTS
+// ══════════════════════════════════════════════════════════════
+document.getElementById('homeBtn').addEventListener('click',()=>window.location.href='index.html');
+document.getElementById('themeBtn').addEventListener('click',()=>applyTheme(document.documentElement.getAttribute('data-theme')==='dark'?'light':'dark'));
+
+// ══════════════════════════════════════════════════════════════
+// INIT
+// ══════════════════════════════════════════════════════════════
+(async function init(){
+  applyTheme(localStorage.getItem('muscle-xml-theme')||'light');
+  renderHeader();
+  loadHist();
+  await GymDB.init();
+  try{ const h=await GymDB.read('historique.json'); if(Array.isArray(h)&&h.length){ _hist=h; localStorage.setItem(HIST_KEY,JSON.stringify(h)); } }catch{}
+  renderStatCards();
+  renderVolChart(30);
+  renderHeatmap();
+  buildProgExoList();
+  renderRecent();
+  renderTopExos();
+})();
+</script>
+
+<!-- ═══════════════ GYMOS NAV PANEL ═══════════════ -->
+<div id="gymosNavPanel" style="display:none;position:fixed;inset:0;z-index:9999;align-items:flex-start;justify-content:flex-start">
+  <div id="gymosNavBackdrop" style="position:absolute;inset:0;background:rgba(0,0,0,.45);backdrop-filter:blur(5px)"></div>
+  <div style="position:relative;width:256px;height:100%;background:var(--color-surface,#f9f8f5);border-right:1px solid var(--color-border,#d4d1ca);box-shadow:12px 0 40px rgba(0,0,0,.18);display:flex;flex-direction:column;overflow-y:auto;z-index:1">
+    <!-- Logo + Fermer -->
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:1.1rem 1rem .9rem;border-bottom:1px solid var(--color-border,#d4d1ca);background:linear-gradient(135deg,var(--color-surface,#f9f8f5),var(--color-surface-offset,#f3f0ec))">
+      <div style="display:flex;align-items:center;gap:.6rem">
+        <div style="width:34px;height:34px;border-radius:.6rem;background:var(--color-primary-highlight,#cedcd8);display:grid;place-items:center">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#01696f" stroke-width="1.8" stroke-linecap="round"><path d="M6 18V8.5C6 6.57 7.57 5 9.5 5h.5v14H9.5A3.5 3.5 0 0 1 6 15.5"/><path d="M18 18V8.5C18 6.57 16.43 5 14.5 5H14v14h.5a3.5 3.5 0 0 0 3.5-3.5"/></svg>
+        </div>
+        <span style="font-weight:800;font-size:.95rem;color:var(--color-text,#28251d)">GymOS</span>
+      </div>
+      <button id="gymosNavClose" style="border:none;background:none;cursor:pointer;color:var(--color-text-muted,#6e6b64);font-size:1.3rem;line-height:1;padding:.2rem .5rem;border-radius:.35rem;transition:background .12s" onmouseenter="this.style.background='rgba(0,0,0,.06)'" onmouseleave="this.style.background='none'">×</button>
+    </div>
+    <!-- Items nav -->
+    <nav id="gymosNavItems" style="padding:.6rem .5rem;display:flex;flex-direction:column;gap:.15rem;flex:1"></nav>
+    <!-- Footer -->
+    <div style="padding:.65rem 1rem;border-top:1px solid var(--color-border,#d4d1ca);font-size:.62rem;color:var(--color-text-faint,#9a9891);text-align:center;letter-spacing:.04em">GymOS — Gestion Musculation</div>
+  </div>
+</div>
+
+<script>
+(function(){
+  const PAGES=[
+    {href:'index.html',     label:'Accueil',    emoji:'🏠', color:'#01696f'},
+    {href:'Dashboard.html', label:'Dashboard',  emoji:'📊', color:'#01696f'},
+    {href:'Corps.html',     label:'Corps',      emoji:'💪', color:'#b90207'},
+    {href:'Exercices.html', label:'Exercices',  emoji:'🏋', color:'#fa7b01'},
+    {href:'Programme.html', label:'Programme',  emoji:'📋', color:'#8338bb'},
+    {href:'Seance.html',    label:'Séance',     emoji:'⏱', color:'#437a22'},
+    {href:'Historique.html',label:'Historique', emoji:'📅', color:'#0161be'},
+    {href:'Progression.html',label:'Progression',emoji:'📈',color:'#5a9d24'},
+    {href:'Nutrition.html', label:'Nutrition',  emoji:'🥗', color:'#964219'},
+  ];
+  const cur=(window.location.pathname.split('/').pop()||'index.html');
+  const nav=document.getElementById('gymosNavItems');
+  if(nav){
+    PAGES.forEach(p=>{
+      const isC=cur===p.href||(cur===''&&p.href==='index.html');
+      const a=document.createElement('a');
+      a.href=p.href;
+      a.style.cssText=`display:flex;align-items:center;gap:.7rem;padding:.58rem .85rem;border-radius:.6rem;font-size:.82rem;font-weight:${isC?700:500};color:${isC?p.color:'var(--color-text,#28251d)'};background:${isC?p.color+'18':'transparent'};text-decoration:none;transition:background .12s,color .12s;border-left:3px solid ${isC?p.color:'transparent'}`;
+      const em=document.createElement('span');em.textContent=p.emoji;em.style.cssText='font-size:1rem;width:22px;text-align:center;flex-shrink:0';
+      const lb=document.createElement('span');lb.textContent=p.label;lb.style.flex='1';
+      a.append(em,lb);
+      if(isC){const d=document.createElement('span');d.style.cssText=`width:6px;height:6px;border-radius:50%;background:${p.color};flex-shrink:0`;a.appendChild(d);}
+      a.addEventListener('mouseenter',()=>{if(!isC){a.style.background='var(--color-surface-offset,#f3f0ec)';}});
+      a.addEventListener('mouseleave',()=>{if(!isC){a.style.background='transparent';}});
+      nav.appendChild(a);
+    });
+  }
+  function openNav(){document.getElementById('gymosNavPanel').style.display='flex';}
+  function closeNav(){document.getElementById('gymosNavPanel').style.display='none';}
+  // Remplacer le homeBtn pour ouvrir le nav panel
+  const hb=document.getElementById('homeBtn');
+  if(hb){
+    const nb=hb.cloneNode(true);
+    hb.parentNode.replaceChild(nb,hb);
+    nb.id='homeBtn';
+    nb.title='Navigation';
+    nb.addEventListener('click',e=>{e.stopPropagation();openNav();});
+  }
+  document.getElementById('gymosNavClose').addEventListener('click',closeNav);
+  document.getElementById('gymosNavBackdrop').addEventListener('click',closeNav);
+  document.addEventListener('keydown',e=>{if(e.key==='Escape')closeNav();});
+})();
+</script>
+
+</body>
+</html>

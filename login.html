@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="fr" data-theme="light">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>GymOS — Connexion</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://api.fontshare.com/v2/css?f[]=satoshi@400,500,700&display=swap" rel="stylesheet">
+  <style>
+    :root,[data-theme="light"]{
+      --bg:#f7f6f2;--surf:#f9f8f5;--surf2:#fbfbf9;--bord:#d4d1ca;
+      --tx:#28251d;--txm:#6e6b64;--txf:#9a9891;
+      --prim:#01696f;--primh:#0c4e54;--primhi:#cedcd8;
+      --ok:#437a22;--warn:#964219;--err:#a12c7b;
+      --font:'Satoshi',system-ui,sans-serif;
+      --shmd:0 24px 64px rgba(40,37,29,.14);
+    }
+    [data-theme="dark"]{
+      --bg:#131211;--surf:#1a1918;--surf2:#1e1d1b;--bord:#333230;
+      --tx:#d0cfcd;--txm:#9e9d9a;--txf:#6e6c68;
+      --prim:#4f98a3;--primh:#227f8b;--primhi:#1a2e30;
+      --shmd:0 24px 64px rgba(0,0,0,.6);
+    }
+    *{box-sizing:border-box;margin:0;padding:0}
+    html,body{height:100%;font-family:var(--font);background:var(--bg);color:var(--tx)}
+    button{font:inherit;cursor:pointer}
+
+    /* ── FOND ── */
+    body{
+      display:flex;flex-direction:column;align-items:center;justify-content:center;
+      min-height:100dvh;padding:1.5rem;
+      background:
+        radial-gradient(ellipse at 20% 20%, color-mix(in oklab,var(--prim) 8%,transparent) 0%, transparent 60%),
+        radial-gradient(ellipse at 80% 80%, color-mix(in oklab,var(--prim) 5%,transparent) 0%, transparent 55%),
+        var(--bg);
+    }
+
+    /* ── CARD ── */
+    .card{
+      background:var(--surf);
+      border:1px solid var(--bord);
+      border-radius:1.5rem;
+      padding:2.5rem 2rem;
+      width:min(420px,100%);
+      box-shadow:var(--shmd);
+      display:flex;flex-direction:column;align-items:center;gap:0;
+      position:relative;overflow:hidden;
+    }
+    .card::before{
+      content:'';position:absolute;inset:0;top:0;height:3px;
+      background:linear-gradient(90deg,var(--prim),color-mix(in oklab,var(--prim) 60%,#4f98a3));
+    }
+
+    /* ── LOGO ── */
+    .logo-wrap{
+      width:72px;height:72px;border-radius:20px;
+      display:grid;place-items:center;
+      background:var(--prim);
+      box-shadow:0 8px 24px color-mix(in oklab,var(--prim) 35%,transparent);
+      margin-bottom:1.5rem;
+    }
+    .logo-wrap svg{width:38px;height:38px;color:#fff}
+
+    /* ── TEXTES ── */
+    .app-name{
+      font-size:clamp(1.8rem,5vw,2.5rem);
+      font-weight:700;letter-spacing:-.04em;
+      color:var(--tx);margin-bottom:.35rem;
+    }
+    .app-tagline{
+      font-size:.9rem;color:var(--txm);
+      text-align:center;line-height:1.5;margin-bottom:2rem;
+    }
+
+    /* ── STATUS ZONE ── */
+    .status-zone{
+      width:100%;background:var(--surf2);
+      border:1px solid var(--bord);border-radius:1rem;
+      padding:1.25rem 1.25rem;
+      display:flex;flex-direction:column;align-items:center;gap:.75rem;
+      margin-bottom:1.5rem;min-height:100px;justify-content:center;
+    }
+    .status-icon{
+      width:44px;height:44px;border-radius:50%;
+      display:grid;place-items:center;font-size:1.3rem;
+      transition:all .3s ease;
+    }
+    .status-icon.checking{background:var(--surf2);animation:pulse 1.4s ease-in-out infinite}
+    .status-icon.connected{background:rgba(67,122,34,.12);border:1px solid rgba(67,122,34,.3)}
+    .status-icon.needs-perm{background:rgba(150,66,25,.1);border:1px solid rgba(150,66,25,.3)}
+    .status-icon.disconnected{background:var(--surf2);border:1px solid var(--bord)}
+    @keyframes pulse{0%,100%{opacity:.5}50%{opacity:1}}
+    .status-title{font-weight:700;font-size:.95rem;text-align:center}
+    .status-desc{font-size:.78rem;color:var(--txm);text-align:center;line-height:1.5;max-width:300px}
+    .folder-name{
+      font-size:.75rem;font-weight:600;padding:.2rem .65rem;
+      border-radius:999px;background:var(--primhi);color:var(--prim);
+      max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+    }
+    [data-theme="dark"] .folder-name{background:var(--primhi);color:var(--prim)}
+
+    /* ── BOUTONS ── */
+    .btn-connect{
+      width:100%;padding:.9rem 1.5rem;
+      border-radius:.875rem;border:none;
+      font-size:.95rem;font-weight:700;letter-spacing:-.01em;
+      display:flex;align-items:center;justify-content:center;gap:.6rem;
+      transition:all .2s cubic-bezier(.16,1,.3,1);
+      cursor:pointer;
+    }
+    .btn-connect:disabled{opacity:.5;cursor:not-allowed}
+    .btn-connect.primary{background:var(--prim);color:#fff;box-shadow:0 4px 16px color-mix(in oklab,var(--prim) 30%,transparent)}
+    .btn-connect.primary:hover:not(:disabled){background:var(--primh);transform:translateY(-1px);box-shadow:0 6px 20px color-mix(in oklab,var(--prim) 40%,transparent)}
+    .btn-connect.warn-btn{background:rgba(150,66,25,.1);color:#964219;border:1px solid rgba(150,66,25,.3)}
+    .btn-connect.warn-btn:hover:not(:disabled){background:rgba(150,66,25,.18);transform:translateY(-1px)}
+    [data-theme="dark"] .btn-connect.warn-btn{background:rgba(150,66,25,.2);color:#e07840;border-color:rgba(150,66,25,.4)}
+    .btn-connect svg{width:18px;height:18px;flex-shrink:0}
+    .btn-continue{
+      width:100%;padding:.9rem;border-radius:.875rem;
+      background:var(--prim);color:#fff;border:none;
+      font-size:.95rem;font-weight:700;
+      display:flex;align-items:center;justify-content:center;gap:.6rem;
+      cursor:pointer;box-shadow:0 4px 16px color-mix(in oklab,var(--prim) 30%,transparent);
+      transition:all .2s ease;
+    }
+    .btn-continue:hover{background:var(--primh)}
+    .btn-continue svg{width:18px;height:18px}
+
+    /* Barre de progression auto-redirect */
+    .redirect-bar-wrap{width:100%;height:3px;background:var(--bord);border-radius:999px;overflow:hidden;margin-top:.5rem}
+    .redirect-bar{height:100%;background:var(--prim);border-radius:999px;width:0;transition:width linear}
+
+    /* ── SKIP ── */
+    .skip-btn{
+      background:none;border:none;color:var(--txf);
+      font-size:.75rem;cursor:pointer;margin-top:.75rem;
+      text-decoration:underline;text-underline-offset:3px;
+      transition:color .2s;
+    }
+    .skip-btn:hover{color:var(--txm)}
+
+    /* ── FOOTER ── */
+    .card-footer{
+      width:100%;border-top:1px solid var(--bord);
+      margin-top:1.5rem;padding-top:1rem;
+      display:flex;align-items:center;justify-content:space-between;gap:.5rem;
+    }
+    .compat-note{font-size:.7rem;color:var(--txf);line-height:1.4}
+    .compat-note strong{color:var(--txm)}
+    .theme-btn-sm{
+      width:32px;height:32px;border-radius:.5rem;
+      border:1px solid var(--bord);background:var(--surf2);
+      display:grid;place-items:center;cursor:pointer;color:var(--txm);
+      transition:all .2s;flex-shrink:0;
+    }
+    .theme-btn-sm:hover{background:var(--surf);color:var(--tx)}
+    .theme-btn-sm svg{width:15px;height:15px}
+  </style>
+</head>
+<body>
+
+<div class="card" id="card">
+  <!-- Logo -->
+  <div class="logo-wrap">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M6 18V8.5C6 6.57 7.57 5 9.5 5h.5v14H9.5A3.5 3.5 0 0 1 6 15.5"/>
+      <path d="M18 18V8.5C18 6.57 16.43 5 14.5 5H14v14h.5a3.5 3.5 0 0 0 3.5-3.5"/>
+    </svg>
+  </div>
+
+  <div class="app-name">GymOS</div>
+  <div class="app-tagline">Gestion de séances de musculation</div>
+
+  <!-- Zone statut -->
+  <div class="status-zone" id="statusZone">
+    <div class="status-icon checking" id="statusIcon">⏳</div>
+    <div class="status-title" id="statusTitle">Vérification…</div>
+    <div class="status-desc" id="statusDesc">Connexion au dossier de données en cours</div>
+  </div>
+
+  <!-- Zone bouton -->
+  <div id="actionZone" style="width:100%;display:flex;flex-direction:column;align-items:center;gap:.5rem"></div>
+
+  <!-- Footer -->
+  <div class="card-footer">
+    <div class="compat-note">
+      Stockage local via <strong>File System API</strong><br>
+      Compatible <strong>Chrome</strong> & <strong>Edge</strong>
+    </div>
+    <button class="theme-btn-sm" id="themeBtn" title="Basculer thème">
+      <svg id="thDark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+      <svg id="thLight" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:none"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+    </button>
+  </div>
+</div>
+
+<script src="db.js"></script>
+<script>
+  // ── Thème ──────────────────────────────────────────────────────────────────
+  function applyTheme(t) {
+    document.documentElement.setAttribute('data-theme', t);
+    localStorage.setItem('muscle-xml-theme', t);
+    document.getElementById('thDark').style.display  = t === 'dark'  ? 'block' : 'none';
+    document.getElementById('thLight').style.display = t === 'light' ? 'block' : 'none';
+  }
+  document.getElementById('themeBtn').addEventListener('click', () =>
+    applyTheme(document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark')
+  );
+  applyTheme(localStorage.getItem('muscle-xml-theme') || 'light');
+
+  // ── Redirect ───────────────────────────────────────────────────────────────
+  function goToApp() { window.location.href = 'index.html'; }
+
+  // ── Rendu selon l'état ─────────────────────────────────────────────────────
+  function renderState(state) {
+    const icon  = document.getElementById('statusIcon');
+    const title = document.getElementById('statusTitle');
+    const desc  = document.getElementById('statusDesc');
+    const zone  = document.getElementById('actionZone');
+    zone.innerHTML = '';
+
+    const name = GymDB.getFolderName();
+
+    if (state === 'connected') {
+      icon.className  = 'status-icon connected';
+      icon.textContent = '✓';
+      title.textContent = 'Dossier connecté';
+      desc.textContent  = 'Redirection automatique…';
+      if (name) {
+        const pill = document.createElement('span');
+        pill.className   = 'folder-name';
+        pill.textContent = '📁 ' + name;
+        document.getElementById('statusZone').appendChild(pill);
+      }
+      // Barre de progression + redirect
+      const barWrap = document.createElement('div'); barWrap.className = 'redirect-bar-wrap';
+      const bar = document.createElement('div'); bar.className = 'redirect-bar';
+      barWrap.appendChild(bar); zone.appendChild(barWrap);
+      setTimeout(() => { bar.style.transition = 'width 1s linear'; bar.style.width = '100%'; }, 50);
+      setTimeout(goToApp, 1100);
+
+      // Bouton "Continuer maintenant"
+      const skip = document.createElement('button');
+      skip.className   = 'btn-continue';
+      skip.innerHTML   = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="13 17 18 12 13 7"/><polyline points="6 17 11 12 6 7"/></svg> Continuer`;
+      skip.addEventListener('click', goToApp);
+      zone.appendChild(skip);
+
+    } else if (state === 'needs-permission') {
+      icon.className  = 'status-icon needs-perm';
+      icon.textContent = '🔓';
+      title.textContent = 'Autorisation requise';
+      desc.textContent  = 'Le dossier est mémorisé. Un clic suffit pour réautoriser — aucune sélection nécessaire.';
+      if (name) {
+        const pill = document.createElement('span');
+        pill.className   = 'folder-name';
+        pill.textContent = '📁 ' + name;
+        document.getElementById('statusZone').appendChild(pill);
+      }
+      const btn = document.createElement('button');
+      btn.className = 'btn-connect warn-btn';
+      btn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg> Reconnecter le dossier Db`;
+      btn.addEventListener('click', async () => {
+        btn.disabled = true;
+        btn.textContent = 'Autorisation…';
+        const ok = await GymDB.reconnect();
+        if (ok) renderState('connected');
+        else { btn.disabled = false; btn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg> Reconnecter le dossier Db`; }
+      });
+      zone.appendChild(btn);
+      const skip = document.createElement('button');
+      skip.className   = 'skip-btn';
+      skip.textContent = 'Continuer sans Db (localStorage uniquement)';
+      skip.addEventListener('click', goToApp);
+      zone.appendChild(skip);
+
+    } else {
+      // disconnected
+      icon.className  = 'status-icon disconnected';
+      icon.textContent = '📂';
+      title.textContent = GymDB.isSupported() ? 'Aucun dossier configuré' : 'Navigateur non compatible';
+      desc.textContent  = GymDB.isSupported()
+        ? 'Sélectionnez le dossier "Db" pour synchroniser vos données entre navigateurs. Cette sélection n\'est faite qu\'une seule fois.'
+        : 'Firefox ne supporte pas le File System API. Les données seront stockées localement dans ce navigateur.';
+
+      if (GymDB.isSupported()) {
+        const btn = document.createElement('button');
+        btn.className = 'btn-connect primary';
+        btn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg> Sélectionner le dossier Db`;
+        btn.addEventListener('click', async () => {
+          btn.disabled = true;
+          btn.textContent = 'Sélection…';
+          const ok = await GymDB.connect();
+          if (ok) renderState('connected');
+          else { btn.disabled = false; btn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg> Sélectionner le dossier Db`; }
+        });
+        zone.appendChild(btn);
+      }
+      const skip = document.createElement('button');
+      skip.className   = 'skip-btn';
+      skip.textContent = 'Continuer sans Db (localStorage uniquement)';
+      skip.addEventListener('click', goToApp);
+      zone.appendChild(skip);
+    }
+  }
+
+  // ── Init ───────────────────────────────────────────────────────────────────
+  (async () => {
+    const state = await GymDB.init();
+    renderState(state);
+  })();
+</script>
+</body>
+</html>
