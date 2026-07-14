@@ -333,9 +333,6 @@
       display:flex;flex-direction:column;gap:var(--space-3);
       background:color-mix(in oklab,var(--dm-color,var(--color-primary)) 3%,var(--color-surface));
     }
-    .dm-ref{font-size:var(--text-xs);color:var(--dm-color,var(--color-primary));font-weight:700;text-transform:uppercase;letter-spacing:.06em}
-    .dm-faisceau-name{font-size:var(--text-sm);font-weight:700;color:var(--color-text);line-height:1.3}
-    .dm-latin{font-size:var(--text-xs);color:var(--color-text-muted);font-style:italic}
     .dm-section{display:flex;flex-direction:column;gap:var(--space-1)}
     .dm-section-title{font-size:.65rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--dm-color,var(--color-primary));padding-bottom:.2rem;border-bottom:1px solid color-mix(in oklab,var(--dm-color,var(--color-primary)) 25%,var(--color-border))}
     .dm-section-text{font-size:var(--text-xs);color:var(--color-text);line-height:1.55;white-space:pre-wrap}
@@ -364,10 +361,6 @@
     }
     .dm-fig-ph svg{width:64px;height:64px}
     .dm-fig-ph span{font-size:var(--text-xs)}
-    .dm-fig-edit-btn{
-      position:absolute;bottom:var(--space-3);right:var(--space-3);
-      display:none;
-    }
 
     /* ── Colonne encarts (droite) ── */
     .dm-col-panels{
@@ -407,11 +400,6 @@
     }
     .dm-img-pick-btn:hover{border-color:var(--dm-color,var(--color-primary));color:var(--dm-color,var(--color-primary))}
     .dm-img-pick-btn svg{width:11px;height:11px}
-
-    /* Legende faisceaux */
-    .dm-faisceau-legend{padding:0 var(--space-3) var(--space-2);display:flex;flex-direction:column;gap:2px;flex-shrink:0}
-    .dm-legend-item{display:flex;align-items:center;gap:.4rem;font-size:.65rem;color:var(--color-text-muted)}
-    .dm-legend-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
 
     #lightboxModal{z-index:200}
     .dm-panel-img{cursor:zoom-in;transition:opacity var(--transition)}
@@ -621,7 +609,7 @@
     </div>
 
     <div class="sidebar-anatomy-wrap">
-      <div class="sidebar-anatomy" id="anatomyWrap">
+      <div class="sidebar-anatomy">
         <img src="./img/Anatomie-Full-Color.png" alt="Anatomie musculaire" id="anatomyImg">
         <button class="anatomy-edit-btn" id="anatomyEditBtn" style="display:none" title="Modifier les images des groupes">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4z"/></svg>
@@ -637,7 +625,7 @@
       </div>
     </div>
 
-    <div class="sidebar-footer" id="sidebarFooter">
+    <div class="sidebar-footer">
       <div class="sidebar-footer-stat">
         <span>Lignes totales</span>
         <strong id="sfTotal">0</strong>
@@ -771,7 +759,7 @@
         </div>
       </div>
       <div class="table-wrap">
-        <table id="dataTable">
+        <table>
           <thead>
             <tr>
               <th style="width:46px">#</th>
@@ -786,7 +774,7 @@
               <th style="width:48px;text-align:center">Info</th>
             </tr>
           </thead>
-          <tbody id="tableBody"><tr><td colspan="9" class="empty">Aucune donnée chargée.</td></tr></tbody>
+          <tbody id="tableBody"><tr><td colspan="10" class="empty">Aucune donnée chargée.</td></tr></tbody>
         </table>
       </div>
       <!-- Galerie cartes -->
@@ -1062,8 +1050,8 @@
 <!-- ═══ MODALE DÉTAIL ═══ -->
 <div class="modal-overlay" id="detailModal" role="dialog" aria-modal="true">
   <div class="detail-modal" id="detailModalBox">
-    <div class="dm-header" id="dmHeader">
-      <div class="dm-header-bar" id="dmBar"></div>
+    <div class="dm-header">
+      <div class="dm-header-bar"></div>
       <div class="dm-header-row">
         <span class="dm-group-badge" id="dmBadge"></span>
         <div class="dm-titles">
@@ -1188,19 +1176,8 @@ const fields = [
 ];
 const searchableFields = ['groupe_musculaire','muscle_cible','type_subdivision','subdivision_anatomique','localisation_fonctionnelle','jour_recup'];
 const RECUP_VALUES = ['24h','48h','72h'];
-const MUSCLE_COLORS = {
-  'Pectoraux':          '#b90207',
-  'Abdominaux':         '#8338bb',
-  'Bras':               '#fa7b01',
-  'Avant-bras':         '#f42d65',
-  'Cuisses (arrière)':  '#974f1a',
-  'Cuisses (avant)':    '#5a9d24',
-  'Cuisses (intérieur)':'#3fb5dc',
-  'Dos':                '#0161be',
-  'Épaules':            '#fbbd01',
-  'Fessiers':           '#01969b',
-  'Mollets':            '#a19e9f'
-};
+// Alias vers MC (gymos-utils.js) : évite une copie locale qui pourrait diverger.
+const MUSCLE_COLORS = MC;
 const labels = {
   groupe_musculaire:'Groupe musculaire',muscle_cible:'Muscle cible',
   type_subdivision:'Type de subdivision',subdivision_anatomique:'Subdivision anatomique',
@@ -1844,15 +1821,6 @@ const TEXT_DETAIL_FIELDS = [
   { key:'action',              label:'Action' },
 ];
 
-function makeImgOrPh(src, cls='dm-panel-img') {
-  if (!src) return null;
-  const img = document.createElement('img');
-  img.className = cls; img.alt = '';
-  img.src = './img/' + src;
-  img.onerror = () => img.style.display='none';
-  return img;
-}
-
 function makeInputPick(row, fieldKey, onConfirm) {
   const wrap = document.createElement('div');
   wrap.style.cssText = 'display:flex;align-items:center;gap:4px;width:100%';
@@ -2001,12 +1969,7 @@ function openDetailModal(rowId) {
     } else {
       pbody.appendChild(makePanelPh());
     }
-    // Faisceaux : légende des autres muscles
-    if (pi === 2) {
-      panel.append(ptitle, pbody);
-    } else {
-      panel.append(ptitle, pbody);
-    }
+    panel.append(ptitle, pbody);
     if (isEdit) {
       const pe = document.createElement('div');
       pe.style.cssText = 'padding:var(--space-2) var(--space-3);border-top:1px solid var(--color-border);flex-shrink:0;background:var(--color-surface-offset)';
@@ -2048,17 +2011,7 @@ function saveDetailModal() {
   document.querySelectorAll('#dmBody textarea.dm-textarea[data-field]').forEach(ta => {
     row[ta.dataset.field] = ta.value.trim();
   });
-  // Sauvegarder les inputs image
-  document.querySelectorAll('#dmBody input[type="text"][placeholder$=".png"]').forEach(inp => {
-    const key = inp.closest('[data-imgkey]')?.dataset.imgkey;
-    if (key) row[key] = inp.value.trim();
-  });
-  // Parcourir les pickInputs via la structure
-  const allImgFields = ['image_localisation_1','image_localisation_2','image_zoom_insertion','image_vue_profonde','image_faisceau_groupe','image_personnage'];
-  document.querySelectorAll('#dmBody input[type="text"]').forEach(inp => {
-    // Trouver quel champ correspond à cet input en cherchant sa position
-  });
-  // Approche directe : relire les inputs dans l'ordre de création
+  // Sauvegarder les inputs image (relus dans l'ordre de création)
   const imgInputs = [...document.querySelectorAll('#dmBody input[type="text"][placeholder="nom_fichier.png"]')];
   const imgFieldOrder = ['image_localisation_1','image_localisation_2','image_personnage','image_zoom_insertion','image_vue_profonde','image_faisceau_groupe'];
   imgInputs.forEach((inp, i) => { if (imgFieldOrder[i]) row[imgFieldOrder[i]] = inp.value.trim(); });
