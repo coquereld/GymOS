@@ -7,6 +7,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://api.fontshare.com/v2/css?f[]=satoshi@400,500,700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="theme.css">
   <style>
     :root,[data-theme="light"]{
       --bg:#f7f6f2;--surf:#f9f8f5;--surf2:#fbfbf9;--bord:#d4d1ca;
@@ -196,14 +197,9 @@
 </div>
 
 <script src="db.js"></script>
+<script src="gymos-utils.js"></script>
 <script>
   // ── Thème ──────────────────────────────────────────────────────────────────
-  function applyTheme(t) {
-    document.documentElement.setAttribute('data-theme', t);
-    localStorage.setItem('muscle-xml-theme', t);
-    document.getElementById('thDark').style.display  = t === 'dark'  ? 'block' : 'none';
-    document.getElementById('thLight').style.display = t === 'light' ? 'block' : 'none';
-  }
   document.getElementById('themeBtn').addEventListener('click', () =>
     applyTheme(document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark')
   );

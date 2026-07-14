@@ -1,0 +1,22 @@
+/* GymOS — palette de couleurs partagée (thème clair/sombre)
+   Alias fournis pour les deux conventions de nommage utilisées dans les pages :
+   courte (--bg, --prim, --tx, ...) et longue (--color-bg, --color-primary, ...).
+   Ne couvre que les tokens dont la valeur est déjà identique sur toutes les pages ;
+   les tokens d'espacement/rayon/ombre/transition restent définis par page car ils
+   sont volontairement ajustés d'une page à l'autre. */
+:root,[data-theme="light"]{
+  --bg:#f7f6f2;--surf:#f9f8f5;--surf2:#fbfbf9;--surfoff:#f3f0ec;--bord:#d4d1ca;
+  --tx:#28251d;--txm:#6e6b64;--txf:#9a9891;
+  --prim:#01696f;--primh:#0c4e54;--primhi:#cedcd8;
+  --ok:#437a22;--warn:#964219;--err:#a12c7b;
+
+  --color-bg:var(--bg);--color-surface:var(--surf);--color-surface-2:var(--surf2);
+  --color-surface-offset:var(--surfoff);--color-border:var(--bord);
+  --color-text:var(--tx);--color-text-muted:var(--txm);--color-text-faint:var(--txf);
+  --color-primary:var(--prim);--color-primary-hover:var(--primh);--color-primary-highlight:var(--primhi);
+  --color-success:var(--ok);--color-warning:var(--warn);--color-error:var(--err);
+}
+[data-theme="dark"]{
+  --prim:#4f98a3;--primh:#227f8b;
+  --color-primary:var(--prim);--color-primary-hover:var(--primh);
+}
