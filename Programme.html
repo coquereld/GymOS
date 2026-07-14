@@ -146,7 +146,7 @@
     .ep-body{padding:var(--sp4) var(--sp5)}
 
     /* EXO TABLE */
-    .et-wrap{overflow-x:auto;overflow-y:auto;max-height:380px;border-radius:var(--rmd);border:1px solid var(--bord);scrollbar-color:var(--txf) var(--surfoff);scrollbar-width:auto}
+    .et-wrap{overflow-x:auto;border-radius:var(--rmd);border:1px solid var(--bord);scrollbar-color:var(--txf) var(--surfoff);scrollbar-width:auto}
     .et-wrap::-webkit-scrollbar{height:12px;width:12px}
     .et-wrap::-webkit-scrollbar-track{background:var(--surfoff)}
     .et-wrap::-webkit-scrollbar-thumb{background:var(--txf);border-radius:6px;border:2px solid var(--surfoff)}
@@ -793,8 +793,13 @@ function selectProg(id){
   renderSidebar(); renderMain();
 }
 function selectSeance(id){
-  S.selSeance = S.selSeance === id ? null : id;
+  const opening = S.selSeance !== id;
+  S.selSeance = opening ? id : null;
   renderMain();
+  if (opening) {
+    const panel = document.getElementById('exoPanel');
+    if (panel) panel.scrollIntoView({behavior:'smooth', block:'start'});
+  }
 }
 function toggleArchive(progId){
   const p=getProg(progId); if(!p)return;
