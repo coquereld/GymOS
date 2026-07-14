@@ -1086,7 +1086,6 @@ function saveSession() {
   _historique.unshift(entry);
   localStorage.setItem(HIST_KEY, JSON.stringify(_historique));
   GymDB.write('historique.json', _historique);
-  GymDB.write('seances.json', _historique); // fichier dédié séances
   renderSidebar();
 }
 

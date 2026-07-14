@@ -1,0 +1,219 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>GymOS — Tests db.js</title>
+<style>
+  body{font-family:system-ui,sans-serif;max-width:720px;margin:2rem auto;padding:0 1rem;line-height:1.5}
+  h1{font-size:1.3rem}
+  h2{font-size:1.1rem;margin-top:2rem}
+  ul{list-style:none;padding:0}
+  li{padding:.4rem .6rem;border-radius:6px;margin-bottom:.3rem;font-family:monospace;font-size:.9rem}
+  li.pass{background:#e6f6e9;color:#1a7431}
+  li.fail{background:#fbe6e6;color:#a3231f}
+  button{padding:.5rem 1rem;border:1px solid #ccc;border-radius:6px;background:#fff;cursor:pointer}
+  button:hover{background:#f2f2f2}
+  #realResult{margin-top:.8rem;font-family:monospace;font-size:.9rem;white-space:pre-wrap}
+  .note{color:#666;font-size:.9rem}
+</style>
+</head>
+<body>
+
+<h1>Tests de db.js (GymDB)</h1>
+<p class="note">Page de test autonome, sans dépendance. Les tests automatisés utilisent un faux File System / IndexedDB en mémoire — aucune vraie donnée n'est lue ni écrite.</p>
+<button id="runBtn">Relancer les tests</button>
+<ul id="results"></ul>
+
+<h2>Test d'intégration manuel (optionnel)</h2>
+<p class="note">Ce test utilise la vraie File System Access API. Choisis un dossier de test dédié (pas ton dossier Db/ habituel) pour vérifier l'écriture/lecture réelles.</p>
+<button id="realTestBtn">Choisir un dossier réel et tester</button>
+<div id="realResult"></div>
+
+<div id="debug" style="color:red;font-family:monospace;white-space:pre-wrap"></div>
+<script src="db.js"></script>
+<script>
+'use strict';
+window.onerror = (msg, src, line, col, err) => {
+  document.getElementById('debug').textContent += `ERR: ${msg} @${line}:${col}\n`;
+};
+window.addEventListener('unhandledrejection', (e) => {
+  document.getElementById('debug').textContent += `REJECTION: ${e.reason}\n`;
+});
+
+const REAL_showDirectoryPicker = window.showDirectoryPicker;
+const REAL_indexedDB = window.indexedDB;
+
+// ── Mock File System Access API ──────────────────────────────────────────
+function createMockDirHandle() {
+  const store = new Map(); // filename -> string content
+  return {
+    name: 'mock-db',
+    async queryPermission() { return 'granted'; },
+    async requestPermission() { return 'granted'; },
+    async getFileHandle(filename, { create = false } = {}) {
+      if (!store.has(filename) && !create) {
+        const err = new Error('not found'); err.name = 'NotFoundError'; throw err;
+      }
+      return {
+        async getFile() {
+          const content = store.has(filename) ? store.get(filename) : '';
+          return { async text() { return content; } };
+        },
+        async createWritable() {
+          let buffer = '';
+          return {
+            async write(data) { buffer = data; },
+            async close() { store.set(filename, buffer); }
+          };
+        }
+      };
+    }
+  };
+}
+
+// window.indexedDB / window.showDirectoryPicker n'ont qu'un getter natif :
+// une affectation directe échoue en mode strict, il faut redéfinir la propriété.
+function setGlobal(name, value) {
+  Object.defineProperty(window, name, { value, configurable: true, writable: true });
+}
+
+// ── Mock IndexedDB (in-memory, supporte des valeurs non clonables) ───────
+function installMockIndexedDB() {
+  const kv = new Map();
+  setGlobal('indexedDB', {
+    open() {
+      const req = {};
+      setTimeout(() => {
+        const db = {
+          createObjectStore() {},
+          transaction() {
+            const tx = {};
+            const objectStore = {
+              get(key) {
+                const r = {};
+                setTimeout(() => { r.result = kv.get(key); r.onsuccess && r.onsuccess(); }, 0);
+                return r;
+              },
+              put(val, key) { kv.set(key, val); return {}; },
+              delete(key) { kv.delete(key); return {}; }
+            };
+            tx.objectStore = () => objectStore;
+            setTimeout(() => { tx.oncomplete && tx.oncomplete(); }, 0);
+            return tx;
+          }
+        };
+        req.onupgradeneeded && req.onupgradeneeded({ target: { result: db } });
+        req.onsuccess && req.onsuccess({ target: { result: db } });
+      }, 0);
+      return req;
+    }
+  });
+}
+
+function tick(ms = 20) { return new Promise(r => setTimeout(r, ms)); }
+
+// ── Petit runner de tests ────────────────────────────────────────────────
+const results = [];
+async function test(label, fn) {
+  try {
+    const ok = await fn();
+    results.push({ label, ok, error: ok ? null : 'assertion falsy' });
+  } catch (e) {
+    results.push({ label, ok: false, error: e.message });
+  }
+}
+
+function renderResults() {
+  const ul = document.getElementById('results');
+  ul.innerHTML = '';
+  for (const r of results) {
+    const li = document.createElement('li');
+    li.className = r.ok ? 'pass' : 'fail';
+    li.textContent = (r.ok ? '✅ ' : '❌ ') + r.label + (r.error ? ` — ${r.error}` : '');
+    ul.appendChild(li);
+  }
+}
+
+async function runAll() {
+  results.length = 0;
+
+  // 1. Avant toute connexion : état réel du singleton GymDB
+  await test('read() renvoie null quand aucun dossier n\'est connecté', async () => {
+    return (await GymDB.read('anything.json')) === null;
+  });
+
+  // À partir d'ici on bascule sur les mocks
+  installMockIndexedDB();
+  setGlobal('showDirectoryPicker', async () => createMockDirHandle());
+
+  await test('connect() réussit avec un dossier mocké', async () => {
+    const ok = await GymDB.connect();
+    return ok === true && GymDB.getState() === 'connected';
+  });
+
+  await test('read() sur un fichier absent renvoie null', async () => {
+    return (await GymDB.read('absent.json')) === null;
+  });
+
+  await test('write() puis read() fait un round-trip fidèle', async () => {
+    const data = { rows: [{ id: 1, nom: 'test' }] };
+    GymDB.write('exemple.json', data);
+    await tick();
+    const back = await GymDB.read('exemple.json');
+    return JSON.stringify(back) === JSON.stringify(data);
+  });
+
+  await test('read() avec validator rejette une forme invalide', async () => {
+    GymDB.write('mauvaise-forme.json', { pas: 'un tableau' });
+    await tick();
+    const back = await GymDB.read('mauvaise-forme.json', Array.isArray);
+    return back === null;
+  });
+
+  await test('read() avec validator accepte une forme valide', async () => {
+    GymDB.write('bonne-forme.json', [1, 2, 3]);
+    await tick();
+    const back = await GymDB.read('bonne-forme.json', Array.isArray);
+    return Array.isArray(back) && back.length === 3;
+  });
+
+  await test('disconnect() remet l\'état à disconnected', async () => {
+    await GymDB.disconnect();
+    return GymDB.getState() === 'disconnected' && (await GymDB.read('exemple.json')) === null;
+  });
+
+  // Restaure les vraies API pour le test d'intégration manuel
+  setGlobal('showDirectoryPicker', REAL_showDirectoryPicker);
+  setGlobal('indexedDB', REAL_indexedDB);
+
+  renderResults();
+}
+
+document.getElementById('runBtn').addEventListener('click', runAll);
+runAll().catch(e => {
+  document.getElementById('debug').textContent += `CRASH: ${e.message}\n`;
+});
+
+// ── Test d'intégration manuel (vraie FSA) ────────────────────────────────
+document.getElementById('realTestBtn').addEventListener('click', async () => {
+  const out = document.getElementById('realResult');
+  out.textContent = 'En cours...';
+  try {
+    const ok = await GymDB.connect();
+    if (!ok) { out.textContent = 'Connexion annulée ou refusée.'; return; }
+    const data = { test: true, date: new Date().toISOString() };
+    GymDB.write('test-db-integration.json', data);
+    await tick(100);
+    const back = await GymDB.read('test-db-integration.json');
+    out.textContent = 'Dossier : ' + GymDB.getFolderName()
+      + '\nÉcrit : ' + JSON.stringify(data)
+      + '\nRelu  : ' + JSON.stringify(back)
+      + '\nRound-trip ' + (JSON.stringify(back) === JSON.stringify(data) ? 'OK ✅' : 'ÉCHEC ❌');
+    await GymDB.disconnect();
+  } catch (e) {
+    out.textContent = 'Erreur : ' + e.message;
+  }
+});
+</script>
+</body>
+</html>

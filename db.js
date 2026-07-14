@@ -10,7 +10,7 @@
  *   await GymDB.init()       → retourne l'état initial
  *   await GymDB.reconnect()  → réautoriser le dossier mémorisé (1 clic, pas de picker)
  *   await GymDB.connect()    → ouvrir le sélecteur de dossier
- *   await GymDB.read(file)   → lire un JSON
+ *   await GymDB.read(file, validator?) → lire un JSON (validator optionnel : (data)=>boolean)
  *         GymDB.write(f, d)  → écrire un JSON (async, fire & forget)
  *   GymDB.getState()         → 'connected' | 'needs-permission' | 'disconnected'
  *   GymDB.getFolderName()    → nom du dossier ou null
@@ -146,12 +146,19 @@ const GymDB = (() => {
   }
 
   // ── Lecture JSON ──────────────────────────────────────────────────────────
-  async function read(filename) {
+  // validator optionnel : (data) => boolean — si fourni et que le retour est
+  // false, les données sont traitées comme absentes (log + retourne null)
+  async function read(filename, validator) {
     if (!_dir) return null;
     try {
       const fh   = await _dir.getFileHandle(filename, { create: false });
       const file = await fh.getFile();
-      return JSON.parse(await file.text());
+      const data = JSON.parse(await file.text());
+      if (validator && !validator(data)) {
+        console.warn(`GymDB read(${filename}): forme invalide, données ignorées`);
+        return null;
+      }
+      return data;
     } catch(e) {
       if (e.name !== 'NotFoundError') console.warn(`GymDB read(${filename}):`, e.message);
       return null;

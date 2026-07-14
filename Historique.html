@@ -355,7 +355,7 @@ function getExoImg(nom){ const e=_exoLib.find(x=>x.exercice?.toLowerCase()===nom
 // DONNÉES
 // ══════════════════════════════════════════════════════════════
 function loadHist(){ try{ _hist=JSON.parse(localStorage.getItem(HIST_KEY)||'[]'); }catch{ _hist=[]; } }
-function saveHist(){ localStorage.setItem(HIST_KEY,JSON.stringify(_hist)); GymDB.write('historique.json',_hist); GymDB.write('seances.json',_hist); }
+function saveHist(){ localStorage.setItem(HIST_KEY,JSON.stringify(_hist)); GymDB.write('historique.json',_hist); }
 function loadExoLib(){ try{ _exoLib=JSON.parse(localStorage.getItem(EXO_KEY)||'{}').rows||[]; }catch{ _exoLib=[]; } }
 
 // ══════════════════════════════════════════════════════════════
