@@ -272,6 +272,8 @@ button,input,select,textarea{font:inherit} button{cursor:pointer} a{color:inheri
         <button id="viewAnnualBtn">📅 Annuel</button>
         <button id="view6mBtn">📅 6 Mois</button>
         <button id="view3mBtn">📅 3 Mois</button>
+        <button id="viewCalendarBtn">🗓 Calendrier</button>
+        <button id="viewAgendaBtn">🗒 Agenda</button>
       </div>
       <div style="margin-left:auto;display:flex;gap:.3rem;align-items:center">
         <button class="btn-icon" id="importBtn" title="Importer des séances (JSON ou Excel)">
@@ -353,6 +355,14 @@ function getExoImg(nom){ const e=_exoLib.find(x=>x.exercice?.toLowerCase()===nom
 // ══════════════════════════════════════════════════════════════
 function loadHist(){ try{ _hist=JSON.parse(localStorage.getItem(HIST_KEY)||'[]'); }catch{ _hist=[]; } }
 function saveHist(){ localStorage.setItem(HIST_KEY,JSON.stringify(_hist)); GymDB.write('historique.json',_hist); }
+// En mode édition, les séries/notes/exercices mutent _hist en direct (sans brouillon).
+// Si on quitte l'édition autrement qu'en cliquant "Enregistrer", on doit recharger
+// depuis le disque pour ne pas laisser ces modifications non voulues en mémoire —
+// sinon la prochaine sauvegarde déclenchée ailleurs (suppression, import…) les
+// persisterait silencieusement.
+function discardEditIfActive(){
+  if(_editMode){ loadHist(); _editMode=false; }
+}
 function loadExoLib(){ try{ _exoLib=JSON.parse(localStorage.getItem(EXO_KEY)||'{}').rows||[]; }catch{ _exoLib=[]; } }
 
 // ══════════════════════════════════════════════════════════════
@@ -390,7 +400,7 @@ function renderSidebar(q=''){
           <div class="sb-item-meta">${fmtDateShort(h.date)}${h.heure?' · '+h.heure:''} · ${fmtDur(h.dureeMin)} · ${nbSeries} séries</div>
         </div>
         <div class="sb-item-vol">${h.volumeTotal>0?h.volumeTotal+'kg':''}</div>`;
-      row.addEventListener('click',()=>{ _selId=h.id; _editMode=false; switchView('list'); renderSidebar(q); renderDetail(); });
+      row.addEventListener('click',()=>{ discardEditIfActive(); _selId=h.id; switchView('list'); renderSidebar(q); renderDetail(); });
       list.appendChild(row);
     });
   });
@@ -424,7 +434,7 @@ function renderDetail(){
   const badge=document.createElement('span'); badge.className='detail-type-badge';
   badge.style.cssText=`background:rgba(${r},${g},${b},.15);color:${hex};border:1px solid rgba(${r},${g},${b},.35)`;
   badge.textContent=h.seanceType||'Libre';
-  const titleBlock=document.createElement('div'); titleBlock.style.flex='1;min-width:0';
+  const titleBlock=document.createElement('div'); titleBlock.style.cssText='flex:1;min-width:0';
   titleBlock.innerHTML=`<div class="detail-seance-name" style="color:${hex}">${esc(h.seanceNom||'Séance libre')}</div><div class="detail-prog">${esc(h.programmeNom||'')}</div>`;
   const dateBlock=document.createElement('div'); dateBlock.className='detail-date';
   if(_editMode){
@@ -527,7 +537,7 @@ function renderDetail(){
       ehdr.appendChild(img);
     } else { ehdr.appendChild(mkPh(eHex)); }
     const edot=document.createElement('span'); edot.className='exo-block-dot'; edot.style.background=eHex;
-    const einfo=document.createElement('div'); einfo.style.flex='1;min-width:0';
+    const einfo=document.createElement('div'); einfo.style.cssText='flex:1;min-width:0';
     einfo.innerHTML=`<div class="exo-block-name">${esc(exo.nom)}</div><div class="exo-block-grp">${esc(exo.groupe||'')}</div>`;
     ehdr.append(edot,einfo);
 
@@ -560,13 +570,9 @@ function renderDetail(){
       block.appendChild(empty);
     }
     if((exo.series||[]).length){
-      const hasDuree = true;  // toujours affiché (— si vide)
-      const hasDist  = true;  // toujours affiché (— si vide)
       const swrap=document.createElement('div'); swrap.className='exo-series-wrap';
       const tbl=document.createElement('table'); tbl.className='exo-series-table';
-      let thHtml=`<thead><tr><th>#</th><th>Reps</th><th>Poids</th>`;
-      if(hasDuree) thHtml+=`<th>Durée</th>`;
-      if(hasDist)  thHtml+=`<th>Distance</th>`;
+      let thHtml=`<thead><tr><th>#</th><th>Reps</th><th>Poids</th><th>Durée</th><th>Distance</th>`;
       thHtml+=`<th>Ressenti</th>${_editMode?'<th></th>':''}</tr></thead>`;
       tbl.innerHTML=thHtml;
       const tbody=document.createElement('tbody');
@@ -581,16 +587,12 @@ function renderDetail(){
           const tdR=document.createElement('td'); tdR.appendChild(ireps);
           const tdP=document.createElement('td'); tdP.appendChild(ipoids);
           const cells=[tdNum,tdR,tdP];
-          if(hasDuree){
-            const iduree=document.createElement('input'); iduree.className='edit-inp'; iduree.type='text'; iduree.value=s.duree||''; iduree.placeholder='durée';
-            iduree.addEventListener('input',()=>s.duree=iduree.value);
-            const tdD=document.createElement('td'); tdD.appendChild(iduree); cells.push(tdD);
-          }
-          if(hasDist){
-            const idist=document.createElement('input'); idist.className='edit-inp'; idist.type='text'; idist.value=s.distance||''; idist.placeholder='dist.';
-            idist.addEventListener('input',()=>s.distance=idist.value);
-            const tdDi=document.createElement('td'); tdDi.appendChild(idist); cells.push(tdDi);
-          }
+          const iduree=document.createElement('input'); iduree.className='edit-inp'; iduree.type='text'; iduree.value=s.duree||''; iduree.placeholder='durée';
+          iduree.addEventListener('input',()=>s.duree=iduree.value);
+          const tdD=document.createElement('td'); tdD.appendChild(iduree); cells.push(tdD);
+          const idist=document.createElement('input'); idist.className='edit-inp'; idist.type='text'; idist.value=s.distance||''; idist.placeholder='dist.';
+          idist.addEventListener('input',()=>s.distance=idist.value);
+          const tdDi=document.createElement('td'); tdDi.appendChild(idist); cells.push(tdDi);
           const sel=document.createElement('select'); sel.className='edit-sel';
           sel.innerHTML=`<option value="">—</option>`+RESSENTI.map(r=>`<option value="${r.key}"${s.ressenti===r.key?' selected':''}>${r.emoji} ${r.label}</option>`).join('');
           sel.addEventListener('change',()=>s.ressenti=sel.value);
@@ -605,8 +607,7 @@ function renderDetail(){
           const ress=RESSENTI.find(x=>x.key===s.ressenti);
           const resHtml=ress?`<span class="ressenti-badge" style="background:${ress.bg};color:${ress.color}">${ress.emoji} ${ress.label}</span>`:'<span style="color:var(--txf)">—</span>';
           let rowHtml=`<td style="color:var(--txm);font-size:.7rem">${si+1}</td><td>${esc(s.reps||'—')}</td><td>${s.poids?esc(s.poids)+' kg':'—'}</td>`;
-          if(hasDuree) rowHtml+=`<td>${esc(s.duree||'—')}</td>`;
-          if(hasDist)  rowHtml+=`<td>${esc(s.distance||'—')}</td>`;
+          rowHtml+=`<td>${esc(s.duree||'—')}</td><td>${esc(s.distance||'—')}</td>`;
           rowHtml+=`<td>${resHtml}</td>`;
           tr.innerHTML=rowHtml;
         }
@@ -866,7 +867,7 @@ function txtRowsToSessions(rows){
     if(!sessions[iso]) sessions[iso]={date:iso,seanceNom:seanceName,seanceType:'Autre',exercices:[],volumeTotal:0,heure:'12:00',heureF:'14:00',dureeMin:120,programmeNom:'Import TXT'};
     const exos=sessions[iso].exercices;
     if(!exos.length||exos[exos.length-1].nom!==nom) exos.push({nom,groupe,image,series:[],note:''});
-    exos[exos.length-1].series.push({reps,poids,duree,distance:dist,ressenti:'dur'});
+    exos[exos.length-1].series.push({reps,poids,duree,distance:dist,ressenti:''});
     sessions[iso].volumeTotal=Math.round((sessions[iso].volumeTotal||0)+(parseFloat(poids)||0)*(parseFloat(reps)||0));
   });
   return Object.values(sessions).sort((a,b)=>a.date.localeCompare(b.date));
@@ -1099,7 +1100,7 @@ function parseExcelFormat1(rows){
     const vol=(parseFloat(poids)||0)*(parseFloat(reps)||0)*nb;
     const {groupe,image}=exoLibLookup(nom);
     if(!sessions[date]) sessions[date]={date,seanceNom:'Séance du '+date.split('-').reverse().join('/'),seanceType:'Autre',exercices:[],volumeTotal:0,heure:'12:00',heureF:'14:00',dureeMin:120,programmeNom:'Import Excel'};
-    const series=Array.from({length:Math.max(nb,1)},()=>({reps,poids,duree,distance:dist,ressenti:'dur'}));
+    const series=Array.from({length:Math.max(nb,1)},()=>({reps,poids,duree,distance:dist,ressenti:''}));
     sessions[date].exercices.push({nom,groupe,image,series,note:''});
     sessions[date].volumeTotal=Math.round((sessions[date].volumeTotal||0)+vol);
   });
@@ -1120,7 +1121,7 @@ function parseExcelFormat2(rows){
     if(!sessions[date]) sessions[date]={date,seanceNom:'Séance du '+date.split('-').reverse().join('/'),seanceType:'Autre',exercices:[],volumeTotal:0,heure:'12:00',heureF:'14:00',dureeMin:120,programmeNom:'Import Excel'};
     const exos=sessions[date].exercices;
     if(!exos.length||exos[exos.length-1].nom!==nom) exos.push({nom,groupe,image,series:[],note:''});
-    exos[exos.length-1].series.push({reps,poids,duree,distance:dist,ressenti:'dur'});
+    exos[exos.length-1].series.push({reps,poids,duree,distance:dist,ressenti:''});
     sessions[date].volumeTotal=Math.round((sessions[date].volumeTotal||0)+(parseFloat(poids)||0)*(parseFloat(reps)||0));
   });
   return Object.values(sessions);
@@ -1152,7 +1153,6 @@ function excelDateStr(v){
   return null;
 }
 function cleanStr(v){return v!=null&&v!=='nan'?String(v).trim():'';}
-function dateFmt(d){return`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;}
 
 function importExcelFile(file){
   const reader=new FileReader();
@@ -1237,13 +1237,21 @@ function openImportPreview(sessions,filename,formatLabel){
   confirmBtn.addEventListener('click',()=>{
     const skipDup=document.getElementById('iprSkipDup').checked;
     const overwrite=document.getElementById('iprOverwrite').checked;
-    const existingDates=new Set(_hist.map(h=>h.date));
     let added=0,skipped=0,overwritten=0;
     sessions.forEach(s=>{
       s.id=s.id||uid();
-      if(existingDates.has(s.date)){
-        if(skipDup&&!overwrite){skipped++;return;}
-        if(overwrite){_hist=_hist.filter(h=>h.date!==s.date);overwritten++;}
+      const matches=_hist.filter(h=>h.date===s.date);
+      if(matches.length){
+        if(overwrite){
+          if(matches.length===1){
+            _hist=_hist.filter(h=>h.date!==s.date);
+            overwritten++;
+          } else {
+            // Plusieurs séances existent déjà ce jour-là : impossible de savoir
+            // laquelle remplacer sans risquer d'effacer les autres par erreur.
+            skipped++; return;
+          }
+        } else if(skipDup){ skipped++; return; }
       }
       _hist.push(s); added++;
     });
@@ -1415,7 +1423,6 @@ function renderCalendar(){
 // ══════════════════════════════════════════════════════════════
 // THÈME + EVENTS
 // ══════════════════════════════════════════════════════════════
-document.getElementById('homeBtn').addEventListener('click',()=>window.location.href='index.html');
 document.getElementById('themeBtn').addEventListener('click',()=>applyTheme(document.documentElement.getAttribute('data-theme')==='dark'?'light':'dark'));
 document.getElementById('searchInp').addEventListener('input',e=>renderSidebar(e.target.value.trim().toLowerCase()));
 
@@ -1820,7 +1827,7 @@ function renderAgenda(){
     const badge=document.createElement('span');
     badge.style.cssText=`font-size:.65rem;font-weight:800;padding:.25rem .65rem;border-radius:999px;white-space:nowrap;background:rgba(${r},${g},${b},.15);color:${hex};border:1px solid rgba(${r},${g},${b},.35)`;
     badge.textContent=h.seanceType||'Libre';
-    const nameDiv=document.createElement('div'); nameDiv.style.flex='1;min-width:0';
+    const nameDiv=document.createElement('div'); nameDiv.style.cssText='flex:1;min-width:0';
     nameDiv.innerHTML=`<div style="font-weight:700;font-size:.95rem;color:${hex};overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(h.seanceNom||'Séance libre')}</div>
       <div style="font-size:.7rem;color:var(--txm);margin-top:.1rem">${esc(h.programmeNom||'')}${h.heure?' · '+h.heure:''}${h.heureF?' → '+h.heureF:''}</div>`;
     const dateDiv=document.createElement('div');
@@ -2122,7 +2129,6 @@ function renderMonthZoom(year, month) {
   // Jours du mois
   const daysCol = document.createElement('div');
   daysCol.style.cssText = 'overflow-y:auto;flex:1';
-  let activeDay = null;
 
   for (let day = 1; day <= daysInMonth; day++) {
     const dateStr = `${year}-${String(month+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
@@ -2215,7 +2221,6 @@ function renderMonthZoom(year, month) {
       row.addEventListener('click', () => {
         daysCol.querySelectorAll('[data-active]').forEach(el=>{ el.removeAttribute('data-active'); el.style.borderLeft=''; });
         row.setAttribute('data-active','1'); row.style.borderLeft=`3px solid ${mColor}`;
-        activeDay = dateStr;
         showZoomSession(sessions[0].id, midPanel, rightPanel, mColor);
       });
     }
@@ -2259,7 +2264,7 @@ function showZoomSession(hId, midPanel, rightPanel, mColor) {
   const hdrRow = document.createElement('div'); hdrRow.style.cssText='display:flex;align-items:center;gap:.65rem;padding:.85rem 1rem;flex-wrap:wrap';
   const badge=document.createElement('span'); badge.style.cssText=`font-size:.65rem;font-weight:800;padding:.25rem .65rem;border-radius:999px;background:rgba(${r},${g},${b},.15);color:${hex};border:1px solid rgba(${r},${g},${b},.35)`;
   badge.textContent=h.seanceType||'Libre';
-  const nameDiv=document.createElement('div'); nameDiv.style.flex='1;min-width:0';
+  const nameDiv=document.createElement('div'); nameDiv.style.cssText='flex:1;min-width:0';
   nameDiv.innerHTML=`<div style="font-weight:700;font-size:.95rem;color:${hex}">${esc(h.seanceNom||'Séance libre')}</div><div style="font-size:.7rem;color:var(--txm)">${esc(h.programmeNom||'')}${h.heure?' · '+h.heure:''}${h.heureF?' → '+h.heureF:''}</div>`;
   const dateDiv=document.createElement('div'); dateDiv.style.cssText='font-size:.72rem;color:var(--txm);text-align:right';
   dateDiv.innerHTML=`<div style="font-weight:600;color:var(--tx)">${fmtDate(h.date)}</div>`;
@@ -2338,13 +2343,10 @@ function showZoomSession(hId, midPanel, rightPanel, mColor) {
         seriesPanel.innerHTML='';
         const done=(e.series||[]).filter(s=>s.reps||s.poids||s.duree||s.distance||s.ressenti);
         if(!done.length){ const p=document.createElement('div'); p.style.cssText='font-size:.72rem;color:var(--txf);font-style:italic;padding:.25rem 0'; p.textContent='Aucune série enregistrée.'; seriesPanel.appendChild(p); return; }
-        // Colonnes dynamiques
-        const hasDuree=true;  // toujours affiché
-        const hasDist=true;   // toujours affiché
         const tbl=document.createElement('table'); tbl.style.cssText='width:100%;border-collapse:collapse;font-size:.72rem';
         let thHtml='<thead><tr style="border-bottom:1px solid var(--bord)"><th style="padding:.25rem .5rem;text-align:left;color:var(--txf);font-size:.6rem;font-weight:700;text-transform:uppercase">#</th><th style="padding:.25rem .5rem;text-align:center;color:var(--txf);font-size:.6rem;font-weight:700;text-transform:uppercase">Reps</th><th style="padding:.25rem .5rem;text-align:center;color:var(--txf);font-size:.6rem;font-weight:700;text-transform:uppercase">Kg</th>';
-        if(hasDuree) thHtml+='<th style="padding:.25rem .5rem;text-align:center;color:var(--txf);font-size:.6rem;font-weight:700;text-transform:uppercase">Durée</th>';
-        if(hasDist)  thHtml+='<th style="padding:.25rem .5rem;text-align:center;color:var(--txf);font-size:.6rem;font-weight:700;text-transform:uppercase">Distance</th>';
+        thHtml+='<th style="padding:.25rem .5rem;text-align:center;color:var(--txf);font-size:.6rem;font-weight:700;text-transform:uppercase">Durée</th>';
+        thHtml+='<th style="padding:.25rem .5rem;text-align:center;color:var(--txf);font-size:.6rem;font-weight:700;text-transform:uppercase">Distance</th>';
         thHtml+='<th style="padding:.25rem .5rem;text-align:left;color:var(--txf);font-size:.6rem;font-weight:700;text-transform:uppercase">Ressenti</th></tr></thead>';
         tbl.innerHTML=thHtml;
         const tbody=document.createElement('tbody');
@@ -2353,8 +2355,7 @@ function showZoomSession(hId, midPanel, rightPanel, mColor) {
           const resHtml=ress?`<span style="display:inline-flex;align-items:center;gap:.2rem;padding:.1rem .4rem;border-radius:999px;font-size:.65rem;font-weight:700;background:${ress.bg};color:${ress.color}">${ress.emoji} ${ress.label}</span>`:'<span style="color:var(--txf)">—</span>';
           const tr=document.createElement('tr'); tr.style.cssText='border-bottom:1px solid var(--bord)';
           let tdHtml=`<td style="padding:.28rem .5rem;color:var(--txm)">${si+1}</td><td style="padding:.28rem .5rem;text-align:center">${s.reps||'—'}</td><td style="padding:.28rem .5rem;text-align:center">${s.poids?s.poids+' kg':'—'}</td>`;
-          if(hasDuree) tdHtml+=`<td style="padding:.28rem .5rem;text-align:center">${s.duree||'—'}</td>`;
-          if(hasDist)  tdHtml+=`<td style="padding:.28rem .5rem;text-align:center">${s.distance||'—'}</td>`;
+          tdHtml+=`<td style="padding:.28rem .5rem;text-align:center">${s.duree||'—'}</td><td style="padding:.28rem .5rem;text-align:center">${s.distance||'—'}</td>`;
           tdHtml+=`<td style="padding:.28rem .5rem">${resHtml}</td>`;
           tr.innerHTML=tdHtml; tbody.appendChild(tr);
         });
@@ -2607,12 +2608,15 @@ function render6Months(){
 // UPDATE SWITCHVIEW + BUTTONS
 // ══════════════════════════════════════════════════════════════
 function switchView(v){
+  if(v!=='list') discardEditIfActive();
   _currentView = v;
-  const btns={list:'viewListBtn', annual:'viewAnnualBtn', '3months':'view3mBtn', '6months':'view6mBtn'};
+  const btns={list:'viewListBtn', annual:'viewAnnualBtn', '3months':'view3mBtn', '6months':'view6mBtn', calendar:'viewCalendarBtn', agenda:'viewAgendaBtn'};
   Object.entries(btns).forEach(([view,id])=>{ const el=document.getElementById(id); if(el) el.classList.toggle('active',view===v); });
   if(v==='annual') renderAnnual();
   else if(v==='3months') render3Months();
   else if(v==='6months') render6Months();
+  else if(v==='calendar') renderCalendar();
+  else if(v==='agenda') renderAgenda();
   else renderDetail();
 }
 
@@ -2620,6 +2624,8 @@ document.getElementById('viewListBtn').addEventListener('click',()=>switchView('
 document.getElementById('viewAnnualBtn').addEventListener('click',()=>switchView('annual'));
 document.getElementById('view3mBtn').addEventListener('click',()=>switchView('3months'));
 document.getElementById('view6mBtn').addEventListener('click',()=>switchView('6months'));
+document.getElementById('viewCalendarBtn').addEventListener('click',()=>switchView('calendar'));
+document.getElementById('viewAgendaBtn').addEventListener('click',()=>switchView('agenda'));
 
 // Charger les notes après que Script 2 est défini
 loadNotes();
