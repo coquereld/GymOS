@@ -1724,6 +1724,8 @@ function showZoomSession(hId, midPanel, rightPanel, mColor) {
   // avec la vue Liste (sans changer d'onglet, on reste sur le calendrier).
   _selId = hId;
   renderSidebar(document.getElementById('searchInp').value.trim());
+  // Fait défiler le volet gauche jusqu'à la séance sélectionnée si elle n'est pas visible
+  document.querySelector('.sb-item.active')?.scrollIntoView({block:'nearest', behavior:'smooth'});
   const hex = TC[h.seanceType]||'#9a9891';
   const [r,g,b] = hexRgb(hex);
   midPanel.innerHTML = '';
