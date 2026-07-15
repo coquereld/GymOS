@@ -115,6 +115,9 @@ button,input,select,textarea{font:inherit} button{cursor:pointer} a{color:inheri
 .view-toggle{display:flex;gap:2px;background:var(--surfoff);border-radius:var(--rmd);padding:2px;border:1px solid var(--bord)}
 .view-toggle button{padding:.4rem .75rem;border-radius:.4rem;border:none;background:none;cursor:pointer;font-size:.78rem;font-weight:600;color:var(--txm);transition:all var(--tr)}
 .view-toggle button.active{background:var(--surf);color:var(--prim);box-shadow:var(--shsm)}
+.view-subtoggle{display:flex;gap:1rem;padding:.5rem 1.25rem;border-bottom:1px solid var(--bord);background:var(--surfoff);flex-shrink:0}
+.view-subtoggle button{padding:.3rem .2rem;border:none;background:none;cursor:pointer;font-size:.75rem;font-weight:600;color:var(--txm);border-bottom:2px solid transparent;transition:all var(--tr)}
+.view-subtoggle button.active{color:var(--prim);border-bottom-color:var(--prim)}
 
 .empty-state{display:flex;flex-direction:column;align-items:center;justify-content:center;height:60dvh;gap:1rem;color:var(--txf);text-align:center;padding:2rem}
 .empty-state svg{width:56px;height:56px;opacity:.3}
@@ -189,9 +192,7 @@ button,input,select,textarea{font:inherit} button{cursor:pointer} a{color:inheri
     <div class="main-hdr">
       <div class="view-toggle">
         <button id="viewListBtn" class="active">📋 Liste</button>
-        <button id="viewAnnualBtn">📅 Annuel</button>
-        <button id="view6mBtn">📅 6 Mois</button>
-        <button id="view3mBtn">📅 3 Mois</button>
+        <button id="viewCalendarBtn">📅 Calendrier</button>
       </div>
       <div style="margin-left:auto;display:flex;gap:.3rem;align-items:center">
         <button class="btn-icon" id="importBtn" title="Importer des séances (JSON ou Excel)">
@@ -208,6 +209,11 @@ button,input,select,textarea{font:inherit} button{cursor:pointer} a{color:inheri
           <svg id="thLight" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:none"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
         </button>
       </div>
+    </div>
+    <div class="view-subtoggle" id="calSubToggle" style="display:none">
+      <button id="viewAnnualBtn" class="active">Annuel</button>
+      <button id="view6mBtn">6 Mois</button>
+      <button id="view3mBtn">3 Mois</button>
     </div>
     <main class="main" id="mainArea" style="flex:1">
       <div class="empty-state">
@@ -1176,11 +1182,7 @@ function openImportPreview(sessions,filename,formatLabel){
     _hist.sort((a,b)=>b.date.localeCompare(a.date));
     saveHist(); ov.remove();
     renderSidebar(document.getElementById('searchInp').value.trim());
-    // Rafraîchir la vue calendrier active si nécessaire
-    const cv=typeof _currentView!=='undefined'?_currentView:'list';
-    if(cv==='annual'&&typeof renderAnnual==='function') renderAnnual();
-    else if(cv==='6months'&&typeof render6Months==='function') render6Months();
-    else if(cv==='3months'&&typeof render3Months==='function') render3Months();
+    refreshCurrentCalendarView();
     const msg=`${added} séance${added>1?'s':''} importée${added>1?'s':''}${skipped>0?` · ${skipped} ignorée${skipped>1?'s':''}${overwritten>0?` · ${overwritten} écrasée${overwritten>1?'s':''}`:''}`:''}`;
     showToast(msg);
   });
@@ -1243,7 +1245,8 @@ document.getElementById('delConfirm').addEventListener('click',confirmDel);
 document.getElementById('delOv').addEventListener('click',e=>{ if(e.target===document.getElementById('delOv')) closeDelModal(); });
 document.addEventListener('keydown',e=>{ if(e.key==='Escape') closeDelModal(); });
 
-let _currentView = 'list';
+let _currentView = 'list'; // 'list' | 'calendar'
+let _calendarSubView = 'annual'; // 'annual' | '3months' | '6months'
 
 // switchView et listeners déplacés dans le script secondaire
 
@@ -1274,10 +1277,7 @@ document.getElementById('resetBtn').addEventListener('click',()=>{
   ov.querySelector('#resetConfirm').addEventListener('click',()=>{
     _hist=[]; saveHist(); _selId=null; _editMode=false;
     renderSidebar(); renderDetail();
-    const cv=typeof _currentView!=='undefined'?_currentView:'list';
-    if(cv==='annual'&&typeof renderAnnual==='function') renderAnnual();
-    else if(cv==='6months'&&typeof render6Months==='function') render6Months();
-    else if(cv==='3months'&&typeof render3Months==='function') render3Months();
+    refreshCurrentCalendarView();
     ov.remove(); showToast('Historique réinitialisé.');
   });
 });
@@ -1533,13 +1533,25 @@ function renderAnnual(){
         row.appendChild(musWrap);
         row.addEventListener('click',()=>renderMonthZoom(_annualYear,mo));
       }
-      // Notes dans la vue annuelle (dots visibles avec tooltip)
+      // Notes (cliquables pour modifier, comme dans les vues 3/6 Mois)
       const annNotes=(_agendaNotes[dateStr]||[]);
       if(annNotes.length){
         const nw=document.createElement('div'); nw.style.cssText='display:flex;gap:2px;flex-wrap:wrap;align-items:center';
-        annNotes.forEach(n=>nw.appendChild(makeNoteEl(n,'dot')));
+        annNotes.forEach(n=>{
+          const el=makeNoteEl(n,'dot');
+          el.addEventListener('click',ev=>{ ev.stopPropagation(); openNoteModal(dateStr, n.id, renderAnnual); });
+          nw.appendChild(el);
+        });
         row.appendChild(nw);
       }
+      // Bouton + note (visible au survol, comme dans les vues 3/6 Mois)
+      const addNoteBtn=document.createElement('button');
+      addNoteBtn.style.cssText='opacity:0;min-width:14px;height:14px;border-radius:.25rem;border:1px dashed var(--bord);background:rgba(255,255,255,.6);cursor:pointer;display:inline-flex;align-items:center;justify-content:center;color:var(--txm);font-size:.55rem;padding:0;flex-shrink:0;transition:opacity .15s;font-weight:700;line-height:1';
+      addNoteBtn.textContent='+'; addNoteBtn.title='Ajouter une note';
+      addNoteBtn.addEventListener('click',ev=>{ ev.stopPropagation(); openNoteModal(dateStr, null, renderAnnual); });
+      row.addEventListener('mouseenter',()=>addNoteBtn.style.opacity='1');
+      row.addEventListener('mouseleave',()=>addNoteBtn.style.opacity='0');
+      row.appendChild(addNoteBtn);
       col.appendChild(row);
     }
     grid.appendChild(col);
@@ -2065,18 +2077,35 @@ function render6Months(){
 function switchView(v){
   if(v!=='list') discardEditIfActive();
   _currentView = v;
-  const btns={list:'viewListBtn', annual:'viewAnnualBtn', '3months':'view3mBtn', '6months':'view6mBtn'};
-  Object.entries(btns).forEach(([view,id])=>{ const el=document.getElementById(id); if(el) el.classList.toggle('active',view===v); });
-  if(v==='annual') renderAnnual();
-  else if(v==='3months') render3Months();
-  else if(v==='6months') render6Months();
+  document.getElementById('viewListBtn').classList.toggle('active', v==='list');
+  document.getElementById('viewCalendarBtn').classList.toggle('active', v==='calendar');
+  document.getElementById('calSubToggle').style.display = v==='calendar' ? 'flex' : 'none';
+  if(v==='calendar') switchCalendarSubView(_calendarSubView);
   else renderDetail();
 }
 
+function switchCalendarSubView(sv){
+  _calendarSubView = sv;
+  const btns={annual:'viewAnnualBtn', '3months':'view3mBtn', '6months':'view6mBtn'};
+  Object.entries(btns).forEach(([view,id])=>{ const el=document.getElementById(id); if(el) el.classList.toggle('active',view===sv); });
+  if(sv==='3months') render3Months();
+  else if(sv==='6months') render6Months();
+  else renderAnnual();
+}
+
+// Rafraîchit la sous-vue calendrier actuellement affichée (après import/suppression)
+function refreshCurrentCalendarView(){
+  if(_currentView!=='calendar') return;
+  if(_calendarSubView==='3months'&&typeof render3Months==='function') render3Months();
+  else if(_calendarSubView==='6months'&&typeof render6Months==='function') render6Months();
+  else if(typeof renderAnnual==='function') renderAnnual();
+}
+
 document.getElementById('viewListBtn').addEventListener('click',()=>switchView('list'));
-document.getElementById('viewAnnualBtn').addEventListener('click',()=>switchView('annual'));
-document.getElementById('view3mBtn').addEventListener('click',()=>switchView('3months'));
-document.getElementById('view6mBtn').addEventListener('click',()=>switchView('6months'));
+document.getElementById('viewCalendarBtn').addEventListener('click',()=>switchView('calendar'));
+document.getElementById('viewAnnualBtn').addEventListener('click',()=>switchCalendarSubView('annual'));
+document.getElementById('view3mBtn').addEventListener('click',()=>switchCalendarSubView('3months'));
+document.getElementById('view6mBtn').addEventListener('click',()=>switchCalendarSubView('6months'));
 
 // Charger les notes après que Script 2 est défini
 loadNotes();
