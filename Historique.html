@@ -1720,6 +1720,10 @@ function renderMonthZoom(year, month) {
 
 function showZoomSession(hId, midPanel, rightPanel, mColor) {
   const h = _hist.find(x=>x.id===hId); if (!h) return;
+  // Sélectionne aussi la séance dans le volet de gauche, pour rester cohérent
+  // avec la vue Liste (sans changer d'onglet, on reste sur le calendrier).
+  _selId = hId;
+  renderSidebar(document.getElementById('searchInp').value.trim());
   const hex = TC[h.seanceType]||'#9a9891';
   const [r,g,b] = hexRgb(hex);
   midPanel.innerHTML = '';
