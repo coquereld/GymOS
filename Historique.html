@@ -116,58 +116,12 @@ button,input,select,textarea{font:inherit} button{cursor:pointer} a{color:inheri
 .view-toggle button{padding:.4rem .75rem;border-radius:.4rem;border:none;background:none;cursor:pointer;font-size:.78rem;font-weight:600;color:var(--txm);transition:all var(--tr)}
 .view-toggle button.active{background:var(--surf);color:var(--prim);box-shadow:var(--shsm)}
 
-/* ── CALENDRIER ── */
-.cal-wrap{padding:1.5rem;max-width:920px;margin:0 auto}
-.cal-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem}
-.cal-month-label{font-size:1.2rem;font-weight:700;text-transform:capitalize}
-.cal-nav{display:flex;gap:.4rem}
-.cal-nav button{width:36px;height:36px;border-radius:50%;border:1px solid var(--bord);background:var(--surf2);cursor:pointer;display:grid;place-items:center;color:var(--txm);transition:all var(--tr)}
-.cal-nav button:hover{background:var(--surfoff);color:var(--tx)}
-.cal-nav button svg{width:16px;height:16px}
-.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:.4rem}
-.cal-dow{font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--txf);text-align:center;padding-bottom:.4rem}
-.cal-cell{
-  aspect-ratio:1;border-radius:var(--rlg);border:1px solid var(--bord);background:var(--surf);
-  padding:.4rem;display:flex;flex-direction:column;gap:.2rem;cursor:default;transition:all var(--tr);
-  position:relative;overflow:hidden;
-}
-.cal-cell.empty{background:transparent;border-color:transparent}
-.cal-cell.today{border-color:var(--prim);border-width:2px}
-.cal-cell-num{font-size:.72rem;font-weight:700;color:var(--txm)}
-.cal-cell.today .cal-cell-num{color:var(--prim)}
-.cal-cell-dots{display:flex;flex-wrap:wrap;gap:2px;flex:1;align-content:flex-start}
-.cal-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;cursor:pointer}
-.cal-cell-pop{position:absolute;top:100%;left:0;z-index:50;background:var(--surf);border:1px solid var(--bord);border-radius:var(--rlg);box-shadow:var(--shmd);padding:.5rem;min-width:200px;display:none;margin-top:4px}
-.cal-cell:hover .cal-cell-pop{display:block}
-.cal-pop-item{display:flex;align-items:center;gap:.4rem;padding:.3rem .4rem;border-radius:.4rem;cursor:pointer;font-size:.72rem;transition:background var(--tr)}
-.cal-pop-item:hover{background:var(--surfoff)}
-.cal-pop-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
-.cal-legend{display:flex;flex-wrap:wrap;gap:.6rem;margin-top:1.25rem;padding-top:1rem;border-top:1px solid var(--bord)}
-.cal-legend-item{display:flex;align-items:center;gap:.35rem;font-size:.72rem;color:var(--txm)}
-
 .empty-state{display:flex;flex-direction:column;align-items:center;justify-content:center;height:60dvh;gap:1rem;color:var(--txf);text-align:center;padding:2rem}
 .empty-state svg{width:56px;height:56px;opacity:.3}
 .empty-state h3{font-size:1.1rem;font-weight:700;color:var(--txm)}
 .empty-state p{font-size:.82rem;max-width:320px;line-height:1.6}
 
 /* ── MODALE CONFIRMATION ── */
-/* ── AGENDA VIEW ── */
-    /* ── AGENDA SPLIT ── */
-    .agenda-split{display:grid;grid-template-columns:480px 1fr;height:calc(100dvh - 130px);overflow:hidden}
-    .agenda-day.weekend{background:rgba(0,0,0,.025)!important}
-    [data-theme="dark"] .agenda-day.weekend{background:rgba(255,255,255,.025)!important}
-    .agenda-day.week-end-sep{border-bottom:2px solid var(--bord)!important}
-    .agenda-day.holiday .agenda-day-num{color:var(--err)}
-    .agenda-day.holiday .agenda-day-dow{color:var(--err)}
-    .agenda-day-holiday-icon{font-size:.7rem;flex-shrink:0}
-    .agenda-notes-row{display:flex;gap:.25rem;flex-wrap:wrap;align-items:center}
-    .agenda-note-pill{display:inline-flex;align-items:center;gap:.25rem;padding:.1rem .4rem;border-radius:.3rem;font-size:.62rem;font-weight:600;color:#fff;cursor:pointer;max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-    .agenda-note-pill:hover{opacity:.85}
-    .agenda-note-del{background:none;border:none;cursor:pointer;color:rgba(255,255,255,.7);font-size:.75rem;line-height:1;padding:0;flex-shrink:0}
-    .agenda-note-del:hover{color:#fff}
-    .agenda-add-note-btn{opacity:0;width:18px;height:18px;border-radius:50%;border:1px dashed var(--bord);background:none;cursor:pointer;display:grid;place-items:center;color:var(--txf);transition:all var(--tr);padding:0;flex-shrink:0;font-size:.7rem;line-height:1}
-    .agenda-day:hover .agenda-add-note-btn{opacity:1}
-    .agenda-add-note-btn:hover{border-color:var(--prim);color:var(--prim)}
     /* Annual weekends + separator */
     .annual-day-row.weekend{background:rgba(0,0,0,.03)!important}
     [data-theme="dark"] .annual-day-row.weekend{background:rgba(255,255,255,.03)!important}
@@ -178,25 +132,6 @@ button,input,select,textarea{font:inherit} button{cursor:pointer} a{color:inheri
     .wk-sep{width:100%;display:flex;align-items:center;gap:.35rem;padding:.15rem .45rem;background:color-mix(in oklab,var(--prim) 6%,var(--surf));border-top:1px solid color-mix(in oklab,var(--prim) 20%,var(--bord));flex-shrink:0;position:sticky;top:0}
     .wk-sep-lbl{font-size:.6rem;font-weight:800;color:var(--prim);white-space:nowrap}
     .wk-sep-line{flex:1;height:1px;background:color-mix(in oklab,var(--prim) 20%,var(--bord))}
-    .agenda-wrap{overflow-y:auto;border-right:1px solid var(--bord);background:var(--surf);height:100%}
-    .agenda-detail-panel{overflow-y:auto;background:var(--bg)}
-    .agenda-detail-empty{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;gap:.75rem;color:var(--txf);text-align:center;padding:2rem}
-    .agenda-detail-empty svg{width:40px;height:40px;opacity:.25}
-    .agenda-day.selected{background:color-mix(in oklab,var(--prim) 12%,var(--surf))!important;border-left:3px solid var(--prim)}
-    .agenda-month-block{display:flex;border-bottom:2px solid var(--bord)}
-    .agenda-month-label{writing-mode:vertical-rl;text-orientation:mixed;transform:rotate(180deg);font-weight:800;font-size:.7rem;padding:.4rem .3rem;background:var(--am-color,var(--prim));color:#fff;display:flex;align-items:center;justify-content:center;text-transform:uppercase;letter-spacing:.08em;flex-shrink:0;width:26px}
-    .agenda-days-col{flex:1;overflow:hidden}
-    .agenda-day{display:flex;align-items:center;gap:.4rem;padding:.25rem .6rem;border-bottom:1px solid var(--bord);min-height:34px;transition:background var(--tr)}
-    .agenda-day:last-child{border-bottom:none}
-    .agenda-day.has-session{cursor:pointer}
-    .agenda-day.has-session:hover{filter:brightness(.97)}
-    .agenda-day.today{outline:2px solid var(--prim);outline-offset:-2px}
-    .agenda-day-num{font-size:.75rem;font-weight:800;color:var(--txm);width:20px;text-align:right;flex-shrink:0}
-    .agenda-day-dow{font-size:.62rem;font-weight:700;color:var(--txf);width:22px;flex-shrink:0}
-    .agenda-ses-wrap{display:flex;gap:.3rem;flex-wrap:wrap;align-items:center;flex:1}
-    .agenda-ses-pill{display:flex;align-items:center;gap:.2rem;padding:.1rem .35rem;border-radius:.3rem;cursor:pointer;transition:opacity var(--tr);font-size:.63rem;font-weight:600;color:#fff}
-    .agenda-ses-pill:hover{opacity:.85}
-    .agenda-mus-icon{width:20px;height:20px;object-fit:contain;flex-shrink:0}
     /* ── ANNUAL VIEW ── */
     .annual-outer{overflow:auto;padding:1rem;max-height:calc(100dvh - 130px)}
     .annual-nav{display:flex;align-items:center;justify-content:center;gap:1rem;margin-bottom:1rem}
@@ -215,21 +150,6 @@ button,input,select,textarea{font:inherit} button{cursor:pointer} a{color:inheri
     .annual-day-dow{width:18px;font-weight:700;color:var(--txf);flex-shrink:0}
     .annual-mus-wrap{display:flex;gap:1px;flex-wrap:wrap;align-items:center;flex:1}
     .annual-mus-icon{width:13px;height:13px;object-fit:contain}
-    /* ── SESSION POPUP ── */
-    .ses-ov{position:fixed;inset:0;background:rgba(0,0,0,.5);backdrop-filter:blur(4px);z-index:600;display:none;align-items:center;justify-content:center}
-    .ses-popup{background:var(--surf);border:1px solid var(--bord);border-radius:var(--rxl);width:min(520px,94vw);max-height:82dvh;display:flex;flex-direction:column;box-shadow:var(--shmd);overflow:hidden}
-    .ses-popup-bar{height:4px;flex-shrink:0}
-    .ses-popup-row{display:flex;align-items:center;gap:.65rem;padding:.85rem 1.1rem;flex-shrink:0}
-    .ses-popup-badge{font-size:.65rem;font-weight:800;padding:.25rem .65rem;border-radius:999px;white-space:nowrap}
-    .ses-popup-body{overflow-y:auto;padding:.5rem 1.1rem 1rem;display:flex;flex-direction:column;gap:.5rem}
-    .ses-popup-exo{display:flex;align-items:center;gap:.5rem;padding:.4rem 0;border-bottom:1px solid var(--bord)}
-    .ses-popup-exo:last-child{border-bottom:none}
-    .ses-popup-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
-    .ses-popup-mus-icon{width:26px;height:26px;object-fit:contain;flex-shrink:0}
-    .ses-popup-exo-name{font-size:.8rem;font-weight:600;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-    .ses-popup-exo-info{font-size:.68rem;color:var(--txm);flex-shrink:0}
-    .ses-popup-note{font-size:.78rem;color:var(--txm);font-style:italic;padding:.45rem .6rem;background:var(--surfoff);border-radius:var(--rmd)}
-    .ses-popup-footer{padding:.75rem 1.1rem;border-top:1px solid var(--bord);display:flex;gap:.5rem;justify-content:flex-end;flex-shrink:0}
     .btn-sm{min-height:34px;padding:.4rem .75rem;font-size:.78rem}
 .ov{position:fixed;inset:0;background:rgba(0,0,0,.5);backdrop-filter:blur(4px);z-index:500;display:none;align-items:center;justify-content:center}
 .modal{background:var(--surf);border:1px solid var(--bord);border-radius:var(--rxl);padding:1.5rem;width:min(400px,92vw);box-shadow:var(--shmd)}
@@ -272,8 +192,6 @@ button,input,select,textarea{font:inherit} button{cursor:pointer} a{color:inheri
         <button id="viewAnnualBtn">📅 Annuel</button>
         <button id="view6mBtn">📅 6 Mois</button>
         <button id="view3mBtn">📅 3 Mois</button>
-        <button id="viewCalendarBtn">🗓 Calendrier</button>
-        <button id="viewAgendaBtn">🗒 Agenda</button>
       </div>
       <div style="margin-left:auto;display:flex;gap:.3rem;align-items:center">
         <button class="btn-icon" id="importBtn" title="Importer des séances (JSON ou Excel)">
@@ -1263,8 +1181,6 @@ function openImportPreview(sessions,filename,formatLabel){
     if(cv==='annual'&&typeof renderAnnual==='function') renderAnnual();
     else if(cv==='6months'&&typeof render6Months==='function') render6Months();
     else if(cv==='3months'&&typeof render3Months==='function') render3Months();
-    else if(cv==='agenda'&&typeof renderAgenda==='function') renderAgenda();
-    else if(cv==='calendar'&&typeof renderCalendar==='function') renderCalendar();
     const msg=`${added} séance${added>1?'s':''} importée${added>1?'s':''}${skipped>0?` · ${skipped} ignorée${skipped>1?'s':''}${overwritten>0?` · ${overwritten} écrasée${overwritten>1?'s':''}`:''}`:''}`;
     showToast(msg);
   });
@@ -1327,96 +1243,7 @@ document.getElementById('delConfirm').addEventListener('click',confirmDel);
 document.getElementById('delOv').addEventListener('click',e=>{ if(e.target===document.getElementById('delOv')) closeDelModal(); });
 document.addEventListener('keydown',e=>{ if(e.key==='Escape') closeDelModal(); });
 
-// ══════════════════════════════════════════════════════════════
-// VUE CALENDRIER
-// ══════════════════════════════════════════════════════════════
-let _currentView = 'list'; // 'list' | 'calendar'
-let _calYear, _calMonth; // 0-indexed month
-
-function initCalDate(){
-  const now = new Date();
-  _calYear = now.getFullYear(); _calMonth = now.getMonth();
-}
-
-function renderCalendar(){
-  const main = document.getElementById('mainArea');
-  main.innerHTML = '';
-  const wrap = document.createElement('div'); wrap.className='cal-wrap';
-
-  // Header navigation
-  const hdr = document.createElement('div'); hdr.className='cal-hdr';
-  const monthLabel = new Date(_calYear,_calMonth,1).toLocaleDateString('fr-FR',{month:'long',year:'numeric'});
-  const label = document.createElement('div'); label.className='cal-month-label'; label.textContent=monthLabel;
-  const nav = document.createElement('div'); nav.className='cal-nav';
-  const prevBtn=document.createElement('button'); prevBtn.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="15 18 9 12 15 6"/></svg>';
-  prevBtn.addEventListener('click',()=>{ _calMonth--; if(_calMonth<0){_calMonth=11;_calYear--;} renderCalendar(); });
-  const todayBtn=document.createElement('button'); todayBtn.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="3"/></svg>';
-  todayBtn.title='Aujourd\'hui'; todayBtn.addEventListener('click',()=>{ initCalDate(); renderCalendar(); });
-  const nextBtn=document.createElement('button'); nextBtn.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg>';
-  nextBtn.addEventListener('click',()=>{ _calMonth++; if(_calMonth>11){_calMonth=0;_calYear++;} renderCalendar(); });
-  nav.append(prevBtn,todayBtn,nextBtn);
-  hdr.append(label,nav); wrap.appendChild(hdr);
-
-  // Grille jours de la semaine
-  const grid = document.createElement('div'); grid.className='cal-grid';
-  ['Lun','Mar','Mer','Jeu','Ven','Sam','Dim'].forEach(d=>{
-    const dow=document.createElement('div'); dow.className='cal-dow'; dow.textContent=d; grid.appendChild(dow);
-  });
-
-  const firstDay = new Date(_calYear,_calMonth,1);
-  const startOffset = (firstDay.getDay()+6)%7; // Lundi=0
-  const daysInMonth = new Date(_calYear,_calMonth+1,0).getDate();
-  const todayStr = new Date().toISOString().split('T')[0];
-
-  // Map date → séances
-  const byDate = {};
-  _hist.forEach(h=>{ if(!byDate[h.date]) byDate[h.date]=[]; byDate[h.date].push(h); });
-
-  for(let i=0;i<startOffset;i++){ const c=document.createElement('div'); c.className='cal-cell empty'; grid.appendChild(c); }
-
-  for(let day=1; day<=daysInMonth; day++){
-    const dateStr = `${_calYear}-${String(_calMonth+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
-    const cell=document.createElement('div'); cell.className='cal-cell'+(dateStr===todayStr?' today':'');
-    const num=document.createElement('div'); num.className='cal-cell-num'; num.textContent=day;
-    cell.appendChild(num);
-
-    const seances = byDate[dateStr]||[];
-    if(seances.length){
-      const dotsRow=document.createElement('div'); dotsRow.className='cal-cell-dots';
-      seances.forEach(h=>{
-        const dot=document.createElement('span'); dot.className='cal-dot'; dot.style.background=tc(h.seanceType);
-        dotsRow.appendChild(dot);
-      });
-      cell.appendChild(dotsRow);
-
-      // Popover au survol
-      const pop=document.createElement('div'); pop.className='cal-cell-pop';
-      seances.forEach(h=>{
-        const item=document.createElement('div'); item.className='cal-pop-item';
-        const pdot=document.createElement('span'); pdot.className='cal-pop-dot'; pdot.style.background=tc(h.seanceType);
-        const txt=document.createElement('span'); txt.textContent=`${h.seanceNom||'Séance'} · ${fmtDur(h.dureeMin)}`;
-        item.append(pdot,txt);
-        item.addEventListener('mousedown', ev=>{ ev.preventDefault(); openSessionPopup(h.id); });
-        pop.appendChild(item);
-      });
-      cell.appendChild(pop);
-    }
-    grid.appendChild(cell);
-  }
-  wrap.appendChild(grid);
-
-  // Légende
-  const legend=document.createElement('div'); legend.className='cal-legend';
-  Object.entries(TC).forEach(([type,hex])=>{
-    if(!_hist.some(h=>h.seanceType===type)) return;
-    const item=document.createElement('div'); item.className='cal-legend-item';
-    item.innerHTML=`<span class="cal-dot" style="background:${hex}"></span>${esc(type)}`;
-    legend.appendChild(item);
-  });
-  if(legend.children.length) wrap.appendChild(legend);
-
-  main.appendChild(wrap);
-}
+let _currentView = 'list';
 
 // switchView et listeners déplacés dans le script secondaire
 
@@ -1451,8 +1278,6 @@ document.getElementById('resetBtn').addEventListener('click',()=>{
     if(cv==='annual'&&typeof renderAnnual==='function') renderAnnual();
     else if(cv==='6months'&&typeof render6Months==='function') render6Months();
     else if(cv==='3months'&&typeof render3Months==='function') render3Months();
-    else if(cv==='agenda'&&typeof renderAgenda==='function') renderAgenda();
-    else if(cv==='calendar'&&typeof renderCalendar==='function') renderCalendar();
     ov.remove(); showToast('Historique réinitialisé.');
   });
 });
@@ -1462,7 +1287,7 @@ document.getElementById('resetBtn').addEventListener('click',()=>{
 // ══════════════════════════════════════════════════════════════
 (async function init(){
   applyTheme(localStorage.getItem('muscle-xml-theme')||'light');
-  loadHist(); loadExoLib(); initCalDate();
+  loadHist(); loadExoLib();
   await GymDB.init();
   try{ const h=await GymDB.read('historique.json'); if(Array.isArray(h)&&h.length){ _hist=h; localStorage.setItem(HIST_KEY,JSON.stringify(h)); } }catch{}
   renderSidebar();
@@ -1471,27 +1296,6 @@ document.getElementById('resetBtn').addEventListener('click',()=>{
 })();
 </script>
 <div id="toast" style="opacity:0;pointer-events:none;position:fixed;bottom:1.5rem;left:50%;transform:translateX(-50%)"></div>
-<div class="ses-ov" id="sesOv">
-  <div class="ses-popup" id="sesPopup">
-    <div class="ses-popup-bar" id="sesPopupBar"></div>
-    <div class="ses-popup-row" id="sesPopupRow">
-      <span class="ses-popup-badge" id="sesPopupBadge"></span>
-      <div style="flex:1;min-width:0">
-        <div id="sesPopupName" style="font-weight:700;font-size:.95rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap"></div>
-        <div id="sesPopupMeta" style="font-size:.7rem;color:var(--txm);margin-top:.1rem"></div>
-      </div>
-      <button id="sesPopupClose" style="width:32px;height:32px;border-radius:50%;border:1px solid var(--bord);background:var(--surf2);cursor:pointer;display:grid;place-items:center;color:var(--txm);padding:0;flex-shrink:0">
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-      </button>
-    </div>
-    <div class="ses-popup-body" id="sesPopupBody"></div>
-    <div class="ses-popup-footer">
-      <button class="btn btn-sm" id="sesPopupClose2">Fermer</button>
-      <button class="btn btn-p btn-sm" id="sesPopupDetail">Voir le détail complet →</button>
-    </div>
-  </div>
-</div>
-
 <!-- Modale note -->
 <div id="noteOv" style="position:fixed;inset:0;background:rgba(0,0,0,.5);backdrop-filter:blur(4px);z-index:700;display:none;align-items:center;justify-content:center">
   <div style="background:var(--surf);border:1px solid var(--bord);border-radius:var(--rxl);width:min(380px,94vw);padding:1.25rem;box-shadow:var(--shmd);display:flex;flex-direction:column;gap:.85rem">
@@ -1508,36 +1312,6 @@ document.getElementById('resetBtn').addEventListener('click',()=>{
     </div>
   </div>
 </div>
-<!-- Modale fiche exercice (agenda) -->
-<div id="agendaExoOv" style="position:fixed;inset:0;background:rgba(0,0,0,.5);backdrop-filter:blur(4px);z-index:700;display:none;align-items:center;justify-content:center">
-  <div style="background:var(--surf);border:1px solid var(--bord);border-radius:1rem;width:min(680px,96vw);max-height:88dvh;display:flex;flex-direction:column;box-shadow:var(--shmd);overflow:hidden">
-    <div id="aeHdr" style="flex-shrink:0">
-      <div id="aeBar" style="height:4px"></div>
-      <div style="display:flex;align-items:center;gap:.75rem;padding:.85rem 1.25rem">
-        <span id="aeBadge"></span>
-        <div style="flex:1;min-width:0">
-          <div id="aeName" style="font-weight:700;font-size:1rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap"></div>
-          <div id="aeSub" style="font-size:.72rem;color:var(--txm);margin-top:.1rem"></div>
-        </div>
-        <button id="aeClose" style="width:32px;height:32px;border-radius:50%;border:1px solid var(--bord);background:var(--surf2);cursor:pointer;display:grid;place-items:center;color:var(--txm);padding:0;flex-shrink:0">
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-        </button>
-      </div>
-    </div>
-    <div style="display:grid;grid-template-columns:220px 1fr;flex:1;overflow:hidden;min-height:0">
-      <div style="border-right:1px solid var(--bord);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:1rem;background:var(--surfoff);gap:.5rem">
-        <img id="aeImg" src="" alt="" style="max-width:100%;max-height:200px;object-fit:contain;border-radius:.75rem;display:none">
-        <div id="aePh" style="display:flex;flex-direction:column;align-items:center;gap:.4rem;color:var(--txf);opacity:.35;font-size:.7rem">
-          <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
-          Aucune image
-        </div>
-        <div id="aeTags" style="display:flex;flex-wrap:wrap;gap:.3rem;justify-content:center"></div>
-      </div>
-      <div style="overflow-y:auto;padding:1.25rem;display:flex;flex-direction:column;gap:.85rem" id="aeSecs"></div>
-    </div>
-  </div>
-</div>
-
 <script>
 // ── Numéro de semaine ISO 8601 ──────────────────────────────────────────────
 function getISOWeek(dateStr){
@@ -1571,7 +1345,6 @@ const MUSCLE_IMG = {
 };
 const MONTH_NAMES_FR = ['Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre'];
 const DOW_FR2 = ['DI','LU','MA','ME','JE','VE','SA'];
-const AGENDA_COLORS = ['#2563eb','#7c3aed','#059669','#16a34a','#b45309','#d97706','#7b341e','#dc2626','#c2410c','#7c3aed','#db2777','#374151'];
 const ANNUAL_COLORS = ['#2d6cdf','#5bb8d4','#3a8a3f','#5aaa3a','#8bc34a','#e8a025','#8b5a2b','#cc3333','#e0612a','#9b59b6','#d63a8e','#4a6080'];
 
 function getSessionMuscles(h){
@@ -1582,70 +1355,11 @@ function getSessionMuscles(h){
   return [...seen];
 }
 
-function makeMuscleIcon(grp, size=20){
-  const src=MUSCLE_IMG[grp];
-  if(!src) return '';
-  return `<img src="${src}" alt="${esc(grp)}" style="width:${size}px;height:${size}px;object-fit:contain" onerror="this.style.display='none'">`;
-}
-
 function buildSessionsByDate(){
   const m={};
   _hist.forEach(h=>{ if(!m[h.date]) m[h.date]=[]; m[h.date].push(h); });
   return m;
 }
-
-// ══════════════════════════════════════════════════════════════
-// POPUP SESSION
-// ══════════════════════════════════════════════════════════════
-function openSessionPopup(hId){
-  const h=_hist.find(x=>x.id===hId); if(!h) return;
-  const hex=TC[h.seanceType]||'#9a9891';
-  const [r,g,b]=hexRgb(hex);
-  document.getElementById('sesPopupBar').style.background=hex;
-  document.getElementById('sesPopupRow').style.background=`rgba(${r},${g},${b},.07)`;
-  const badge=document.getElementById('sesPopupBadge');
-  badge.textContent=h.seanceType||'Libre';
-  badge.style.cssText=`font-size:.65rem;font-weight:800;padding:.25rem .65rem;border-radius:999px;white-space:nowrap;background:rgba(${r},${g},${b},.15);color:${hex};border:1px solid rgba(${r},${g},${b},.35)`;
-  document.getElementById('sesPopupName').textContent=h.seanceNom||'Séance libre';
-  document.getElementById('sesPopupName').style.color=hex;
-  const nbS=(h.exercices||[]).reduce((n,e)=>n+(e.series?.length||0),0);
-  document.getElementById('sesPopupMeta').textContent=[fmtDate(h.date),h.heure||'',fmtDur(h.dureeMin),nbS+' séries'].filter(Boolean).join(' · ');
-  // Body
-  const body=document.getElementById('sesPopupBody'); body.innerHTML='';
-  (h.exercices||[]).forEach(e=>{
-    const ehex=grpc(e.groupe);
-    const muscles=getSessionMuscles({exercices:[e]});
-    const div=document.createElement('div'); div.className='ses-popup-exo';
-    const musImgs=muscles.map(m=>makeMuscleIcon(m,26)).join('');
-    const exoImgSrc=getExoImg(e.nom);
-    const exoImgHtml=exoImgSrc
-      ? `<img src="./img/${exoImgSrc}" alt="${esc(e.nom)}" class="ses-popup-mus-icon" style="width:40px;height:40px;border-radius:.4rem;background:var(--surfoff);border:1px solid var(--bord);padding:2px" onerror="this.style.display='none'">`
-      : '';
-    const nbEs=(e.series||[]).length;
-    const maxP=Math.max(0,...(e.series||[]).map(s=>parseFloat(s.poids)||0));
-    div.innerHTML=`<span class="ses-popup-dot" style="background:${ehex}"></span>
-      ${exoImgHtml}
-      <div style="display:flex;align-items:center;gap:3px;flex-shrink:0">${musImgs}</div>
-      <span class="ses-popup-exo-name">${esc(e.nom)}</span>
-      <span class="ses-popup-exo-info">${nbEs} sér.${maxP>0?' · '+maxP+'kg':''}</span>`;
-    body.appendChild(div);
-  });
-  if(h.noteGlobale){
-    const note=document.createElement('div'); note.className='ses-popup-note'; note.textContent=h.noteGlobale;
-    body.appendChild(note);
-  }
-  // Wiring détail
-  document.getElementById('sesPopupDetail').onclick=()=>{
-    closeSessionPopup(); _selId=h.id; _editMode=false;
-    switchView('list'); renderSidebar(); renderDetail();
-  };
-  document.getElementById('sesOv').style.display='flex';
-}
-function closeSessionPopup(){ document.getElementById('sesOv').style.display='none'; }
-document.getElementById('sesOv').addEventListener('click',e=>{ if(e.target===document.getElementById('sesOv')) closeSessionPopup(); });
-document.getElementById('sesPopupClose').addEventListener('click',closeSessionPopup);
-document.getElementById('sesPopupClose2').addEventListener('click',closeSessionPopup);
-document.addEventListener('keydown',e=>{ if(e.key==='Escape'&&document.getElementById('sesOv').style.display==='flex') closeSessionPopup(); });
 
 // ══════════════════════════════════════════════════════════════
 // JOURS FÉRIÉS FRANCE
@@ -1738,271 +1452,12 @@ function deleteNote(){
   saveNotes(); closeNoteModal(); if(_onNoteClose) _onNoteClose();
 }
 
-// ══════════════════════════════════════════════════════════════
-// FICHE INFO EXERCICE (volet agenda)
-// ══════════════════════════════════════════════════════════════
-function openAgendaExoInfo(nom){
-  const exo=_exoLib.find(e=>e.exercice?.toLowerCase()===nom?.toLowerCase())||{exercice:nom};
-  const hex=MC[(exo.groupe_musculaire||'').split(',')[0].trim()]||'#01696f';
-  const [r,g,b]=hexRgb(hex);
-  const ov=document.getElementById('agendaExoOv');
-  document.getElementById('aeBar').style.background=hex;
-  document.getElementById('aeHdr').style.background=`rgba(${r},${g},${b},.07)`;
-  const badge=document.getElementById('aeBadge');
-  badge.textContent=exo.groupe_musculaire||'—';
-  badge.style.cssText=`font-size:.65rem;font-weight:800;padding:.25rem .65rem;border-radius:999px;white-space:nowrap;background:rgba(${r},${g},${b},.15);color:${hex};border:1px solid rgba(${r},${g},${b},.35)`;
-  document.getElementById('aeName').textContent=exo.exercice||'—';
-  document.getElementById('aeName').style.color=hex;
-  document.getElementById('aeSub').textContent=[exo.muscle,exo.subdivision&&exo.subdivision!=='—'?exo.subdivision:''].filter(Boolean).join(' · ');
-  const img=document.getElementById('aeImg'); const ph=document.getElementById('aePh');
-  if(exo.image){img.src='./img/'+exo.image;img.style.display='block';ph.style.display='none';img.onerror=()=>{img.style.display='none';ph.style.display='flex';};}
-  else{img.style.display='none';ph.style.display='flex';}
-  const tags=document.getElementById('aeTags');tags.innerHTML='';
-  [exo.equipement,exo.type_exercice].filter(Boolean).forEach(t=>{const s=document.createElement('span');s.style.cssText='display:inline-flex;padding:.2rem .5rem;border-radius:999px;font-size:.65rem;font-weight:600;background:var(--surfoff);color:var(--txm);border:1px solid var(--bord)';s.textContent=t;tags.appendChild(s);});
-  const secs=document.getElementById('aeSecs');secs.innerHTML='';
-  [{lbl:'Muscles secondaires',val:exo.muscle_secondaire},{lbl:'Descriptif',val:exo.descriptif},{lbl:'Exécution',val:exo.execution}].forEach(({lbl,val})=>{
-    if(!val)return;
-    const d=document.createElement('div');d.style.cssText='display:flex;flex-direction:column;gap:.3rem';
-    const t=document.createElement('div');t.style.cssText=`font-size:.62rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:${hex};padding-bottom:.2rem;border-bottom:1px solid rgba(${r},${g},${b},.2)`;t.textContent=lbl;
-    const tx=document.createElement('div');tx.style.cssText='font-size:.8rem;line-height:1.55;color:var(--tx);white-space:pre-wrap';tx.textContent=val;
-    d.append(t,tx);secs.appendChild(d);
-  });
-  if(!secs.children.length)secs.innerHTML='<div style="color:var(--txf);font-size:.8rem;font-style:italic">Aucune information renseignée.</div>';
-  ov.style.display='flex';
-}
-
-document.getElementById('agendaExoOv').addEventListener('click',e=>{if(e.target===document.getElementById('agendaExoOv'))document.getElementById('agendaExoOv').style.display='none';});
-document.getElementById('aeClose').addEventListener('click',()=>document.getElementById('agendaExoOv').style.display='none');
-
 // Wiring notes
 document.getElementById('noteOv').addEventListener('click',e=>{if(e.target===document.getElementById('noteOv'))closeNoteModal();});
 document.getElementById('noteCancel').addEventListener('click',closeNoteModal);
 document.getElementById('noteSave').addEventListener('click',saveNote);
 document.getElementById('noteDelBtn').addEventListener('click',deleteNote);
 document.getElementById('noteText').addEventListener('keydown',e=>{if(e.key==='Enter')saveNote();if(e.key==='Escape')closeNoteModal();});
-
-// ══════════════════════════════════════════════════════════════
-// VUE AGENDA (réécriture avec toutes les nouvelles features)
-// ══════════════════════════════════════════════════════════════
-let _agendaMonths = 6; // nombre de mois à afficher
-
-function renderAgenda(){
-  const main=document.getElementById('mainArea'); main.innerHTML='';
-  const byDate=buildSessionsByDate();
-  const todayStr=new Date().toISOString().split('T')[0];
-
-  // Split container
-  const split=document.createElement('div'); split.className='agenda-split';
-  const wrap=document.createElement('div'); wrap.className='agenda-wrap';
-  const detailPanel=document.createElement('div'); detailPanel.className='agenda-detail-panel';
-
-  // Empty state du volet droit
-  function showDetailEmpty(){
-    detailPanel.innerHTML=`<div class="agenda-detail-empty">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="8"/><line x1="12" y1="12" x2="12" y2="16"/></svg>
-      <p style="font-size:.82rem;max-width:200px;line-height:1.5">Cliquez sur une séance pour voir son détail</p>
-    </div>`;
-  }
-
-  // Remplir le volet droit avec les détails d'une séance
-  let _activeAgendaId=null;
-  function showAgendaDetail(hId){
-    const h=_hist.find(x=>x.id===hId); if(!h) return;
-    _activeAgendaId=hId;
-    // Marquer la ligne sélectionnée
-    wrap.querySelectorAll('.agenda-day').forEach(el=>el.classList.remove('selected'));
-    wrap.querySelectorAll(`.agenda-day[data-hid="${hId}"]`).forEach(el=>el.classList.add('selected'));
-
-    const hex=TC[h.seanceType]||'#9a9891';
-    const [r,g,b]=hexRgb(hex);
-    const nbS=(h.exercices||[]).reduce((n,e)=>n+(e.series?.length||0),0);
-    detailPanel.innerHTML='';
-    const inner=document.createElement('div'); inner.style.cssText='padding:.75rem 1rem;display:flex;flex-direction:column;gap:.65rem;max-width:600px;margin:0 auto';
-
-    // Header
-    const hdrCard=document.createElement('div');
-    hdrCard.style.cssText=`background:var(--surf);border:1px solid var(--bord);border-radius:var(--rxl);overflow:hidden;box-shadow:var(--shsm);border-left:4px solid ${hex}`;
-    const hdrTop=document.createElement('div');
-    hdrTop.style.cssText=`padding:.85rem 1.1rem;background:rgba(${r},${g},${b},.06);display:flex;align-items:center;gap:.65rem;flex-wrap:wrap`;
-    const badge=document.createElement('span');
-    badge.style.cssText=`font-size:.65rem;font-weight:800;padding:.25rem .65rem;border-radius:999px;white-space:nowrap;background:rgba(${r},${g},${b},.15);color:${hex};border:1px solid rgba(${r},${g},${b},.35)`;
-    badge.textContent=h.seanceType||'Libre';
-    const nameDiv=document.createElement('div'); nameDiv.style.cssText='flex:1;min-width:0';
-    nameDiv.innerHTML=`<div style="font-weight:700;font-size:.95rem;color:${hex};overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(h.seanceNom||'Séance libre')}</div>
-      <div style="font-size:.7rem;color:var(--txm);margin-top:.1rem">${esc(h.programmeNom||'')}${h.heure?' · '+h.heure:''}${h.heureF?' → '+h.heureF:''}</div>`;
-    const dateDiv=document.createElement('div');
-    dateDiv.style.cssText='font-size:.72rem;color:var(--txm);text-align:right;flex-shrink:0';
-    dateDiv.innerHTML=`<div style="font-weight:600;color:var(--tx)">${fmtDate(h.date)}</div>`;
-    hdrTop.append(badge,nameDiv,dateDiv);
-    hdrCard.appendChild(hdrTop);
-    // Mini stats
-    const stats=document.createElement('div');
-    stats.style.cssText='display:grid;grid-template-columns:repeat(3,1fr);border-top:1px solid var(--bord)';
-    [{v:fmtDur(h.dureeMin),l:'Durée'},{v:nbS,l:'Séries'},{v:h.volumeTotal>0?h.volumeTotal+'kg':'—',l:'Volume'}].forEach(({v,l})=>{
-      const s=document.createElement('div'); s.style.cssText='padding:.6rem;text-align:center;border-right:1px solid var(--bord)';
-      s.innerHTML=`<div style="font-size:1rem;font-weight:700;color:var(--prim)">${v}</div><div style="font-size:.6rem;text-transform:uppercase;letter-spacing:.05em;color:var(--txm);margin-top:.1rem">${l}</div>`;
-      stats.appendChild(s);
-    });
-    stats.lastChild.style.borderRight='none';
-    hdrCard.appendChild(stats);
-    inner.appendChild(hdrCard);
-
-    // Exercices
-    if((h.exercices||[]).length){
-      const exoCard=document.createElement('div');
-      exoCard.style.cssText='background:var(--surf);border:1px solid var(--bord);border-radius:var(--rxl);overflow:hidden;box-shadow:var(--shsm)';
-      const exoTitle=document.createElement('div');
-      exoTitle.style.cssText='padding:.6rem 1rem;background:var(--surfoff);border-bottom:1px solid var(--bord);font-size:.65rem;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:var(--txf)';
-      exoTitle.textContent='Exercices';
-      exoCard.appendChild(exoTitle);
-      (h.exercices||[]).forEach(e=>{
-        const ehex=grpc(e.groupe);
-        const muscles=getSessionMuscles({exercices:[e]});
-        const nbEs=(e.series||[]).length;
-        const maxP=Math.max(0,...(e.series||[]).map(s=>parseFloat(s.poids)||0));
-        const row=document.createElement('div');
-        row.style.cssText='display:flex;align-items:center;gap:.6rem;padding:.55rem 1rem;border-bottom:1px solid var(--bord)';
-        const musImgs=muscles.slice(0,2).map(m=>{
-          const src=MUSCLE_IMG[m]; if(!src) return '';
-          return `<img src="${src}" alt="${esc(m)}" style="width:28px;height:28px;object-fit:contain" onerror="this.remove()">`;
-        }).join('');
-        const exoImgSrc=getExoImg(e.nom);
-        const exoImgEl=document.createElement('div'); exoImgEl.style.cssText='flex-shrink:0';
-        if(exoImgSrc){
-          const exoImg=document.createElement('img');
-          exoImg.src='./img/'+exoImgSrc; exoImg.alt=e.nom;
-          exoImg.style.cssText='width:44px;height:44px;object-fit:contain;border-radius:.45rem;background:var(--surfoff);border:1px solid var(--bord);padding:2px;cursor:zoom-in;transition:opacity .15s';
-          exoImg.onerror=()=>exoImg.style.display='none';
-          exoImg.addEventListener('click',ev=>{ev.stopPropagation();openAgendaExoInfo(e.nom);});
-          exoImg.addEventListener('mouseenter',()=>exoImg.style.opacity='.75');
-          exoImg.addEventListener('mouseleave',()=>exoImg.style.opacity='1');
-          exoImgEl.appendChild(exoImg);
-        }
-        row.innerHTML=`<span style="width:8px;height:8px;border-radius:50%;background:${ehex};flex-shrink:0"></span>
-          <div style="display:flex;gap:3px;flex-shrink:0">${musImgs}</div>
-          <div style="flex:1;min-width:0">
-            <div style="font-size:.8rem;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(e.nom)}</div>
-            <div style="font-size:.65rem;color:var(--txm)">${esc(e.groupe||'')}</div>
-          </div>
-          <div style="font-size:.7rem;color:var(--txm);text-align:right;flex-shrink:0">
-            ${nbEs} sér.${maxP>0?' · '+maxP+'kg':''}
-          </div>`;
-        row.insertBefore(exoImgEl, row.children[1]);
-        exoCard.appendChild(row);
-      });
-      exoCard.lastChild.style.borderBottom='none';
-      inner.appendChild(exoCard);
-    }
-
-    // Note
-    if(h.noteGlobale){
-      const noteEl=document.createElement('div');
-      noteEl.style.cssText='background:var(--surf);border:1px solid var(--bord);border-radius:var(--rxl);padding:.85rem 1rem;font-size:.8rem;color:var(--txm);font-style:italic;line-height:1.6;box-shadow:var(--shsm)';
-      noteEl.textContent=h.noteGlobale;
-      inner.appendChild(noteEl);
-    }
-
-    // Bouton voir détail complet
-    const actRow=document.createElement('div'); actRow.style.cssText='display:flex;justify-content:flex-end;gap:.5rem';
-    const fullBtn=document.createElement('button'); fullBtn.className='btn btn-p';
-    fullBtn.style.fontSize='.78rem';
-    fullBtn.innerHTML=`<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4z"/></svg> Voir et modifier`;
-    fullBtn.addEventListener('click',()=>{ _selId=h.id; _editMode=false; switchView('list'); renderSidebar(); renderDetail(); });
-    actRow.appendChild(fullBtn);
-    inner.appendChild(actRow);
-
-    detailPanel.appendChild(inner);
-  }
-
-  showDetailEmpty();
-
-  // Construire l'agenda
-  const allDates=_hist.map(h=>h.date).sort();
-  const earliest=allDates[0]||todayStr;
-  const firstD=new Date(earliest+'T00:00');
-  const lastD=new Date();
-  let cur=new Date(firstD.getFullYear(), firstD.getMonth(), 1);
-  const endMonth=new Date(lastD.getFullYear(), lastD.getMonth(), 1);
-
-  while(cur<=endMonth){
-    const yr=cur.getFullYear(), mo=cur.getMonth();
-    const mColor=AGENDA_COLORS[mo];
-    const daysInMonth=new Date(yr,mo+1,0).getDate();
-    const block=document.createElement('div'); block.className='agenda-month-block';
-    const mlabel=document.createElement('div'); mlabel.className='agenda-month-label';
-    mlabel.style.setProperty('--am-color',mColor);
-    mlabel.textContent=MONTH_NAMES_FR[mo].toUpperCase()+' '+yr;
-    const daysCol=document.createElement('div'); daysCol.className='agenda-days-col';
-
-    for(let day=1;day<=daysInMonth;day++){
-      const dateStr=`${yr}-${String(mo+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
-      const d=new Date(dateStr+'T00:00');
-      const dowStr=DOW_FR2[d.getDay()];
-      const sessions=byDate[dateStr]||[];
-      const isToday=dateStr===todayStr;
-      const dow=d.getDay();
-      const isWeekend=(dow===0||dow===6);
-      const holiday=getHoliday(dateStr);
-      const dayNotes=(_agendaNotes[dateStr]||[]);
-
-      // Séparateur semaine avant chaque lundi
-      if(dow===1){
-        const sep=document.createElement('div'); sep.className='wk-sep';
-        const wkN=getISOWeek(dateStr);
-        sep.innerHTML=`<span class="wk-sep-lbl">Semaine ${wkN}</span><span class="wk-sep-line"></span>`;
-        daysCol.appendChild(sep);
-      }
-      const dayRow=document.createElement('div');
-      dayRow.className='agenda-day'+(sessions.length?' has-session':'')+(isToday?' today':'')+(isWeekend?' weekend':'')+(dow===0?' week-end-sep':'')+(holiday?' holiday':'');
-      if(sessions.length){
-        const firstHex=TC[sessions[0].seanceType]||'#9a9891';
-        const [r,g,b]=hexRgb(firstHex);
-        dayRow.style.background=`rgba(${r},${g},${b},.07)`;
-      }
-      const numEl=document.createElement('span'); numEl.className='agenda-day-num'; numEl.textContent=day;
-      const dowEl=document.createElement('span'); dowEl.className='agenda-day-dow'; dowEl.textContent=DOW_FR2[dow];
-      const hlEl=document.createElement('span'); hlEl.className='agenda-day-holiday-icon';
-      if(holiday){ hlEl.textContent=holiday.e; hlEl.title=holiday.n; }
-      const sesWrap=document.createElement('div'); sesWrap.className='agenda-ses-wrap';
-      sessions.forEach(h=>{
-        const shex=TC[h.seanceType]||'#9a9891';
-        const muscles=getSessionMuscles(h);
-        const pill=document.createElement('div'); pill.className='agenda-ses-pill';
-        pill.style.background=shex; pill.title=h.seanceNom||'Séance';
-        muscles.slice(0,3).forEach(m=>{
-          const src=MUSCLE_IMG[m]; if(!src) return;
-          const img=document.createElement('img'); img.className='agenda-mus-icon';
-          img.src=src; img.alt=m; img.onerror=()=>img.remove();
-          pill.appendChild(img);
-        });
-        const nameSpan=document.createElement('span'); nameSpan.textContent=(h.seanceNom||'').slice(0,14);
-        pill.appendChild(nameSpan);
-        pill.addEventListener('click',e=>{ e.stopPropagation(); showAgendaDetail(h.id); });
-        sesWrap.appendChild(pill);
-      });
-      dayNotes.forEach(note=>{
-        const np=document.createElement('span'); np.className='agenda-note-pill'; np.style.background=note.color;
-        np.title=note.text; const tx=document.createElement('span'); tx.textContent=note.text; tx.style.cssText='overflow:hidden;text-overflow:ellipsis;max-width:100px';
-        const dx=document.createElement('button'); dx.className='agenda-note-del'; dx.textContent='×';
-        dx.addEventListener('click',ev=>{ev.stopPropagation();openNoteModal(dateStr,note.id,()=>renderAgenda());});
-        np.append(tx,dx); sesWrap.appendChild(np);
-      });
-      const addNoteBtn=document.createElement('button'); addNoteBtn.className='agenda-add-note-btn'; addNoteBtn.textContent='+'; addNoteBtn.title='Ajouter une note';
-      addNoteBtn.addEventListener('click',ev=>{ev.stopPropagation();openNoteModal(dateStr,null,()=>renderAgenda());});
-      dayRow.append(numEl,dowEl,hlEl,sesWrap,addNoteBtn);
-      if(sessions.length) dayRow.addEventListener('click',()=>showAgendaDetail(sessions[0].id));
-      daysCol.appendChild(dayRow);
-    }
-    block.append(mlabel,daysCol); wrap.appendChild(block);
-    cur=new Date(yr,mo+1,1);
-  }
-
-  if(!_hist.length) wrap.innerHTML='<div style="padding:2rem;text-align:center;color:var(--txf)">Aucune séance enregistrée.</div>';
-
-  split.append(wrap,detailPanel);
-  main.appendChild(split);
-  setTimeout(()=>wrap.scrollTop=wrap.scrollHeight,50);
-}
 
 // ══════════════════════════════════════════════════════════════
 // VUE ANNUELLE
@@ -2610,13 +2065,11 @@ function render6Months(){
 function switchView(v){
   if(v!=='list') discardEditIfActive();
   _currentView = v;
-  const btns={list:'viewListBtn', annual:'viewAnnualBtn', '3months':'view3mBtn', '6months':'view6mBtn', calendar:'viewCalendarBtn', agenda:'viewAgendaBtn'};
+  const btns={list:'viewListBtn', annual:'viewAnnualBtn', '3months':'view3mBtn', '6months':'view6mBtn'};
   Object.entries(btns).forEach(([view,id])=>{ const el=document.getElementById(id); if(el) el.classList.toggle('active',view===v); });
   if(v==='annual') renderAnnual();
   else if(v==='3months') render3Months();
   else if(v==='6months') render6Months();
-  else if(v==='calendar') renderCalendar();
-  else if(v==='agenda') renderAgenda();
   else renderDetail();
 }
 
@@ -2624,8 +2077,6 @@ document.getElementById('viewListBtn').addEventListener('click',()=>switchView('
 document.getElementById('viewAnnualBtn').addEventListener('click',()=>switchView('annual'));
 document.getElementById('view3mBtn').addEventListener('click',()=>switchView('3months'));
 document.getElementById('view6mBtn').addEventListener('click',()=>switchView('6months'));
-document.getElementById('viewCalendarBtn').addEventListener('click',()=>switchView('calendar'));
-document.getElementById('viewAgendaBtn').addEventListener('click',()=>switchView('agenda'));
 
 // Charger les notes après que Script 2 est défini
 loadNotes();
