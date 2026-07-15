@@ -320,8 +320,8 @@ function renderFreqChart(){
   const h=filterByDays(getPeriod());
   const weeks={};
   h.forEach(s=>{
-    const d=new Date(s.date+'T00:00');
-    const mon=new Date(d); mon.setDate(d.getDate()-(d.getDay()+6)%7);
+    const d=new Date(s.date+'T00:00:00Z'); // heure UTC explicite : évite toute dérive locale/UTC
+    const mon=new Date(d); mon.setUTCDate(d.getUTCDate()-(d.getUTCDay()+6)%7);
     const wk=mon.toISOString().split('T')[0];
     weeks[wk]=(weeks[wk]||0)+1;
   });
@@ -338,7 +338,7 @@ function renderFreqChart(){
     inner.title=`Semaine du ${fmtDateShort(wk)} : ${v} séance${v>1?'s':''}`;
     outer.appendChild(inner);
     const lbl=document.createElement('div'); lbl.className='freq-lbl';
-    const d=new Date(wk+'T00:00'); lbl.textContent=`${d.getDate()}/${d.getMonth()+1}`;
+    const d=new Date(wk+'T00:00:00Z'); lbl.textContent=`${d.getUTCDate()}/${d.getUTCMonth()+1}`;
     wrap.append(outer,lbl); container.appendChild(wrap);
   });
 }
@@ -351,7 +351,6 @@ function moveTip(e){tip.style.left=Math.min(e.clientX+14,window.innerWidth-180)+
 document.addEventListener('mousemove',e=>{if(tip.style.display==='block')moveTip(e);});
 
 // ── THÈME ──
-document.getElementById('homeBtn').addEventListener('click',()=>window.location.href='index.html');
 document.getElementById('themeBtn').addEventListener('click',()=>applyTheme(document.documentElement.getAttribute('data-theme')==='dark'?'light':'dark'));
 document.getElementById('periodSel').addEventListener('change',()=>{renderStats();renderProgChart();renderPRs();renderVolChart();renderFreqChart();});
 
