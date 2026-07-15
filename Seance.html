@@ -64,6 +64,7 @@
     .sb-exo-item:hover{background:var(--surfoff)}
     .sb-exo-item.done{opacity:.5}
     .sb-exo-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+    .hist-type-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
     .sb-exo-name{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--tx)}
     .sb-exo-prog{font-size:.7rem;color:var(--txm);flex-shrink:0;font-weight:600}
 
@@ -314,12 +315,12 @@
 <!-- Modal ajout exercice libre -->
 <!-- Modal ajout exercice (riche) -->
 <div class="ov" id="libreModal">
-  <div class="modal" style="width:min(520px,96vw);padding:0;overflow:hidden;border-radius:var(--rxl)">
-    <div style="padding:1.25rem 1.5rem;border-bottom:1px solid var(--bord)">
+  <div class="modal" style="width:min(520px,96vw);padding:0;overflow:hidden;border-radius:var(--rxl);display:flex;flex-direction:column">
+    <div style="padding:1.25rem 1.5rem;border-bottom:1px solid var(--bord);flex-shrink:0">
       <div style="font-weight:700;font-size:1rem;margin-bottom:.25rem">Ajouter un exercice</div>
       <div style="font-size:.72rem;color:var(--txm)">Recherchez un exercice de votre bibliothèque ou saisissez un nom.</div>
     </div>
-    <div style="padding:1.25rem 1.5rem;display:grid;gap:.85rem">
+    <div style="padding:1.25rem 1.5rem;display:grid;gap:.85rem;overflow-y:auto;flex:1;min-height:0">
       <!-- Picker exercice -->
       <div class="fld">
         <label style="font-size:.75rem;font-weight:700;color:var(--txm)">Exercice *</label>
@@ -338,15 +339,15 @@
       </div>
       <!-- Grille champs -->
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:.6rem">
-        <div class="fld"><label style="font-size:.72rem;font-weight:700;color:var(--txm)">Séries</label><input class="fld input" type="number" id="lm-series" placeholder="4" min="1" max="30" style="padding:.5rem .65rem;border-radius:var(--rmd);border:1px solid var(--bord);background:var(--surf);color:var(--tx);width:100%;outline:none;font:inherit"></div>
-        <div class="fld"><label style="font-size:.72rem;font-weight:700;color:var(--txm)">Reps</label><input class="fld input" type="text" id="lm-reps" placeholder="8-12" style="padding:.5rem .65rem;border-radius:var(--rmd);border:1px solid var(--bord);background:var(--surf);color:var(--tx);width:100%;outline:none;font:inherit"></div>
-        <div class="fld"><label style="font-size:.72rem;font-weight:700;color:var(--txm)">Poids (kg)</label><input class="fld input" type="number" id="lm-poids" placeholder="—" step="0.5" style="padding:.5rem .65rem;border-radius:var(--rmd);border:1px solid var(--bord);background:var(--surf);color:var(--tx);width:100%;outline:none;font:inherit"></div>
-        <div class="fld"><label style="font-size:.72rem;font-weight:700;color:var(--txm)">Récup (s)</label><input class="fld input" type="number" id="lm-recup" placeholder="90" min="0" style="padding:.5rem .65rem;border-radius:var(--rmd);border:1px solid var(--bord);background:var(--surf);color:var(--tx);width:100%;outline:none;font:inherit"></div>
-        <div class="fld"><label style="font-size:.72rem;font-weight:700;color:var(--txm)">Durée</label><input class="fld input" type="text" id="lm-duree" placeholder="ex: 30 min" style="padding:.5rem .65rem;border-radius:var(--rmd);border:1px solid var(--bord);background:var(--surf);color:var(--tx);width:100%;outline:none;font:inherit"></div>
-        <div class="fld"><label style="font-size:.72rem;font-weight:700;color:var(--txm)">Distance</label><input class="fld input" type="text" id="lm-distance" placeholder="ex: 5 km" style="padding:.5rem .65rem;border-radius:var(--rmd);border:1px solid var(--bord);background:var(--surf);color:var(--tx);width:100%;outline:none;font:inherit"></div>
+        <div class="fld"><label style="font-size:.72rem;font-weight:700;color:var(--txm)">Séries</label><input type="number" id="lm-series" placeholder="4" min="1" max="30" style="padding:.5rem .65rem;border-radius:var(--rmd);border:1px solid var(--bord);background:var(--surf);color:var(--tx);width:100%;outline:none;font:inherit"></div>
+        <div class="fld"><label style="font-size:.72rem;font-weight:700;color:var(--txm)">Reps</label><input type="text" id="lm-reps" placeholder="8-12" style="padding:.5rem .65rem;border-radius:var(--rmd);border:1px solid var(--bord);background:var(--surf);color:var(--tx);width:100%;outline:none;font:inherit"></div>
+        <div class="fld"><label style="font-size:.72rem;font-weight:700;color:var(--txm)">Poids (kg)</label><input type="number" id="lm-poids" placeholder="—" step="0.5" style="padding:.5rem .65rem;border-radius:var(--rmd);border:1px solid var(--bord);background:var(--surf);color:var(--tx);width:100%;outline:none;font:inherit"></div>
+        <div class="fld"><label style="font-size:.72rem;font-weight:700;color:var(--txm)">Récup (s)</label><input type="number" id="lm-recup" placeholder="90" min="0" style="padding:.5rem .65rem;border-radius:var(--rmd);border:1px solid var(--bord);background:var(--surf);color:var(--tx);width:100%;outline:none;font:inherit"></div>
+        <div class="fld"><label style="font-size:.72rem;font-weight:700;color:var(--txm)">Durée</label><input type="text" id="lm-duree" placeholder="ex: 30 min" style="padding:.5rem .65rem;border-radius:var(--rmd);border:1px solid var(--bord);background:var(--surf);color:var(--tx);width:100%;outline:none;font:inherit"></div>
+        <div class="fld"><label style="font-size:.72rem;font-weight:700;color:var(--txm)">Distance</label><input type="text" id="lm-distance" placeholder="ex: 5 km" style="padding:.5rem .65rem;border-radius:var(--rmd);border:1px solid var(--bord);background:var(--surf);color:var(--tx);width:100%;outline:none;font:inherit"></div>
       </div>
     </div>
-    <div style="padding:1rem 1.5rem;border-top:1px solid var(--bord);display:flex;gap:.6rem;justify-content:flex-end;background:var(--surfoff)">
+    <div style="padding:1rem 1.5rem;border-top:1px solid var(--bord);display:flex;gap:.6rem;justify-content:flex-end;background:var(--surfoff);flex-shrink:0">
       <button class="btn" id="lmCancel">Annuler</button>
       <button class="btn btn-p" id="lmConfirm">+ Ajouter</button>
     </div>
@@ -393,10 +394,6 @@ const S = {
   dureeMin: 0,
 };
 let _chronoInterval = null;
-let _timerTimeout   = null;
-let _timerInterval  = null;
-let _timerTotal     = 0;
-let _timerEnd       = 0;
 let _programmes     = [];
 let _exoLib         = [];
 let _objectifs      = {};
@@ -448,7 +445,10 @@ function saveHistorique() {
   GymDB.write('historique.json', _historique);
 }
 function saveCurrentSession() {
-  if (S.phase === 'session') localStorage.setItem(CUR_KEY, JSON.stringify(S));
+  // Le brouillon reste tant que la séance n'est pas réellement enregistrée dans
+  // l'historique (phases 'session' ET 'summary') — sinon fermer l'onglet entre
+  // "Terminer" et "Sauvegarder" perd toute la séance.
+  if (S.phase === 'session' || S.phase === 'summary') localStorage.setItem(CUR_KEY, JSON.stringify(S));
   else localStorage.removeItem(CUR_KEY);
 }
 function loadCurrentSession() {
@@ -456,10 +456,17 @@ function loadCurrentSession() {
     const raw = localStorage.getItem(CUR_KEY);
     if (!raw) return false;
     const saved = JSON.parse(raw);
-    if (saved.phase === 'session') { Object.assign(S, saved); return true; }
+    if (saved.phase === 'session' || saved.phase === 'summary') { Object.assign(S, saved); return true; }
   } catch {}
   return false;
 }
+
+// Avertit avant de fermer/quitter tant qu'une séance n'est pas réellement
+// enregistrée dans l'historique (CUR_KEY n'existe que dans ce cas, voir
+// saveCurrentSession()).
+window.addEventListener('beforeunload', (e) => {
+  if (localStorage.getItem(CUR_KEY)) { e.preventDefault(); e.returnValue = ''; }
+});
 
 // ══════════════════════════════════════════════════════════════
 // CHRONO TOTAL
@@ -501,8 +508,7 @@ function renderSidebar() {
 
   // Chrono
   const chrono = document.createElement('div'); chrono.className='sb-chrono';
-  const chronoStart = Date.now() - (S.chronoStart ? Date.now() - S.chronoStart : 0);
-  chrono.innerHTML = `<div class="sb-chrono-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
+  chrono.innerHTML =`<div class="sb-chrono-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
     <div><div class="sb-chrono-time" id="sbChronoTime">${fmtChrono(S.chronoStart ? Date.now()-S.chronoStart : 0)}</div><div class="sb-chrono-label">Durée de séance</div></div>`;
   inner.appendChild(chrono);
 
@@ -753,16 +759,12 @@ function buildExoCard(exo, ei) {
   // Table séries avec scroll horizontal
   const tblWrap=document.createElement('div'); tblWrap.className='series-table-wrap';
   const tbl=document.createElement('table'); tbl.className='series-table';
-  const hasDuree = true;  // toujours visible pour permettre la saisie
-  const hasDist  = true;  // toujours visible pour permettre la saisie
-  let thHtml=`<thead><tr><th style="width:32px">#</th><th>Reps</th><th>Kg</th>`;
-  if(hasDuree)   thHtml+=`<th>Durée</th>`;
-  if(hasDist)    thHtml+=`<th>Distance</th>`;
+  let thHtml=`<thead><tr><th style="width:32px">#</th><th>Reps</th><th>Kg</th><th>Durée</th><th>Distance</th>`;
   thHtml+=`<th style="width:56px">Réf.</th><th>Ressenti</th><th style="width:36px"></th></tr></thead>`;
   tbl.innerHTML=thHtml;
   const tbody=document.createElement('tbody');
   exo.series.forEach((serie,si) => {
-    tbody.appendChild(buildSerieRow(exo,ei,serie,si,hasDuree,hasDist));
+    tbody.appendChild(buildSerieRow(exo,ei,serie,si));
   });
   tbl.appendChild(tbody); tblWrap.appendChild(tbl); card.appendChild(tblWrap);
 
@@ -809,7 +811,7 @@ function makePh(hex, nom) {
   return ph;
 }
 
-function buildSerieRow(exo,ei,serie,si,hasDuree,hasDist) {
+function buildSerieRow(exo,ei,serie,si) {
   const tr=document.createElement('tr');
   if(serie.done) tr.classList.add('done-row');
 
@@ -830,31 +832,27 @@ function buildSerieRow(exo,ei,serie,si,hasDuree,hasDist) {
   ipoids.addEventListener('input',()=>{ serie.poids=ipoids.value; saveCurrentSession(); });
   tdPoids.appendChild(ipoids);
 
-  // Durée (optionnelle)
+  // Durée
   const tdDuree=document.createElement('td');
-  if(hasDuree){
-    const iduree=document.createElement('input'); iduree.type='text'; iduree.className='serie-input'+(serie.done?' done':'');
-    // Pré-remplir avec la valeur de référence si le champ est vide
-    iduree.value=serie.duree||(serie.done?'':exo.refDuree)||'';
-    iduree.placeholder=exo.refDuree||'ex: 30 min';
-    iduree.style.width='72px'; iduree.disabled=serie.done; iduree.dataset.field='duree';
-    // Synchroniser immédiatement l'objet serie avec la valeur affichée
-    if(!serie.duree && iduree.value) { serie.duree=iduree.value; }
-    iduree.addEventListener('input',()=>{ serie.duree=iduree.value; saveCurrentSession(); });
-    tdDuree.appendChild(iduree);
-  }
+  const iduree=document.createElement('input'); iduree.type='text'; iduree.className='serie-input'+(serie.done?' done':'');
+  // Pré-remplir avec la valeur de référence si le champ est vide
+  iduree.value=serie.duree||(serie.done?'':exo.refDuree)||'';
+  iduree.placeholder=exo.refDuree||'ex: 30 min';
+  iduree.style.width='72px'; iduree.disabled=serie.done; iduree.dataset.field='duree';
+  // Synchroniser immédiatement l'objet serie avec la valeur affichée
+  if(!serie.duree && iduree.value) { serie.duree=iduree.value; }
+  iduree.addEventListener('input',()=>{ serie.duree=iduree.value; saveCurrentSession(); });
+  tdDuree.appendChild(iduree);
 
-  // Distance (optionnelle)
+  // Distance
   const tdDist=document.createElement('td');
-  if(hasDist){
-    const idist=document.createElement('input'); idist.type='text'; idist.className='serie-input'+(serie.done?' done':'');
-    idist.value=serie.distance||(serie.done?'':exo.refDistance)||'';
-    idist.placeholder=exo.refDistance||'ex: 500m';
-    idist.style.width='72px'; idist.disabled=serie.done; idist.dataset.field='distance';
-    if(!serie.distance && idist.value) { serie.distance=idist.value; }
-    idist.addEventListener('input',()=>{ serie.distance=idist.value; saveCurrentSession(); });
-    tdDist.appendChild(idist);
-  }
+  const idist=document.createElement('input'); idist.type='text'; idist.className='serie-input'+(serie.done?' done':'');
+  idist.value=serie.distance||(serie.done?'':exo.refDistance)||'';
+  idist.placeholder=exo.refDistance||'ex: 500m';
+  idist.style.width='72px'; idist.disabled=serie.done; idist.dataset.field='distance';
+  if(!serie.distance && idist.value) { serie.distance=idist.value; }
+  idist.addEventListener('input',()=>{ serie.distance=idist.value; saveCurrentSession(); });
+  tdDist.appendChild(idist);
 
   // Référence
   const tdRef=document.createElement('td'); tdRef.className='serie-ref';
@@ -880,7 +878,7 @@ function buildSerieRow(exo,ei,serie,si,hasDuree,hasDist) {
     }
     serie.done=true; serie.ressenti=key;
     const recupSec=parseRecup(exo.refRecup);
-    if(recupSec>0) startTimer(recupSec,exo.nom);
+    if(recupSec>0) startTimer();
     saveCurrentSession();
     if(card) refreshExoCard(card,exo,ei);
     renderSidebar();
@@ -928,10 +926,7 @@ function buildSerieRow(exo,ei,serie,si,hasDuree,hasDist) {
   });
   tdDel.appendChild(delSerieBtn);
 
-  tr.append(tdNum,tdReps,tdPoids);
-  if(hasDuree) tr.appendChild(tdDuree);
-  if(hasDist)  tr.appendChild(tdDist);
-  tr.append(tdRef,tdRes,tdDel);
+  tr.append(tdNum,tdReps,tdPoids,tdDuree,tdDist,tdRef,tdRes,tdDel);
   return tr;
 }
 
@@ -1001,10 +996,22 @@ function renderSummary(main) {
   const saveBtn=document.createElement('button'); saveBtn.className='btn btn-p';
   saveBtn.style.cssText='min-width:180px;font-size:.95rem;font-weight:700';
   saveBtn.innerHTML=`<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/></svg> Sauvegarder`;
-  saveBtn.addEventListener('click',()=>{ saveSession(); saveBtn.disabled=true; saveBtn.textContent='✓ Sauvegardée'; });
+  saveBtn.addEventListener('click',()=>{
+    saveSession(); saveBtn.disabled=true;
+    if (GymDB.getState()!=='connected') {
+      saveBtn.textContent='⚠ Sauvegardée localement uniquement';
+      saveBtn.title='Le dossier de données n\'est pas connecté : cette séance n\'est enregistrée que dans ce navigateur (localStorage), pas sur le disque. Reconnectez le dossier Db pour éviter toute perte.';
+    } else {
+      saveBtn.textContent='✓ Sauvegardée';
+    }
+  });
   const newBtn=document.createElement('button'); newBtn.className='btn';
   newBtn.textContent='Nouvelle séance';
-  newBtn.addEventListener('click',()=>{ S.phase='choice'; S.progId=null; S.seanceId=null; S.libre=false; S.exercices=[]; render(); });
+  newBtn.addEventListener('click',()=>{
+    if (!saveBtn.disabled && !confirm('Cette séance n\'a pas été sauvegardée. Continuer sans sauvegarder ?')) return;
+    localStorage.removeItem(CUR_KEY);
+    S.phase='choice'; S.progId=null; S.seanceId=null; S.libre=false; S.exercices=[]; render();
+  });
   acts.append(saveBtn,newBtn); wrap.appendChild(acts);
   main.appendChild(wrap);
 }
@@ -1039,7 +1046,7 @@ function abortSession() {
 function finishSession() {
   stopChrono(); stopTimer();
   S.dureeMin=Math.round((Date.now()-S.chronoStart)/60000);
-  S.phase='summary'; localStorage.removeItem(CUR_KEY); render();
+  S.phase='summary'; saveCurrentSession(); render();
 }
 
 function saveSession() {
@@ -1071,8 +1078,9 @@ function saveSession() {
     volumeTotal:computeVolume(S.exercices),
   };
   _historique.unshift(entry);
-  localStorage.setItem(HIST_KEY, JSON.stringify(_historique));
-  GymDB.write('historique.json', _historique);
+  saveHistorique();
+  // La séance est bien enregistrée dans l'historique : le brouillon n'est plus nécessaire.
+  localStorage.removeItem(CUR_KEY);
   renderSidebar();
 }
 
@@ -1219,7 +1227,6 @@ function confirmLibreModal(){
 // ══════════════════════════════════════════════════════════════
 // WIRING
 // ══════════════════════════════════════════════════════════════
-document.getElementById('homeBtn').addEventListener('click',()=>window.location.href='index.html');
 document.getElementById('themeBtn').addEventListener('click',()=>applyTheme(document.documentElement.getAttribute('data-theme')==='dark'?'light':'dark'));
 document.getElementById('libreModal').addEventListener('click',e=>{
   const picker=document.getElementById('seaExoPick');
@@ -1229,7 +1236,10 @@ document.getElementById('libreModal').addEventListener('click',e=>{
 document.getElementById('lmCancel').addEventListener('click',closeLibreModal);
 document.getElementById('lmConfirm').addEventListener('click',confirmLibreModal);
 document.addEventListener('keydown',e=>{
-  if(e.key==='Escape'){ if(document.getElementById('libreModal').classList.contains('open')) closeLibreModal(); }
+  if(e.key!=='Escape') return;
+  if(document.getElementById('libreModal').classList.contains('open')) closeLibreModal();
+  const exoInfoOv=document.getElementById('seaExoInfoOv');
+  if(exoInfoOv.style.display==='flex') exoInfoOv.style.display='none';
 });
 
 // ══════════════════════════════════════════════════════════════
@@ -1238,16 +1248,22 @@ document.addEventListener('keydown',e=>{
 (async function init(){
   applyTheme(localStorage.getItem('muscle-xml-theme')||'light');
   loadData();
-  await GymDB.init();
-  // Charger historique depuis GymDB
-  try { const h=await GymDB.read('historique.json'); if(Array.isArray(h)) { _historique=h; localStorage.setItem(HIST_KEY,JSON.stringify(h)); } } catch{}
-  // Restaurer session en cours ?
-  if (loadCurrentSession() && S.phase==='session') {
-    S.chronoStart = Date.now() - (S.dureeMin||0)*60000; // approximation
-    render();
-  } else {
-    render();
+  const dbState = await GymDB.init();
+  if (dbState === 'connected') {
+    // Resynchroniser depuis le dossier Db (pas seulement l'historique) : sinon un
+    // localStorage vide/périmé affiche "aucun programme actif" alors que les
+    // vraies données existent sur le disque.
+    try { const p=await GymDB.read('programmes.json'); if(Array.isArray(p)&&p.length){ _programmes=p; localStorage.setItem(PROG_KEY,JSON.stringify(p)); } } catch{}
+    try { const d=await GymDB.read('exercices.json'); if(d&&Array.isArray(d.rows)){ _exoLib=d.rows; localStorage.setItem(EXO_KEY,JSON.stringify(d)); } } catch{}
+    try { const o=await GymDB.read('exercices-objectifs.json'); if(o){ _objectifs=o; localStorage.setItem(OBJ_KEY,JSON.stringify(o)); } } catch{}
+    try { const h=await GymDB.read('historique.json'); if(Array.isArray(h)){ _historique=h; localStorage.setItem(HIST_KEY,JSON.stringify(h)); } } catch{}
   }
+  // Restaurer une séance en cours (ou en attente de sauvegarde) le cas échéant.
+  // S.chronoStart est déjà restauré correctement par loadCurrentSession() — ne
+  // pas le recalculer ici (l'ancien code l'écrasait par erreur avec S.dureeMin,
+  // qui vaut toujours 0 pendant la phase 'session').
+  loadCurrentSession();
+  render();
 })();
 </script>
 <!-- Modale info exercice -->
