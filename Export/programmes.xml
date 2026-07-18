@@ -1,0 +1,956 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<programmes>
+  <programme>
+    <nom>PROGRAM1</nom>
+    <description>MON PROGRAMME 1</description>
+    <statut>actif</statut>
+    <dateCreation>2026-05-28</dateCreation>
+    <seances>
+      <seance>
+        <nom>Push - 1</nom>
+        <type>Push</type>
+        <jours>
+          <jour>Mardi</jour>
+        </jours>
+        <exercices>
+          <exercice>
+            <nom>Rameur</nom>
+            <groupe>Abdominaux, Avant-bras, Bras, Cuisses (avant), Dos, Épaules</groupe>
+            <series></series>
+            <reps></reps>
+            <poids></poids>
+            <recup></recup>
+            <duree>10</duree>
+            <distance>2000</distance>
+            <note></note>
+          </exercice>
+          <exercice>
+            <nom>Curl poignet avec haltère</nom>
+            <groupe>Avant-bras</groupe>
+            <series>4</series>
+            <reps>35</reps>
+            <poids>9</poids>
+            <recup></recup>
+            <duree></duree>
+            <distance></distance>
+            <note></note>
+          </exercice>
+          <exercice>
+            <nom>Curl marteau</nom>
+            <groupe>Bras</groupe>
+            <series>4</series>
+            <reps></reps>
+            <poids></poids>
+            <recup></recup>
+            <duree>1</duree>
+            <distance></distance>
+            <note></note>
+          </exercice>
+          <exercice>
+            <nom>Rotation externe de l’épaule à la poulie</nom>
+            <groupe>Épaules</groupe>
+            <series>4</series>
+            <reps>15</reps>
+            <poids>2.3</poids>
+            <recup></recup>
+            <duree></duree>
+            <distance></distance>
+            <note></note>
+          </exercice>
+          <exercice>
+            <nom>Extension triceps poulie haute</nom>
+            <groupe>Bras</groupe>
+            <series>4</series>
+            <reps>10</reps>
+            <poids>24.3</poids>
+            <recup></recup>
+            <duree></duree>
+            <distance></distance>
+            <note></note>
+          </exercice>
+          <exercice>
+            <nom>Élévations latérales Poulie</nom>
+            <groupe>Épaules</groupe>
+            <series>4</series>
+            <reps>12</reps>
+            <poids>4.5</poids>
+            <recup></recup>
+            <duree></duree>
+            <distance></distance>
+            <note></note>
+          </exercice>
+          <exercice>
+            <nom>Curl biceps à la poulie - Corde</nom>
+            <groupe>Bras</groupe>
+            <series>4</series>
+            <reps>10</reps>
+            <poids>20.3</poids>
+            <recup></recup>
+            <duree></duree>
+            <distance></distance>
+            <note></note>
+          </exercice>
+          <exercice>
+            <nom>Smith Machine – Développé couché</nom>
+            <groupe>Pectoraux</groupe>
+            <series>4</series>
+            <reps>8</reps>
+            <poids>25</poids>
+            <recup></recup>
+            <duree></duree>
+            <distance></distance>
+            <note></note>
+          </exercice>
+          <exercice>
+            <nom>Développé couché haltères</nom>
+            <groupe>Pectoraux</groupe>
+            <series>4</series>
+            <reps>8</reps>
+            <poids>22</poids>
+            <recup></recup>
+            <duree></duree>
+            <distance></distance>
+            <note></note>
+          </exercice>
+          <exercice>
+            <nom>Écartés vis-à-vis - Position Basse</nom>
+            <groupe>Pectoraux</groupe>
+            <series>4</series>
+            <reps>8</reps>
+            <poids>11</poids>
+            <recup></recup>
+            <duree></duree>
+            <distance></distance>
+            <note></note>
+          </exercice>
+          <exercice>
+            <nom>Écartés vis-à-vis - Position Haute</nom>
+            <groupe>Pectoraux</groupe>
+            <series>4</series>
+            <reps>8</reps>
+            <poids>11</poids>
+            <recup></recup>
+            <duree></duree>
+            <distance></distance>
+            <note></note>
+          </exercice>
+          <exercice>
+            <nom>Vertical Chest Press</nom>
+            <groupe>Pectoraux</groupe>
+            <series>3</series>
+            <reps>5</reps>
+            <poids>25</poids>
+            <recup></recup>
+            <duree></duree>
+            <distance></distance>
+            <note></note>
+          </exercice>
+          <exercice>
+            <nom>Shoulder Press</nom>
+            <groupe>Épaules</groupe>
+            <series>3</series>
+            <reps>8</reps>
+            <poids>18</poids>
+            <recup></recup>
+            <duree></duree>
+            <distance></distance>
+            <note></note>
+          </exercice>
+          <exercice>
+            <nom>Planche classique</nom>
+            <groupe>Abdominaux</groupe>
+            <series>4</series>
+            <reps></reps>
+            <poids></poids>
+            <recup>15</recup>
+            <duree>45</duree>
+            <distance></distance>
+            <note></note>
+          </exercice>
+          <exercice>
+            <nom>Planche latérale</nom>
+            <groupe>Abdominaux</groupe>
+            <series>4</series>
+            <reps></reps>
+            <poids></poids>
+            <recup>15</recup>
+            <duree>45</duree>
+            <distance></distance>
+            <note></note>
+          </exercice>
+          <exercice>
+            <nom>Russian Twist</nom>
+            <groupe>Abdominaux</groupe>
+            <series>4</series>
+            <reps></reps>
+            <poids>8</poids>
+            <recup>15</recup>
+            <duree>45</duree>
+            <distance></distance>
+            <note></note>
+          </exercice>
+          <exercice>
+            <nom>Plank drag</nom>
+            <groupe>Abdominaux</groupe>
+            <series>4</series>
+            <reps></reps>
+            <poids>8</poids>
+            <recup>15</recup>
+            <duree>45</duree>
+            <distance></distance>
+            <note></note>
+          </exercice>
+        </exercices>
+      </seance>
+      <seance>
+        <nom>Pull - 1</nom>
+        <type>Pull</type>
+        <jours>
+          <jour>Mercredi</jour>
+        </jours>
+        <exercices>
+          <exercice>
+            <nom>Rameur</nom>
+            <groupe>Abdominaux, Avant-bras, Bras, Cuisses (avant), Dos, Épaules</groupe>
+            <series></series>
+            <reps></reps>
+            <poids></poids>
+            <recup></recup>
+            <duree>10</duree>
+            <distance>2000</distance>
+            <note></note>
+          </exercice>
+          <exercice>
+            <nom>Curl poignet avec haltère</nom>
+            <groupe>Avant-bras</groupe>
+            <series>4</series>
+            <reps>35</reps>
+            <poids>9</poids>
+            <recup></recup>
+            <duree></duree>
+            <distance></distance>
+            <note></note>
+          </exercice>
+          <exercice>
+            <nom>Curl marteau</nom>
+            <groupe>Bras</groupe>
+            <series>4</series>
+            <reps></reps>
+            <poids></poids>
+            <recup></recup>
+            <duree>1</duree>
+            <distance></distance>
+            <note></note>
+          </exercice>
+          <exercice>
+            <nom>Rotation externe de l’épaule à la poulie</nom>
+            <groupe>Épaules</groupe>
+            <series>4</series>
+            <reps>15</reps>
+            <poids>2.3</poids>
+            <recup></recup>
+            <duree></duree>
+            <distance></distance>
+            <note></note>
+          </exercice>
+          <exercice>
+            <nom>Extension triceps poulie haute</nom>
+            <groupe>Bras</groupe>
+            <series>4</series>
+            <reps>10</reps>
+            <poids>24.3</poids>
+            <recup></recup>
+            <duree></duree>
+            <distance></distance>
+            <note></note>
+          </exercice>
+          <exercice>
+            <nom>Élévations latérales Poulie</nom>
+            <groupe>Épaules</groupe>
+            <series>4</series>
+            <reps>12</reps>
+            <poids>4.5</poids>
+            <recup></recup>
+            <duree></duree>
+            <distance></distance>
+            <note></note>
+          </exercice>
+          <exercice>
+            <nom>Curl biceps à la poulie - Corde</nom>
+            <groupe>Bras</groupe>
+            <series>4</series>
+            <reps>10</reps>
+            <poids>20.3</poids>
+            <recup></recup>
+            <duree></duree>
+            <distance></distance>
+            <note></note>
+          </exercice>
+          <exercice>
+            <nom>Lat Pulldown</nom>
+            <groupe>Dos</groupe>
+            <series>3</series>
+            <reps>10</reps>
+            <poids>66</poids>
+            <recup></recup>
+            <duree></duree>
+            <distance></distance>
+            <note></note>
+          </exercice>
+          <exercice>
+            <nom>Low Row - Seated Row - Tirage horizontal prise serrée</nom>
+            <groupe>Dos</groupe>
+            <series>4</series>
+            <reps>10</reps>
+            <poids>54.3</poids>
+            <recup></recup>
+            <duree></duree>
+            <distance></distance>
+            <note></note>
+          </exercice>
+          <exercice>
+            <nom>Rear Delt</nom>
+            <groupe>Dos</groupe>
+            <series>4</series>
+            <reps>8</reps>
+            <poids>59</poids>
+            <recup></recup>
+            <duree></duree>
+            <distance></distance>
+            <note></note>
+          </exercice>
+          <exercice>
+            <nom>Abdominal (machine abdos)</nom>
+            <groupe>Abdominaux</groupe>
+            <series>4</series>
+            <reps>10</reps>
+            <poids>50</poids>
+            <recup></recup>
+            <duree></duree>
+            <distance></distance>
+            <note></note>
+          </exercice>
+          <exercice>
+            <nom>Abdominal Crunch</nom>
+            <groupe>Abdominaux</groupe>
+            <series>4</series>
+            <reps>10</reps>
+            <poids>77</poids>
+            <recup></recup>
+            <duree></duree>
+            <distance></distance>
+            <note></note>
+          </exercice>
+          <exercice>
+            <nom>Divergent Seated Row</nom>
+            <groupe>Dos</groupe>
+            <series>4</series>
+            <reps>10</reps>
+            <poids>59</poids>
+            <recup></recup>
+            <duree></duree>
+            <distance></distance>
+            <note></note>
+          </exercice>
+          <exercice>
+            <nom>Rotation poulie moyenne</nom>
+            <groupe>Abdominaux</groupe>
+            <series>4</series>
+            <reps>12</reps>
+            <poids>9</poids>
+            <recup></recup>
+            <duree></duree>
+            <distance></distance>
+            <note></note>
+          </exercice>
+          <exercice>
+            <nom>Relever de Jambe Chaise (Haute) Romaine</nom>
+            <groupe>Abdominaux</groupe>
+            <series>3</series>
+            <reps>10</reps>
+            <poids></poids>
+            <recup></recup>
+            <duree></duree>
+            <distance></distance>
+            <note></note>
+          </exercice>
+          <exercice>
+            <nom>Planche classique</nom>
+            <groupe>Abdominaux</groupe>
+            <series>4</series>
+            <reps></reps>
+            <poids></poids>
+            <recup>15</recup>
+            <duree>45</duree>
+            <distance></distance>
+            <note></note>
+          </exercice>
+          <exercice>
+            <nom>Planche latérale</nom>
+            <groupe>Abdominaux</groupe>
+            <series>4</series>
+            <reps></reps>
+            <poids></poids>
+            <recup>15</recup>
+            <duree>45</duree>
+            <distance></distance>
+            <note></note>
+          </exercice>
+          <exercice>
+            <nom>Russian Twist</nom>
+            <groupe>Abdominaux</groupe>
+            <series>4</series>
+            <reps></reps>
+            <poids>8</poids>
+            <recup>15</recup>
+            <duree>45</duree>
+            <distance></distance>
+            <note></note>
+          </exercice>
+          <exercice>
+            <nom>Plank drag</nom>
+            <groupe>Abdominaux</groupe>
+            <series>4</series>
+            <reps></reps>
+            <poids>8</poids>
+            <recup>15</recup>
+            <duree>45</duree>
+            <distance></distance>
+            <note></note>
+          </exercice>
+        </exercices>
+      </seance>
+      <seance>
+        <nom>Legs &amp; Glutes - 1</nom>
+        <type>Legs</type>
+        <jours>
+          <jour>Jeudi</jour>
+        </jours>
+        <exercices>
+          <exercice>
+            <nom>Tapis de course</nom>
+            <groupe>Cuisses (avant), Fessiers, Mollets</groupe>
+            <series></series>
+            <reps></reps>
+            <poids></poids>
+            <recup></recup>
+            <duree>10</duree>
+            <distance></distance>
+            <note></note>
+          </exercice>
+          <exercice>
+            <nom>Hack Squat</nom>
+            <groupe>Cuisses (avant)</groupe>
+            <series>3</series>
+            <reps>10</reps>
+            <poids>45</poids>
+            <recup></recup>
+            <duree></duree>
+            <distance></distance>
+            <note></note>
+          </exercice>
+          <exercice>
+            <nom>Leg Press - inclinée à 45°</nom>
+            <groupe>Cuisses (avant)</groupe>
+            <series>3</series>
+            <reps>10</reps>
+            <poids>65</poids>
+            <recup></recup>
+            <duree></duree>
+            <distance></distance>
+            <note></note>
+          </exercice>
+          <exercice>
+            <nom>Leg Extension</nom>
+            <groupe>Cuisses (avant)</groupe>
+            <series>3</series>
+            <reps>12</reps>
+            <poids>59</poids>
+            <recup></recup>
+            <duree></duree>
+            <distance></distance>
+            <note></note>
+          </exercice>
+          <exercice>
+            <nom>Seated Leg Curl</nom>
+            <groupe>Cuisses (arrière)</groupe>
+            <series>3</series>
+            <reps>12</reps>
+            <poids>39</poids>
+            <recup></recup>
+            <duree></duree>
+            <distance></distance>
+            <note></note>
+          </exercice>
+          <exercice>
+            <nom>Hip Thrust</nom>
+            <groupe>Fessiers</groupe>
+            <series>4</series>
+            <reps>10</reps>
+            <poids>99</poids>
+            <recup></recup>
+            <duree></duree>
+            <distance></distance>
+            <note></note>
+          </exercice>
+          <exercice>
+            <nom>Dumbbell Bulgarian Split Squat Standards</nom>
+            <groupe>Cuisses (avant)</groupe>
+            <series>3</series>
+            <reps>10</reps>
+            <poids>9</poids>
+            <recup></recup>
+            <duree></duree>
+            <distance></distance>
+            <note></note>
+          </exercice>
+          <exercice>
+            <nom>Hip Adduction Open</nom>
+            <groupe>Cuisses (intérieur)</groupe>
+            <series>3</series>
+            <reps>12</reps>
+            <poids>45</poids>
+            <recup></recup>
+            <duree></duree>
+            <distance></distance>
+            <note></note>
+          </exercice>
+          <exercice>
+            <nom>Hip Adduction Close</nom>
+            <groupe>Cuisses (intérieur)</groupe>
+            <series>3</series>
+            <reps>12</reps>
+            <poids>45</poids>
+            <recup></recup>
+            <duree></duree>
+            <distance></distance>
+            <note></note>
+          </exercice>
+          <exercice>
+            <nom>Extensions des mollets debout</nom>
+            <groupe>Mollets</groupe>
+            <series>3</series>
+            <reps>40</reps>
+            <poids>5</poids>
+            <recup></recup>
+            <duree></duree>
+            <distance></distance>
+            <note></note>
+          </exercice>
+        </exercices>
+      </seance>
+      <seance>
+        <nom>Push - 2</nom>
+        <type>Push</type>
+        <jours>
+          <jour>Vendredi</jour>
+        </jours>
+        <exercices>
+          <exercice>
+            <nom>Rameur</nom>
+            <groupe>Abdominaux, Avant-bras, Bras, Cuisses (avant), Dos, Épaules</groupe>
+            <series></series>
+            <reps></reps>
+            <poids></poids>
+            <recup></recup>
+            <duree>10</duree>
+            <distance>2000</distance>
+            <note></note>
+          </exercice>
+          <exercice>
+            <nom>Curl poignet avec haltère</nom>
+            <groupe>Avant-bras</groupe>
+            <series>4</series>
+            <reps>35</reps>
+            <poids>9</poids>
+            <recup></recup>
+            <duree></duree>
+            <distance></distance>
+            <note></note>
+          </exercice>
+          <exercice>
+            <nom>Curl marteau</nom>
+            <groupe>Bras</groupe>
+            <series>4</series>
+            <reps></reps>
+            <poids></poids>
+            <recup></recup>
+            <duree>1</duree>
+            <distance></distance>
+            <note></note>
+          </exercice>
+          <exercice>
+            <nom>Extension triceps poulie haute</nom>
+            <groupe>Bras</groupe>
+            <series>4</series>
+            <reps>10</reps>
+            <poids>24.3</poids>
+            <recup></recup>
+            <duree></duree>
+            <distance></distance>
+            <note></note>
+          </exercice>
+          <exercice>
+            <nom>Rotation externe de l’épaule à la poulie</nom>
+            <groupe>Épaules</groupe>
+            <series>4</series>
+            <reps>15</reps>
+            <poids>2.3</poids>
+            <recup></recup>
+            <duree></duree>
+            <distance></distance>
+            <note></note>
+          </exercice>
+          <exercice>
+            <nom>Élévations latérales Poulie</nom>
+            <groupe>Épaules</groupe>
+            <series>4</series>
+            <reps>12</reps>
+            <poids>4.5</poids>
+            <recup></recup>
+            <duree></duree>
+            <distance></distance>
+            <note></note>
+          </exercice>
+          <exercice>
+            <nom>Smith Machine – Développé militaire</nom>
+            <groupe>Épaules</groupe>
+            <series>3</series>
+            <reps>8</reps>
+            <poids>15</poids>
+            <recup></recup>
+            <duree></duree>
+            <distance></distance>
+            <note></note>
+          </exercice>
+          <exercice>
+            <nom>Écartés vis-à-vis - Position Basse</nom>
+            <groupe>Pectoraux</groupe>
+            <series>4</series>
+            <reps>8</reps>
+            <poids>11</poids>
+            <recup></recup>
+            <duree></duree>
+            <distance></distance>
+            <note></note>
+          </exercice>
+          <exercice>
+            <nom>Écartés vis-à-vis - Position Haute</nom>
+            <groupe>Pectoraux</groupe>
+            <series>4</series>
+            <reps>8</reps>
+            <poids>11</poids>
+            <recup></recup>
+            <duree></duree>
+            <distance></distance>
+            <note></note>
+          </exercice>
+          <exercice>
+            <nom>Développé couché haltères</nom>
+            <groupe>Pectoraux</groupe>
+            <series>4</series>
+            <reps>8</reps>
+            <poids>22</poids>
+            <recup></recup>
+            <duree></duree>
+            <distance></distance>
+            <note></note>
+          </exercice>
+          <exercice>
+            <nom>Vertical Chest Press</nom>
+            <groupe>Pectoraux</groupe>
+            <series>3</series>
+            <reps>5</reps>
+            <poids>25</poids>
+            <recup></recup>
+            <duree></duree>
+            <distance></distance>
+            <note></note>
+          </exercice>
+          <exercice>
+            <nom>Dips machine</nom>
+            <groupe>Pectoraux</groupe>
+            <series>3</series>
+            <reps>10</reps>
+            <poids>52.3</poids>
+            <recup></recup>
+            <duree></duree>
+            <distance></distance>
+            <note></note>
+          </exercice>
+          <exercice>
+            <nom>Planche classique</nom>
+            <groupe>Abdominaux</groupe>
+            <series>4</series>
+            <reps></reps>
+            <poids></poids>
+            <recup>15</recup>
+            <duree>45</duree>
+            <distance></distance>
+            <note></note>
+          </exercice>
+          <exercice>
+            <nom>Planche latérale</nom>
+            <groupe>Abdominaux</groupe>
+            <series>4</series>
+            <reps></reps>
+            <poids></poids>
+            <recup>15</recup>
+            <duree>45</duree>
+            <distance></distance>
+            <note></note>
+          </exercice>
+          <exercice>
+            <nom>Russian Twist</nom>
+            <groupe>Abdominaux</groupe>
+            <series>4</series>
+            <reps></reps>
+            <poids>8</poids>
+            <recup>15</recup>
+            <duree>45</duree>
+            <distance></distance>
+            <note></note>
+          </exercice>
+          <exercice>
+            <nom>Plank drag</nom>
+            <groupe>Abdominaux</groupe>
+            <series>4</series>
+            <reps></reps>
+            <poids>8</poids>
+            <recup>15</recup>
+            <duree>45</duree>
+            <distance></distance>
+            <note></note>
+          </exercice>
+        </exercices>
+      </seance>
+      <seance>
+        <nom>Dos + Abdo</nom>
+        <type>Full Body</type>
+        <jours>
+          <jour>Dimanche</jour>
+        </jours>
+        <exercices>
+          <exercice>
+            <nom>Rameur</nom>
+            <groupe>Abdominaux, Avant-bras, Bras, Cuisses (avant), Dos, Épaules</groupe>
+            <series></series>
+            <reps></reps>
+            <poids></poids>
+            <recup></recup>
+            <duree>10</duree>
+            <distance>2000</distance>
+            <note></note>
+          </exercice>
+          <exercice>
+            <nom>Curl poignet avec haltère</nom>
+            <groupe>Avant-bras</groupe>
+            <series>4</series>
+            <reps>35</reps>
+            <poids>9</poids>
+            <recup></recup>
+            <duree></duree>
+            <distance></distance>
+            <note></note>
+          </exercice>
+          <exercice>
+            <nom>Curl marteau</nom>
+            <groupe>Bras</groupe>
+            <series>4</series>
+            <reps></reps>
+            <poids></poids>
+            <recup></recup>
+            <duree>1</duree>
+            <distance></distance>
+            <note></note>
+          </exercice>
+          <exercice>
+            <nom>Rotation externe de l’épaule à la poulie</nom>
+            <groupe>Épaules</groupe>
+            <series>4</series>
+            <reps>15</reps>
+            <poids>2.3</poids>
+            <recup></recup>
+            <duree></duree>
+            <distance></distance>
+            <note></note>
+          </exercice>
+          <exercice>
+            <nom>Extension triceps poulie haute</nom>
+            <groupe>Bras</groupe>
+            <series>4</series>
+            <reps>10</reps>
+            <poids>24.3</poids>
+            <recup></recup>
+            <duree></duree>
+            <distance></distance>
+            <note></note>
+          </exercice>
+          <exercice>
+            <nom>Élévations latérales Poulie</nom>
+            <groupe>Épaules</groupe>
+            <series>4</series>
+            <reps>12</reps>
+            <poids>4.5</poids>
+            <recup></recup>
+            <duree></duree>
+            <distance></distance>
+            <note></note>
+          </exercice>
+          <exercice>
+            <nom>Curl biceps à la poulie - Corde</nom>
+            <groupe>Bras</groupe>
+            <series>4</series>
+            <reps>10</reps>
+            <poids>20.3</poids>
+            <recup></recup>
+            <duree></duree>
+            <distance></distance>
+            <note></note>
+          </exercice>
+          <exercice>
+            <nom>Lat Pulldown</nom>
+            <groupe>Dos</groupe>
+            <series>3</series>
+            <reps>10</reps>
+            <poids>66</poids>
+            <recup></recup>
+            <duree></duree>
+            <distance></distance>
+            <note></note>
+          </exercice>
+          <exercice>
+            <nom>Low Row - Seated Row - Tirage horizontal prise serrée</nom>
+            <groupe>Dos</groupe>
+            <series>4</series>
+            <reps>10</reps>
+            <poids>54.3</poids>
+            <recup></recup>
+            <duree></duree>
+            <distance></distance>
+            <note></note>
+          </exercice>
+          <exercice>
+            <nom>Rear Delt</nom>
+            <groupe>Dos</groupe>
+            <series>4</series>
+            <reps>8</reps>
+            <poids>59</poids>
+            <recup></recup>
+            <duree></duree>
+            <distance></distance>
+            <note></note>
+          </exercice>
+          <exercice>
+            <nom>Abdominal (machine abdos)</nom>
+            <groupe>Abdominaux</groupe>
+            <series>4</series>
+            <reps>10</reps>
+            <poids>50</poids>
+            <recup></recup>
+            <duree></duree>
+            <distance></distance>
+            <note></note>
+          </exercice>
+          <exercice>
+            <nom>Divergent Seated Row</nom>
+            <groupe>Dos</groupe>
+            <series>4</series>
+            <reps>10</reps>
+            <poids>59</poids>
+            <recup></recup>
+            <duree></duree>
+            <distance></distance>
+            <note></note>
+          </exercice>
+          <exercice>
+            <nom>Rotation poulie moyenne</nom>
+            <groupe>Abdominaux</groupe>
+            <series>4</series>
+            <reps>12</reps>
+            <poids>9</poids>
+            <recup></recup>
+            <duree></duree>
+            <distance></distance>
+            <note></note>
+          </exercice>
+          <exercice>
+            <nom>Poulie Crunch</nom>
+            <groupe>Abdominaux</groupe>
+            <series>4</series>
+            <reps>10</reps>
+            <poids>33.8</poids>
+            <recup></recup>
+            <duree></duree>
+            <distance></distance>
+            <note></note>
+          </exercice>
+          <exercice>
+            <nom>Hip Adduction Close</nom>
+            <groupe>Cuisses (intérieur)</groupe>
+            <series>3</series>
+            <reps>12</reps>
+            <poids>45</poids>
+            <recup></recup>
+            <duree></duree>
+            <distance></distance>
+            <note></note>
+          </exercice>
+          <exercice>
+            <nom>Leg Extension</nom>
+            <groupe>Cuisses (avant)</groupe>
+            <series>3</series>
+            <reps>12</reps>
+            <poids>59</poids>
+            <recup></recup>
+            <duree></duree>
+            <distance></distance>
+            <note></note>
+          </exercice>
+          <exercice>
+            <nom>Relever de Jambe Chaise (Haute) Romaine</nom>
+            <groupe>Abdominaux</groupe>
+            <series>3</series>
+            <reps>10</reps>
+            <poids></poids>
+            <recup></recup>
+            <duree></duree>
+            <distance></distance>
+            <note></note>
+          </exercice>
+          <exercice>
+            <nom>Dumbbell Hollow Hold</nom>
+            <groupe>Abdominaux</groupe>
+            <series>4</series>
+            <reps></reps>
+            <poids></poids>
+            <recup></recup>
+            <duree>45</duree>
+            <distance></distance>
+            <note></note>
+          </exercice>
+          <exercice>
+            <nom>Bird dog</nom>
+            <groupe>Abdominaux</groupe>
+            <series>4</series>
+            <reps></reps>
+            <poids></poids>
+            <recup></recup>
+            <duree>45</duree>
+            <distance></distance>
+            <note></note>
+          </exercice>
+        </exercices>
+      </seance>
+      <seance>
+        <nom>test</nom>
+        <type>Push</type>
+        <jours>
+          <jour>Jeudi</jour>
+        </jours>
+        <exercices>
+        </exercices>
+      </seance>
+    </seances>
+  </programme>
+</programmes>

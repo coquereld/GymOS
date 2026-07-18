@@ -6,9 +6,23 @@
     <type_subdivision>Faisceau</type_subdivision>
     <subdivision_anatomique>Claviculaire</subdivision_anatomique>
     <localisation_fonctionnelle>Supérieur</localisation_fonctionnelle>
-    <image_groupe>Pectoraux.png</image_groupe>
-    <image_muscle></image_muscle>
+    <image_groupe>00_Groupe_Pectoraux.png</image_groupe>
+    <image_muscle>01_Pectoraux_Muscle_Claviculaire.png</image_muscle>
+    <image_muscle_2></image_muscle_2>
+    <image_muscle_3></image_muscle_3>
+    <image_muscle_4></image_muscle_4>
+    <image_localisation_1>01_PEC_Loc_Avant.png</image_localisation_1>
+    <image_localisation_2>Loc_Arriere_0.png</image_localisation_2>
+    <image_zoom_insertion>01_Pectoraux_ZoomInsertion_Claviculaire.png</image_zoom_insertion>
+    <image_vue_profonde>01_Pectoraux_VueProfonde_Claviculaire_.png</image_vue_profonde>
+    <image_faisceau_groupe>01_Pectoraux_FaisceauGrp.png</image_faisceau_groupe>
+    <image_personnage>01_PEC_PersPrinc_Claviculaire.png</image_personnage>
     <jour_recup>72h</jour_recup>
+    <fonction_principale>Flexion Du bras. Portion sternale et abdominale: Adduction, Rotation Interne du bras.</fonction_principale>
+    <origine>Moitié médiale de la face antérieure de la clavicule</origine>
+    <insertion>Lèvre latérale du sillon intertuberculaire de l’humérus</insertion>
+    <innervation>Nerfs pectoraux latéral et médial (C5-T1)</innervation>
+    <action>Flexion du bras</action>
   </entry>
   <entry>
     <groupe_musculaire>Pectoraux</groupe_musculaire>
@@ -16,9 +30,23 @@
     <type_subdivision>Faisceau</type_subdivision>
     <subdivision_anatomique>Sterno-costal</subdivision_anatomique>
     <localisation_fonctionnelle>Moyen</localisation_fonctionnelle>
-    <image_groupe>Pectoraux.png</image_groupe>
-    <image_muscle></image_muscle>
+    <image_groupe>00_Groupe_Pectoraux.png</image_groupe>
+    <image_muscle>01_Pectoraux_Muscle_sterno-costal.png</image_muscle>
+    <image_muscle_2></image_muscle_2>
+    <image_muscle_3></image_muscle_3>
+    <image_muscle_4></image_muscle_4>
+    <image_localisation_1>01_PEC_Loc_Avant.png</image_localisation_1>
+    <image_localisation_2>Loc_Arriere_0.png</image_localisation_2>
+    <image_zoom_insertion>01_Pectoraux_ZoomInsertion_SternoCostal.png</image_zoom_insertion>
+    <image_vue_profonde>01_Pectoraux_VueProfonde_Claviculaire_.png</image_vue_profonde>
+    <image_faisceau_groupe>01_Pectoraux_FaisceauGrp.png</image_faisceau_groupe>
+    <image_personnage>01_PEC_PersPrinc_SternoCostal.png</image_personnage>
     <jour_recup>72h</jour_recup>
+    <fonction_principale>Adduction et rotation médiale du bras</fonction_principale>
+    <origine>Sternum et cartilages costaux supérieurs</origine>
+    <insertion>Lèvre latérale du sillon intertuberculaire de l’humérus</insertion>
+    <innervation>Nerfs pectoraux latéral et médial (C5-T1)</innervation>
+    <action>Adduction, rotation médiale</action>
   </entry>
   <entry>
     <groupe_musculaire>Pectoraux</groupe_musculaire>
@@ -26,9 +54,23 @@
     <type_subdivision>Faisceau</type_subdivision>
     <subdivision_anatomique>Abdominal</subdivision_anatomique>
     <localisation_fonctionnelle>Inférieur</localisation_fonctionnelle>
-    <image_groupe>Pectoraux.png</image_groupe>
-    <image_muscle></image_muscle>
+    <image_groupe>00_Groupe_Pectoraux.png</image_groupe>
+    <image_muscle>01_Pectoraux_Muscle_Abdominal.png</image_muscle>
+    <image_muscle_2></image_muscle_2>
+    <image_muscle_3></image_muscle_3>
+    <image_muscle_4></image_muscle_4>
+    <image_localisation_1>01_PEC_Loc_Avant.png</image_localisation_1>
+    <image_localisation_2>Loc_Arriere_0.png</image_localisation_2>
+    <image_zoom_insertion>01_Pectoraux_ZoomInsertion_abdominal.png</image_zoom_insertion>
+    <image_vue_profonde>01_Pectoraux_VueProfonde_Claviculaire_.png</image_vue_profonde>
+    <image_faisceau_groupe>01_Pectoraux_FaisceauGrp.png</image_faisceau_groupe>
+    <image_personnage>01_PEC_PersPrinc_abdominal.png</image_personnage>
     <jour_recup>72h</jour_recup>
+    <fonction_principale>Extension du bras depuis une position fléchie</fonction_principale>
+    <origine>Aponévrose de l’oblique externe</origine>
+    <insertion>Lèvre latérale du sillon intertuberculaire de l’humérus</insertion>
+    <innervation>Nerfs pectoraux latéral et médial (C5-T1)</innervation>
+    <action>Extension du bras depuis flexion</action>
   </entry>
   <entry>
     <groupe_musculaire>Pectoraux</groupe_musculaire>
@@ -36,9 +78,23 @@
     <type_subdivision>Aucune</type_subdivision>
     <subdivision_anatomique>-</subdivision_anatomique>
     <localisation_fonctionnelle>Profond</localisation_fonctionnelle>
-    <image_groupe>Pectoraux.png</image_groupe>
-    <image_muscle></image_muscle>
+    <image_groupe>00_Groupe_Pectoraux.png</image_groupe>
+    <image_muscle>01_Pectoraux_Muscle_Petit.png</image_muscle>
+    <image_muscle_2></image_muscle_2>
+    <image_muscle_3></image_muscle_3>
+    <image_muscle_4></image_muscle_4>
+    <image_localisation_1>01_PEC_Loc_Avant.png</image_localisation_1>
+    <image_localisation_2>Loc_Arriere_0.png</image_localisation_2>
+    <image_zoom_insertion>01_Pectoraux_ZoomInsertion_Petit.png</image_zoom_insertion>
+    <image_vue_profonde>01_Pectoraux_VueProfonde_Claviculaire_.png</image_vue_profonde>
+    <image_faisceau_groupe>01_Pectoraux_FaisceauGrp.png</image_faisceau_groupe>
+    <image_personnage>01_PEC_PersPrinc_Petit.png</image_personnage>
     <jour_recup>72h</jour_recup>
+    <fonction_principale>Abaissement et bascule antérieure de la scapula</fonction_principale>
+    <origine>Côtes 3 à 5</origine>
+    <insertion>Processus coracoïde de la scapula</insertion>
+    <innervation>Nerf pectoral médial (C8-T1)</innervation>
+    <action>Stabilisation scapulaire</action>
   </entry>
   <entry>
     <groupe_musculaire>Épaules</groupe_musculaire>
@@ -46,9 +102,23 @@
     <type_subdivision>Faisceau</type_subdivision>
     <subdivision_anatomique>Antérieur</subdivision_anatomique>
     <localisation_fonctionnelle>Avant</localisation_fonctionnelle>
-    <image_groupe>Epaules.png</image_groupe>
-    <image_muscle></image_muscle>
+    <image_groupe>00_Groupe_Epaule.png</image_groupe>
+    <image_muscle>02_Deltoide_Muscle_Anterieur.png</image_muscle>
+    <image_muscle_2></image_muscle_2>
+    <image_muscle_3></image_muscle_3>
+    <image_muscle_4></image_muscle_4>
+    <image_localisation_1>02_DELTOIDE_Loc_Avant.png</image_localisation_1>
+    <image_localisation_2>02_DELTOIDE_Loc_Arriere.png</image_localisation_2>
+    <image_zoom_insertion>02_Deltoide_ZoomInsertion_Anterieur.png</image_zoom_insertion>
+    <image_vue_profonde>02_Deltoide_VueProfonde_Anterieur.png</image_vue_profonde>
+    <image_faisceau_groupe>02_Deltoides_FaisceauGrp.png</image_faisceau_groupe>
+    <image_personnage>02_Deltoide_PersPrinc_Anterieur.png</image_personnage>
     <jour_recup>48h</jour_recup>
+    <fonction_principale>Abduction/antépulsion du bras</fonction_principale>
+    <origine>Face antérieure du tiers latéral de la clavicule</origine>
+    <insertion>Tubérosité deltoïdienne de l’humérus</insertion>
+    <innervation>Nerf axillaire (C5-C6)</innervation>
+    <action>Flexion, rotation médiale, aide à l’antépulsion</action>
   </entry>
   <entry>
     <groupe_musculaire>Épaules</groupe_musculaire>
@@ -56,9 +126,23 @@
     <type_subdivision>Faisceau</type_subdivision>
     <subdivision_anatomique>Moyen</subdivision_anatomique>
     <localisation_fonctionnelle>Latéral</localisation_fonctionnelle>
-    <image_groupe>Epaules.png</image_groupe>
-    <image_muscle></image_muscle>
+    <image_groupe>00_Groupe_Epaule.png</image_groupe>
+    <image_muscle>02_Deltoide_Muscle_Moyen.png</image_muscle>
+    <image_muscle_2></image_muscle_2>
+    <image_muscle_3></image_muscle_3>
+    <image_muscle_4></image_muscle_4>
+    <image_localisation_1>02_DELTOIDE_Loc_Avant.png</image_localisation_1>
+    <image_localisation_2>02_DELTOIDE_Loc_Arriere.png</image_localisation_2>
+    <image_zoom_insertion>02_Deltoide_ZoomInsertion_Moyen.png</image_zoom_insertion>
+    <image_vue_profonde>02_Deltoide_VueProfonde_Moyen.png</image_vue_profonde>
+    <image_faisceau_groupe>02_Deltoides_FaisceauGrp.png</image_faisceau_groupe>
+    <image_personnage>02_Deltoide_PersPrinc_Moyen.png</image_personnage>
     <jour_recup>48h</jour_recup>
+    <fonction_principale>Abduction du bras</fonction_principale>
+    <origine>Acromion</origine>
+    <insertion>Tubérosité deltoïdienne de l’humérus</insertion>
+    <innervation>Nerf axillaire (C5-C6)</innervation>
+    <action>Abduction du bras</action>
   </entry>
   <entry>
     <groupe_musculaire>Épaules</groupe_musculaire>
@@ -66,9 +150,23 @@
     <type_subdivision>Faisceau</type_subdivision>
     <subdivision_anatomique>Postérieur</subdivision_anatomique>
     <localisation_fonctionnelle>Arrière</localisation_fonctionnelle>
-    <image_groupe>Epaules.png</image_groupe>
-    <image_muscle></image_muscle>
+    <image_groupe>00_Groupe_Epaule.png</image_groupe>
+    <image_muscle>02_Deltoide_Muscle_Posterieur.png</image_muscle>
+    <image_muscle_2></image_muscle_2>
+    <image_muscle_3></image_muscle_3>
+    <image_muscle_4></image_muscle_4>
+    <image_localisation_1>02_DELTOIDE_Loc_Avant.png</image_localisation_1>
+    <image_localisation_2>02_DELTOIDE_Loc_Arriere.png</image_localisation_2>
+    <image_zoom_insertion>02_Deltoide_ZoomInsertion_Posterieur.png</image_zoom_insertion>
+    <image_vue_profonde>02_Deltoide_VueProfonde_Posterieur.png</image_vue_profonde>
+    <image_faisceau_groupe>02_Deltoides_FaisceauGrp.png</image_faisceau_groupe>
+    <image_personnage>02_Deltoide_PersPrinc_Posterieur.png</image_personnage>
     <jour_recup>48h</jour_recup>
+    <fonction_principale>Extension/rétropulsion du bras</fonction_principale>
+    <origine>Épine de la scapula</origine>
+    <insertion>Tubérosité deltoïdienne de l’humérus</insertion>
+    <innervation>Nerf axillaire (C5-C6)</innervation>
+    <action>Extension, rotation latérale</action>
   </entry>
   <entry>
     <groupe_musculaire>Dos</groupe_musculaire>
@@ -76,9 +174,23 @@
     <type_subdivision>Faisceau</type_subdivision>
     <subdivision_anatomique>Supérieur</subdivision_anatomique>
     <localisation_fonctionnelle>Haut</localisation_fonctionnelle>
-    <image_groupe>Dos.png</image_groupe>
-    <image_muscle></image_muscle>
+    <image_groupe>00_Groupe_Dos.png</image_groupe>
+    <image_muscle>05_Dos_Muscle_Trapeze.png</image_muscle>
+    <image_muscle_2></image_muscle_2>
+    <image_muscle_3></image_muscle_3>
+    <image_muscle_4></image_muscle_4>
+    <image_localisation_1>Loc_Avant_0.png</image_localisation_1>
+    <image_localisation_2>05_DOS_Loc_Arriere.png</image_localisation_2>
+    <image_zoom_insertion>05_Dos_ZoomInsertion_Trapèze supérieur.png</image_zoom_insertion>
+    <image_vue_profonde>05_Dos_VueProfonde_Trapèze supérieur.png</image_vue_profonde>
+    <image_faisceau_groupe>05_Dos_FaisceauGrp.png</image_faisceau_groupe>
+    <image_personnage>05_Dos_PersPrinc_Trapèze supérieur.png</image_personnage>
     <jour_recup>48h</jour_recup>
+    <fonction_principale>Élévation et stabilisation de la scapula</fonction_principale>
+    <origine>Protubérance occipitale externe, ligne nuchale supérieure</origine>
+    <insertion>Tiers latéral de la clavicule</insertion>
+    <innervation>Nerf accessoire (XI) + C3-C4</innervation>
+    <action>Élévation de la scapula, extension cervicale</action>
   </entry>
   <entry>
     <groupe_musculaire>Dos</groupe_musculaire>
@@ -86,9 +198,23 @@
     <type_subdivision>Faisceau</type_subdivision>
     <subdivision_anatomique>Moyen</subdivision_anatomique>
     <localisation_fonctionnelle>Milieu</localisation_fonctionnelle>
-    <image_groupe>Dos.png</image_groupe>
-    <image_muscle></image_muscle>
+    <image_groupe>00_Groupe_Dos.png</image_groupe>
+    <image_muscle>05_Dos_Muscle_Trapeze.png</image_muscle>
+    <image_muscle_2></image_muscle_2>
+    <image_muscle_3></image_muscle_3>
+    <image_muscle_4></image_muscle_4>
+    <image_localisation_1>Loc_Avant_0.png</image_localisation_1>
+    <image_localisation_2>05_DOS_Loc_Arriere.png</image_localisation_2>
+    <image_zoom_insertion>05_Dos_ZoomInsertion_Trapèze moyen.png</image_zoom_insertion>
+    <image_vue_profonde>05_Dos_VueProfonde_Trapèze moyen.png</image_vue_profonde>
+    <image_faisceau_groupe>05_Dos_FaisceauGrp.png</image_faisceau_groupe>
+    <image_personnage>05_Dos_PersPrinc_Trapèze Moyen.png</image_personnage>
     <jour_recup>48h</jour_recup>
+    <fonction_principale>Rétraction de la scapula</fonction_principale>
+    <origine>Ligament nuchal et processus épineux C7-T3/4</origine>
+    <insertion>Acromion et épine de la scapula</insertion>
+    <innervation>Nerf accessoire (XI) + C3-C4</innervation>
+    <action>Rétraction de la scapula</action>
   </entry>
   <entry>
     <groupe_musculaire>Dos</groupe_musculaire>
@@ -96,9 +222,23 @@
     <type_subdivision>Faisceau</type_subdivision>
     <subdivision_anatomique>Inférieur</subdivision_anatomique>
     <localisation_fonctionnelle>Bas</localisation_fonctionnelle>
-    <image_groupe>Dos.png</image_groupe>
-    <image_muscle></image_muscle>
+    <image_groupe>00_Groupe_Dos.png</image_groupe>
+    <image_muscle>05_Dos_Muscle_Trapeze.png</image_muscle>
+    <image_muscle_2></image_muscle_2>
+    <image_muscle_3></image_muscle_3>
+    <image_muscle_4></image_muscle_4>
+    <image_localisation_1>Loc_Avant_0.png</image_localisation_1>
+    <image_localisation_2>05_DOS_Loc_Arriere.png</image_localisation_2>
+    <image_zoom_insertion>05_Dos_ZoomInsertion_Trapèze inférieur.png</image_zoom_insertion>
+    <image_vue_profonde>05_Dos_VueProfonde_Trapèze inférieur.png</image_vue_profonde>
+    <image_faisceau_groupe>05_Dos_FaisceauGrp.png</image_faisceau_groupe>
+    <image_personnage>05_Dos_PersPrinc_Trapèze Inf.png</image_personnage>
     <jour_recup>48h</jour_recup>
+    <fonction_principale>Abaissement et rotation supérieure de la scapula</fonction_principale>
+    <origine>Processus épineux T4-T12</origine>
+    <insertion>Épine de la scapula</insertion>
+    <innervation>Nerf accessoire (XI) + C3-C4</innervation>
+    <action>Abaissement de la scapula</action>
   </entry>
   <entry>
     <groupe_musculaire>Dos</groupe_musculaire>
@@ -106,9 +246,23 @@
     <type_subdivision>Aucune</type_subdivision>
     <subdivision_anatomique>-</subdivision_anatomique>
     <localisation_fonctionnelle>Dos entier</localisation_fonctionnelle>
-    <image_groupe>Dos.png</image_groupe>
-    <image_muscle></image_muscle>
+    <image_groupe>00_Groupe_Dos.png</image_groupe>
+    <image_muscle>05_Dos_Muscle_Grand Dorsal.png</image_muscle>
+    <image_muscle_2></image_muscle_2>
+    <image_muscle_3></image_muscle_3>
+    <image_muscle_4></image_muscle_4>
+    <image_localisation_1>Loc_Avant_0.png</image_localisation_1>
+    <image_localisation_2>05_DOS_Loc_Arriere.png</image_localisation_2>
+    <image_zoom_insertion>05_Dos_ZoomInsertion_Grand dorsal.png</image_zoom_insertion>
+    <image_vue_profonde>05_Dos_VueProfonde_Grand dorsal.png</image_vue_profonde>
+    <image_faisceau_groupe>05_Dos_FaisceauGrp.png</image_faisceau_groupe>
+    <image_personnage>05_Dos_PersPrinc_Grand Dorsal.png</image_personnage>
     <jour_recup>72h</jour_recup>
+    <fonction_principale>Adduction, extension et rotation médiale du bras</fonction_principale>
+    <origine>Processus épineux T7-L5, fascia thoracolombaire, crête iliaque, côtes inférieures</origine>
+    <insertion>Fond du sillon intertuberculaire de l’humérus</insertion>
+    <innervation>Nerf thoracodorsal (C6-C8)</innervation>
+    <action>Adduction, extension, rotation médiale du bras</action>
   </entry>
   <entry>
     <groupe_musculaire>Dos</groupe_musculaire>
@@ -116,9 +270,23 @@
     <type_subdivision>Aucune</type_subdivision>
     <subdivision_anatomique>-</subdivision_anatomique>
     <localisation_fonctionnelle>Bas / arrière épaule</localisation_fonctionnelle>
-    <image_groupe>Dos.png</image_groupe>
-    <image_muscle></image_muscle>
+    <image_groupe>00_Groupe_Dos.png</image_groupe>
+    <image_muscle>05_Dos_Muscle_Grand Rond.png</image_muscle>
+    <image_muscle_2></image_muscle_2>
+    <image_muscle_3></image_muscle_3>
+    <image_muscle_4></image_muscle_4>
+    <image_localisation_1>Loc_Avant_0.png</image_localisation_1>
+    <image_localisation_2>05_DOS_Loc_Arriere.png</image_localisation_2>
+    <image_zoom_insertion>05_Dos_ZoomInsertion_Grand Rond.png</image_zoom_insertion>
+    <image_vue_profonde>05_Dos_VueProfonde_Grand Rond.png</image_vue_profonde>
+    <image_faisceau_groupe>05_Dos_FaisceauGrp.png</image_faisceau_groupe>
+    <image_personnage>05_Dos_PersPrinc_Grand Rond.png</image_personnage>
     <jour_recup>48h</jour_recup>
+    <fonction_principale>Adduction, extension et rotation médiale du bras</fonction_principale>
+    <origine>Face postérieure de l’angle inférieur de la scapula</origine>
+    <insertion>Lèvre médiale du sillon intertuberculaire de l’humérus</insertion>
+    <innervation>Nerf subscapulaire inférieur (C5-C6)</innervation>
+    <action>Adduction, extension, rotation médiale</action>
   </entry>
   <entry>
     <groupe_musculaire>Dos</groupe_musculaire>
@@ -126,9 +294,23 @@
     <type_subdivision>Aucune</type_subdivision>
     <subdivision_anatomique>-</subdivision_anatomique>
     <localisation_fonctionnelle>Haut / arrière épaule</localisation_fonctionnelle>
-    <image_groupe>Dos.png</image_groupe>
-    <image_muscle></image_muscle>
+    <image_groupe>00_Groupe_Dos.png</image_groupe>
+    <image_muscle>05_Dos_Muscle_Petit Rond.png</image_muscle>
+    <image_muscle_2></image_muscle_2>
+    <image_muscle_3></image_muscle_3>
+    <image_muscle_4></image_muscle_4>
+    <image_localisation_1>Loc_Avant_0.png</image_localisation_1>
+    <image_localisation_2>05_DOS_Loc_Arriere.png</image_localisation_2>
+    <image_zoom_insertion>05_Dos_ZoomInsertion_Petit Rond.png</image_zoom_insertion>
+    <image_vue_profonde>05_Dos_VueProfonde_Petit Rond.png</image_vue_profonde>
+    <image_faisceau_groupe>05_Dos_FaisceauGrp.png</image_faisceau_groupe>
+    <image_personnage>05_Dos_PersPrinc_Petit Rond.png</image_personnage>
     <jour_recup>48h</jour_recup>
+    <fonction_principale>Rotation latérale du bras</fonction_principale>
+    <origine>Bord latéral de la scapula</origine>
+    <insertion>Facette inférieure du tubercule majeur de l’humérus</insertion>
+    <innervation>Nerf axillaire (C5-C6)</innervation>
+    <action>Rotation latérale du bras</action>
   </entry>
   <entry>
     <groupe_musculaire>Dos</groupe_musculaire>
@@ -136,9 +318,23 @@
     <type_subdivision>Aucune</type_subdivision>
     <subdivision_anatomique>-</subdivision_anatomique>
     <localisation_fonctionnelle>Haut du dos</localisation_fonctionnelle>
-    <image_groupe>Dos.png</image_groupe>
-    <image_muscle></image_muscle>
+    <image_groupe>00_Groupe_Dos.png</image_groupe>
+    <image_muscle>05_Dos_Muscle_Rhomboïdes.png</image_muscle>
+    <image_muscle_2></image_muscle_2>
+    <image_muscle_3></image_muscle_3>
+    <image_muscle_4></image_muscle_4>
+    <image_localisation_1>Loc_Avant_0.png</image_localisation_1>
+    <image_localisation_2>05_DOS_Loc_Arriere.png</image_localisation_2>
+    <image_zoom_insertion>05_Dos_ZoomInsertion_Rhomboïdes.png</image_zoom_insertion>
+    <image_vue_profonde>05_Dos_VueProfonde_Rhomboïdes.png</image_vue_profonde>
+    <image_faisceau_groupe>05_Dos_FaisceauGrp.png</image_faisceau_groupe>
+    <image_personnage>05_Dos_PersPrinc_Rhomboïdes.png</image_personnage>
     <jour_recup>48h</jour_recup>
+    <fonction_principale>Rétraction et légère élévation de la scapula</fonction_principale>
+    <origine>Processus épineux C7-T5</origine>
+    <insertion>Bord médial de la scapula</insertion>
+    <innervation>Nerf dorsal de la scapula (C4-C5)</innervation>
+    <action>Rétraction de la scapula</action>
   </entry>
   <entry>
     <groupe_musculaire>Dos</groupe_musculaire>
@@ -146,9 +342,23 @@
     <type_subdivision>Faisceau</type_subdivision>
     <subdivision_anatomique>Ilio-costal</subdivision_anatomique>
     <localisation_fonctionnelle>Latéral</localisation_fonctionnelle>
-    <image_groupe>Dos.png</image_groupe>
-    <image_muscle></image_muscle>
+    <image_groupe>00_Groupe_Dos.png</image_groupe>
+    <image_muscle>05_Dos_Muscle_Lombaires.png</image_muscle>
+    <image_muscle_2></image_muscle_2>
+    <image_muscle_3></image_muscle_3>
+    <image_muscle_4></image_muscle_4>
+    <image_localisation_1>Loc_Avant_0.png</image_localisation_1>
+    <image_localisation_2>05_DOS_Loc_Arriere.png</image_localisation_2>
+    <image_zoom_insertion>05_Dos_ZoomInsertion_Ilio-costal.png</image_zoom_insertion>
+    <image_vue_profonde>05_Dos_VueProfonde_Ilio-costal.png</image_vue_profonde>
+    <image_faisceau_groupe>05_Dos_FaisceauGrp.png</image_faisceau_groupe>
+    <image_personnage>05_Dos_PersPrinc_Longissimus.png</image_personnage>
     <jour_recup>72h</jour_recup>
+    <fonction_principale>Extension et inclinaison homolatérale du rachis</fonction_principale>
+    <origine>Angle des côtes, aponévrose lombaire et crête iliaque selon le segment</origine>
+    <insertion>Côtes et processus transverses selon le segment</insertion>
+    <innervation>Rameaux dorsaux des nerfs spinaux</innervation>
+    <action>Extension du rachis</action>
   </entry>
   <entry>
     <groupe_musculaire>Dos</groupe_musculaire>
@@ -156,9 +366,23 @@
     <type_subdivision>Faisceau</type_subdivision>
     <subdivision_anatomique>Longissimus</subdivision_anatomique>
     <localisation_fonctionnelle>Central</localisation_fonctionnelle>
-    <image_groupe>Dos.png</image_groupe>
-    <image_muscle></image_muscle>
+    <image_groupe>00_Groupe_Dos.png</image_groupe>
+    <image_muscle>05_Dos_Muscle_Lombaires.png</image_muscle>
+    <image_muscle_2></image_muscle_2>
+    <image_muscle_3></image_muscle_3>
+    <image_muscle_4></image_muscle_4>
+    <image_localisation_1>Loc_Avant_0.png</image_localisation_1>
+    <image_localisation_2>05_DOS_Loc_Arriere.png</image_localisation_2>
+    <image_zoom_insertion>05_Dos_ZoomInsertion_Longissimus.png</image_zoom_insertion>
+    <image_vue_profonde>05_Dos_VueProfonde_Longissimus.png</image_vue_profonde>
+    <image_faisceau_groupe>05_Dos_FaisceauGrp.png</image_faisceau_groupe>
+    <image_personnage>05_Dos_PersPrinc_Longissimus.png</image_personnage>
     <jour_recup>72h</jour_recup>
+    <fonction_principale>Extension et inclinaison homolatérale du rachis</fonction_principale>
+    <origine>Sacrum, processus transverses lombaires et thoraciques selon le segment</origine>
+    <insertion>Côtes, processus transverses, processus mastoïde selon le segment</insertion>
+    <innervation>Rameaux dorsaux des nerfs spinaux</innervation>
+    <action>Extension du rachis</action>
   </entry>
   <entry>
     <groupe_musculaire>Dos</groupe_musculaire>
@@ -166,9 +390,23 @@
     <type_subdivision>Faisceau</type_subdivision>
     <subdivision_anatomique>Épineux</subdivision_anatomique>
     <localisation_fonctionnelle>Médial</localisation_fonctionnelle>
-    <image_groupe>Dos.png</image_groupe>
-    <image_muscle></image_muscle>
+    <image_groupe>00_Groupe_Dos.png</image_groupe>
+    <image_muscle>05_Dos_Muscle_Lombaires.png</image_muscle>
+    <image_muscle_2></image_muscle_2>
+    <image_muscle_3></image_muscle_3>
+    <image_muscle_4></image_muscle_4>
+    <image_localisation_1>Loc_Avant_0.png</image_localisation_1>
+    <image_localisation_2>05_DOS_Loc_Arriere.png</image_localisation_2>
+    <image_zoom_insertion>05_Dos_ZoomInsertion_Épineux.png</image_zoom_insertion>
+    <image_vue_profonde>05_Dos_VueProfonde_Épineux.png</image_vue_profonde>
+    <image_faisceau_groupe>05_Dos_FaisceauGrp.png</image_faisceau_groupe>
+    <image_personnage>05_Dos_PersPrinc_Épineux.png</image_personnage>
     <jour_recup>72h</jour_recup>
+    <fonction_principale>Extension du rachis</fonction_principale>
+    <origine>Processus épineux des vertèbres thoraciques et cervicales</origine>
+    <insertion>Processus épineux des vertèbres supérieures</insertion>
+    <innervation>Rameaux dorsaux des nerfs spinaux</innervation>
+    <action>Extension du rachis</action>
   </entry>
   <entry>
     <groupe_musculaire>Bras</groupe_musculaire>
@@ -176,9 +414,23 @@
     <type_subdivision>Chef</type_subdivision>
     <subdivision_anatomique>Long</subdivision_anatomique>
     <localisation_fonctionnelle>Extérieur</localisation_fonctionnelle>
-    <image_groupe>Bras.png</image_groupe>
-    <image_muscle></image_muscle>
+    <image_groupe>00_Groupe_Bras.png</image_groupe>
+    <image_muscle>03_Bras_Muscle_Chef Long.png</image_muscle>
+    <image_muscle_2></image_muscle_2>
+    <image_muscle_3></image_muscle_3>
+    <image_muscle_4></image_muscle_4>
+    <image_localisation_1>03_BRAS_Loc_Avant.png</image_localisation_1>
+    <image_localisation_2>03_BRAS_Loc_Arriere.png</image_localisation_2>
+    <image_zoom_insertion>03_Bras_ZoomInsertion_Biceps – Chef long.png</image_zoom_insertion>
+    <image_vue_profonde>03_Bras_VuePronfonde_Biceps – chef long.png</image_vue_profonde>
+    <image_faisceau_groupe>03_Bras_FaisceauGrp.png</image_faisceau_groupe>
+    <image_personnage>03_Bras_PersPrinc_Biceps – chef long.png</image_personnage>
     <jour_recup>48h</jour_recup>
+    <fonction_principale>Flexion du coude et supination de l’avant-bras</fonction_principale>
+    <origine>Tubercule supraglénoïdal de la scapula</origine>
+    <insertion>Tubérosité radiale et aponévrose bicipitale</insertion>
+    <innervation>Nerf musculocutané (C5-C6)</innervation>
+    <action>Flexion du coude, supination</action>
   </entry>
   <entry>
     <groupe_musculaire>Bras</groupe_musculaire>
@@ -186,9 +438,23 @@
     <type_subdivision>Chef</type_subdivision>
     <subdivision_anatomique>Court</subdivision_anatomique>
     <localisation_fonctionnelle>Intérieur</localisation_fonctionnelle>
-    <image_groupe>Bras.png</image_groupe>
-    <image_muscle></image_muscle>
+    <image_groupe>00_Groupe_Bras.png</image_groupe>
+    <image_muscle>03_Bras_Muscle_Chef court.png</image_muscle>
+    <image_muscle_2></image_muscle_2>
+    <image_muscle_3></image_muscle_3>
+    <image_muscle_4></image_muscle_4>
+    <image_localisation_1>03_BRAS_Loc_Avant.png</image_localisation_1>
+    <image_localisation_2>03_BRAS_Loc_Arriere.png</image_localisation_2>
+    <image_zoom_insertion>03_Bras_ZoomInsertion_Biceps – Chef Court.png</image_zoom_insertion>
+    <image_vue_profonde>03_Bras_VuePronfonde_Biceps – chef Court.png</image_vue_profonde>
+    <image_faisceau_groupe>03_Bras_FaisceauGrp.png</image_faisceau_groupe>
+    <image_personnage>03_Bras_PersPrinc_Biceps – chef Court.png</image_personnage>
     <jour_recup>48h</jour_recup>
+    <fonction_principale>Flexion du coude et aide à la flexion de l’épaule</fonction_principale>
+    <origine>Processus coracoïde de la scapula</origine>
+    <insertion>Tubérosité radiale et aponévrose bicipitale</insertion>
+    <innervation>Nerf musculocutané (C5-C6)</innervation>
+    <action>Flexion du coude</action>
   </entry>
   <entry>
     <groupe_musculaire>Bras</groupe_musculaire>
@@ -196,9 +462,23 @@
     <type_subdivision>Chef</type_subdivision>
     <subdivision_anatomique>Long</subdivision_anatomique>
     <localisation_fonctionnelle>Arrière</localisation_fonctionnelle>
-    <image_groupe>Bras.png</image_groupe>
-    <image_muscle></image_muscle>
+    <image_groupe>00_Groupe_Bras.png</image_groupe>
+    <image_muscle>03_Bras_Muscle_Triceps – Chef long.png</image_muscle>
+    <image_muscle_2></image_muscle_2>
+    <image_muscle_3></image_muscle_3>
+    <image_muscle_4></image_muscle_4>
+    <image_localisation_1>03_BRAS_Loc_Avant.png</image_localisation_1>
+    <image_localisation_2>03_BRAS_Loc_Arriere.png</image_localisation_2>
+    <image_zoom_insertion>03_Bras_ZoomInsertion_Triceps – Chef long.png</image_zoom_insertion>
+    <image_vue_profonde>03_Bras_VuePronfonde_Triceps – chef long.png</image_vue_profonde>
+    <image_faisceau_groupe>03_Bras_FaisceauGrp.png</image_faisceau_groupe>
+    <image_personnage>03_Bras_PersPrinc_Triceps – Chef long.png</image_personnage>
     <jour_recup>48h</jour_recup>
+    <fonction_principale>Extension du coude et extension/adduction du bras</fonction_principale>
+    <origine>Tubercule infraglénoïdal de la scapula</origine>
+    <insertion>Olécrâne de l’ulna</insertion>
+    <innervation>Nerf radial (C6-C8)</innervation>
+    <action>Extension du coude, extension de l’épaule</action>
   </entry>
   <entry>
     <groupe_musculaire>Bras</groupe_musculaire>
@@ -206,9 +486,23 @@
     <type_subdivision>Chef</type_subdivision>
     <subdivision_anatomique>Latéral</subdivision_anatomique>
     <localisation_fonctionnelle>Extérieur</localisation_fonctionnelle>
-    <image_groupe>Bras.png</image_groupe>
-    <image_muscle></image_muscle>
+    <image_groupe>00_Groupe_Bras.png</image_groupe>
+    <image_muscle>03_Bras_Muscle_Triceps – Chef latéral.png</image_muscle>
+    <image_muscle_2></image_muscle_2>
+    <image_muscle_3></image_muscle_3>
+    <image_muscle_4></image_muscle_4>
+    <image_localisation_1>03_BRAS_Loc_Avant.png</image_localisation_1>
+    <image_localisation_2>03_BRAS_Loc_Arriere.png</image_localisation_2>
+    <image_zoom_insertion>03_Bras_ZoomInsertion_Triceps – Chef latéral.png</image_zoom_insertion>
+    <image_vue_profonde>03_Bras_VuePronfonde_Triceps – chef latéral.png</image_vue_profonde>
+    <image_faisceau_groupe>03_Bras_FaisceauGrp.png</image_faisceau_groupe>
+    <image_personnage>03_Bras_PersPrinc_Triceps – Chef latéral.png</image_personnage>
     <jour_recup>48h</jour_recup>
+    <fonction_principale>Extension du coude</fonction_principale>
+    <origine>Face postérieure de l’humérus, au-dessus du sillon du nerf radial</origine>
+    <insertion>Olécrâne de l’ulna</insertion>
+    <innervation>Nerf radial (C6-C8)</innervation>
+    <action>Extension du coude</action>
   </entry>
   <entry>
     <groupe_musculaire>Bras</groupe_musculaire>
@@ -216,9 +510,23 @@
     <type_subdivision>Chef</type_subdivision>
     <subdivision_anatomique>Médial</subdivision_anatomique>
     <localisation_fonctionnelle>Profond</localisation_fonctionnelle>
-    <image_groupe>Bras.png</image_groupe>
-    <image_muscle></image_muscle>
+    <image_groupe>00_Groupe_Bras.png</image_groupe>
+    <image_muscle>03_Bras_Muscle_Triceps – Chef médial.png</image_muscle>
+    <image_muscle_2></image_muscle_2>
+    <image_muscle_3></image_muscle_3>
+    <image_muscle_4></image_muscle_4>
+    <image_localisation_1>03_BRAS_Loc_Avant.png</image_localisation_1>
+    <image_localisation_2>03_BRAS_Loc_Arriere.png</image_localisation_2>
+    <image_zoom_insertion>03_Bras_ZoomInsertion_Triceps – Chef Médial.png</image_zoom_insertion>
+    <image_vue_profonde>03_Bras_VuePronfonde_Triceps – chef médial.png</image_vue_profonde>
+    <image_faisceau_groupe>03_Bras_FaisceauGrp.png</image_faisceau_groupe>
+    <image_personnage>03_Bras_PersPrinc_Triceps – Chef médial.png</image_personnage>
     <jour_recup>48h</jour_recup>
+    <fonction_principale>Extension du coude</fonction_principale>
+    <origine>Face postérieure de l’humérus, au-dessous du sillon du nerf radial</origine>
+    <insertion>Olécrâne de l’ulna</insertion>
+    <innervation>Nerf radial (C6-C8)</innervation>
+    <action>Extension du coude</action>
   </entry>
   <entry>
     <groupe_musculaire>Bras</groupe_musculaire>
@@ -226,9 +534,23 @@
     <type_subdivision>Aucune</type_subdivision>
     <subdivision_anatomique>-</subdivision_anatomique>
     <localisation_fonctionnelle>Profond</localisation_fonctionnelle>
-    <image_groupe>Bras.png</image_groupe>
-    <image_muscle></image_muscle>
+    <image_groupe>00_Groupe_Bras.png</image_groupe>
+    <image_muscle>03_Bras_Muscle_Brachial antérieur.png</image_muscle>
+    <image_muscle_2></image_muscle_2>
+    <image_muscle_3></image_muscle_3>
+    <image_muscle_4></image_muscle_4>
+    <image_localisation_1>03_BRAS_Loc_Avant.png</image_localisation_1>
+    <image_localisation_2>03_BRAS_Loc_Arriere.png</image_localisation_2>
+    <image_zoom_insertion>03_Bras_ZoomInsertion_Brachial antérieur.png</image_zoom_insertion>
+    <image_vue_profonde>03_Bras_VuePronfonde_Brachial antérieur.png</image_vue_profonde>
+    <image_faisceau_groupe>03_Bras_FaisceauGrp.png</image_faisceau_groupe>
+    <image_personnage>03_Bras_PersPrinc_Brachial Antérieur.png</image_personnage>
     <jour_recup>48h</jour_recup>
+    <fonction_principale>Flexion du coude</fonction_principale>
+    <origine>Face antérieure de la moitié distale de l’humérus</origine>
+    <insertion>Processus coronoïde et tubérosité de l’ulna</insertion>
+    <innervation>Nerf musculocutané (C5-C6) ; branche du radial pour la portion latérale</innervation>
+    <action>Flexion du coude</action>
   </entry>
   <entry>
     <groupe_musculaire>Avant-bras</groupe_musculaire>
@@ -236,9 +558,23 @@
     <type_subdivision>Faisceau</type_subdivision>
     <subdivision_anatomique>Groupe fléchisseur</subdivision_anatomique>
     <localisation_fonctionnelle>Avant</localisation_fonctionnelle>
-    <image_groupe></image_groupe>
-    <image_muscle></image_muscle>
+    <image_groupe>00_Groupe_AvantBras.png</image_groupe>
+    <image_muscle>04_AvantBras_Muscle_Flechisseur.png</image_muscle>
+    <image_muscle_2></image_muscle_2>
+    <image_muscle_3></image_muscle_3>
+    <image_muscle_4></image_muscle_4>
+    <image_localisation_1>04_AVANT-BRAS_Loc_Avant.png</image_localisation_1>
+    <image_localisation_2>04_AVANT-BRAS_Loc_Arriere.png</image_localisation_2>
+    <image_zoom_insertion>04_AvantBras_ZoomInsertion_Flechisseurs.png</image_zoom_insertion>
+    <image_vue_profonde>04_AvantBras_VueProfonde_Flechisseurs.png</image_vue_profonde>
+    <image_faisceau_groupe>04_Avant-Bras_FaisceauGrp.png</image_faisceau_groupe>
+    <image_personnage>04_AvantBras_PersPrinc_Flechisseur.png</image_personnage>
     <jour_recup>24h</jour_recup>
+    <fonction_principale>Flexion du poignet et des doigts</fonction_principale>
+    <origine>Épicondyle médial de l’humérus et ulna proximale</origine>
+    <insertion>Métacarpiens, phalanges et structures palmaires selon les muscles composant le groupe</insertion>
+    <innervation>Nerf médian et/ou ulnaire selon les muscles du groupe</innervation>
+    <action>Flexion du poignet et des doigts</action>
   </entry>
   <entry>
     <groupe_musculaire>Avant-bras</groupe_musculaire>
@@ -246,9 +582,23 @@
     <type_subdivision>Faisceau</type_subdivision>
     <subdivision_anatomique>Groupe extenseur</subdivision_anatomique>
     <localisation_fonctionnelle>Arrière</localisation_fonctionnelle>
-    <image_groupe></image_groupe>
-    <image_muscle></image_muscle>
+    <image_groupe>00_Groupe_AvantBras.png</image_groupe>
+    <image_muscle>04_AvantBras_Muscle_Extenseur.png</image_muscle>
+    <image_muscle_2></image_muscle_2>
+    <image_muscle_3></image_muscle_3>
+    <image_muscle_4></image_muscle_4>
+    <image_localisation_1>04_AVANT-BRAS_Loc_Avant.png</image_localisation_1>
+    <image_localisation_2>04_AVANT-BRAS_Loc_Arriere.png</image_localisation_2>
+    <image_zoom_insertion>04_AvantBras_ZoomInsertion_Extenseur.png</image_zoom_insertion>
+    <image_vue_profonde>04_AvantBras_VueProfonde_Extenseurs.png</image_vue_profonde>
+    <image_faisceau_groupe>04_Avant-Bras_FaisceauGrp.png</image_faisceau_groupe>
+    <image_personnage>04_AvantBras_PersPrinc_Extenseur.png</image_personnage>
     <jour_recup>24h</jour_recup>
+    <fonction_principale>Extension du poignet et des doigts</fonction_principale>
+    <origine>Épicondyle latéral de l’humérus</origine>
+    <insertion>Métacarpiens, phalanges et structures dorsales selon les muscles composant le groupe</insertion>
+    <innervation>Nerf radial (branche profonde et branche interosseuse postérieure)</innervation>
+    <action>Extension du poignet et des doigts</action>
   </entry>
   <entry>
     <groupe_musculaire>Avant-bras</groupe_musculaire>
@@ -256,9 +606,23 @@
     <type_subdivision>Aucune</type_subdivision>
     <subdivision_anatomique>-</subdivision_anatomique>
     <localisation_fonctionnelle>Latéral</localisation_fonctionnelle>
-    <image_groupe></image_groupe>
-    <image_muscle></image_muscle>
+    <image_groupe>00_Groupe_AvantBras.png</image_groupe>
+    <image_muscle>04_AvantBras_Muscle_Brachioradial.png</image_muscle>
+    <image_muscle_2></image_muscle_2>
+    <image_muscle_3></image_muscle_3>
+    <image_muscle_4></image_muscle_4>
+    <image_localisation_1>04_AVANT-BRAS_Loc_Avant.png</image_localisation_1>
+    <image_localisation_2>04_AVANT-BRAS_Loc_Arriere.png</image_localisation_2>
+    <image_zoom_insertion>04_AvantBras_ZoomInsertion_Brachioradial.png</image_zoom_insertion>
+    <image_vue_profonde>04_AvantBras_VueProfonde_Brachioradial.png</image_vue_profonde>
+    <image_faisceau_groupe>04_Avant-Bras_FaisceauGrp.png</image_faisceau_groupe>
+    <image_personnage>04_AvantBras_PersPrinc_Brachioradial.png</image_personnage>
     <jour_recup>24h</jour_recup>
+    <fonction_principale>Flexion du coude en position neutre</fonction_principale>
+    <origine>Crête supracondylaire latérale de l’humérus</origine>
+    <insertion>Processus styloïde du radius</insertion>
+    <innervation>Nerf radial (C5-C7)</innervation>
+    <action>Flexion du coude</action>
   </entry>
   <entry>
     <groupe_musculaire>Abdominaux</groupe_musculaire>
@@ -266,9 +630,23 @@
     <type_subdivision>Faisceau</type_subdivision>
     <subdivision_anatomique>Faisceaux verticaux</subdivision_anatomique>
     <localisation_fonctionnelle>Centre</localisation_fonctionnelle>
-    <image_groupe>Abdominaux.png</image_groupe>
-    <image_muscle></image_muscle>
+    <image_groupe>00_Groupe_Abdominaux.png</image_groupe>
+    <image_muscle>06_Abdominaux_Muscle_GrdDroit.png</image_muscle>
+    <image_muscle_2></image_muscle_2>
+    <image_muscle_3></image_muscle_3>
+    <image_muscle_4></image_muscle_4>
+    <image_localisation_1>06_Abdominaux_Loc_Avant.png</image_localisation_1>
+    <image_localisation_2>Loc_Arriere_0.png</image_localisation_2>
+    <image_zoom_insertion>06_Abdominaux_ZoomInsertion_GrdDroit.png</image_zoom_insertion>
+    <image_vue_profonde>06_Abdominaux_VueProfonde_GrdDroit.png</image_vue_profonde>
+    <image_faisceau_groupe>06_Abdominaux_FaisceauGrp.png</image_faisceau_groupe>
+    <image_personnage>06_Abdominaux_PersPrinc_GrandDroit.png</image_personnage>
     <jour_recup>48h</jour_recup>
+    <fonction_principale>Flexion du tronc et rétroversion du bassin</fonction_principale>
+    <origine>Pubis</origine>
+    <insertion>Processus xiphoïde et cartilages costaux 5 à 7</insertion>
+    <innervation>Nerfs thoraco-abdominaux (T7-T12)</innervation>
+    <action>Flexion du tronc</action>
   </entry>
   <entry>
     <groupe_musculaire>Abdominaux</groupe_musculaire>
@@ -276,9 +654,23 @@
     <type_subdivision>Faisceau</type_subdivision>
     <subdivision_anatomique>Faisceaux obliques</subdivision_anatomique>
     <localisation_fonctionnelle>Bas / avant</localisation_fonctionnelle>
-    <image_groupe>Abdominaux.png</image_groupe>
-    <image_muscle></image_muscle>
+    <image_groupe>00_Groupe_Abdominaux.png</image_groupe>
+    <image_muscle>06_Abdominaux_Muscle_ObliqExterne.png</image_muscle>
+    <image_muscle_2></image_muscle_2>
+    <image_muscle_3></image_muscle_3>
+    <image_muscle_4></image_muscle_4>
+    <image_localisation_1>06_Abdominaux_Loc_Avant.png</image_localisation_1>
+    <image_localisation_2>Loc_Arriere_0.png</image_localisation_2>
+    <image_zoom_insertion>06_Abdominaux_ZoomInsertion_ObliqueExter.png</image_zoom_insertion>
+    <image_vue_profonde>06_Abdominaux_VueProfonde_ObliqExt.png</image_vue_profonde>
+    <image_faisceau_groupe>06_Abdominaux_FaisceauGrp.png</image_faisceau_groupe>
+    <image_personnage>06_Abdominaux_PersPrinc_ObliqExterne.png</image_personnage>
     <jour_recup>48h</jour_recup>
+    <fonction_principale>Rotation controlatérale et flexion du tronc</fonction_principale>
+    <origine>Faces externes des côtes 5 à 12</origine>
+    <insertion>Ligne blanche, tubercule pubien, moitié antérieure de la crête iliaque</insertion>
+    <innervation>Nerfs thoraco-abdominaux (T7-T12)</innervation>
+    <action>Flexion et rotation du tronc</action>
   </entry>
   <entry>
     <groupe_musculaire>Abdominaux</groupe_musculaire>
@@ -286,9 +678,23 @@
     <type_subdivision>Faisceau</type_subdivision>
     <subdivision_anatomique>Faisceaux obliques inverses</subdivision_anatomique>
     <localisation_fonctionnelle>Profond</localisation_fonctionnelle>
-    <image_groupe>Abdominaux.png</image_groupe>
-    <image_muscle></image_muscle>
+    <image_groupe>00_Groupe_Abdominaux.png</image_groupe>
+    <image_muscle>06_Abdominaux_Muscle_ObliqInterne.png</image_muscle>
+    <image_muscle_2></image_muscle_2>
+    <image_muscle_3></image_muscle_3>
+    <image_muscle_4></image_muscle_4>
+    <image_localisation_1>06_Abdominaux_Loc_Avant.png</image_localisation_1>
+    <image_localisation_2>Loc_Arriere_0.png</image_localisation_2>
+    <image_zoom_insertion>06_Abdominaux_ZoomInsertion_ObliqueInterne.png</image_zoom_insertion>
+    <image_vue_profonde>06_Abdominaux_VueProfonde_ObliqInterne.png</image_vue_profonde>
+    <image_faisceau_groupe>06_Abdominaux_FaisceauGrp.png</image_faisceau_groupe>
+    <image_personnage>06_Abdominaux_PersPrinc_ObliqInterne.png</image_personnage>
     <jour_recup>48h</jour_recup>
+    <fonction_principale>Rotation homolatérale et flexion du tronc</fonction_principale>
+    <origine>Fascia thoracolombaire, crête iliaque, ligament inguinal</origine>
+    <insertion>Ligne blanche, côtes inférieures, pubis</insertion>
+    <innervation>Nerfs thoraco-abdominaux (T7-T12) et L1</innervation>
+    <action>Flexion et rotation du tronc</action>
   </entry>
   <entry>
     <groupe_musculaire>Abdominaux</groupe_musculaire>
@@ -296,9 +702,23 @@
     <type_subdivision>Faisceau</type_subdivision>
     <subdivision_anatomique>Faisceaux horizontaux</subdivision_anatomique>
     <localisation_fonctionnelle>Profond</localisation_fonctionnelle>
-    <image_groupe>Abdominaux.png</image_groupe>
-    <image_muscle></image_muscle>
+    <image_groupe>00_Groupe_Abdominaux.png</image_groupe>
+    <image_muscle>06_Abdominaux_Muscle_Transverse.png</image_muscle>
+    <image_muscle_2></image_muscle_2>
+    <image_muscle_3></image_muscle_3>
+    <image_muscle_4></image_muscle_4>
+    <image_localisation_1>06_Abdominaux_Loc_Avant.png</image_localisation_1>
+    <image_localisation_2>Loc_Arriere_0.png</image_localisation_2>
+    <image_zoom_insertion>06_Abdominaux_ZoomInsertion_Transverse.png</image_zoom_insertion>
+    <image_vue_profonde>06_Abdominaux_VueProfonde_Transverse.png</image_vue_profonde>
+    <image_faisceau_groupe>06_Abdominaux_FaisceauGrp.png</image_faisceau_groupe>
+    <image_personnage>06_Abdominaux_PersPrinc_Transverse.png</image_personnage>
     <jour_recup>48h</jour_recup>
+    <fonction_principale>Compression des viscères et stabilisation abdominale</fonction_principale>
+    <origine>Faces internes des cartilages costaux 7 à 12, fascia thoracolombaire, crête iliaque, ligament inguinal</origine>
+    <insertion>Ligne blanche et pubis</insertion>
+    <innervation>Nerfs thoraco-abdominaux (T7-T12) et L1</innervation>
+    <action>Compression abdominale</action>
   </entry>
   <entry>
     <groupe_musculaire>Fessiers</groupe_musculaire>
@@ -306,9 +726,23 @@
     <type_subdivision>Faisceau</type_subdivision>
     <subdivision_anatomique>Supérieur</subdivision_anatomique>
     <localisation_fonctionnelle>Haut</localisation_fonctionnelle>
-    <image_groupe>Fessiers.png</image_groupe>
-    <image_muscle></image_muscle>
+    <image_groupe>00_Groupe_Fessiers.png</image_groupe>
+    <image_muscle>07_Fessiers_Muscle_Grand fessier Supp.png</image_muscle>
+    <image_muscle_2></image_muscle_2>
+    <image_muscle_3></image_muscle_3>
+    <image_muscle_4></image_muscle_4>
+    <image_localisation_1>Loc_Avant_0.png</image_localisation_1>
+    <image_localisation_2>07_Fessiers_Loc_Arriere.png</image_localisation_2>
+    <image_zoom_insertion>07_Fessiers_ZoomInsertion_Grand fessier Supp.png</image_zoom_insertion>
+    <image_vue_profonde>07_Fessiers_VueProfonde_Grand fessier Supp.png</image_vue_profonde>
+    <image_faisceau_groupe>07_Fessiers_FaisceauGrp.png</image_faisceau_groupe>
+    <image_personnage>07_Fessiers_PersPrinc_Grand fessier Supp.png</image_personnage>
     <jour_recup>72h</jour_recup>
+    <fonction_principale>Extension et rotation latérale de la hanche</fonction_principale>
+    <origine>Ilion postérieur, sacrum et coccyx selon le faisceau</origine>
+    <insertion>Tractus ilio-tibial et tubérosité glutéale du fémur</insertion>
+    <innervation>Nerf glutéal inférieur (L5-S2)</innervation>
+    <action>Extension de hanche</action>
   </entry>
   <entry>
     <groupe_musculaire>Fessiers</groupe_musculaire>
@@ -316,9 +750,23 @@
     <type_subdivision>Faisceau</type_subdivision>
     <subdivision_anatomique>Inférieur</subdivision_anatomique>
     <localisation_fonctionnelle>Bas</localisation_fonctionnelle>
-    <image_groupe>Fessiers.png</image_groupe>
-    <image_muscle></image_muscle>
+    <image_groupe>00_Groupe_Fessiers.png</image_groupe>
+    <image_muscle>07_Fessiers_Muscle_Grand fessier Inf.png</image_muscle>
+    <image_muscle_2></image_muscle_2>
+    <image_muscle_3></image_muscle_3>
+    <image_muscle_4></image_muscle_4>
+    <image_localisation_1>Loc_Avant_0.png</image_localisation_1>
+    <image_localisation_2>07_Fessiers_Loc_Arriere.png</image_localisation_2>
+    <image_zoom_insertion>07_Fessiers_ZoomInsertion_Grand fessier Inferieur.png</image_zoom_insertion>
+    <image_vue_profonde>07_Fessiers_VueProfonde_Grand fessier Inferieur.png</image_vue_profonde>
+    <image_faisceau_groupe>07_Fessiers_FaisceauGrp.png</image_faisceau_groupe>
+    <image_personnage>07_Fessiers_PersPrinc_Grand fessier Inf.png</image_personnage>
     <jour_recup>72h</jour_recup>
+    <fonction_principale>Extension puissante de la hanche</fonction_principale>
+    <origine>Face postérieure du bassin</origine>
+    <insertion>Tractus ilio-tibial et tubérosité glutéale du fémur</insertion>
+    <innervation>Nerf glutéal inférieur (L5-S2)</innervation>
+    <action>Extension de hanche</action>
   </entry>
   <entry>
     <groupe_musculaire>Fessiers</groupe_musculaire>
@@ -326,9 +774,23 @@
     <type_subdivision>Aucune</type_subdivision>
     <subdivision_anatomique>-</subdivision_anatomique>
     <localisation_fonctionnelle>Latéral</localisation_fonctionnelle>
-    <image_groupe>Fessiers.png</image_groupe>
-    <image_muscle></image_muscle>
+    <image_groupe>00_Groupe_Fessiers.png</image_groupe>
+    <image_muscle>07_Fessiers_Muscle_Moyen fessier.png</image_muscle>
+    <image_muscle_2></image_muscle_2>
+    <image_muscle_3></image_muscle_3>
+    <image_muscle_4></image_muscle_4>
+    <image_localisation_1>Loc_Avant_0.png</image_localisation_1>
+    <image_localisation_2>07_Fessiers_Loc_Arriere.png</image_localisation_2>
+    <image_zoom_insertion>07_Fessiers_ZoomInsertion_Moyen fessier.png</image_zoom_insertion>
+    <image_vue_profonde>07_Fessiers_VueProfonde_Moyen fessier.png</image_vue_profonde>
+    <image_faisceau_groupe>07_Fessiers_FaisceauGrp.png</image_faisceau_groupe>
+    <image_personnage>07_Fessiers_PersPrinc_Moyen fessier.png</image_personnage>
     <jour_recup>72h</jour_recup>
+    <fonction_principale>Abduction de la hanche et stabilisation pelvienne</fonction_principale>
+    <origine>Face externe de l’ilium</origine>
+    <insertion>Face latérale du grand trochanter</insertion>
+    <innervation>Nerf glutéal supérieur (L4-S1)</innervation>
+    <action>Abduction de la hanche</action>
   </entry>
   <entry>
     <groupe_musculaire>Fessiers</groupe_musculaire>
@@ -336,9 +798,23 @@
     <type_subdivision>Aucune</type_subdivision>
     <subdivision_anatomique>-</subdivision_anatomique>
     <localisation_fonctionnelle>Profond</localisation_fonctionnelle>
-    <image_groupe>Fessiers.png</image_groupe>
-    <image_muscle></image_muscle>
+    <image_groupe>00_Groupe_Fessiers.png</image_groupe>
+    <image_muscle>07_Fessiers_Muscle_Petit fessier.png</image_muscle>
+    <image_muscle_2></image_muscle_2>
+    <image_muscle_3></image_muscle_3>
+    <image_muscle_4></image_muscle_4>
+    <image_localisation_1>Loc_Avant_0.png</image_localisation_1>
+    <image_localisation_2>07_Fessiers_Loc_Arriere.png</image_localisation_2>
+    <image_zoom_insertion>07_Fessiers_ZoomInsertion_Petit fessier.png</image_zoom_insertion>
+    <image_vue_profonde>07_Fessiers_VueProfonde_Petit fessier.png</image_vue_profonde>
+    <image_faisceau_groupe>07_Fessiers_FaisceauGrp.png</image_faisceau_groupe>
+    <image_personnage>07_Fessiers_PersPrinc_Petit fessier.png</image_personnage>
     <jour_recup>72h</jour_recup>
+    <fonction_principale>Abduction et rotation médiale de la hanche</fonction_principale>
+    <origine>Face externe de l’ilium sous le moyen fessier</origine>
+    <insertion>Face antérieure du grand trochanter</insertion>
+    <innervation>Nerf glutéal supérieur (L4-S1)</innervation>
+    <action>Abduction de la hanche</action>
   </entry>
   <entry>
     <groupe_musculaire>Cuisses (avant)</groupe_musculaire>
@@ -346,9 +822,23 @@
     <type_subdivision>Chef</type_subdivision>
     <subdivision_anatomique>Droit fémoral</subdivision_anatomique>
     <localisation_fonctionnelle>Central</localisation_fonctionnelle>
-    <image_groupe>Quadriceps.png</image_groupe>
-    <image_muscle></image_muscle>
+    <image_groupe>00_Groupe_Quadriceps.png</image_groupe>
+    <image_muscle>08_Quadriceps_Muscle_Droit Femoral.png</image_muscle>
+    <image_muscle_2></image_muscle_2>
+    <image_muscle_3></image_muscle_3>
+    <image_muscle_4></image_muscle_4>
+    <image_localisation_1>08_QUADRICEPS_Loc_Avant.png</image_localisation_1>
+    <image_localisation_2>Loc_Arriere_0.png</image_localisation_2>
+    <image_zoom_insertion>08_Quadriceps_ZoomInsertion_Droit fémoral.png</image_zoom_insertion>
+    <image_vue_profonde>08_Quadriceps_VueProfonde_Droit fémoral.png</image_vue_profonde>
+    <image_faisceau_groupe>08_Quadriceps_FaisceauGrp.png</image_faisceau_groupe>
+    <image_personnage>08_Quadriceps_PersPrinc_Droit fémoral.png</image_personnage>
     <jour_recup>72h</jour_recup>
+    <fonction_principale>Extension du genou et flexion de hanche</fonction_principale>
+    <origine>Épine iliaque antéro-inférieure et bord supérieur du cotyle</origine>
+    <insertion>Rotule puis tubérosité tibiale via le tendon quadricipital</insertion>
+    <innervation>Nerf fémoral (L2-L4)</innervation>
+    <action>Extension du genou</action>
   </entry>
   <entry>
     <groupe_musculaire>Cuisses (avant)</groupe_musculaire>
@@ -356,9 +846,23 @@
     <type_subdivision>Chef</type_subdivision>
     <subdivision_anatomique>Vaste latéral</subdivision_anatomique>
     <localisation_fonctionnelle>Extérieur</localisation_fonctionnelle>
-    <image_groupe>Quadriceps.png</image_groupe>
-    <image_muscle></image_muscle>
+    <image_groupe>00_Groupe_Quadriceps.png</image_groupe>
+    <image_muscle>08_Quadriceps_Muscle_Vaste latéral.png</image_muscle>
+    <image_muscle_2></image_muscle_2>
+    <image_muscle_3></image_muscle_3>
+    <image_muscle_4></image_muscle_4>
+    <image_localisation_1>08_QUADRICEPS_Loc_Avant.png</image_localisation_1>
+    <image_localisation_2>Loc_Arriere_0.png</image_localisation_2>
+    <image_zoom_insertion>08_Quadriceps_ZoomInsertion_Vaste latéral.png</image_zoom_insertion>
+    <image_vue_profonde>08_Quadriceps_VuePronfonde_Vaste latéral.png</image_vue_profonde>
+    <image_faisceau_groupe>08_Quadriceps_FaisceauGrp.png</image_faisceau_groupe>
+    <image_personnage>08_Quadriceps_PersPrinc_Vaste latéral.png</image_personnage>
     <jour_recup>72h</jour_recup>
+    <fonction_principale>Extension du genou</fonction_principale>
+    <origine>Face postéro-latérale du fémur</origine>
+    <insertion>Rotule puis tubérosité tibiale via le tendon quadricipital</insertion>
+    <innervation>Nerf fémoral (L2-L4)</innervation>
+    <action>Extension du genou</action>
   </entry>
   <entry>
     <groupe_musculaire>Cuisses (avant)</groupe_musculaire>
@@ -366,9 +870,23 @@
     <type_subdivision>Chef</type_subdivision>
     <subdivision_anatomique>Vaste médial</subdivision_anatomique>
     <localisation_fonctionnelle>Intérieur</localisation_fonctionnelle>
-    <image_groupe>Quadriceps.png</image_groupe>
-    <image_muscle></image_muscle>
+    <image_groupe>00_Groupe_Quadriceps.png</image_groupe>
+    <image_muscle>08_Quadriceps_Muscle_Vaste médial.png</image_muscle>
+    <image_muscle_2></image_muscle_2>
+    <image_muscle_3></image_muscle_3>
+    <image_muscle_4></image_muscle_4>
+    <image_localisation_1>08_QUADRICEPS_Loc_Avant.png</image_localisation_1>
+    <image_localisation_2>Loc_Arriere_0.png</image_localisation_2>
+    <image_zoom_insertion>08_Quadriceps_ZoomInsertion_Vaste médial.png</image_zoom_insertion>
+    <image_vue_profonde>08_Quadriceps_VuePronfonde_Vaste médial.png</image_vue_profonde>
+    <image_faisceau_groupe>08_Quadriceps_FaisceauGrp.png</image_faisceau_groupe>
+    <image_personnage>08_Quadriceps_PersPrinc_Vaste médial.png</image_personnage>
     <jour_recup>72h</jour_recup>
+    <fonction_principale>Extension du genou et stabilisation de la rotule</fonction_principale>
+    <origine>Lèvre médiale de la ligne âpre du fémur</origine>
+    <insertion>Rotule puis tubérosité tibiale via le tendon quadricipital</insertion>
+    <innervation>Nerf fémoral (L2-L4)</innervation>
+    <action>Extension du genou</action>
   </entry>
   <entry>
     <groupe_musculaire>Cuisses (avant)</groupe_musculaire>
@@ -376,9 +894,23 @@
     <type_subdivision>Chef</type_subdivision>
     <subdivision_anatomique>Vaste intermédiaire</subdivision_anatomique>
     <localisation_fonctionnelle>Profond</localisation_fonctionnelle>
-    <image_groupe>Quadriceps.png</image_groupe>
-    <image_muscle></image_muscle>
+    <image_groupe>00_Groupe_Quadriceps.png</image_groupe>
+    <image_muscle>08_Quadriceps_Muscle_Vaste intermédiaire.png</image_muscle>
+    <image_muscle_2></image_muscle_2>
+    <image_muscle_3></image_muscle_3>
+    <image_muscle_4></image_muscle_4>
+    <image_localisation_1>08_QUADRICEPS_Loc_Avant.png</image_localisation_1>
+    <image_localisation_2>Loc_Arriere_0.png</image_localisation_2>
+    <image_zoom_insertion>08_Quadriceps_ZoomInsertion_Intermédiaire.png</image_zoom_insertion>
+    <image_vue_profonde>08_Quadriceps_VuePronfonde_Vaste intermédiaire.png</image_vue_profonde>
+    <image_faisceau_groupe>08_Quadriceps_FaisceauGrp.png</image_faisceau_groupe>
+    <image_personnage>08_Quadriceps_PersPrinc_Vaste intermédiaire.png</image_personnage>
     <jour_recup>72h</jour_recup>
+    <fonction_principale>Extension du genou</fonction_principale>
+    <origine>Face antéro-latérale du corps fémoral</origine>
+    <insertion>Rotule puis tubérosité tibiale via le tendon quadricipital</insertion>
+    <innervation>Nerf fémoral (L2-L4)</innervation>
+    <action>Extension du genou</action>
   </entry>
   <entry>
     <groupe_musculaire>Cuisses (arrière)</groupe_musculaire>
@@ -386,9 +918,23 @@
     <type_subdivision>Chef</type_subdivision>
     <subdivision_anatomique>Biceps fémoral (long)</subdivision_anatomique>
     <localisation_fonctionnelle>Extérieur</localisation_fonctionnelle>
-    <image_groupe>Ischio.png</image_groupe>
-    <image_muscle></image_muscle>
+    <image_groupe>00_Groupe_Ischio.png</image_groupe>
+    <image_muscle>09_Ischio_Muscle_Biceps fémoral – chef long.png</image_muscle>
+    <image_muscle_2></image_muscle_2>
+    <image_muscle_3></image_muscle_3>
+    <image_muscle_4></image_muscle_4>
+    <image_localisation_1>Loc_Avant_0.png</image_localisation_1>
+    <image_localisation_2>09_Ischio_Loc_Arriere.png</image_localisation_2>
+    <image_zoom_insertion>09_Ischio_ZoomInsertion_Biceps fémoral – chef long.png</image_zoom_insertion>
+    <image_vue_profonde>09_Ischio_Vue Profonde_Biceps fémoral – chef long.png</image_vue_profonde>
+    <image_faisceau_groupe>09_Ischio_FaisceauGrp.png</image_faisceau_groupe>
+    <image_personnage>09_Ischio_PersPrinc_Biceps fémoral – chef long.png</image_personnage>
     <jour_recup>72h</jour_recup>
+    <fonction_principale>Flexion du genou et extension de hanche</fonction_principale>
+    <origine>Tubérosité ischiatique</origine>
+    <insertion>Tête de la fibula</insertion>
+    <innervation>Nerf tibial (L5-S2)</innervation>
+    <action>Flexion du genou</action>
   </entry>
   <entry>
     <groupe_musculaire>Cuisses (arrière)</groupe_musculaire>
@@ -396,9 +942,23 @@
     <type_subdivision>Chef</type_subdivision>
     <subdivision_anatomique>Biceps fémoral (court)</subdivision_anatomique>
     <localisation_fonctionnelle>Extérieur</localisation_fonctionnelle>
-    <image_groupe>Ischio.png</image_groupe>
-    <image_muscle></image_muscle>
+    <image_groupe>00_Groupe_Ischio.png</image_groupe>
+    <image_muscle>09_Ischio_Muscle_Biceps fémoral – chef Court.png</image_muscle>
+    <image_muscle_2></image_muscle_2>
+    <image_muscle_3></image_muscle_3>
+    <image_muscle_4></image_muscle_4>
+    <image_localisation_1>Loc_Avant_0.png</image_localisation_1>
+    <image_localisation_2>09_Ischio_Loc_Arriere.png</image_localisation_2>
+    <image_zoom_insertion>09_Ischio_ZoomInsertion_Biceps fémoral – chef court.png</image_zoom_insertion>
+    <image_vue_profonde>09_Ischio_Vue Profonde_Biceps fémoral – chef court.png</image_vue_profonde>
+    <image_faisceau_groupe>09_Ischio_FaisceauGrp.png</image_faisceau_groupe>
+    <image_personnage>09_Ischio_PersPrinc_Biceps fémoral – chef Court.png</image_personnage>
     <jour_recup>72h</jour_recup>
+    <fonction_principale>Flexion du genou et rotation latérale de la jambe</fonction_principale>
+    <origine>Lèvre latérale de la ligne âpre et ligne supracondylaire latérale du fémur</origine>
+    <insertion>Tête de la fibula</insertion>
+    <innervation>Nerf fibulaire commun (L5-S2)</innervation>
+    <action>Flexion du genou</action>
   </entry>
   <entry>
     <groupe_musculaire>Cuisses (arrière)</groupe_musculaire>
@@ -406,9 +966,23 @@
     <type_subdivision>Chef</type_subdivision>
     <subdivision_anatomique>Semi-tendineux</subdivision_anatomique>
     <localisation_fonctionnelle>Intérieur</localisation_fonctionnelle>
-    <image_groupe>Ischio.png</image_groupe>
-    <image_muscle></image_muscle>
+    <image_groupe>00_Groupe_Ischio.png</image_groupe>
+    <image_muscle>09_Ischio_Muscle_Semi-tendineux.png</image_muscle>
+    <image_muscle_2></image_muscle_2>
+    <image_muscle_3></image_muscle_3>
+    <image_muscle_4></image_muscle_4>
+    <image_localisation_1>Loc_Avant_0.png</image_localisation_1>
+    <image_localisation_2>09_Ischio_Loc_Arriere.png</image_localisation_2>
+    <image_zoom_insertion>09_Ischio_ZoomInsertion_Semi-tendineux.png</image_zoom_insertion>
+    <image_vue_profonde>09_Ischio_VueProfonde_Semi-tendineux.png</image_vue_profonde>
+    <image_faisceau_groupe>09_Ischio_FaisceauGrp.png</image_faisceau_groupe>
+    <image_personnage>09_Ischio_PersPrinc_Semi-tendineux.png</image_personnage>
     <jour_recup>72h</jour_recup>
+    <fonction_principale>Extension de hanche et flexion du genou</fonction_principale>
+    <origine>Tubérosité ischiatique</origine>
+    <insertion>Patte d’oie sur le tibia médial</insertion>
+    <innervation>Nerf tibial (L5-S2)</innervation>
+    <action>Flexion du genou</action>
   </entry>
   <entry>
     <groupe_musculaire>Cuisses (arrière)</groupe_musculaire>
@@ -416,9 +990,23 @@
     <type_subdivision>Chef</type_subdivision>
     <subdivision_anatomique>Semi-membraneux</subdivision_anatomique>
     <localisation_fonctionnelle>Intérieur</localisation_fonctionnelle>
-    <image_groupe>Ischio.png</image_groupe>
-    <image_muscle></image_muscle>
+    <image_groupe>00_Groupe_Ischio.png</image_groupe>
+    <image_muscle>09_Ischio_Muscle_Semi-membraneux.png</image_muscle>
+    <image_muscle_2></image_muscle_2>
+    <image_muscle_3></image_muscle_3>
+    <image_muscle_4></image_muscle_4>
+    <image_localisation_1>Loc_Avant_0.png</image_localisation_1>
+    <image_localisation_2>09_Ischio_Loc_Arriere.png</image_localisation_2>
+    <image_zoom_insertion>09_Ischio_ZoomInsertion_Semi-membraneux.png</image_zoom_insertion>
+    <image_vue_profonde>09_Ischio_VueProfonde_Semi-membraneux.png</image_vue_profonde>
+    <image_faisceau_groupe>09_Ischio_FaisceauGrp.png</image_faisceau_groupe>
+    <image_personnage>09_Ischio_PersPrinc_Semi-membraneux.png</image_personnage>
     <jour_recup>72h</jour_recup>
+    <fonction_principale>Extension de hanche et flexion du genou</fonction_principale>
+    <origine>Tubérosité ischiatique</origine>
+    <insertion>Face postérieure du condyle médial du tibia</insertion>
+    <innervation>Nerf tibial (L5-S2)</innervation>
+    <action>Flexion du genou</action>
   </entry>
   <entry>
     <groupe_musculaire>Cuisses (intérieur)</groupe_musculaire>
@@ -426,9 +1014,23 @@
     <type_subdivision>Faisceau</type_subdivision>
     <subdivision_anatomique>Long adducteur</subdivision_anatomique>
     <localisation_fonctionnelle>Intérieur</localisation_fonctionnelle>
-    <image_groupe>Adducteurs.png</image_groupe>
-    <image_muscle></image_muscle>
+    <image_groupe>00_Groupe_Adducteurs.png</image_groupe>
+    <image_muscle>10_Adducteurs_Muscle_Long_Adducteur.png</image_muscle>
+    <image_muscle_2></image_muscle_2>
+    <image_muscle_3></image_muscle_3>
+    <image_muscle_4></image_muscle_4>
+    <image_localisation_1>10_ADDUCTEURS_Loc_Avant.png</image_localisation_1>
+    <image_localisation_2>Loc_Arriere_0.png</image_localisation_2>
+    <image_zoom_insertion>10_Adducteurs_ZoomInsertion_Long adducteur.png</image_zoom_insertion>
+    <image_vue_profonde>10_Adducteurs_VueProfonde_Long adducteur.png</image_vue_profonde>
+    <image_faisceau_groupe>10_Adducteurs_FaisceauGrp.png</image_faisceau_groupe>
+    <image_personnage>10_Adducteurs_PersPrinc_Long_Adducteur.png</image_personnage>
     <jour_recup>72h</jour_recup>
+    <fonction_principale>Adduction de la cuisse et aide à la flexion de hanche</fonction_principale>
+    <origine>Corps du pubis</origine>
+    <insertion>Ligne âpre du fémur</insertion>
+    <innervation>Nerf obturateur (L2-L4)</innervation>
+    <action>Adduction de la cuisse</action>
   </entry>
   <entry>
     <groupe_musculaire>Cuisses (intérieur)</groupe_musculaire>
@@ -436,9 +1038,23 @@
     <type_subdivision>Faisceau</type_subdivision>
     <subdivision_anatomique>Grand adducteur</subdivision_anatomique>
     <localisation_fonctionnelle>Intérieur</localisation_fonctionnelle>
-    <image_groupe>Adducteurs.png</image_groupe>
-    <image_muscle></image_muscle>
+    <image_groupe>00_Groupe_Adducteurs.png</image_groupe>
+    <image_muscle>10_Adducteurs_Muscle_Grand adducteur.png</image_muscle>
+    <image_muscle_2></image_muscle_2>
+    <image_muscle_3></image_muscle_3>
+    <image_muscle_4></image_muscle_4>
+    <image_localisation_1>10_ADDUCTEURS_Loc_Avant.png</image_localisation_1>
+    <image_localisation_2>Loc_Arriere_0.png</image_localisation_2>
+    <image_zoom_insertion>10_Adducteurs_ZoomInsertion_Grand adducteur.png</image_zoom_insertion>
+    <image_vue_profonde>10_Adducteurs_VueProfonde_Grand adducteur.png</image_vue_profonde>
+    <image_faisceau_groupe>10_Adducteurs_FaisceauGrp.png</image_faisceau_groupe>
+    <image_personnage>10_Adducteurs_PersPrinc_Grand adducteur.png</image_personnage>
     <jour_recup>72h</jour_recup>
+    <fonction_principale>Adduction de la cuisse et extension de hanche</fonction_principale>
+    <origine>Rameau inférieur du pubis, ischion et tubérosité ischiatique selon les faisceaux</origine>
+    <insertion>Ligne âpre et tubercule de l’adducteur du fémur</insertion>
+    <innervation>Nerf obturateur et nerf tibial</innervation>
+    <action>Adduction de la cuisse</action>
   </entry>
   <entry>
     <groupe_musculaire>Cuisses (intérieur)</groupe_musculaire>
@@ -446,9 +1062,23 @@
     <type_subdivision>Faisceau</type_subdivision>
     <subdivision_anatomique>Court adducteur</subdivision_anatomique>
     <localisation_fonctionnelle>Intérieur</localisation_fonctionnelle>
-    <image_groupe>Adducteurs.png</image_groupe>
-    <image_muscle></image_muscle>
+    <image_groupe>00_Groupe_Adducteurs.png</image_groupe>
+    <image_muscle>10_Adducteurs_Muscle_Court adducteur.png</image_muscle>
+    <image_muscle_2></image_muscle_2>
+    <image_muscle_3></image_muscle_3>
+    <image_muscle_4></image_muscle_4>
+    <image_localisation_1>10_ADDUCTEURS_Loc_Avant.png</image_localisation_1>
+    <image_localisation_2>Loc_Arriere_0.png</image_localisation_2>
+    <image_zoom_insertion>10_Adducteurs_ZoomInsertion_Court adducteur.png</image_zoom_insertion>
+    <image_vue_profonde>10_Adducteurs_VueProfonde_Court adducteur.png</image_vue_profonde>
+    <image_faisceau_groupe>10_Adducteurs_FaisceauGrp.png</image_faisceau_groupe>
+    <image_personnage>10_Adducteurs_PersPrinc_Court adducteur.png</image_personnage>
     <jour_recup>72h</jour_recup>
+    <fonction_principale>Adduction de la cuisse</fonction_principale>
+    <origine>Corps et branche inférieure du pubis</origine>
+    <insertion>Ligne pectinée et ligne âpre proximale du fémur</insertion>
+    <innervation>Nerf obturateur (L2-L4)</innervation>
+    <action>Adduction de la cuisse</action>
   </entry>
   <entry>
     <groupe_musculaire>Cuisses (intérieur)</groupe_musculaire>
@@ -456,9 +1086,23 @@
     <type_subdivision>Faisceau</type_subdivision>
     <subdivision_anatomique>Pectiné</subdivision_anatomique>
     <localisation_fonctionnelle>Haut intérieur</localisation_fonctionnelle>
-    <image_groupe>Adducteurs.png</image_groupe>
-    <image_muscle></image_muscle>
+    <image_groupe>00_Groupe_Adducteurs.png</image_groupe>
+    <image_muscle>10_Adducteurs_Muscle_Pectiné.png</image_muscle>
+    <image_muscle_2></image_muscle_2>
+    <image_muscle_3></image_muscle_3>
+    <image_muscle_4></image_muscle_4>
+    <image_localisation_1>10_ADDUCTEURS_Loc_Avant.png</image_localisation_1>
+    <image_localisation_2>Loc_Arriere_0.png</image_localisation_2>
+    <image_zoom_insertion>10_Adducteurs_ZoomInsertion_Pectiné.png</image_zoom_insertion>
+    <image_vue_profonde>10_Adducteurs_VueProfonde_Pectiné.png</image_vue_profonde>
+    <image_faisceau_groupe>10_Adducteurs_FaisceauGrp.png</image_faisceau_groupe>
+    <image_personnage>10_Adducteurs_PersPrinc_Pectiné.png</image_personnage>
     <jour_recup>72h</jour_recup>
+    <fonction_principale></fonction_principale>
+    <origine></origine>
+    <insertion></insertion>
+    <innervation></innervation>
+    <action></action>
   </entry>
   <entry>
     <groupe_musculaire>Mollets</groupe_musculaire>
@@ -466,9 +1110,23 @@
     <type_subdivision>Chef</type_subdivision>
     <subdivision_anatomique>Gastrocnémien médial</subdivision_anatomique>
     <localisation_fonctionnelle>Intérieur</localisation_fonctionnelle>
-    <image_groupe></image_groupe>
-    <image_muscle></image_muscle>
+    <image_groupe>00_Groupe_Mollets.png</image_groupe>
+    <image_muscle>11_Mollets_Muscle_Gastrocnémien médial.png</image_muscle>
+    <image_muscle_2></image_muscle_2>
+    <image_muscle_3></image_muscle_3>
+    <image_muscle_4></image_muscle_4>
+    <image_localisation_1>11_MOLLETS_Loc_Avant.png</image_localisation_1>
+    <image_localisation_2>11_MOLLETS_Loc_Avant.png</image_localisation_2>
+    <image_zoom_insertion>11_Mollets_ZoomInsertion_Gastrocnémien médial.png</image_zoom_insertion>
+    <image_vue_profonde>11_Mollets_VuePronfonde_Gastrocnémien médial.png</image_vue_profonde>
+    <image_faisceau_groupe>11_Mollets_FaisceauGrp.png</image_faisceau_groupe>
+    <image_personnage>11_Mollets_PersPrinc_Gastrocnémien médial.png</image_personnage>
     <jour_recup>24h</jour_recup>
+    <fonction_principale>Flexion plantaire et flexion du genou</fonction_principale>
+    <origine>Face postérieure du condyle médial du fémur</origine>
+    <insertion>Tendon calcanéen</insertion>
+    <innervation>Nerf tibial (S1-S2)</innervation>
+    <action>Flexion plantaire</action>
   </entry>
   <entry>
     <groupe_musculaire>Mollets</groupe_musculaire>
@@ -476,9 +1134,23 @@
     <type_subdivision>Chef</type_subdivision>
     <subdivision_anatomique>Gastrocnémien latéral</subdivision_anatomique>
     <localisation_fonctionnelle>Extérieur</localisation_fonctionnelle>
-    <image_groupe></image_groupe>
-    <image_muscle></image_muscle>
+    <image_groupe>00_Groupe_Mollets.png</image_groupe>
+    <image_muscle>11_Mollets_Muscle_Gastrocnémien latéral.png</image_muscle>
+    <image_muscle_2></image_muscle_2>
+    <image_muscle_3></image_muscle_3>
+    <image_muscle_4></image_muscle_4>
+    <image_localisation_1>11_MOLLETS_Loc_Avant.png</image_localisation_1>
+    <image_localisation_2>11_MOLLETS_Loc_Avant.png</image_localisation_2>
+    <image_zoom_insertion>11_Mollets_ZoomInsertion_Gastrocnémien Lateral.png</image_zoom_insertion>
+    <image_vue_profonde>11_Mollets_VuePronfonde_Gastrocnémien Lateral.png</image_vue_profonde>
+    <image_faisceau_groupe>11_Mollets_FaisceauGrp.png</image_faisceau_groupe>
+    <image_personnage>11_Mollets_PersPrinc_Gastrocnémien latéral.png</image_personnage>
     <jour_recup>24h</jour_recup>
+    <fonction_principale>Flexion plantaire et flexion du genou</fonction_principale>
+    <origine>Face postérieure du condyle latéral du fémur</origine>
+    <insertion>Tendon calcanéen</insertion>
+    <innervation>Nerf tibial (S1-S2)</innervation>
+    <action>Flexion plantaire</action>
   </entry>
   <entry>
     <groupe_musculaire>Mollets</groupe_musculaire>
@@ -486,9 +1158,23 @@
     <type_subdivision>Chef</type_subdivision>
     <subdivision_anatomique>Soléaire</subdivision_anatomique>
     <localisation_fonctionnelle>Profond</localisation_fonctionnelle>
-    <image_groupe></image_groupe>
-    <image_muscle></image_muscle>
+    <image_groupe>00_Groupe_Mollets.png</image_groupe>
+    <image_muscle>11_Mollets_Muscle_Soléaire.png</image_muscle>
+    <image_muscle_2></image_muscle_2>
+    <image_muscle_3></image_muscle_3>
+    <image_muscle_4></image_muscle_4>
+    <image_localisation_1>11_MOLLETS_Loc_Avant.png</image_localisation_1>
+    <image_localisation_2>11_MOLLETS_Loc_Avant.png</image_localisation_2>
+    <image_zoom_insertion>11_Mollets_ZoomInsertion_Soléaire.png</image_zoom_insertion>
+    <image_vue_profonde>11_Mollets_VuePronfonde_Soléaire.png</image_vue_profonde>
+    <image_faisceau_groupe>11_Mollets_FaisceauGrp.png</image_faisceau_groupe>
+    <image_personnage>11_Mollets_PersPrinc_Soléaire.png</image_personnage>
     <jour_recup>24h</jour_recup>
+    <fonction_principale>Flexion plantaire du pied</fonction_principale>
+    <origine>Tête et face postérieure de la fibula, ligne soléaire du tibia</origine>
+    <insertion>Tendon calcanéen</insertion>
+    <innervation>Nerf tibial (S1-S2)</innervation>
+    <action>Flexion plantaire</action>
   </entry>
   <entry>
     <groupe_musculaire>Mollets</groupe_musculaire>
@@ -496,8 +1182,22 @@
     <type_subdivision>Aucune</type_subdivision>
     <subdivision_anatomique>-</subdivision_anatomique>
     <localisation_fonctionnelle>Avant jambe</localisation_fonctionnelle>
-    <image_groupe></image_groupe>
-    <image_muscle></image_muscle>
+    <image_groupe>00_Groupe_Mollets.png</image_groupe>
+    <image_muscle>11_Mollets_Muscle_Tibial antérieur.png</image_muscle>
+    <image_muscle_2></image_muscle_2>
+    <image_muscle_3></image_muscle_3>
+    <image_muscle_4></image_muscle_4>
+    <image_localisation_1>11_MOLLETS_Loc_Avant.png</image_localisation_1>
+    <image_localisation_2>11_MOLLETS_Loc_Avant.png</image_localisation_2>
+    <image_zoom_insertion>11_Mollets_ZoomInsertion_Tibial antérieur.png</image_zoom_insertion>
+    <image_vue_profonde>11_Mollets_VuePronfonde_Tibial antérieur.png</image_vue_profonde>
+    <image_faisceau_groupe>11_Mollets_FaisceauGrp.png</image_faisceau_groupe>
+    <image_personnage>11_Mollets_PersPrinc_Tibial antérieur.png</image_personnage>
     <jour_recup>24h</jour_recup>
+    <fonction_principale>Flexion dorsale et inversion du pied</fonction_principale>
+    <origine>Condyle latéral et face latérale du tibia</origine>
+    <insertion>Cunéiforme médial et base du 1er métatarsien</insertion>
+    <innervation>Nerf fibulaire profond (L4-L5)</innervation>
+    <action>Flexion dorsale du pied</action>
   </entry>
 </muscles>
