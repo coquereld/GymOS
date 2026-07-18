@@ -186,8 +186,8 @@
   <!-- Footer -->
   <div class="card-footer">
     <div class="compat-note">
-      Stockage local via <strong>File System API</strong><br>
-      Compatible <strong>Chrome</strong> & <strong>Edge</strong>
+      Serveur local GymOS (<strong>http://127.0.0.1:4600</strong>)<br>
+      Lancer <strong>start-gymos.bat</strong> avant utilisation
     </div>
     <button class="theme-btn-sm" id="themeBtn" title="Basculer thème">
       <svg id="thDark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
@@ -216,19 +216,12 @@
     const zone  = document.getElementById('actionZone');
     zone.innerHTML = '';
 
-    const name = GymDB.getFolderName();
-
     if (state === 'connected') {
       icon.className  = 'status-icon connected';
       icon.textContent = '✓';
-      title.textContent = 'Dossier connecté';
+      title.textContent = 'Serveur connecté';
       desc.textContent  = 'Redirection automatique…';
-      if (name) {
-        const pill = document.createElement('span');
-        pill.className   = 'folder-name';
-        pill.textContent = '📁 ' + name;
-        document.getElementById('statusZone').appendChild(pill);
-      }
+
       // Barre de progression + redirect
       const barWrap = document.createElement('div'); barWrap.className = 'redirect-bar-wrap';
       const bar = document.createElement('div'); bar.className = 'redirect-bar';
@@ -243,59 +236,27 @@
       skip.addEventListener('click', goToApp);
       zone.appendChild(skip);
 
-    } else if (state === 'needs-permission') {
-      icon.className  = 'status-icon needs-perm';
-      icon.textContent = '🔓';
-      title.textContent = 'Autorisation requise';
-      desc.textContent  = 'Le dossier est mémorisé. Un clic suffit pour réautoriser — aucune sélection nécessaire.';
-      if (name) {
-        const pill = document.createElement('span');
-        pill.className   = 'folder-name';
-        pill.textContent = '📁 ' + name;
-        document.getElementById('statusZone').appendChild(pill);
-      }
-      const btn = document.createElement('button');
-      btn.className = 'btn-connect warn-btn';
-      btn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg> Reconnecter le dossier Db`;
-      btn.addEventListener('click', async () => {
-        btn.disabled = true;
-        btn.textContent = 'Autorisation…';
-        const ok = await GymDB.reconnect();
-        if (ok) renderState('connected');
-        else { btn.disabled = false; btn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg> Reconnecter le dossier Db`; }
-      });
-      zone.appendChild(btn);
-      const skip = document.createElement('button');
-      skip.className   = 'skip-btn';
-      skip.textContent = 'Continuer sans Db (localStorage uniquement)';
-      skip.addEventListener('click', goToApp);
-      zone.appendChild(skip);
-
     } else {
       // disconnected
       icon.className  = 'status-icon disconnected';
       icon.textContent = '📂';
-      title.textContent = GymDB.isSupported() ? 'Aucun dossier configuré' : 'Navigateur non compatible';
-      desc.textContent  = GymDB.isSupported()
-        ? 'Sélectionnez le dossier "Db" pour synchroniser vos données entre navigateurs. Cette sélection n\'est faite qu\'une seule fois.'
-        : 'Firefox ne supporte pas le File System API. Les données seront stockées localement dans ce navigateur.';
+      title.textContent = 'Serveur local injoignable';
+      desc.textContent  = 'Lance "start-gymos.bat" pour démarrer le serveur GymOS, puis réessaie.';
 
-      if (GymDB.isSupported()) {
-        const btn = document.createElement('button');
-        btn.className = 'btn-connect primary';
-        btn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg> Sélectionner le dossier Db`;
-        btn.addEventListener('click', async () => {
-          btn.disabled = true;
-          btn.textContent = 'Sélection…';
-          const ok = await GymDB.connect();
-          if (ok) renderState('connected');
-          else { btn.disabled = false; btn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg> Sélectionner le dossier Db`; }
-        });
-        zone.appendChild(btn);
-      }
+      const btn = document.createElement('button');
+      btn.className = 'btn-connect primary';
+      btn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-9.36L1 10"/></svg> Réessayer`;
+      btn.addEventListener('click', async () => {
+        btn.disabled = true;
+        btn.textContent = 'Vérification…';
+        const state = await GymDB.init();
+        if (state === 'connected') renderState('connected');
+        else { btn.disabled = false; btn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-9.36L1 10"/></svg> Réessayer`; }
+      });
+      zone.appendChild(btn);
       const skip = document.createElement('button');
       skip.className   = 'skip-btn';
-      skip.textContent = 'Continuer sans Db (localStorage uniquement)';
+      skip.textContent = 'Continuer sans serveur (localStorage uniquement)';
       skip.addEventListener('click', goToApp);
       zone.appendChild(skip);
     }

@@ -181,6 +181,13 @@ button,input,select,textarea{font:inherit}button{cursor:pointer}
   <span style="font-weight:700;font-size:1rem;flex:1">Nutrition</span>
   <button class="btn btn-sm" id="copyDayBtn">📋 Copier ce jour</button>
   <button class="btn btn-sm" id="goalsBtn">⚙ Objectifs</button>
+  <input type="file" id="nutriImportFile" accept=".json,application/json" style="display:none">
+  <button class="btn-icon" id="nutriImportBtn" title="Importer (remplace toutes les données nutrition)">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+  </button>
+  <button class="btn-icon" id="nutriExportBtn" title="Exporter tout (JSON)">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+  </button>
   <button class="btn-icon" id="themeBtn"><svg id="thDark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg><svg id="thLight" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:none"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg></button>
 </header>
 
@@ -1217,6 +1224,39 @@ document.getElementById('cp-cancel').addEventListener('click',()=>document.getEl
   document.getElementById(id).addEventListener('click',e=>{if(e.target===document.getElementById(id))document.getElementById(id).style.display='none';});
 });
 document.addEventListener('keydown',e=>{if(e.key==='Escape')['foodOv','recipeOv','addToMealOv','goalsOv','copyOv'].forEach(id=>{const el=document.getElementById(id);if(el.style.display==='flex')el.style.display='none';});});
+
+// ══ EXPORT / IMPORT ══
+function downloadJSON(data, filename){
+  const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
+  const a=document.createElement('a'); a.href=URL.createObjectURL(blob);
+  a.download=filename; a.click(); URL.revokeObjectURL(a.href);
+}
+function exportNutrition(){
+  downloadJSON(_d, `nutrition-${new Date().toISOString().split('T')[0]}.json`);
+}
+function importNutrition(file){
+  const reader=new FileReader();
+  reader.onload=e=>{
+    let data;
+    try{ data=JSON.parse(e.target.result); }
+    catch{ alert('Erreur : fichier JSON invalide'); return; }
+    if(!data||typeof data!=='object'||Array.isArray(data)||!data.goals){
+      alert('Erreur : ce fichier ne ressemble pas à un export nutrition valide');
+      return;
+    }
+    if(!confirm('Cela va REMPLACER toutes les données nutrition actuelles (objectifs, aliments, recettes, smoothies, historique de repas) par le contenu du fichier importé. Continuer ?')) return;
+    _d=data;
+    save();
+    location.reload();
+  };
+  reader.readAsText(file);
+}
+document.getElementById('nutriExportBtn').addEventListener('click',exportNutrition);
+document.getElementById('nutriImportBtn').addEventListener('click',()=>document.getElementById('nutriImportFile').click());
+document.getElementById('nutriImportFile').addEventListener('change',function(){
+  if(this.files[0]) importNutrition(this.files[0]);
+  this.value='';
+});
 
 // ══ THÈME ══
 document.getElementById('themeBtn').addEventListener('click',()=>applyTheme(document.documentElement.getAttribute('data-theme')==='dark'?'light':'dark'));

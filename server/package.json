@@ -1,0 +1,17 @@
+{
+  "name": "gymos-server",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Serveur local GymOS (Express + SQLite)",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "migrate": "node migrate-from-json.js"
+  },
+  "dependencies": {
+    "express": "^4.19.2"
+  },
+  "engines": {
+    "node": ">=22.5.0"
+  }
+}

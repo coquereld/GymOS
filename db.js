@@ -1,188 +1,106 @@
 /**
- * GymOS — db.js v2
+ * GymOS — db.js v3 (serveur local)
  *
- * 3 états possibles :
- *   'connected'        → dossier connecté, lecture/écriture actives
- *   'needs-permission' → dossier mémorisé, besoin d'1 clic pour réautoriser
- *   'disconnected'     → aucun dossier mémorisé, sélection nécessaire
+ * Remplace l'ancienne persistance File System Access API par des appels
+ * HTTP (chemins relatifs) vers le serveur local GymOS (Express + SQLite,
+ * voir server/), qui sert à la fois les pages et l'API — même origine,
+ * donc ça fonctionne quel que soit le nom d'hôte utilisé pour charger la
+ * page (localhost, 127.0.0.1, plus tard un nom Tailscale...).
+ * Le serveur doit être lancé au préalable (start-gymos.bat).
  *
- * API :
- *   await GymDB.init()       → retourne l'état initial
- *   await GymDB.reconnect()  → réautoriser le dossier mémorisé (1 clic, pas de picker)
- *   await GymDB.connect()    → ouvrir le sélecteur de dossier
- *   await GymDB.read(file, validator?) → lire un JSON (validator optionnel : (data)=>boolean)
- *         GymDB.write(f, d)  → écrire un JSON (async, fire & forget)
- *   GymDB.getState()         → 'connected' | 'needs-permission' | 'disconnected'
- *   GymDB.getFolderName()    → nom du dossier ou null
- *   GymDB.onChange(cb)       → callback(state) appelé à chaque changement
+ * 2 états possibles :
+ *   'connected'    → le serveur local répond, lecture/écriture actives
+ *   'disconnected' → le serveur ne répond pas (pas lancé, ou coupé)
+ *
+ * API (signatures conservées pour ne pas changer les appels dans les pages) :
+ *   await GymDB.init()                 → retourne l'état initial
+ *   await GymDB.read(file, validator?) → lire un document (validator optionnel : (data)=>boolean)
+ *         GymDB.write(file, data)      → écrire un document (async, fire & forget)
+ *   GymDB.getState()                   → 'connected' | 'disconnected'
+ *   GymDB.isConnected()                → bool
+ *   GymDB.onChange(cb)                 → callback(state) appelé à chaque changement
  */
 const GymDB = (() => {
   'use strict';
 
-  const IDB_DB    = 'gymos-fsdb-v2';
-  const IDB_STORE = 'handles';
-  const IDB_KEY   = 'directory';
+  // Les pages appellent toujours GymDB.read/write avec les anciens noms de
+  // fichiers ('historique.json', etc.) — on les fait correspondre ici aux
+  // doc_key de la table gymos_data, sans rien changer dans les 10 pages.
+  const FILE_TO_DOC_KEY = {
+    'historique.json': 'historique',
+    'exercices.json': 'exercices',
+    'exercices-objectifs.json': 'exercices_objectifs',
+    'programmes.json': 'programmes',
+    'corps.json': 'corps',
+    'group-images.json': 'group_images',
+    'nutrition.json': 'nutrition',
+  };
+  function toDocKey(filename) { return FILE_TO_DOC_KEY[filename] || filename; }
 
-  let _dir            = null;   // handle actif
-  let _pendingHandle  = null;   // handle mémorisé mais pas encore autorisé
-  let _state          = 'disconnected';
-  let _callbacks      = [];
+  let _state = 'disconnected';
+  let _callbacks = [];
 
-  // ── IndexedDB ────────────────────────────────────────────────────────────
-  function _idbOpen() {
-    return new Promise((res, rej) => {
-      const r = indexedDB.open(IDB_DB, 1);
-      r.onupgradeneeded = e => e.target.result.createObjectStore(IDB_STORE);
-      r.onsuccess = e => res(e.target.result);
-      r.onerror   = () => rej(r.error);
-    });
-  }
-  async function _idbGet() {
-    const db = await _idbOpen();
-    return new Promise((res, rej) => {
-      const tx = db.transaction(IDB_STORE, 'readonly');
-      const r  = tx.objectStore(IDB_STORE).get(IDB_KEY);
-      r.onsuccess = () => res(r.result ?? null);
-      r.onerror   = () => rej(r.error);
-    });
-  }
-  async function _idbSet(val) {
-    const db = await _idbOpen();
-    return new Promise((res, rej) => {
-      const tx = db.transaction(IDB_STORE, 'readwrite');
-      tx.objectStore(IDB_STORE).put(val, IDB_KEY);
-      tx.oncomplete = res;
-      tx.onerror    = () => rej(tx.error);
-    });
-  }
-  async function _idbDel() {
-    const db = await _idbOpen();
-    return new Promise((res, rej) => {
-      const tx = db.transaction(IDB_STORE, 'readwrite');
-      tx.objectStore(IDB_STORE).delete(IDB_KEY);
-      tx.oncomplete = res;
-      tx.onerror    = () => rej(tx.error);
-    });
-  }
-
-  // ── Statut ────────────────────────────────────────────────────────────────
   function _setState(s) {
+    if (s === _state) return;
     _state = s;
     _callbacks.forEach(cb => { try { cb(s); } catch(e) {} });
   }
 
-  function onChange(cb)    { _callbacks.push(cb); }
-  function isSupported()   { return 'showDirectoryPicker' in window; }
-  function isConnected()   { return _state === 'connected'; }
-  function getState()      { return _state; }
-  function getFolderName() { return (_dir || _pendingHandle)?.name ?? null; }
+  function onChange(cb)  { _callbacks.push(cb); }
+  function isConnected() { return _state === 'connected'; }
+  function getState()    { return _state; }
 
-  // ── Init ─────────────────────────────────────────────────────────────────
-  // Appelé au démarrage — PAS besoin de geste utilisateur
-  // Si permission déjà accordée → connecte automatiquement
-  // Sinon → état 'needs-permission' (1 clic suffira)
   async function init() {
-    if (!isSupported()) { _setState('disconnected'); return 'disconnected'; }
     try {
-      const handle = await _idbGet();
-      if (!handle) { _setState('disconnected'); return 'disconnected'; }
-
-      // Vérifier silencieusement la permission (sans popup)
-      const perm = await handle.queryPermission({ mode: 'readwrite' });
-      if (perm === 'granted') {
-        _dir = handle;
-        _pendingHandle = null;
-        _setState('connected');
-        return 'connected';
-      }
-
-      // Permission en attente → mémoriser le handle pour reconnect en 1 clic
-      _pendingHandle = handle;
-      _setState('needs-permission');
-      return 'needs-permission';
+      const r = await fetch('/api/health', { cache: 'no-store' });
+      _setState(r.ok ? 'connected' : 'disconnected');
     } catch(e) {
       _setState('disconnected');
-      return 'disconnected';
     }
+    return _state;
   }
 
-  // ── Reconnect ─────────────────────────────────────────────────────────────
-  // Réautoriser le dossier mémorisé — 1 clic utilisateur, PAS de sélecteur
-  async function reconnect() {
-    if (!isSupported()) return false;
-    const handle = _pendingHandle || await _idbGet();
-    if (!handle) return false;
-    try {
-      const perm = await handle.requestPermission({ mode: 'readwrite' });
-      if (perm === 'granted') {
-        _dir = handle;
-        _pendingHandle = null;
-        await _idbSet(handle);
-        _setState('connected');
-        return true;
-      }
-      return false;
-    } catch(e) { return false; }
-  }
-
-  // ── Connect ───────────────────────────────────────────────────────────────
-  // Ouvrir le sélecteur de dossier (premier usage ou changement de dossier)
-  async function connect() {
-    if (!isSupported()) {
-      alert('Votre navigateur ne supporte pas le stockage fichier.\nUtilisez Chrome ou Edge.');
-      return false;
-    }
-    try {
-      const handle = await window.showDirectoryPicker({ mode: 'readwrite', id: 'gymos-db' });
-      await _idbSet(handle);
-      _dir = handle;
-      _pendingHandle = null;
-      _setState('connected');
-      return true;
-    } catch(e) {
-      if (e.name !== 'AbortError') console.error('GymDB connect:', e);
-      return false;
-    }
-  }
-
-  // ── Lecture JSON ──────────────────────────────────────────────────────────
+  // ── Lecture ───────────────────────────────────────────────────────────────
   // validator optionnel : (data) => boolean — si fourni et que le retour est
   // false, les données sont traitées comme absentes (log + retourne null)
   async function read(filename, validator) {
-    if (!_dir) return null;
+    const docKey = toDocKey(filename);
     try {
-      const fh   = await _dir.getFileHandle(filename, { create: false });
-      const file = await fh.getFile();
-      const data = JSON.parse(await file.text());
+      const r = await fetch(`/api/data/${docKey}`, { cache: 'no-store' });
+      if (r.status === 404) { _setState('connected'); return null; }
+      if (!r.ok) { _setState('disconnected'); return null; }
+      _setState('connected');
+      const data = await r.json();
       if (validator && !validator(data)) {
         console.warn(`GymDB read(${filename}): forme invalide, données ignorées`);
         return null;
       }
       return data;
     } catch(e) {
-      if (e.name !== 'NotFoundError') console.warn(`GymDB read(${filename}):`, e.message);
+      _setState('disconnected');
+      console.warn(`GymDB read(${filename}):`, e.message);
       return null;
     }
   }
 
-  // ── Écriture JSON ─────────────────────────────────────────────────────────
+  // ── Écriture ──────────────────────────────────────────────────────────────
   function write(filename, data) {
-    if (!_dir) return;
+    const docKey = toDocKey(filename);
     (async () => {
       try {
-        const fh = await _dir.getFileHandle(filename, { create: true });
-        const wr = await fh.createWritable();
-        await wr.write(JSON.stringify(data, null, 2));
-        await wr.close();
-      } catch(e) { console.error(`GymDB write(${filename}):`, e.message); }
+        const r = await fetch(`/api/data/${docKey}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data),
+        });
+        _setState(r.ok ? 'connected' : 'disconnected');
+        if (!r.ok) console.error(`GymDB write(${filename}): HTTP ${r.status}`);
+      } catch(e) {
+        _setState('disconnected');
+        console.error(`GymDB write(${filename}):`, e.message);
+      }
     })();
   }
 
-  async function disconnect() {
-    _dir = null; _pendingHandle = null;
-    await _idbDel();
-    _setState('disconnected');
-  }
-
-  return { init, reconnect, connect, disconnect, isSupported, isConnected, getState, getFolderName, onChange, read, write };
+  return { init, getState, isConnected, onChange, read, write };
 })();

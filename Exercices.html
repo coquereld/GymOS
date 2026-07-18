@@ -1236,6 +1236,7 @@ function parseXmlString(xmlText) {
 }
 
 // ─── AUTOSAVE ─────────────────────────────────────────────────────────────────
+let _exoWriteTimer = null;
 function saveAutosave() {
   try {
     const payload = {
@@ -1243,7 +1244,8 @@ function saveAutosave() {
       search:els.searchInput.value, activeGroup:state.activeGroup
     };
     localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
-    GymDB.write('exercices.json', payload);
+    clearTimeout(_exoWriteTimer);
+    _exoWriteTimer = setTimeout(() => GymDB.write('exercices.json', payload), 600);
     els.statAutosave.textContent='Sauvegardé';
     setTimeout(()=>els.statAutosave.textContent='Actif',1200);
   } catch { els.statAutosave.textContent='Indispo'; }

@@ -547,8 +547,8 @@
   GymDB.init().then(state => {
     const el = document.getElementById('dbStatus');
     if (!el) return;
-    if (state === 'connected') el.textContent = '📁 ' + (GymDB.getFolderName() || 'Db connectée');
-    else if (state === 'needs-permission') el.textContent = '🔓 Db — non autorisée';
+    el.textContent = state === 'connected' ? '📁 Serveur connecté' : '📂 Serveur non démarré';
+    el.title = state === 'connected' ? '' : 'Lancer start-gymos.bat pour démarrer le serveur';
   });
 
   // Animation cartes
