@@ -1240,6 +1240,7 @@ document.addEventListener('keydown',e=>{
   applyTheme(localStorage.getItem('muscle-xml-theme')||'light');
   const dbState = await GymDB.init();
   if(dbState === 'connected'){
+    try{ const d=await GymDB.read('exercices.json'); if(d&&Array.isArray(d.rows)&&d.rows.length){ localStorage.setItem(EXO_LIB_KEY,JSON.stringify(d)); } }catch{}
     const fromDb = await loadFromDb();
     if(fromDb){ renderSidebar(); renderMain(); return; }
   }
@@ -1327,7 +1328,7 @@ function openExoInfoModal(exo) {
   // Tags
   const tagRow = document.getElementById('exoInfoTagRow');
   tagRow.innerHTML = '';
-  [exo.equipement, exo.type_exercice].filter(Boolean).forEach(t => {
+  [exo.equipement, exo.type_exercice, exo.type_mouvement, exo.pattern_mouvement, exo.niveau].filter(Boolean).forEach(t => {
     const s=document.createElement('span');s.className='ei-tag-sm';s.textContent=t;tagRow.appendChild(s);
   });
 

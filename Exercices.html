@@ -2700,6 +2700,7 @@ document.getElementById('objAddBtn').addEventListener('click', () => {
       state.rows = d.rows.map(r=>({id:r.id||uid(),...r}));
       state.sortField = d.sortField||null; state.sortDirection = d.sortDirection||'asc'; state.activeGroup = d.activeGroup||'';
       els.searchInput.value = d.search||'';
+      localStorage.setItem(STORAGE_KEY, JSON.stringify({rows:state.rows, sortField:state.sortField, sortDirection:state.sortDirection, search:els.searchInput.value, activeGroup:state.activeGroup}));
       applyViewMode('read'); renderGroupNav(); renderCards(); setStatus('Données chargées depuis Db.','ok');
       return;
     }
@@ -3484,6 +3485,9 @@ function openExoInfoModal(rowId) {
   [
     { label:'Équipement',            val: row.equipement },
     { label:'Type d\'exercice',      val: row.type_exercice },
+    { label:'Type de mouvement',     val: row.type_mouvement },
+    { label:'Pattern de mouvement',  val: row.pattern_mouvement },
+    { label:'Niveau',                val: row.niveau },
     { label:'Descriptif',            val: row.descriptif },
     { label:'Exécution / Technique', val: row.execution },
   ].forEach(({ label, val }) => {

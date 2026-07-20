@@ -1317,7 +1317,7 @@ function openSeaExoInfo(nom) {
   if(src){ img.src='./img/'+src; img.alt=exo.exercice; img.style.display='block'; ph.style.display='none'; img.onerror=()=>{ img.style.display='none'; ph.style.display='flex'; }; }
   else{ img.style.display='none'; ph.style.display='flex'; }
   const tags=document.getElementById('seaExoInfoTags'); tags.innerHTML='';
-  [exo.equipement,exo.type_exercice].filter(Boolean).forEach(t=>{ const s=document.createElement('span'); s.style.cssText='display:inline-flex;padding:.2rem .5rem;border-radius:999px;font-size:.65rem;font-weight:600;background:var(--surfoff);color:var(--txm);border:1px solid var(--bord)'; s.textContent=t; tags.appendChild(s); });
+  [exo.equipement,exo.type_exercice,exo.type_mouvement,exo.pattern_mouvement,exo.niveau].filter(Boolean).forEach(t=>{ const s=document.createElement('span'); s.style.cssText='display:inline-flex;padding:.2rem .5rem;border-radius:999px;font-size:.65rem;font-weight:600;background:var(--surfoff);color:var(--txm);border:1px solid var(--bord)'; s.textContent=t; tags.appendChild(s); });
   const secs=document.getElementById('seaExoInfoSections'); secs.innerHTML='';
   [{lbl:'Muscles secondaires',val:exo.muscle_secondaire},{lbl:'Descriptif',val:exo.descriptif},{lbl:'Exécution / Technique',val:exo.execution}].forEach(({lbl,val})=>{
     if(!val) return;

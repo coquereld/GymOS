@@ -1290,6 +1290,7 @@ document.getElementById('resetBtn').addEventListener('click',()=>{
   loadHist(); loadExoLib();
   await GymDB.init();
   try{ const h=await GymDB.read('historique.json'); if(Array.isArray(h)&&h.length){ _hist=h; localStorage.setItem(HIST_KEY,JSON.stringify(h)); } }catch{}
+  try{ const d=await GymDB.read('exercices.json'); if(d&&Array.isArray(d.rows)&&d.rows.length){ _exoLib=d.rows; localStorage.setItem(EXO_KEY,JSON.stringify(d)); } }catch{}
   renderSidebar();
   // Sélectionner la première séance si disponible
   if(_hist.length){ _selId=_hist[0].id; renderSidebar(); renderDetail(); }
@@ -1903,7 +1904,7 @@ function showZoomExoInfo(nom, rightPanel) {
   }
 
   // Tags
-  const tags=[exo.equipement,exo.type_exercice].filter(Boolean);
+  const tags=[exo.equipement,exo.type_exercice,exo.type_mouvement,exo.pattern_mouvement,exo.niveau].filter(Boolean);
   if(tags.length){
     const tagRow=document.createElement('div'); tagRow.style.cssText='display:flex;gap:.35rem;flex-wrap:wrap';
     tags.forEach(t=>{ const s=document.createElement('span'); s.style.cssText='padding:.2rem .55rem;border-radius:999px;font-size:.65rem;font-weight:600;background:var(--surfoff);color:var(--txm);border:1px solid var(--bord)'; s.textContent=t; tagRow.appendChild(s); });
