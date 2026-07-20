@@ -38,8 +38,12 @@ button,input,select{font:inherit} button{cursor:pointer} a{text-decoration:none;
 .btn-home{display:inline-flex;align-items:center;gap:.4rem;padding:.45rem .9rem;border-radius:var(--rmd);border:1px solid var(--bord);background:var(--surf);color:var(--txm);font-size:.78rem;font-weight:600;cursor:pointer;transition:all var(--tr)}
 .btn-home:hover{background:var(--surfoff);color:var(--tx)}
 
+/* ── ALERTE ── */
+.alert-banner{display:flex;align-items:center;gap:.65rem;background:color-mix(in oklab,var(--warn) 12%,var(--surf));border:1px solid color-mix(in oklab,var(--warn) 35%,var(--bord));border-radius:var(--rlg);padding:.75rem 1rem;margin-bottom:1.25rem;color:var(--warn);font-size:.82rem;font-weight:600}
+.alert-banner svg{width:18px;height:18px;flex-shrink:0}
+
 /* ── STAT CARDS ── */
-.stat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;margin-bottom:1.5rem}
+.stat-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:1rem;margin-bottom:1.5rem}
 .stat-card{background:var(--surf);border:1px solid var(--bord);border-radius:var(--rxl);padding:1.1rem 1.25rem;box-shadow:var(--shsm);display:flex;flex-direction:column;gap:.4rem;border-top:3px solid var(--sc-color,var(--bord))}
 .stat-card-icon{width:36px;height:36px;border-radius:var(--rlg);display:grid;place-items:center;background:color-mix(in oklab,var(--sc-color,var(--prim)) 12%,var(--surf));color:var(--sc-color,var(--prim));margin-bottom:.2rem}
 .stat-card-icon svg{width:18px;height:18px}
@@ -60,6 +64,19 @@ button,input,select{font:inherit} button{cursor:pointer} a{text-decoration:none;
 .panel-body{padding:1.25rem}
 .panel-select{padding:.35rem .6rem;border-radius:var(--rmd);border:1px solid var(--bord);background:var(--surf);color:var(--tx);font-size:.75rem;outline:none;cursor:pointer;transition:border-color var(--tr)}
 .panel-select:focus{border-color:var(--prim)}
+.panel-hdr-actions{display:flex;align-items:center;gap:.5rem}
+
+/* ── BASCULE VUE (barres/radar) ── */
+.chart-toggle{display:flex;background:var(--surfoff);border-radius:var(--rmd);padding:2px;gap:2px}
+.cv-btn{border:none;background:transparent;color:var(--txm);font-size:.7rem;font-weight:600;padding:.3rem .6rem;border-radius:calc(var(--rmd) - 2px);transition:all var(--tr)}
+.cv-btn.active{background:var(--surf);color:var(--prim);box-shadow:var(--shsm)}
+
+/* ── PROCHAINE SÉANCE ── */
+.next-seance-name{font-size:1.15rem;font-weight:700;color:var(--tx)}
+.next-seance-prog{font-size:.75rem;color:var(--txm);margin-top:.15rem}
+.next-seance-when{display:inline-block;font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--prim);background:var(--primhi);padding:.2rem .55rem;border-radius:999px;margin-top:.6rem}
+.btn-start-seance{display:inline-flex;align-items:center;gap:.35rem;margin-top:1rem;padding:.5rem 1rem;background:var(--prim);color:#fff;border-radius:var(--rmd);font-size:.8rem;font-weight:700;transition:background var(--tr)}
+.btn-start-seance:hover{background:var(--primh)}
 
 /* ── BARRE VOLUME GROUPE ── */
 .vol-row{display:flex;align-items:center;gap:.75rem;margin-bottom:.65rem}
@@ -121,7 +138,7 @@ button,input,select{font:inherit} button{cursor:pointer} a{text-decoration:none;
 .streak-flame{font-size:1.6rem;line-height:1}
 
 @media(max-width:900px){
-  .stat-grid{grid-template-columns:repeat(2,1fr)}
+  .stat-grid{grid-template-columns:repeat(3,1fr)}
   .grid-2,.grid-2b{grid-template-columns:1fr}
 }
 @media(max-width:600px){
@@ -143,11 +160,20 @@ button,input,select{font:inherit} button{cursor:pointer} a{text-decoration:none;
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 9.5L12 3l9 6.5V20a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1z"/><polyline points="9 21 9 12 15 12 15 21"/></svg>
         Accueil
       </button>
+      <button class="btn-icon" id="exportSummaryBtn" title="Exporter le résumé mensuel (image)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="M21 15l-5-5L5 21"/></svg>
+      </button>
       <button class="btn-icon" id="themeBtn">
         <svg id="thDark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
         <svg id="thLight" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:none"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
       </button>
     </div>
+  </div>
+
+  <!-- ALERTE SURENTRAÎNEMENT -->
+  <div class="alert-banner" id="overtrainAlert" style="display:none">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+    <span>Plusieurs séances récentes ont été notées difficiles — pense à une semaine plus légère.</span>
   </div>
 
   <!-- STAT CARDS -->
@@ -158,12 +184,18 @@ button,input,select{font:inherit} button{cursor:pointer} a{text-decoration:none;
     <div class="panel">
       <div class="panel-hdr">
         <div><div class="panel-title">Volume par groupe musculaire</div><div class="panel-sub" id="volPeriodLabel">30 derniers jours</div></div>
-        <select class="panel-select" id="volPeriodSel">
-          <option value="30">30 jours</option>
-          <option value="90">3 mois</option>
-          <option value="365">12 mois</option>
-          <option value="0">Tout</option>
-        </select>
+        <div class="panel-hdr-actions">
+          <div class="chart-toggle" id="volViewToggle">
+            <button class="cv-btn active" data-view="bars" type="button">Barres</button>
+            <button class="cv-btn" data-view="radar" type="button">Radar</button>
+          </div>
+          <select class="panel-select" id="volPeriodSel">
+            <option value="30">30 jours</option>
+            <option value="90">3 mois</option>
+            <option value="365">12 mois</option>
+            <option value="0">Tout</option>
+          </select>
+        </div>
       </div>
       <div class="panel-body" id="volChart"></div>
     </div>
@@ -190,7 +222,19 @@ button,input,select{font:inherit} button{cursor:pointer} a{text-decoration:none;
     </div>
   </div>
 
-  <!-- ROW 3 : Top exercices -->
+  <!-- ROW 3 : Prochaine séance + Records du mois -->
+  <div class="grid-2b">
+    <div class="panel">
+      <div class="panel-hdr"><div class="panel-title">Prochaine séance</div></div>
+      <div class="panel-body" id="nextSessionBody"></div>
+    </div>
+    <div class="panel">
+      <div class="panel-hdr"><div class="panel-title">Records du mois</div></div>
+      <div class="panel-body" id="monthlyPRs" style="padding:.5rem 1.25rem"></div>
+    </div>
+  </div>
+
+  <!-- ROW 4 : Top exercices -->
   <div class="panel">
     <div class="panel-hdr">
       <div><div class="panel-title">Exercices les plus pratiqués</div><div class="panel-sub">Classés par nombre de séries totales</div></div>
@@ -213,9 +257,20 @@ const HIST_KEY='gymos-historique-v1';
 // DONNÉES
 // ══════════════════════════════════════════════════════════════
 let _hist=[];
+let _progs=[];
+let _volView='bars';
 function loadHist(){ try{ _hist=JSON.parse(localStorage.getItem(HIST_KEY)||'[]'); }catch{ _hist=[]; } }
 function hexRgb(hex){ return [parseInt(hex.slice(1,3),16),parseInt(hex.slice(3,5),16),parseInt(hex.slice(5,7),16)]; }
 function fmtDur(min){ if(!min) return '—'; return min<60?min+'min':Math.floor(min/60)+'h'+String(min%60).padStart(2,'0'); }
+function epley1RM(w,r){ return r===1?w:Math.round(parseFloat(w)*(1+parseInt(r)/30)*10)/10; }
+
+// Décalage de N jours par rapport à aujourd'hui, en UTC pur (cohérent avec le
+// format de stockage des dates : new Date().toISOString().split('T')[0]).
+function daysAgoStr(n){
+  const d=new Date(new Date().toISOString().split('T')[0]+'T00:00:00Z');
+  d.setUTCDate(d.getUTCDate()-n);
+  return d.toISOString().split('T')[0];
+}
 
 // Filtrer par période (jours; 0=tout)
 function filterByDays(hist,days){
@@ -254,6 +309,27 @@ function computeStreak(){
     else if(d<curStr) break;
   }
   return streak;
+}
+
+// Ratio de charge aigu:chronique. Aigu = volume des 7 derniers jours.
+// Chronique = moyenne hebdomadaire du volume sur les 4 semaines PRÉCÉDENTES
+// (jours -35 à -8, méthode "découplée" — n'inclut pas la semaine aiguë).
+function computeLoadRatio(){
+  if(!_hist.length) return {acute:0,ratio:null};
+  const acuteStart=daysAgoStr(6), todayStr=daysAgoStr(0);
+  const acute=_hist.filter(h=>h.date>=acuteStart&&h.date<=todayStr).reduce((s,h)=>s+(h.volumeTotal||0),0);
+  const chronicStart=daysAgoStr(34), chronicEnd=daysAgoStr(7);
+  const chronicHist=_hist.filter(h=>h.date>=chronicStart&&h.date<=chronicEnd);
+  if(!chronicHist.length) return {acute,ratio:null};
+  const chronicWeekly=chronicHist.reduce((s,h)=>s+(h.volumeTotal||0),0)/4;
+  return {acute, ratio: chronicWeekly>0 ? acute/chronicWeekly : null};
+}
+function loadRatioInfo(ratio){
+  if(ratio==null) return {text:'Pas assez de données', color:'#9a9891'};
+  if(ratio<0.8) return {text:'En baisse', color:'#9a9891'};
+  if(ratio<=1.3) return {text:'Stable', color:'#437a22'};
+  if(ratio<=1.5) return {text:'Élevé', color:'#964219'};
+  return {text:'Risque de surcharge', color:'#a12c7b'};
 }
 
 // ══════════════════════════════════════════════════════════════
@@ -299,6 +375,16 @@ function renderStatCards(){
     },
   ];
 
+  const load=computeLoadRatio();
+  const loadInfo=loadRatioInfo(load.ratio);
+  cards.push({
+    label:'Charge (7j / 4 sem.)',
+    val:load.ratio!=null?load.ratio.toFixed(2):'—',
+    sub:loadInfo.text,
+    color:loadInfo.color,
+    icon:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 3v18h18"/><path d="M7 15l4-6 4 3 5-8"/></svg>`
+  });
+
   const grid=document.getElementById('statGrid');
   grid.innerHTML='';
   cards.forEach(c=>{
@@ -338,6 +424,79 @@ function renderVolChart(days){
 
   // Nb de séances
   const note=document.createElement('div'); note.style.cssText='font-size:.65rem;color:var(--txf);margin-top:.75rem;text-align:right';
+  note.textContent=`Basé sur ${filtered.length} séance${filtered.length!==1?'s':''}`;
+  container.appendChild(note);
+}
+
+// ══════════════════════════════════════════════════════════════
+// VOLUME PAR GROUPE — VUE RADAR
+// ══════════════════════════════════════════════════════════════
+function renderVolRadar(days){
+  const filtered=filterByDays(_hist,days);
+  const vols=computeVolByGroupe(filtered).slice(0,8);
+  const container=document.getElementById('volChart');
+  container.innerHTML='';
+  if(!vols.length){
+    container.innerHTML='<div class="empty-box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6 18V8.5C6 6.57 7.57 5 9.5 5h.5v14H9.5A3.5 3.5 0 0 1 6 15.5"/><path d="M18 18V8.5C18 6.57 16.43 5 14.5 5H14v14h.5a3.5 3.5 0 0 0 3.5-3.5"/></svg><p>Aucune donnée sur cette période</p></div>';
+    return;
+  }
+  const n=vols.length, W=280,H=280,cx=W/2,cy=H/2,R=95;
+  const maxV=Math.max(...vols.map(v=>v[1]))||1;
+  const angle=i=>-Math.PI/2+i*(2*Math.PI/n);
+  const ptAt=(i,r)=>[cx+r*Math.cos(angle(i)), cy+r*Math.sin(angle(i))];
+
+  const svg=document.createElementNS('http://www.w3.org/2000/svg','svg');
+  svg.setAttribute('viewBox',`0 0 ${W} ${H+30}`);
+  svg.style.cssText='width:100%;height:auto;display:block;overflow:visible';
+
+  // Anneaux de fond (25/50/75/100%)
+  [.25,.5,.75,1].forEach(f=>{
+    const poly=document.createElementNS('http://www.w3.org/2000/svg','polygon');
+    const pts=[]; for(let i=0;i<n;i++) pts.push(ptAt(i,R*f).join(','));
+    poly.setAttribute('points',pts.join(' '));
+    poly.setAttribute('fill','none'); poly.setAttribute('stroke','var(--bord)'); poly.setAttribute('stroke-width','1');
+    svg.appendChild(poly);
+  });
+
+  // Axes + libellés
+  vols.forEach(([g],i)=>{
+    const [x,y]=ptAt(i,R);
+    const line=document.createElementNS('http://www.w3.org/2000/svg','line');
+    line.setAttribute('x1',cx); line.setAttribute('y1',cy); line.setAttribute('x2',x); line.setAttribute('y2',y);
+    line.setAttribute('stroke','var(--bord)'); line.setAttribute('stroke-width','1');
+    svg.appendChild(line);
+    const [lx,ly]=ptAt(i,R+16);
+    const lbl=document.createElementNS('http://www.w3.org/2000/svg','text');
+    lbl.setAttribute('x',lx); lbl.setAttribute('y',ly+3);
+    lbl.setAttribute('text-anchor', Math.abs(lx-cx)<4?'middle':(lx>cx?'start':'end'));
+    lbl.setAttribute('class','chart-axis-lbl');
+    lbl.textContent=g.length>12?g.slice(0,11)+'…':g;
+    svg.appendChild(lbl);
+  });
+
+  // Polygone de données
+  const pathPts=vols.map(([,v],i)=>ptAt(i,R*(v/maxV)));
+  const poly=document.createElementNS('http://www.w3.org/2000/svg','polygon');
+  poly.setAttribute('points',pathPts.map(p=>p.join(',')).join(' '));
+  poly.setAttribute('fill','var(--prim)'); poly.setAttribute('fill-opacity','.18');
+  poly.setAttribute('stroke','var(--prim)'); poly.setAttribute('stroke-width','2');
+  svg.appendChild(poly);
+
+  vols.forEach(([g,v],i)=>{
+    const [x,y]=pathPts[i];
+    const dot=document.createElementNS('http://www.w3.org/2000/svg','circle');
+    dot.setAttribute('cx',x); dot.setAttribute('cy',y); dot.setAttribute('r',3.5);
+    dot.setAttribute('fill','var(--prim)'); dot.setAttribute('class','chart-dot');
+    dot.addEventListener('mouseenter',e=>showTooltip(`${g} · ${v.toLocaleString('fr-FR')} kg`,e));
+    dot.addEventListener('mouseleave',hideTooltip);
+    svg.appendChild(dot);
+  });
+
+  const wrap=document.createElement('div'); wrap.style.cssText='width:100%;max-width:320px;margin:0 auto';
+  wrap.appendChild(svg);
+  container.appendChild(wrap);
+
+  const note=document.createElement('div'); note.style.cssText='font-size:.65rem;color:var(--txf);margin-top:.5rem;text-align:right';
   note.textContent=`Basé sur ${filtered.length} séance${filtered.length!==1?'s':''}`;
   container.appendChild(note);
 }
@@ -543,6 +702,127 @@ function renderRecent(){
 }
 
 // ══════════════════════════════════════════════════════════════
+// RECORDS DU MOIS
+// ══════════════════════════════════════════════════════════════
+// Un "record" = le meilleur 1RM estimé (Epley) d'une séance qui dépasse le
+// meilleur jamais atteint jusque-là pour cet exercice (comparaison au niveau
+// de la séance, pas de la série isolée, pour éviter des faux doublons).
+function computeMonthlyPRs(){
+  const monthStart=`${new Date().getFullYear()}-${String(new Date().getMonth()+1).padStart(2,'0')}-01`;
+  const bestSoFar={}; const events=[];
+  _hist.slice().reverse().forEach(h=>{
+    const perExoBest={};
+    (h.exercices||[]).forEach(e=>{
+      (e.series||[]).forEach(sr=>{
+        const p=parseFloat(sr.poids)||0, r=parseInt(sr.reps)||1;
+        if(p<=0) return;
+        const est=epley1RM(p,r);
+        if(!perExoBest[e.nom]||est>perExoBest[e.nom].est1rm) perExoBest[e.nom]={poids:p,reps:r,est1rm:est,groupe:e.groupe};
+      });
+    });
+    Object.entries(perExoBest).forEach(([nom,best])=>{
+      if(!bestSoFar[nom]||best.est1rm>bestSoFar[nom]){
+        bestSoFar[nom]=best.est1rm;
+        events.push({nom,date:h.date,...best});
+      }
+    });
+  });
+  return events.filter(ev=>ev.date>=monthStart).sort((a,b)=>b.date.localeCompare(a.date));
+}
+function renderMonthlyPRs(){
+  const container=document.getElementById('monthlyPRs');
+  const prs=computeMonthlyPRs();
+  container.innerHTML='';
+  if(!prs.length){
+    container.innerHTML='<div class="empty-box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg><p>Aucun record ce mois-ci</p></div>';
+    return;
+  }
+  prs.slice(0,8).forEach(pr=>{
+    const hex=grpc(pr.groupe);
+    const row=document.createElement('div'); row.className='rec-row';
+    row.innerHTML=`<span class="rec-dot" style="background:${hex}"></span>
+      <div class="rec-info">
+        <div class="rec-name">${esc(pr.nom)}</div>
+        <div class="rec-meta">${fmtDateShort(pr.date)} · ${pr.poids}kg × ${pr.reps}</div>
+      </div>
+      <div class="rec-stats">
+        <span class="rec-vol">${pr.est1rm}kg</span>
+        <span class="rec-dur">1RM est.</span>
+      </div>`;
+    container.appendChild(row);
+  });
+}
+
+// ══════════════════════════════════════════════════════════════
+// PROCHAINE SÉANCE PROGRAMMÉE
+// ══════════════════════════════════════════════════════════════
+const DOW_FR=['Dimanche','Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi'];
+function computeNextSession(){
+  const actifs=(_progs||[]).filter(p=>p.statut==='actif');
+  if(actifs.length!==1) return null; // 0 ou plusieurs actifs : pas de suggestion fiable
+  const prog=actifs[0];
+  const seances=prog.seances||[];
+  if(!seances.length) return null;
+
+  const todayIdx=new Date().getDay();
+  const withDays=seances.filter(s=>(s.jours||[]).length);
+  if(withDays.length){
+    const todayName=DOW_FR[todayIdx];
+    let match=withDays.find(s=>s.jours.includes(todayName));
+    if(match) return {programme:prog.nom, seance:match.nom, when:"Aujourd'hui"};
+    for(let i=1;i<=7;i++){
+      const name=DOW_FR[(todayIdx+i)%7];
+      match=withDays.find(s=>s.jours.includes(name));
+      if(match) return {programme:prog.nom, seance:match.nom, when:`Prévue ${name.toLowerCase()}`};
+    }
+    return null;
+  }
+
+  // Pas de jours assignés (rotation libre) : proposer la séance jamais faite
+  // ou la moins récemment faite, par correspondance de nom avec l'historique
+  // (approximatif — aucun lien d'ID entre historique et programme).
+  const lastDone={};
+  _hist.forEach(h=>{
+    if(h.programmeNom===prog.nom && h.seanceNom && (!lastDone[h.seanceNom]||h.date>lastDone[h.seanceNom])) lastDone[h.seanceNom]=h.date;
+  });
+  const withDate=seances.map(s=>({s,last:lastDone[s.nom]||null}));
+  withDate.sort((a,b)=>{
+    if(!a.last&&!b.last) return 0;
+    if(!a.last) return -1;
+    if(!b.last) return 1;
+    return a.last.localeCompare(b.last);
+  });
+  const pick=withDate[0];
+  return {programme:prog.nom, seance:pick.s.nom, when: pick.last?`Dernière fois : ${fmtDateShort(pick.last)}`:'Jamais faite'};
+}
+function renderNextSession(){
+  const container=document.getElementById('nextSessionBody');
+  const next=computeNextSession();
+  container.innerHTML='';
+  if(!next){
+    container.innerHTML='<div class="empty-box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg><p>Aucun programme actif (ou plusieurs en même temps)</p></div>';
+    return;
+  }
+  container.innerHTML=`<div class="next-seance-name">${esc(next.seance)}</div>
+    <div class="next-seance-prog">${esc(next.programme)}</div>
+    <div class="next-seance-when">${esc(next.when)}</div><br>
+    <a class="btn-start-seance" href="Seance.html">Commencer →</a>`;
+}
+
+// ══════════════════════════════════════════════════════════════
+// ALERTE SURENTRAÎNEMENT
+// ══════════════════════════════════════════════════════════════
+function computeOvertrainingAlert(){
+  const recent=_hist.slice(0,5);
+  if(recent.length<3) return false;
+  const hardCount=recent.filter(h=>(h.exercices||[]).some(e=>(e.series||[]).some(sr=>sr.ressenti==='tres_dur'||sr.ressenti==='super_dur'))).length;
+  return hardCount>=3;
+}
+function renderOvertrainingAlert(){
+  document.getElementById('overtrainAlert').style.display=computeOvertrainingAlert()?'flex':'none';
+}
+
+// ══════════════════════════════════════════════════════════════
 // TOP EXERCICES
 // ══════════════════════════════════════════════════════════════
 function renderTopExos(){
@@ -582,6 +862,69 @@ function renderTopExos(){
 }
 
 // ══════════════════════════════════════════════════════════════
+// EXPORT RÉSUMÉ MENSUEL (image, canvas natif)
+// ══════════════════════════════════════════════════════════════
+function exportMonthlySummary(){
+  const now=new Date();
+  const monthStart=`${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-01`;
+  const monthHist=_hist.filter(h=>h.date>=monthStart);
+  const totalVol=monthHist.reduce((s,h)=>s+(h.volumeTotal||0),0);
+  const prs=computeMonthlyPRs();
+  const streak=computeStreak();
+  const exoCount={};
+  monthHist.forEach(h=>(h.exercices||[]).forEach(e=>{ exoCount[e.nom]=(exoCount[e.nom]||0)+(e.series||[]).length; }));
+  const topExo=Object.entries(exoCount).sort((a,b)=>b[1]-a[1])[0];
+  let monthLabel=now.toLocaleDateString('fr-FR',{month:'long',year:'numeric'});
+  monthLabel=monthLabel.charAt(0).toUpperCase()+monthLabel.slice(1);
+
+  const canvas=document.createElement('canvas');
+  canvas.width=800; canvas.height=1000;
+  const ctx=canvas.getContext('2d');
+
+  ctx.fillStyle='#f7f6f2'; ctx.fillRect(0,0,800,1000);
+  ctx.fillStyle='#01696f'; ctx.fillRect(0,0,800,130);
+  ctx.fillStyle='#fff';
+  ctx.font='bold 34px Georgia, serif'; ctx.fillText('GymOS — Résumé mensuel',40,58);
+  ctx.font='20px Georgia, serif'; ctx.fillText(monthLabel,40,95);
+
+  const rows=[
+    ['Séances', String(monthHist.length)],
+    ['Volume total', totalVol>0?totalVol.toLocaleString('fr-FR')+' kg':'—'],
+    ['Volume moyen / séance', monthHist.length?Math.round(totalVol/monthHist.length).toLocaleString('fr-FR')+' kg':'—'],
+    ['Nouveaux records', String(prs.length)],
+    ['Série actuelle', streak+' j'],
+    ['Exercice le plus pratiqué', topExo?`${topExo[0]} (${topExo[1]} séries)`:'—'],
+  ];
+  let y=195;
+  rows.forEach(([label,val])=>{
+    ctx.font='bold 13px Arial, sans-serif'; ctx.fillStyle='#6e6b64';
+    ctx.fillText(label.toUpperCase(),40,y);
+    ctx.font='bold 26px Arial, sans-serif'; ctx.fillStyle='#28251d';
+    ctx.fillText(val,40,y+32);
+    y+=72;
+  });
+
+  if(prs.length){
+    ctx.font='bold 16px Georgia, serif'; ctx.fillStyle='#28251d';
+    ctx.fillText('Records du mois',40,y+15);
+    y+=45;
+    prs.slice(0,8).forEach(pr=>{
+      ctx.font='14px Arial, sans-serif'; ctx.fillStyle='#54544c';
+      ctx.fillText(`${pr.nom} — ${pr.est1rm} kg (1RM est., ${fmtDateShort(pr.date)})`,40,y);
+      y+=26;
+    });
+  }
+
+  ctx.font='12px Arial, sans-serif'; ctx.fillStyle='#9a9891';
+  ctx.fillText('Généré par GymOS le '+now.toLocaleDateString('fr-FR'),40,970);
+
+  const a=document.createElement('a');
+  a.href=canvas.toDataURL('image/png');
+  a.download=`gymos-resume-${now.toISOString().split('T')[0]}.png`;
+  a.click();
+}
+
+// ══════════════════════════════════════════════════════════════
 // TOOLTIP
 // ══════════════════════════════════════════════════════════════
 const tooltip=document.getElementById('tooltip');
@@ -608,13 +951,27 @@ document.getElementById('volPeriodSel').addEventListener('change',function(){
   const days=parseInt(this.value);
   const labels={30:'30 derniers jours',90:'3 derniers mois',365:'12 derniers mois',0:'Depuis le début'};
   document.getElementById('volPeriodLabel').textContent=labels[this.value]||'';
-  renderVolChart(days);
+  if(_volView==='radar') renderVolRadar(days); else renderVolChart(days);
+});
+
+// ══════════════════════════════════════════════════════════════
+// BASCULE VUE VOLUME (barres/radar)
+// ══════════════════════════════════════════════════════════════
+document.querySelectorAll('#volViewToggle .cv-btn').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    document.querySelectorAll('#volViewToggle .cv-btn').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    _volView=btn.dataset.view;
+    const days=parseInt(document.getElementById('volPeriodSel').value);
+    if(_volView==='radar') renderVolRadar(days); else renderVolChart(days);
+  });
 });
 
 // ══════════════════════════════════════════════════════════════
 // EVENTS
 // ══════════════════════════════════════════════════════════════
 document.getElementById('themeBtn').addEventListener('click',()=>applyTheme(document.documentElement.getAttribute('data-theme')==='dark'?'light':'dark'));
+document.getElementById('exportSummaryBtn').addEventListener('click',exportMonthlySummary);
 
 // ══════════════════════════════════════════════════════════════
 // INIT
@@ -625,11 +982,15 @@ document.getElementById('themeBtn').addEventListener('click',()=>applyTheme(docu
   loadHist();
   await GymDB.init();
   try{ const h=await GymDB.read('historique.json'); if(Array.isArray(h)&&h.length){ _hist=h; localStorage.setItem(HIST_KEY,JSON.stringify(h)); } }catch{}
+  try{ const p=await GymDB.read('programmes.json'); if(Array.isArray(p)) _progs=p; }catch{}
+  renderOvertrainingAlert();
   renderStatCards();
   renderVolChart(30);
   renderHeatmap();
   buildProgExoList();
   renderRecent();
+  renderMonthlyPRs();
+  renderNextSession();
   renderTopExos();
 })();
 </script>
