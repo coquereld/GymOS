@@ -401,6 +401,59 @@
     .dm-img-pick-btn:hover{border-color:var(--dm-color,var(--color-primary));color:var(--dm-color,var(--color-primary))}
     .dm-img-pick-btn svg{width:11px;height:11px}
 
+    /* ── Section "Exercices liés à ce muscle" ── */
+    .dm-exo-section{
+      flex-shrink:0;max-height:240px;overflow-y:auto;
+      border-top:1px solid var(--color-border);
+      padding:var(--space-3) var(--space-4);
+      background:color-mix(in oklab,var(--dm-color,var(--color-primary)) 3%,var(--color-surface));
+    }
+    .dm-exo-title{font-size:.65rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--dm-color,var(--color-primary));margin-bottom:var(--space-2)}
+    .dm-exo-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:var(--space-2)}
+    .dm-exo-empty{font-size:var(--text-xs);color:var(--color-text-faint);font-style:italic;padding:var(--space-2) 0}
+    .dm-exo-card{
+      display:flex;flex-direction:column;width:100%;padding:0;margin:0;
+      border:1px solid var(--color-border);border-radius:var(--radius-md);
+      background:var(--color-surface);overflow:hidden;cursor:pointer;
+      transition:all var(--transition);text-align:left;font:inherit;
+      -webkit-appearance:none;appearance:none;
+    }
+    .dm-exo-card:hover{border-color:var(--dm-color,var(--color-primary));box-shadow:var(--shadow-sm);transform:translateY(-1px)}
+    .dm-exo-card-img{width:100%;height:84px;object-fit:contain;background:var(--color-surface-offset);display:block;padding:.25rem}
+    .dm-exo-card-ph{width:100%;height:84px;display:grid;place-items:center;background:var(--color-surface-offset);color:var(--color-text-faint)}
+    .dm-exo-card-ph svg{width:22px;height:22px;opacity:.5}
+    .dm-exo-card-body{padding:.4rem .55rem;display:flex;flex-direction:column;gap:.25rem}
+    .dm-exo-card-name{font-size:.72rem;font-weight:700;color:var(--color-text);line-height:1.25;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+    .dm-exo-badge{display:inline-flex;align-items:center;gap:.25rem;font-size:.6rem;font-weight:700;padding:.12rem .4rem;border-radius:999px;white-space:nowrap;width:fit-content}
+    .dm-exo-badge.principal{background:rgba(67,122,34,.15);color:#437a22;border:1px solid rgba(67,122,34,.3)}
+    .dm-exo-badge.secondaire{background:var(--color-surface-offset);color:var(--color-text-muted);border:1px solid var(--color-border)}
+    .dm-exo-stars{font-size:.62rem;letter-spacing:1px}
+
+    /* ── Modale récap exercice ── */
+    #exoRecapModal{z-index:150}
+    .exo-recap-box{background:var(--color-surface);border-radius:var(--radius-xl);width:min(640px,95vw);max-height:min(90dvh,780px);display:flex;flex-direction:column;box-shadow:var(--shadow-md);overflow:hidden;border:1px solid var(--color-border);transform:scale(.96) translateY(8px);transition:transform 220ms cubic-bezier(.16,1,.3,1)}
+    #exoRecapModal.open .exo-recap-box{transform:scale(1) translateY(0)}
+    .erb-header{flex-shrink:0;background:color-mix(in oklab,var(--erb-color,var(--color-primary)) 8%,var(--color-surface))}
+    .erb-header-bar{height:4px;background:var(--erb-color,var(--color-primary))}
+    .erb-header-row{display:flex;align-items:center;gap:var(--space-3);padding:var(--space-3) var(--space-4)}
+    .erb-img{width:52px;height:52px;border-radius:var(--radius-md);object-fit:cover;flex-shrink:0;background:var(--color-surface-offset)}
+    .erb-img-ph{width:52px;height:52px;border-radius:var(--radius-md);flex-shrink:0;background:var(--color-surface-offset);display:grid;place-items:center;color:var(--color-text-faint)}
+    .erb-titles{flex:1;min-width:0}
+    .erb-name{font-size:var(--text-base);font-weight:700;color:var(--erb-color,var(--color-text))}
+    .erb-sub{font-size:var(--text-xs);color:var(--color-text-muted);margin-top:.1rem}
+    .erb-close{width:34px;height:34px;border-radius:50%;border:1px solid var(--color-border);background:var(--color-surface-2);color:var(--color-text-muted);display:grid;place-items:center;cursor:pointer;flex-shrink:0;transition:all var(--transition)}
+    .erb-close:hover{background:var(--color-surface-offset);color:var(--color-text)}
+    .erb-close svg{width:14px;height:14px}
+    .erb-body{flex:1;overflow-y:auto;padding:var(--space-4);display:flex;flex-direction:column;gap:var(--space-3)}
+    .erb-tags{display:flex;gap:.35rem;flex-wrap:wrap}
+    .erb-tag{padding:.2rem .55rem;border-radius:999px;font-size:.65rem;font-weight:600;background:var(--color-surface-offset);color:var(--color-text-muted);border:1px solid var(--color-border)}
+    .erb-sec{display:flex;flex-direction:column;gap:.3rem}
+    .erb-sec-title{font-size:.62rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--erb-color,var(--color-primary));padding-bottom:.2rem;border-bottom:1px solid color-mix(in oklab,var(--erb-color,var(--color-primary)) 25%,var(--color-border))}
+    .erb-sec-text{font-size:.8rem;line-height:1.55;color:var(--color-text);white-space:pre-wrap}
+    .erb-sec-empty{font-size:.78rem;color:var(--color-text-faint);font-style:italic}
+    .erb-series-row{display:flex;gap:.5rem;flex-wrap:wrap;font-size:.78rem;color:var(--color-text)}
+    .erb-series-chip{padding:.15rem .5rem;border-radius:var(--radius-sm);background:var(--color-surface-offset);border:1px solid var(--color-border)}
+
     #lightboxModal{z-index:200}
     .dm-panel-img{cursor:zoom-in;transition:opacity var(--transition)}
     .dm-panel-img:hover{opacity:.82}
@@ -1069,6 +1122,35 @@
     <div class="dm-body" id="dmBody">
       <!-- 3 colonnes générées par JS -->
     </div>
+    <div class="dm-exo-section" id="dmExoSection">
+      <div class="dm-exo-title">Exercices liés à ce muscle</div>
+      <div class="dm-exo-grid" id="dmExoGrid"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ MODALE RÉCAP EXERCICE ═══ -->
+<div class="modal-overlay" id="exoRecapModal" role="dialog" aria-modal="true">
+  <div class="exo-recap-box" id="exoRecapBox">
+    <div class="erb-header">
+      <div class="erb-header-bar"></div>
+      <div class="erb-header-row">
+        <img class="erb-img" id="erbImg" src="" alt="" style="display:none">
+        <div class="erb-img-ph" id="erbImgPh">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+        </div>
+        <div class="erb-titles">
+          <div class="erb-name" id="erbName"></div>
+          <div class="erb-sub" id="erbSub"></div>
+        </div>
+        <button class="erb-close" id="erbClose" aria-label="Fermer">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+    </div>
+    <div class="erb-body" id="erbBody">
+      <!-- généré par JS -->
+    </div>
   </div>
 </div>
 
@@ -1137,6 +1219,48 @@ async function loadGroupImagesFromDb() {
   const data = await GymDB.read('group-images.json');
   if (data && typeof data === 'object') { _groupImages = data; return true; }
   return false;
+}
+
+// ─── EXERCICES LIÉS À UN MUSCLE (bibliothèque + objectifs + historique) ───────
+let _exoLib = [], _objectifs = {}, _hist = [];
+async function loadExoLinkedData() {
+  try { const d = await GymDB.read('exercices.json'); if (d && Array.isArray(d.rows)) _exoLib = d.rows; } catch {}
+  try { const obj = await GymDB.read('exercices-objectifs.json'); if (obj) _objectifs = obj; } catch {}
+  try { const h = await GymDB.read('historique.json'); if (Array.isArray(h)) _hist = h; } catch {}
+}
+// Parse le format de stockage "Muscle:niveau, Muscle2" (niveau 1-3, défaut 3 si absent)
+function parseSecValue(str) {
+  if (!str) return [];
+  return str.split(',').map(s => {
+    const trimmed = s.trim();
+    const colon = trimmed.lastIndexOf(':');
+    if (colon > 0) {
+      const m = trimmed.slice(0, colon).trim();
+      const l = parseInt(trimmed.slice(colon + 1)) || 3;
+      return { m, l };
+    }
+    return { m: trimmed, l: 3 };
+  }).filter(x => x.m);
+}
+function renderStars(level) {
+  return Array.from({ length: 5 }, (_, i) =>
+    i < level ? '<span style="color:#f5b731">★</span>' : '<span style="color:#d1d0ce">☆</span>'
+  ).join('');
+}
+// Retourne les exercices ciblant ce muscle (principal ou secondaire), triés principal d'abord
+function findExercisesForMuscle(muscleCible) {
+  const principaux = [], secondaires = [];
+  _exoLib.forEach(exo => {
+    if (exo.muscle === muscleCible) {
+      principaux.push({ exo, role: 'principal', level: 5 });
+    } else {
+      const sec = parseSecValue(exo.muscle_secondaire).find(s => s.m === muscleCible);
+      if (sec) secondaires.push({ exo, role: 'secondaire', level: sec.l });
+    }
+  });
+  principaux.sort((a, b) => (a.exo.exercice || '').localeCompare(b.exo.exercice || '', 'fr'));
+  secondaires.sort((a, b) => b.level - a.level || (a.exo.exercice || '').localeCompare(b.exo.exercice || '', 'fr'));
+  return principaux.concat(secondaires);
 }
 // Met à jour l'image anatomique selon le groupe actif
 function updateAnatomyImage() {
@@ -1983,8 +2107,159 @@ function openDetailModal(rowId) {
   }); // fin panels.forEach
   body.appendChild(colPanels);
 
+  renderMuscleExoSection(row);
+
   document.getElementById('detailModal').classList.add('open');
 }
+
+const EXO_PH_SVG = '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>';
+
+function renderMuscleExoSection(row) {
+  const grid = document.getElementById('dmExoGrid');
+  grid.innerHTML = '';
+  const matches = findExercisesForMuscle(row.muscle_cible);
+  if (!matches.length) {
+    grid.innerHTML = `<div class="dm-exo-empty">Aucun exercice ne cible ce muscle pour l'instant.</div>`;
+    return;
+  }
+  matches.forEach(({ exo, role, level }) => {
+    const card = document.createElement('button');
+    card.type = 'button';
+    card.className = 'dm-exo-card';
+    const badgeHtml = role === 'principal'
+      ? `<span class="dm-exo-badge principal">Principal</span>`
+      : `<span class="dm-exo-badge secondaire">Secondaire <span class="dm-exo-stars">${renderStars(level)}</span></span>`;
+    card.innerHTML = `
+      ${exo.image ? `<img class="dm-exo-card-img" src="./img/${escapeXml(exo.image)}" alt="">` : `<div class="dm-exo-card-ph">${EXO_PH_SVG}</div>`}
+      <div class="dm-exo-card-body">
+        <div class="dm-exo-card-name">${escapeXml(exo.exercice || '')}</div>
+        ${badgeHtml}
+      </div>
+    `;
+    const img = card.querySelector('.dm-exo-card-img');
+    if (img) img.onerror = () => { img.outerHTML = `<div class="dm-exo-card-ph">${EXO_PH_SVG}</div>`; };
+    card.addEventListener('click', () => openExoRecapModal(exo.id));
+    grid.appendChild(card);
+  });
+}
+
+// ─── MODALE RÉCAP EXERCICE ─────────────────────────────────────────────────────
+function openExoRecapModal(exoId) {
+  const exo = _exoLib.find(e => e.id === exoId);
+  if (!exo) return;
+  const hex = MUSCLE_COLORS[exo.groupe_musculaire] || '#9a9891';
+  document.getElementById('exoRecapBox').style.setProperty('--erb-color', hex);
+
+  document.getElementById('erbName').textContent = exo.exercice || '—';
+  document.getElementById('erbSub').textContent = [exo.muscle, exo.subdivision && exo.subdivision !== '—' ? exo.subdivision : ''].filter(Boolean).join(' · ');
+  const img = document.getElementById('erbImg'), ph = document.getElementById('erbImgPh');
+  if (exo.image) {
+    img.src = './img/' + exo.image; img.style.display = 'block'; ph.style.display = 'none';
+    img.onerror = () => { img.style.display = 'none'; ph.style.display = 'grid'; };
+  } else { img.style.display = 'none'; ph.style.display = 'grid'; }
+
+  const b = document.getElementById('erbBody');
+  b.innerHTML = '';
+
+  // Tags
+  const tagVals = [exo.equipement, exo.type_exercice, exo.type_mouvement, exo.pattern_mouvement, exo.niveau].filter(Boolean);
+  if (tagVals.length) {
+    const row = document.createElement('div'); row.className = 'erb-tags';
+    tagVals.forEach(t => { const s = document.createElement('span'); s.className = 'erb-tag'; s.textContent = t; row.appendChild(s); });
+    b.appendChild(row);
+  }
+
+  // Muscles secondaires
+  const sec = parseSecValue(exo.muscle_secondaire);
+  if (sec.length) {
+    const s = document.createElement('div'); s.className = 'erb-sec';
+    const t = document.createElement('div'); t.className = 'erb-sec-title'; t.textContent = 'Muscles secondaires';
+    const list = document.createElement('div'); list.style.cssText = 'display:flex;flex-direction:column;gap:.3rem';
+    sec.forEach(({ m, l }) => {
+      const line = document.createElement('div'); line.style.cssText = 'display:flex;align-items:center;justify-content:space-between;font-size:.8rem';
+      line.innerHTML = `<span>${escapeXml(m)}</span><span style="font-size:.75rem">${renderStars(l)}</span>`;
+      list.appendChild(line);
+    });
+    s.append(t, list); b.appendChild(s);
+  }
+
+  // Descriptif / Exécution
+  [{ lbl: 'Descriptif', val: exo.descriptif }, { lbl: 'Exécution / Technique', val: exo.execution }].forEach(({ lbl, val }) => {
+    if (!val) return;
+    const s = document.createElement('div'); s.className = 'erb-sec';
+    const t = document.createElement('div'); t.className = 'erb-sec-title'; t.textContent = lbl;
+    const v = document.createElement('div'); v.className = 'erb-sec-text'; v.textContent = val;
+    s.append(t, v); b.appendChild(s);
+  });
+
+  // Objectif actuel
+  const objs = _objectifs[exo.id];
+  const lastObj = Array.isArray(objs) && objs.length ? objs.slice().sort((a, b2) => (a.date || '').localeCompare(b2.date || '')).pop() : null;
+  const objSec = document.createElement('div'); objSec.className = 'erb-sec';
+  const objTitle = document.createElement('div'); objTitle.className = 'erb-sec-title'; objTitle.textContent = 'Objectif actuel';
+  objSec.appendChild(objTitle);
+  if (lastObj) {
+    const chips = [
+      lastObj.series && `${lastObj.series} séries`,
+      lastObj.reps && `${lastObj.reps} reps`,
+      lastObj.poids && `${lastObj.poids} kg`,
+      lastObj.rm1 && `1RM estimé ${lastObj.rm1} kg`,
+      lastObj.duree && `${lastObj.duree}`,
+      lastObj.distance && `${lastObj.distance}`,
+      lastObj.recup && `Récup ${lastObj.recup}s`,
+    ].filter(Boolean);
+    const row = document.createElement('div'); row.className = 'erb-series-row';
+    chips.forEach(c => { const s = document.createElement('span'); s.className = 'erb-series-chip'; s.textContent = c; row.appendChild(s); });
+    objSec.appendChild(row);
+    if (lastObj.date) { const d = document.createElement('div'); d.style.cssText = 'font-size:.7rem;color:var(--color-text-faint)'; d.textContent = 'Défini le ' + fmtDateShort(lastObj.date); objSec.appendChild(d); }
+    if (lastObj.note) { const n = document.createElement('div'); n.className = 'erb-sec-text'; n.textContent = lastObj.note; objSec.appendChild(n); }
+  } else {
+    const e = document.createElement('div'); e.className = 'erb-sec-empty'; e.textContent = 'Aucun objectif défini.';
+    objSec.appendChild(e);
+  }
+  b.appendChild(objSec);
+
+  // Dernière séance
+  const matches = (_hist || []).filter(h => (h.exercices || []).some(e => e.nom === exo.exercice));
+  const lastSeance = matches.length ? matches.slice().sort((a, b2) => (a.date || '').localeCompare(b2.date || '')).pop() : null;
+  const seanceSec = document.createElement('div'); seanceSec.className = 'erb-sec';
+  const seanceTitle = document.createElement('div'); seanceTitle.className = 'erb-sec-title'; seanceTitle.textContent = 'Dernière séance';
+  seanceSec.appendChild(seanceTitle);
+  if (lastSeance) {
+    const entry = (lastSeance.exercices || []).find(e => e.nom === exo.exercice);
+    const d = document.createElement('div'); d.style.cssText = 'font-size:.75rem;color:var(--color-text-muted)'; d.textContent = fmtDateShort(lastSeance.date) + (lastSeance.seanceNom ? ' · ' + lastSeance.seanceNom : '');
+    seanceSec.appendChild(d);
+    (entry?.series || []).forEach((s, i) => {
+      const chips = [
+        s.reps && `${s.reps} reps`,
+        s.poids && `${s.poids} kg`,
+        s.duree && `${s.duree}`,
+        s.distance && `${s.distance}`,
+        s.ressenti && s.ressenti,
+      ].filter(Boolean);
+      if (!chips.length) return;
+      const row = document.createElement('div'); row.className = 'erb-series-row';
+      const lbl = document.createElement('span'); lbl.style.cssText = 'font-size:.72rem;color:var(--color-text-faint);flex-shrink:0'; lbl.textContent = `Série ${i + 1} :`;
+      row.appendChild(lbl);
+      chips.forEach(c => { const s2 = document.createElement('span'); s2.className = 'erb-series-chip'; s2.textContent = c; row.appendChild(s2); });
+      seanceSec.appendChild(row);
+    });
+    if (entry?.note) { const n = document.createElement('div'); n.className = 'erb-sec-text'; n.textContent = entry.note; seanceSec.appendChild(n); }
+  } else {
+    const e = document.createElement('div'); e.className = 'erb-sec-empty'; e.textContent = 'Jamais pratiqué.';
+    seanceSec.appendChild(e);
+  }
+  b.appendChild(seanceSec);
+
+  document.getElementById('exoRecapModal').classList.add('open');
+}
+function closeExoRecapModal() {
+  document.getElementById('exoRecapModal').classList.remove('open');
+}
+document.getElementById('exoRecapModal').addEventListener('click', e => {
+  if (e.target === document.getElementById('exoRecapModal')) closeExoRecapModal();
+});
+document.getElementById('erbClose').addEventListener('click', closeExoRecapModal);
 
 function makeLPh() {
   const d=document.createElement('div'); d.className='dm-loc-ph';
@@ -2625,6 +2900,7 @@ document.addEventListener('keydown', e => {
     if (e.key === 'Escape') { closeLightbox(); return; }
   }
   if (e.key === 'Escape') {
+    if (document.getElementById('exoRecapModal').classList.contains('open')) { closeExoRecapModal(); return; }
     if (document.getElementById('detailModal').classList.contains('open'))   { closeDetailModal(); return; }
     if (document.getElementById('multiImgModal').classList.contains('open')) { closeMultiImgModal(); return; }
     if (document.getElementById('groupImgModal').classList.contains('open')) { closeGroupImgModal(); return; }
@@ -2656,6 +2932,7 @@ async function loadFromCorpsDb() {
   if (dbState === 'connected') {
     // Charger images groupes depuis Db si disponibles
     await loadGroupImagesFromDb();
+    await loadExoLinkedData();
     const d = await loadFromCorpsDb();
     if (d) {
       els.searchInput.value = d.search || '';
