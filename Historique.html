@@ -198,6 +198,9 @@ button,input,select,textarea{font:inherit} button{cursor:pointer} a{color:inheri
         <button class="btn-icon" id="importBtn" title="Importer des séances (JSON ou Excel)">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
         </button>
+        <button class="btn-icon" id="remediationBtn" title="Remédiation : retrouver le nom et la couleur des séances importées">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M15 4V2M15 16v-2M8 9h2M20 9h2M17.8 11.8L19 13M15 9h0M17.8 6.2L19 5M3 21l9-9M12.2 6.2L11 5"/></svg>
+        </button>
         <button class="btn-icon" id="exportAllBtn" title="Exporter tout (JSON)">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
         </button>
@@ -263,6 +266,7 @@ let _hist = [];
 let _selId = null;
 let _editMode = false;
 let _exoLib = [];
+let _progs = [];
 
 // ══════════════════════════════════════════════════════════════
 // UTILS
@@ -273,6 +277,9 @@ function fmtDate(iso){ const d=new Date(iso+'T00:00'); return d.toLocaleDateStri
 function fmtMonth(iso){ const d=new Date(iso+'T00:00'); return d.toLocaleDateString('fr-FR',{month:'long',year:'numeric'}); }
 function fmtDur(min){ if(!min)return '—'; if(min<60) return min+'min'; return Math.floor(min/60)+'h'+String(min%60).padStart(2,'0'); }
 function getExoImg(nom){ const e=_exoLib.find(x=>x.exercice?.toLowerCase()===nom?.toLowerCase()); return e?.image||''; }
+function importBadge(h){
+  return h.importOrigine ? `<span title="Séance importée, nom/couleur retrouvés automatiquement (${esc(h.importOrigine)})" style="display:inline-flex;vertical-align:middle;margin-left:.35rem;font-size:.85em;opacity:.75">📥</span>` : '';
+}
 
 // ══════════════════════════════════════════════════════════════
 // DONNÉES
@@ -288,6 +295,24 @@ function discardEditIfActive(){
   if(_editMode){ loadHist(); _editMode=false; }
 }
 function loadExoLib(){ try{ _exoLib=JSON.parse(localStorage.getItem(EXO_KEY)||'{}').rows||[]; }catch{ _exoLib=[]; } }
+
+// ─── REMÉDIATION : retrouver le nom/couleur d'une séance importée ─────────────
+function jaccard(setA, setB){
+  const inter = [...setA].filter(x => setB.has(x)).length;
+  const union = new Set([...setA, ...setB]).size;
+  return union ? inter / union : 0;
+}
+function buildSeanceCandidates(){
+  const out = [];
+  _progs.forEach(p => (p.seances||[]).forEach(s => {
+    if ((s.exercices||[]).length) out.push({ programmeNom: p.nom, seanceNom: s.nom, type: s.type, set: new Set(s.exercices.map(e => e.nom)) });
+  }));
+  return out;
+}
+function matchSeance(h, candidates){
+  const set = new Set((h.exercices||[]).map(e => e.nom));
+  return candidates.map(c => ({ programmeNom:c.programmeNom, seanceNom:c.seanceNom, type:c.type, score: jaccard(set, c.set) })).sort((a,b) => b.score - a.score);
+}
 
 // ══════════════════════════════════════════════════════════════
 // SIDEBAR
@@ -320,7 +345,7 @@ function renderSidebar(q=''){
       const row=document.createElement('div'); row.className='sb-item'+(h.id===_selId?' active':'');
       row.innerHTML=`<span class="sb-item-dot" style="background:${hex}"></span>
         <div class="sb-item-info">
-          <div class="sb-item-name">${esc(h.seanceNom||'Libre')}</div>
+          <div class="sb-item-name">${esc(h.seanceNom||'Libre')}${importBadge(h)}</div>
           <div class="sb-item-meta">${fmtDateShort(h.date)}${h.heure?' · '+h.heure:''} · ${fmtDur(h.dureeMin)} · ${nbSeries} séries</div>
         </div>
         <div class="sb-item-vol">${h.volumeTotal>0?h.volumeTotal+'kg':''}</div>`;
@@ -359,7 +384,7 @@ function renderDetail(){
   badge.style.cssText=`background:rgba(${r},${g},${b},.15);color:${hex};border:1px solid rgba(${r},${g},${b},.35)`;
   badge.textContent=h.seanceType||'Libre';
   const titleBlock=document.createElement('div'); titleBlock.style.cssText='flex:1;min-width:0';
-  titleBlock.innerHTML=`<div class="detail-seance-name" style="color:${hex}">${esc(h.seanceNom||'Séance libre')}</div><div class="detail-prog">${esc(h.programmeNom||'')}</div>`;
+  titleBlock.innerHTML=`<div class="detail-seance-name" style="color:${hex}">${esc(h.seanceNom||'Séance libre')}${importBadge(h)}</div><div class="detail-prog">${esc(h.programmeNom||'')}</div>`;
   const dateBlock=document.createElement('div'); dateBlock.className='detail-date';
   if(_editMode){
     dateBlock.style.cssText='display:flex;flex-direction:column;gap:.4rem;min-width:200px';
@@ -1195,6 +1220,86 @@ function openImportPreview(sessions,filename,formatLabel){
   document.getElementById('iprOverwrite').addEventListener('change',function(){if(this.checked)document.getElementById('iprSkipDup').checked=false;});
 }
 
+function openRemediationPreview(targets, candidates){
+  document.getElementById('remediationOv')?.remove();
+  const ov=document.createElement('div');
+  ov.id='remediationOv';
+  ov.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.5);backdrop-filter:blur(4px);z-index:600;display:flex;align-items:center;justify-content:center';
+  const box=document.createElement('div');
+  box.style.cssText='background:var(--surf);border:1px solid var(--bord);border-radius:var(--rxl);width:min(820px,96vw);max-height:88dvh;display:flex;flex-direction:column;box-shadow:var(--shmd);overflow:hidden';
+
+  const hdr=document.createElement('div');
+  hdr.style.cssText='padding:.85rem 1.1rem;border-bottom:1px solid var(--bord);display:flex;align-items:center;gap:.6rem;flex-shrink:0';
+  hdr.innerHTML=`<div style="flex:1"><div style="font-weight:700;font-size:.9rem">🪄 Remédiation des séances importées</div>
+    <div style="font-size:.72rem;color:var(--txm);margin-top:.15rem"><strong style="color:var(--prim)">${targets.length}</strong> séance${targets.length>1?'s':''} importée${targets.length>1?'s':''} détectée${targets.length>1?'s':''} · correspondance proposée d'après les exercices pratiqués</div></div>
+    <button id="remClose" style="border:none;background:none;cursor:pointer;color:var(--txm);font-size:1.2rem">×</button>`;
+  box.appendChild(hdr);
+
+  const tableWrap=document.createElement('div');
+  tableWrap.style.cssText='overflow-y:auto;flex:1';
+  const table=document.createElement('table');
+  table.style.cssText='width:100%;border-collapse:collapse;font-size:.78rem';
+  table.innerHTML=`<thead style="position:sticky;top:0;z-index:1"><tr style="background:var(--surfoff)">
+    <th style="padding:.4rem .75rem;text-align:left;border-bottom:1px solid var(--bord);font-size:.65rem;font-weight:700;color:var(--txm)">Date</th>
+    <th style="padding:.4rem .75rem;text-align:left;border-bottom:1px solid var(--bord);font-size:.65rem;font-weight:700;color:var(--txm)">Séance actuelle</th>
+    <th style="padding:.4rem .75rem;text-align:left;border-bottom:1px solid var(--bord);font-size:.65rem;font-weight:700;color:var(--txm)">Correspondance proposée</th>
+  </tr></thead>`;
+  const tbody=document.createElement('tbody');
+  const rowData=[];
+  targets.forEach(h=>{
+    const scored=matchSeance(h,candidates).filter(c=>c.score>=0.1).slice(0,5);
+    const tr=document.createElement('tr');
+    tr.style.cssText='border-bottom:1px solid var(--bord)';
+    const tdDate=document.createElement('td'); tdDate.style.cssText='padding:.4rem .75rem;font-weight:600;white-space:nowrap'; tdDate.textContent=fmtDateShort(h.date);
+    const tdCur=document.createElement('td'); tdCur.style.cssText='padding:.4rem .75rem;color:var(--txm)'; tdCur.textContent=h.seanceNom||'—';
+    const tdMatch=document.createElement('td'); tdMatch.style.cssText='padding:.4rem .75rem';
+    const sel=document.createElement('select'); sel.className='edit-sel'; sel.style.width='100%';
+    const optNone=document.createElement('option'); optNone.value=''; optNone.textContent='Ne pas modifier'; sel.appendChild(optNone);
+    scored.forEach((c,i)=>{
+      const opt=document.createElement('option');
+      opt.value=String(i);
+      opt.textContent=`${c.seanceNom} (${c.type}, ${Math.round(c.score*100)}%)`;
+      sel.appendChild(opt);
+    });
+    if(scored.length && scored[0].score>=0.25) sel.value='0';
+    tdMatch.appendChild(sel);
+    tr.append(tdDate,tdCur,tdMatch); tbody.appendChild(tr);
+    rowData.push({h, scored, sel});
+  });
+  table.appendChild(tbody); tableWrap.appendChild(table); box.appendChild(tableWrap);
+
+  const footer=document.createElement('div');
+  footer.style.cssText='padding:.75rem 1.1rem;border-top:1px solid var(--bord);display:flex;gap:.5rem;justify-content:flex-end;background:var(--surfoff);flex-shrink:0';
+  const cancelBtn=document.createElement('button'); cancelBtn.className='btn btn-sm'; cancelBtn.textContent='Annuler';
+  cancelBtn.addEventListener('click',()=>ov.remove());
+  const confirmBtn=document.createElement('button'); confirmBtn.className='btn btn-sm btn-p'; confirmBtn.textContent='Corriger les séances sélectionnées';
+  confirmBtn.addEventListener('click',()=>{
+    let applied=0;
+    rowData.forEach(({h,scored,sel})=>{
+      const idx=sel.value;
+      if(idx===''||!scored[idx]) return;
+      const choice=scored[idx];
+      if(!h.importOrigine) h.importOrigine=h.programmeNom;
+      h.seanceNom=choice.seanceNom;
+      h.seanceType=choice.type;
+      h.programmeNom=choice.programmeNom;
+      applied++;
+    });
+    if(applied>0){
+      saveHist();
+      renderSidebar(document.getElementById('searchInp').value.trim());
+      if(_selId) renderDetail();
+      refreshCurrentCalendarView();
+    }
+    ov.remove();
+    showToast(applied>0 ? `${applied} séance${applied>1?'s':''} corrigée${applied>1?'s':''}.` : 'Aucune correction appliquée.');
+  });
+  footer.append(cancelBtn,confirmBtn); box.appendChild(footer);
+  ov.appendChild(box); document.body.appendChild(ov);
+  ov.addEventListener('click',e=>{if(e.target===ov)ov.remove();});
+  box.querySelector('#remClose').addEventListener('click',()=>ov.remove());
+}
+
 function showToast(msg, isErr=false){
   const t=document.getElementById('toast');
   t.textContent=msg;
@@ -1208,6 +1313,13 @@ function showToast(msg, isErr=false){
 
 // Wiring import/export
 document.getElementById('importBtn').addEventListener('click',()=>document.getElementById('importFile').click());
+document.getElementById('remediationBtn').addEventListener('click',()=>{
+  const targets=_hist.filter(h=>h.programmeNom==='Import TXT'||h.programmeNom==='Import Excel');
+  if(!targets.length){ showToast('Aucune séance importée à corriger.'); return; }
+  const candidates=buildSeanceCandidates();
+  if(!candidates.length){ showToast('Aucun programme disponible pour la correspondance.', true); return; }
+  openRemediationPreview(targets, candidates);
+});
 document.getElementById('importFile').addEventListener('change',function(){
   if(!this.files?.[0]) return;
   const file=this.files[0];
@@ -1291,6 +1403,7 @@ document.getElementById('resetBtn').addEventListener('click',()=>{
   await GymDB.init();
   try{ const h=await GymDB.read('historique.json'); if(Array.isArray(h)&&h.length){ _hist=h; localStorage.setItem(HIST_KEY,JSON.stringify(h)); } }catch{}
   try{ const d=await GymDB.read('exercices.json'); if(d&&Array.isArray(d.rows)&&d.rows.length){ _exoLib=d.rows; localStorage.setItem(EXO_KEY,JSON.stringify(d)); } }catch{}
+  try{ const p=await GymDB.read('programmes.json'); if(Array.isArray(p)) _progs=p; }catch{}
   renderSidebar();
   // Sélectionner la première séance si disponible
   if(_hist.length){ _selId=_hist[0].id; renderSidebar(); renderDetail(); }
@@ -1739,7 +1852,7 @@ function showZoomSession(hId, midPanel, rightPanel, mColor) {
   const badge=document.createElement('span'); badge.style.cssText=`font-size:.65rem;font-weight:800;padding:.25rem .65rem;border-radius:999px;background:rgba(${r},${g},${b},.15);color:${hex};border:1px solid rgba(${r},${g},${b},.35)`;
   badge.textContent=h.seanceType||'Libre';
   const nameDiv=document.createElement('div'); nameDiv.style.cssText='flex:1;min-width:0';
-  nameDiv.innerHTML=`<div style="font-weight:700;font-size:.95rem;color:${hex}">${esc(h.seanceNom||'Séance libre')}</div><div style="font-size:.7rem;color:var(--txm)">${esc(h.programmeNom||'')}${h.heure?' · '+h.heure:''}${h.heureF?' → '+h.heureF:''}</div>`;
+  nameDiv.innerHTML=`<div style="font-weight:700;font-size:.95rem;color:${hex}">${esc(h.seanceNom||'Séance libre')}${importBadge(h)}</div><div style="font-size:.7rem;color:var(--txm)">${esc(h.programmeNom||'')}${h.heure?' · '+h.heure:''}${h.heureF?' → '+h.heureF:''}</div>`;
   const dateDiv=document.createElement('div'); dateDiv.style.cssText='font-size:.72rem;color:var(--txm);text-align:right';
   dateDiv.innerHTML=`<div style="font-weight:600;color:var(--tx)">${fmtDate(h.date)}</div>`;
   hdrRow.append(badge,nameDiv,dateDiv);
