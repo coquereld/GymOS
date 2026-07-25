@@ -38,9 +38,21 @@ button,input,select,textarea{font:inherit} button{cursor:pointer} a{color:inheri
 .logo:hover{background:var(--prim);color:#fff}
 .logo svg{width:18px;height:18px}
 .sb-title{font-weight:700;font-size:.9rem}
-.sb-search{padding:.5rem .75rem .5rem 1rem;border-bottom:1px solid var(--bord);flex-shrink:0}
-.sb-search input{width:100%;padding:.5rem .7rem;border-radius:var(--rmd);border:1px solid var(--bord);background:var(--surf);color:var(--tx);font-size:.8rem;outline:none;transition:border-color var(--tr)}
+.sb-search{padding:.5rem .75rem .5rem 1rem;border-bottom:1px solid var(--bord);flex-shrink:0;display:flex;gap:.4rem;align-items:center}
+.sb-search input{flex:1;min-width:0;padding:.5rem .7rem;border-radius:var(--rmd);border:1px solid var(--bord);background:var(--surf);color:var(--tx);font-size:.8rem;outline:none;transition:border-color var(--tr)}
 .sb-search input:focus{border-color:var(--prim)}
+.hard-filter-btn{flex-shrink:0;padding:.4rem .55rem;border-radius:var(--rmd);border:1px solid var(--bord);background:var(--surf);color:var(--txm);font-size:.85rem;cursor:pointer;transition:all var(--tr)}
+.hard-filter-btn.active{background:rgba(192,57,43,.15);border-color:rgba(192,57,43,.4);color:#c0392b}
+.sb-lastworked{border-bottom:1px solid var(--bord);flex-shrink:0}
+.sb-lw-hdr{padding:.5rem 1rem;font-size:.65rem;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:var(--txf);cursor:pointer;display:flex;align-items:center;justify-content:space-between}
+.sb-lw-body{padding:0 .75rem .6rem 1rem;display:flex;flex-direction:column;gap:.25rem}
+.sb-lw-row{display:flex;align-items:center;gap:.4rem;font-size:.72rem}
+.sb-lw-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.sb-lw-name{flex:1;min-width:0;color:var(--txm);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sb-lw-days{font-weight:700;padding:.05rem .4rem;border-radius:999px;font-size:.65rem;flex-shrink:0}
+.sb-lw-days.fresh{background:rgba(67,122,34,.15);color:#437a22}
+.sb-lw-days.ok{background:var(--surfoff);color:var(--txm)}
+.sb-lw-days.stale{background:rgba(192,57,43,.15);color:#c0392b}
 .sb-list{flex:1;overflow-y:auto;padding:.5rem 0}
 .sb-month{font-size:.6rem;font-weight:800;text-transform:uppercase;letter-spacing:.1em;color:var(--txf);padding:.6rem 1rem .3rem;position:sticky;top:0;background:linear-gradient(180deg,var(--surf) 80%,transparent);z-index:1}
 .sb-item{display:flex;align-items:center;gap:.6rem;padding:.55rem 1rem;cursor:pointer;transition:background var(--tr);border-left:3px solid transparent}
@@ -179,7 +191,11 @@ button,input,select,textarea{font:inherit} button{cursor:pointer} a{color:inheri
       </div>
     </div>
     <input type="file" id="importFile" accept=".json,.xlsx,.xls,.txt,application/json,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,text/plain" style="display:none">
-    <div class="sb-search"><input id="searchInp" placeholder="🔎 Rechercher…" type="text"></div>
+    <div class="sb-search">
+      <input id="searchInp" placeholder="🔎 Rechercher…" type="text">
+      <button id="hardFilterBtn" class="hard-filter-btn" title="Isoler les séances avec au moins une série « Très dur » ou « Super dur »">😰</button>
+    </div>
+    <div class="sb-lastworked" id="sbLastWorked"></div>
     <div class="sb-list" id="sbList"></div>
     <div class="sb-footer">
       <div class="sb-stat"><strong id="sfTotal">0</strong>Séances</div>
@@ -254,8 +270,9 @@ const HIST_KEY = 'gymos-historique-v1';
 const EXO_KEY  = 'exercices-studio-autosave-v2';
 const RESSENTI = [
   {key:'bien',     emoji:'😊',label:'Bien',     bg:'rgba(67,122,34,.15)', color:'#437a22'},
-  {key:'dur',      emoji:'😤',label:'Dur',      bg:'rgba(150,66,25,.15)', color:'#964219'},
-  {key:'tres_dur', emoji:'😰',label:'Très dur', bg:'rgba(161,44,123,.15)',color:'#a12c7b'},
+  {key:'moyen',    emoji:'😐',label:'Moyen',    bg:'rgba(166,124,0,.15)', color:'#a67c00'},
+  {key:'dur',      emoji:'😤',label:'Dur',      bg:'rgba(194,101,10,.15)',color:'#c2650a'},
+  {key:'tres_dur', emoji:'😰',label:'Très dur', bg:'rgba(192,57,43,.15)', color:'#c0392b'},
   {key:'super_dur',emoji:'💀',label:'Super dur',bg:'rgba(40,37,29,.12)',  color:'#28251d'},
 ];
 
@@ -267,6 +284,7 @@ let _selId = null;
 let _editMode = false;
 let _exoLib = [];
 let _progs = [];
+let _hardOnly = false;
 
 // ══════════════════════════════════════════════════════════════
 // UTILS
@@ -279,6 +297,60 @@ function fmtDur(min){ if(!min)return '—'; if(min<60) return min+'min'; return 
 function getExoImg(nom){ const e=_exoLib.find(x=>x.exercice?.toLowerCase()===nom?.toLowerCase()); return e?.image||''; }
 function importBadge(h){
   return h.importOrigine ? `<span title="Séance importée, nom/couleur retrouvés automatiquement (${esc(h.importOrigine)})" style="display:inline-flex;vertical-align:middle;margin-left:.35rem;font-size:.85em;opacity:.75">📥</span>` : '';
+}
+function statutSidebarBadge(h){
+  if(!h.statutSeance || h.statutSeance==='normale') return '';
+  const c = h.statutSeance==='ratee' ? '#c0392b' : '#a67c00';
+  const label = h.statutSeance==='ratee' ? 'Ratée' : 'Écourtée';
+  return `<span title="${esc(h.motif||label)}" style="display:inline-flex;vertical-align:middle;margin-left:.35rem;font-size:.62rem;font-weight:700;padding:.05rem .4rem;border-radius:999px;background:${c}22;color:${c}">${label}</span>`;
+}
+function epley1RM(w,r){ return r===1?w:Math.round(parseFloat(w)*(1+parseInt(r)/30)*10)/10; }
+// Détection de records : parcourt _hist chronologiquement (meilleur 1RM estimé par exercice
+// par séance, comparé au meilleur jamais vu jusque-là) et retourne uniquement les records
+// produits par la séance ciblée (même algorithme que Dashboard.html#computeMonthlyPRs,
+// mais ciblé sur une séance précise plutôt que filtré par mois).
+function detectNewPRs(targetHist){
+  const bestSoFar = {};
+  const found = [];
+  const chrono = _hist.slice().sort((a,b) => (a.date||'').localeCompare(b.date||''));
+  chrono.forEach(h => {
+    const perExoBest = {};
+    (h.exercices||[]).forEach(e => {
+      (e.series||[]).forEach(sr => {
+        const p=parseFloat(sr.poids)||0, r=parseInt(sr.reps)||1;
+        if(p<=0) return;
+        const est=epley1RM(p,r);
+        if(!perExoBest[e.nom] || est>perExoBest[e.nom].est1rm) perExoBest[e.nom]={poids:p,reps:r,est1rm:est};
+      });
+    });
+    Object.entries(perExoBest).forEach(([nom,best]) => {
+      if(!bestSoFar[nom] || best.est1rm>bestSoFar[nom]){
+        bestSoFar[nom]=best.est1rm;
+        if(h.id===targetHist.id) found.push({nom,...best});
+      }
+    });
+  });
+  return found;
+}
+// Dernière sollicitation par groupe musculaire : pour chacun des 11 groupes, la date la plus
+// récente où un exercice touchant ce groupe a été pratiqué (un exercice peut toucher plusieurs
+// groupes à la fois, ex. "Cuisses (avant), Fessiers, Mollets" pour le cardio — tous comptent).
+function computeLastWorked(){
+  const lastDate = {};
+  _hist.forEach(h => {
+    (h.exercices||[]).forEach(e => {
+      (e.groupe||'').split(',').map(g=>g.trim()).filter(Boolean).forEach(g => {
+        if(!lastDate[g] || h.date>lastDate[g]) lastDate[g]=h.date;
+      });
+    });
+  });
+  const todayIso = new Date().toISOString().split('T')[0];
+  const todayMs = new Date(todayIso+'T00:00').getTime();
+  return Object.keys(MC).map(g => {
+    const d = lastDate[g];
+    const days = d ? Math.round((todayMs-new Date(d+'T00:00').getTime())/86400000) : null;
+    return { groupe:g, date:d||null, days };
+  }).sort((a,b) => (b.days??9999)-(a.days??9999));
 }
 
 // ══════════════════════════════════════════════════════════════
@@ -320,11 +392,14 @@ function matchSeance(h, candidates){
 function renderSidebar(q=''){
   const list = document.getElementById('sbList');
   list.innerHTML='';
-  const filtered = q ? _hist.filter(h=>
+  let filtered = q ? _hist.filter(h=>
     (h.seanceNom||'').toLowerCase().includes(q) ||
     (h.programmeNom||'').toLowerCase().includes(q) ||
     (h.date||'').includes(q)
   ) : _hist;
+  if(_hardOnly){
+    filtered = filtered.filter(h => (h.exercices||[]).some(e => (e.series||[]).some(s => s.ressenti==='tres_dur'||s.ressenti==='super_dur')));
+  }
 
   if(!filtered.length){
     list.innerHTML='<div style="padding:1.5rem;text-align:center;color:var(--txf);font-size:.8rem">Aucune séance trouvée.</div>';
@@ -345,7 +420,7 @@ function renderSidebar(q=''){
       const row=document.createElement('div'); row.className='sb-item'+(h.id===_selId?' active':'');
       row.innerHTML=`<span class="sb-item-dot" style="background:${hex}"></span>
         <div class="sb-item-info">
-          <div class="sb-item-name">${esc(h.seanceNom||'Libre')}${importBadge(h)}</div>
+          <div class="sb-item-name">${esc(h.seanceNom||'Libre')}${importBadge(h)}${statutSidebarBadge(h)}</div>
           <div class="sb-item-meta">${fmtDateShort(h.date)}${h.heure?' · '+h.heure:''} · ${fmtDur(h.dureeMin)} · ${nbSeries} séries</div>
         </div>
         <div class="sb-item-vol">${h.volumeTotal>0?h.volumeTotal+'kg':''}</div>`;
@@ -359,6 +434,33 @@ function renderSidebar(q=''){
   const vol=_hist.reduce((s,h)=>s+(h.volumeTotal||0),0);
   document.getElementById('sfVol').textContent=vol>0?vol+'kg':'—';
   document.getElementById('sbCount').textContent=_hist.length+' séance'+(_hist.length!==1?'s':'');
+  renderLastWorked();
+}
+
+let _lwCollapsed = false;
+function renderLastWorked(){
+  const box=document.getElementById('sbLastWorked'); if(!box) return;
+  box.innerHTML='';
+  const hdr=document.createElement('div'); hdr.className='sb-lw-hdr';
+  hdr.innerHTML=`<span>🔥 Dernière sollicitation</span><span>${_lwCollapsed?'▸':'▾'}</span>`;
+  hdr.addEventListener('click',()=>{ _lwCollapsed=!_lwCollapsed; renderLastWorked(); });
+  box.appendChild(hdr);
+  if(_lwCollapsed) return;
+  const body=document.createElement('div'); body.className='sb-lw-body';
+  computeLastWorked().forEach(({groupe,days})=>{
+    const row=document.createElement('div'); row.className='sb-lw-row';
+    const dot=document.createElement('span'); dot.className='sb-lw-dot'; dot.style.background=MC[groupe]||'#9a9891';
+    const name=document.createElement('span'); name.className='sb-lw-name'; name.textContent=groupe;
+    const daysEl=document.createElement('span');
+    let cls='ok', txt=`${days}j`;
+    if(days===null){ cls='stale'; txt='jamais'; }
+    else if(days<2){ cls='fresh'; }
+    else if(days>=7){ cls='stale'; }
+    daysEl.className='sb-lw-days '+cls; daysEl.textContent=txt;
+    row.append(dot,name,daysEl);
+    body.appendChild(row);
+  });
+  box.appendChild(body);
 }
 
 // ══════════════════════════════════════════════════════════════
@@ -429,7 +531,27 @@ function renderDetail(){
     dateBlock.innerHTML=`<div style="font-weight:600;color:var(--tx)">${fmtDate(h.date)}</div>
       <div>${h.heure||''}${h.heureF?' → '+h.heureF:''}</div>`;
   }
-  body.append(badge,titleBlock,dateBlock);
+  // Statut de la séance (normale / écourtée / ratée) + motif
+  const statutBlock=document.createElement('div');
+  const STATUT_LABELS={normale:'Normale',ecourtee:'Écourtée',ratee:'Ratée'};
+  const STATUT_COLORS={ecourtee:'#a67c00',ratee:'#c0392b'};
+  if(_editMode){
+    statutBlock.style.cssText='display:flex;flex-direction:column;gap:.4rem;min-width:180px';
+    const sel=document.createElement('select'); sel.id='editStatutSeance'; sel.className='edit-sel';
+    sel.innerHTML=Object.entries(STATUT_LABELS).map(([v,l])=>`<option value="${v}">${l}</option>`).join('');
+    sel.value=h.statutSeance||'normale';
+    const motifInp=document.createElement('input'); motifInp.type='text'; motifInp.id='editMotif';
+    motifInp.placeholder='Motif : fatigue, blessure, manque de temps…';
+    motifInp.value=h.motif||'';
+    motifInp.style.cssText='padding:.35rem .5rem;border-radius:var(--rsm);border:1px solid var(--bord);background:var(--surf);color:var(--tx);font-size:.78rem;outline:none';
+    motifInp.style.display=sel.value==='normale'?'none':'block';
+    sel.addEventListener('change',()=>{ motifInp.style.display=sel.value==='normale'?'none':'block'; });
+    statutBlock.append(sel,motifInp);
+  } else if(h.statutSeance && h.statutSeance!=='normale'){
+    const c=STATUT_COLORS[h.statutSeance]||'#9a9891';
+    statutBlock.innerHTML=`<span title="${esc(h.motif||'')}" style="display:inline-flex;align-items:center;padding:.25rem .65rem;border-radius:999px;font-size:.72rem;font-weight:700;background:${c}22;color:${c};border:1px solid ${c}55">${STATUT_LABELS[h.statutSeance]}${h.motif?' · '+esc(h.motif):''}</span>`;
+  }
+  body.append(badge,titleBlock,dateBlock,statutBlock);
   hdrCard.append(bar,body); wrap.appendChild(hdrCard);
 
   // Stats
@@ -446,7 +568,18 @@ function renderDetail(){
   if(_editMode){
     const saveBtn=document.createElement('button'); saveBtn.className='btn btn-p';
     saveBtn.innerHTML=`<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/></svg> Enregistrer`;
-    saveBtn.addEventListener('click',()=>{ collectEdits(h); saveHist(); _editMode=false; renderDetail(); renderSidebar(document.getElementById('searchInp').value.trim()); });
+    saveBtn.addEventListener('click',()=>{
+      collectEdits(h);
+      saveHist();
+      _editMode=false;
+      const prs=detectNewPRs(h);
+      renderDetail();
+      renderSidebar(document.getElementById('searchInp').value.trim());
+      if(prs.length){
+        const liste=prs.map(p=>`${p.nom} (${p.poids}kg×${p.reps} ≈ ${p.est1rm}kg 1RM)`).join(' · ');
+        showToast(`🏆 Nouveau record : ${liste}`);
+      }
+    });
     const cancelBtn=document.createElement('button'); cancelBtn.className='btn';
     cancelBtn.textContent='Annuler'; cancelBtn.addEventListener('click',()=>{ _editMode=false; loadHist(); renderDetail(); });
     actions.append(cancelBtn,saveBtn);
@@ -466,11 +599,15 @@ function renderDetail(){
     const delBtn=document.createElement('button'); delBtn.className='btn btn-danger';
     delBtn.innerHTML=`<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg> Supprimer`;
     delBtn.addEventListener('click',()=>openDelModal(h));
-    actions.append(dupBtn,expBtn,editBtn,delBtn);
+    const cmpBtn=document.createElement('button'); cmpBtn.className='btn';
+    cmpBtn.innerHTML=`<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 3v18"/><path d="M5 8l-3 7a4 4 0 0 0 8 0z"/><path d="M19 8l-3 7a4 4 0 0 0 8 0z"/><path d="M4 8h16"/></svg> Comparer`;
+    cmpBtn.addEventListener('click',()=>openCompareModal(h));
+    actions.append(dupBtn,expBtn,cmpBtn,editBtn,delBtn);
   }
   wrap.appendChild(actions);
 
   // Exercices
+  const seancePRs = detectNewPRs(h);
   (h.exercices||[]).forEach((exo,ei)=>{
     const eHex=grpc(exo.groupe);
     const [er,eg,eb]=hexRgb(eHex);
@@ -487,7 +624,9 @@ function renderDetail(){
     } else { ehdr.appendChild(mkPh(eHex)); }
     const edot=document.createElement('span'); edot.className='exo-block-dot'; edot.style.background=eHex;
     const einfo=document.createElement('div'); einfo.style.cssText='flex:1;min-width:0';
-    einfo.innerHTML=`<div class="exo-block-name">${esc(exo.nom)}</div><div class="exo-block-grp">${esc(exo.groupe||'')}</div>`;
+    const prForExo=seancePRs.find(p=>p.nom===exo.nom);
+    const prBadge=prForExo?`<span title="Nouveau record : ${prForExo.poids}kg×${prForExo.reps} ≈ ${prForExo.est1rm}kg 1RM" style="display:inline-flex;align-items:center;gap:.2rem;font-size:.65rem;font-weight:700;padding:.1rem .4rem;border-radius:999px;background:rgba(166,124,0,.18);color:#a67c00;margin-left:.4rem">🏆 Record</span>`:'';
+    einfo.innerHTML=`<div class="exo-block-name">${esc(exo.nom)}${prBadge}</div><div class="exo-block-grp">${esc(exo.groupe||'')}</div>`;
     ehdr.append(edot,einfo);
 
     // Bouton ajouter série (mode édition)
@@ -601,6 +740,7 @@ function renderDetail(){
     ntxt.textContent=h.noteGlobale||'—'; noteBlock.appendChild(ntxt);
   }
   wrap.appendChild(noteBlock);
+  wrap.appendChild(buildAttachmentsBlock(h));
   main.appendChild(wrap);
 }
 
@@ -610,6 +750,131 @@ function mkPh(hex){
   ph.style.cssText=`border-color:rgba(${r},${g},${b},.3)`;
   ph.innerHTML=`<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="${hex}" stroke-width="1.5"><path d="M6 18V8.5C6 6.57 7.57 5 9.5 5h.5v14H9.5A3.5 3.5 0 0 1 6 15.5"/><path d="M18 18V8.5C18 6.57 16.43 5 14.5 5H14v14h.5a3.5 3.5 0 0 0 3.5-3.5"/></svg>`;
   return ph;
+}
+
+// ══════════════════════════════════════════════════════════════
+// PIÈCES JOINTES (photo / note vocale) — stockées en data-URI base64
+// directement dans l'entrée de la séance (aucune infra d'upload dans le projet).
+// ══════════════════════════════════════════════════════════════
+function resizeImageToDataUrl(file, maxWidth){
+  return new Promise((resolve)=>{
+    const reader=new FileReader();
+    reader.onload=(e)=>{
+      const img=new Image();
+      img.onload=()=>{
+        let {width,height}=img;
+        if(width>maxWidth){ height=Math.round(height*maxWidth/width); width=maxWidth; }
+        const canvas=document.createElement('canvas'); canvas.width=width; canvas.height=height;
+        canvas.getContext('2d').drawImage(img,0,0,width,height);
+        resolve(canvas.toDataURL('image/jpeg',0.8));
+      };
+      img.src=e.target.result;
+    };
+    reader.readAsDataURL(file);
+  });
+}
+function blobToDataUrl(blob){
+  return new Promise(resolve=>{
+    const reader=new FileReader();
+    reader.onload=()=>resolve(reader.result);
+    reader.readAsDataURL(blob);
+  });
+}
+let _mediaRecorder=null, _recordChunks=[], _recordTimer=null, _recordStart=0;
+async function toggleVoiceRecording(h, btn){
+  if(_mediaRecorder && _mediaRecorder.state==='recording'){
+    _mediaRecorder.stop();
+    return;
+  }
+  try{
+    const stream = await navigator.mediaDevices.getUserMedia({audio:true});
+    _recordChunks=[];
+    _mediaRecorder = new MediaRecorder(stream);
+    _mediaRecorder.ondataavailable = e=>{ if(e.data.size>0) _recordChunks.push(e.data); };
+    _mediaRecorder.onstop = async ()=>{
+      clearInterval(_recordTimer);
+      stream.getTracks().forEach(t=>t.stop());
+      const blob = new Blob(_recordChunks, {type:_mediaRecorder.mimeType||'audio/webm'});
+      const dataUrl = await blobToDataUrl(blob);
+      h.piecesJointes = h.piecesJointes||[];
+      h.piecesJointes.push({id:uid(), type:'audio', dataUrl, dateAjout:new Date().toISOString()});
+      renderDetail();
+    };
+    _mediaRecorder.start();
+    _recordStart=Date.now();
+    btn.innerHTML='⏹ Arrêter (0s)';
+    _recordTimer=setInterval(()=>{
+      const sec=Math.floor((Date.now()-_recordStart)/1000);
+      btn.innerHTML=`⏹ Arrêter (${sec}s)`;
+      if(sec>=60) _mediaRecorder.stop();
+    },500);
+  }catch(err){
+    showToast('Micro indisponible ou refusé.', true);
+  }
+}
+function openAttachmentLightbox(dataUrl){
+  const ov=document.createElement('div');
+  ov.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:700;display:flex;align-items:center;justify-content:center;cursor:zoom-out';
+  const img=document.createElement('img'); img.src=dataUrl; img.style.cssText='max-width:90vw;max-height:90vh;border-radius:var(--rmd)';
+  ov.appendChild(img);
+  ov.addEventListener('click',()=>ov.remove());
+  document.body.appendChild(ov);
+}
+function buildAttachmentsBlock(h){
+  const block=document.createElement('div'); block.className='global-note-block';
+  const title=document.createElement('div'); title.style.cssText='font-size:.65rem;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:var(--txf);margin-bottom:.5rem';
+  title.textContent='Pièces jointes';
+  block.appendChild(title);
+
+  if(_editMode){
+    const btnRow=document.createElement('div'); btnRow.style.cssText='display:flex;gap:.5rem;margin-bottom:.6rem;flex-wrap:wrap';
+    const photoInp=document.createElement('input'); photoInp.type='file'; photoInp.accept='image/*'; photoInp.style.display='none';
+    const photoBtn=document.createElement('button'); photoBtn.type='button'; photoBtn.className='btn'; photoBtn.style.cssText='font-size:.75rem;padding:.35rem .7rem;min-height:32px';
+    photoBtn.innerHTML='📷 Photo';
+    photoBtn.addEventListener('click',()=>photoInp.click());
+    photoInp.addEventListener('change', async ()=>{
+      const file=photoInp.files?.[0]; if(!file) return;
+      const dataUrl = await resizeImageToDataUrl(file, 1000);
+      h.piecesJointes = h.piecesJointes||[];
+      h.piecesJointes.push({id:uid(), type:'photo', dataUrl, dateAjout:new Date().toISOString()});
+      photoInp.value='';
+      renderDetail();
+    });
+    const audioBtn=document.createElement('button'); audioBtn.type='button'; audioBtn.className='btn'; audioBtn.style.cssText='font-size:.75rem;padding:.35rem .7rem;min-height:32px';
+    audioBtn.innerHTML='🎙️ Note vocale';
+    audioBtn.addEventListener('click', ()=>toggleVoiceRecording(h, audioBtn));
+    btnRow.append(photoBtn, photoInp, audioBtn);
+    block.appendChild(btnRow);
+  }
+
+  const list=document.createElement('div'); list.style.cssText='display:flex;flex-wrap:wrap;gap:.6rem';
+  (h.piecesJointes||[]).forEach(pj=>{
+    const item=document.createElement('div'); item.style.cssText='position:relative;display:flex;flex-direction:column;gap:.3rem';
+    if(pj.type==='photo'){
+      const img=document.createElement('img'); img.src=pj.dataUrl; img.style.cssText='width:96px;height:96px;object-fit:cover;border-radius:var(--rmd);border:1px solid var(--bord);cursor:zoom-in';
+      img.addEventListener('click',()=>openAttachmentLightbox(pj.dataUrl));
+      item.appendChild(img);
+    } else {
+      const audio=document.createElement('audio'); audio.src=pj.dataUrl; audio.controls=true; audio.style.cssText='width:220px;height:36px';
+      item.appendChild(audio);
+    }
+    if(_editMode){
+      const delBtn=document.createElement('button'); delBtn.type='button';
+      delBtn.style.cssText='position:absolute;top:-6px;right:-6px;width:20px;height:20px;border-radius:50%;background:#c0392b;color:#fff;border:none;cursor:pointer;font-size:.7rem;line-height:1';
+      delBtn.textContent='×';
+      delBtn.addEventListener('click',()=>{
+        h.piecesJointes = (h.piecesJointes||[]).filter(x=>x.id!==pj.id);
+        renderDetail();
+      });
+      item.appendChild(delBtn);
+    }
+    list.appendChild(item);
+  });
+  if(!(h.piecesJointes||[]).length && !_editMode){
+    list.innerHTML='<div style="font-size:.78rem;color:var(--txf);font-style:italic">Aucune pièce jointe.</div>';
+  }
+  block.appendChild(list);
+  return block;
 }
 
 // ══════════════════════════════════════════════════════════════
@@ -739,10 +1004,14 @@ function collectEdits(h){
   const heureD=document.getElementById('editHeureD');
   const heureF=document.getElementById('editHeureF');
   const duree=document.getElementById('editDuree');
+  const statut=document.getElementById('editStatutSeance');
+  const motif=document.getElementById('editMotif');
   if(date)   h.date=date.value;
   if(heureD) h.heure=heureD.value;
   if(heureF) h.heureF=heureF.value;
   if(duree)  h.dureeMin=parseInt(duree.value)||0;
+  if(statut) h.statutSeance=statut.value;
+  if(motif)  h.motif=motif.value.trim();
   // Si début + fin renseignés → recalculer durée
   if(heureD?.value&&heureF?.value){
     const d=timeDiff(heureD.value,heureF.value);
@@ -1220,6 +1489,96 @@ function openImportPreview(sessions,filename,formatLabel){
   document.getElementById('iprOverwrite').addEventListener('change',function(){if(this.checked)document.getElementById('iprSkipDup').checked=false;});
 }
 
+function buildExoStatsForCompare(h){
+  const stats={};
+  (h.exercices||[]).forEach(e=>{
+    let bestEst=0, bestLabel='', vol=0;
+    (e.series||[]).forEach(s=>{
+      const p=parseFloat(s.poids)||0, r=parseInt(s.reps)||0;
+      vol += p*r;
+      if(p>0){ const est=epley1RM(p, r||1); if(est>bestEst){ bestEst=est; bestLabel=`${p}kg×${r||'-'}`; } }
+    });
+    stats[e.nom] = { vol, bestLabel };
+  });
+  return stats;
+}
+function openCompareModal(current){
+  document.getElementById('compareOv')?.remove();
+  const ov=document.createElement('div'); ov.id='compareOv';
+  ov.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.5);backdrop-filter:blur(4px);z-index:600;display:flex;align-items:center;justify-content:center';
+  const box=document.createElement('div');
+  box.style.cssText='background:var(--surf);border:1px solid var(--bord);border-radius:var(--rxl);width:min(900px,96vw);max-height:88dvh;display:flex;flex-direction:column;box-shadow:var(--shmd);overflow:hidden';
+
+  const hdr=document.createElement('div');
+  hdr.style.cssText='padding:.85rem 1.1rem;border-bottom:1px solid var(--bord);display:flex;align-items:center;gap:.6rem;flex-shrink:0';
+  hdr.innerHTML=`<div style="flex:1"><div style="font-weight:700;font-size:.9rem">⚖️ Comparer deux séances</div></div>
+    <button id="cmpClose" style="border:none;background:none;cursor:pointer;color:var(--txm);font-size:1.2rem">×</button>`;
+  box.appendChild(hdr);
+
+  const picker=document.createElement('div');
+  picker.style.cssText='padding:.75rem 1.1rem;border-bottom:1px solid var(--bord);display:grid;grid-template-columns:1fr 1fr;gap:.75rem;flex-shrink:0;background:var(--surfoff)';
+  const sorted=_hist.slice().sort((a,b)=>b.date.localeCompare(a.date));
+  function buildSelect(id, selectedId){
+    const sel=document.createElement('select'); sel.id=id; sel.className='edit-sel'; sel.style.width='100%';
+    sel.innerHTML=sorted.map(x=>`<option value="${x.id}">${fmtDateShort(x.date)} · ${esc(x.seanceNom||'Libre')}</option>`).join('');
+    sel.value=selectedId;
+    return sel;
+  }
+  const sameType = sorted.find(x=>x.id!==current.id && x.seanceType===current.seanceType);
+  const otherAny = sorted.find(x=>x.id!==current.id);
+  const selA=buildSelect('cmpSelA', current.id);
+  const selB=buildSelect('cmpSelB', (sameType||otherAny||current).id);
+  picker.append(selA, selB);
+  box.appendChild(picker);
+
+  const resultWrap=document.createElement('div');
+  resultWrap.style.cssText='overflow-y:auto;flex:1;padding:.75rem 1.1rem';
+  box.appendChild(resultWrap);
+
+  function renderComparison(){
+    const hA=_hist.find(x=>x.id===selA.value), hB=_hist.find(x=>x.id===selB.value);
+    resultWrap.innerHTML='';
+    if(!hA||!hB) return;
+    const statsA=buildExoStatsForCompare(hA), statsB=buildExoStatsForCompare(hB);
+    const names=[...new Set([...Object.keys(statsA),...Object.keys(statsB)])];
+    const table=document.createElement('table');
+    table.style.cssText='width:100%;border-collapse:collapse;font-size:.8rem';
+    table.innerHTML=`<thead><tr style="background:var(--surfoff)">
+      <th style="padding:.4rem .6rem;text-align:left;font-size:.65rem;color:var(--txm)">Exercice</th>
+      <th style="padding:.4rem .6rem;text-align:center;font-size:.65rem;color:var(--txm)">${fmtDateShort(hA.date)}</th>
+      <th style="padding:.4rem .6rem;text-align:center;font-size:.65rem;color:var(--txm)">${fmtDateShort(hB.date)}</th>
+      <th style="padding:.4rem .6rem;text-align:center;font-size:.65rem;color:var(--txm)">Δ Volume</th>
+    </tr></thead>`;
+    const tbody=document.createElement('tbody');
+    names.forEach(nom=>{
+      const a=statsA[nom]||{vol:0,bestLabel:''}, b=statsB[nom]||{vol:0,bestLabel:''};
+      const delta=b.vol-a.vol;
+      const deltaStr = delta===0 ? '=' : (delta>0?`▲ +${Math.round(delta)}kg`:`▼ ${Math.round(delta)}kg`);
+      const deltaColor = delta>0?'#437a22':delta<0?'#c0392b':'var(--txm)';
+      const tr=document.createElement('tr'); tr.style.borderBottom='1px solid var(--bord)';
+      tr.innerHTML=`<td style="padding:.4rem .6rem;font-weight:600">${esc(nom)}</td>
+        <td style="padding:.4rem .6rem;text-align:center">${a.bestLabel?esc(a.bestLabel)+' · ':''}${Math.round(a.vol)||'—'}${a.vol?'kg':''}</td>
+        <td style="padding:.4rem .6rem;text-align:center">${b.bestLabel?esc(b.bestLabel)+' · ':''}${Math.round(b.vol)||'—'}${b.vol?'kg':''}</td>
+        <td style="padding:.4rem .6rem;text-align:center;font-weight:700;color:${deltaColor}">${deltaStr}</td>`;
+      tbody.appendChild(tr);
+    });
+    table.appendChild(tbody);
+    resultWrap.appendChild(table);
+    const totA=Object.values(statsA).reduce((s,x)=>s+x.vol,0), totB=Object.values(statsB).reduce((s,x)=>s+x.vol,0);
+    const totalDiv=document.createElement('div');
+    totalDiv.style.cssText='margin-top:.75rem;padding:.6rem .8rem;background:var(--surfoff);border-radius:var(--rmd);font-size:.82rem;font-weight:700;display:flex;justify-content:space-between';
+    totalDiv.innerHTML=`<span>Volume total</span><span>${Math.round(totA)}kg → ${Math.round(totB)}kg</span>`;
+    resultWrap.appendChild(totalDiv);
+  }
+  selA.addEventListener('change', renderComparison);
+  selB.addEventListener('change', renderComparison);
+  renderComparison();
+
+  ov.appendChild(box); document.body.appendChild(ov);
+  ov.addEventListener('click',e=>{if(e.target===ov)ov.remove();});
+  box.querySelector('#cmpClose').addEventListener('click',()=>ov.remove());
+}
+
 function openRemediationPreview(targets, candidates){
   document.getElementById('remediationOv')?.remove();
   const ov=document.createElement('div');
@@ -1367,6 +1726,11 @@ let _calendarSubView = 'annual'; // 'annual' | '3months' | '6months'
 // ══════════════════════════════════════════════════════════════
 document.getElementById('themeBtn').addEventListener('click',()=>applyTheme(document.documentElement.getAttribute('data-theme')==='dark'?'light':'dark'));
 document.getElementById('searchInp').addEventListener('input',e=>renderSidebar(e.target.value.trim().toLowerCase()));
+document.getElementById('hardFilterBtn').addEventListener('click',()=>{
+  _hardOnly=!_hardOnly;
+  document.getElementById('hardFilterBtn').classList.toggle('active',_hardOnly);
+  renderSidebar(document.getElementById('searchInp').value.trim().toLowerCase());
+});
 
 // ─── RESET HISTORIQUE ───────────────────────────────────────────────────────
 document.getElementById('resetBtn').addEventListener('click',()=>{
@@ -1405,8 +1769,13 @@ document.getElementById('resetBtn').addEventListener('click',()=>{
   try{ const d=await GymDB.read('exercices.json'); if(d&&Array.isArray(d.rows)&&d.rows.length){ _exoLib=d.rows; localStorage.setItem(EXO_KEY,JSON.stringify(d)); } }catch{}
   try{ const p=await GymDB.read('programmes.json'); if(Array.isArray(p)) _progs=p; }catch{}
   renderSidebar();
-  // Sélectionner la première séance si disponible
-  if(_hist.length){ _selId=_hist[0].id; renderSidebar(); renderDetail(); }
+  // Sélectionner la première séance si disponible (ou celle demandée par un lien retour ?id=,
+  // ex. depuis la recherche globale de nav-panel.js)
+  if(_hist.length){
+    const idParam = new URLSearchParams(location.search).get('id');
+    _selId = (idParam && _hist.some(h=>h.id===idParam)) ? idParam : _hist[0].id;
+    renderSidebar(); renderDetail();
+  }
 })();
 </script>
 <div id="toast" style="opacity:0;pointer-events:none;position:fixed;bottom:1.5rem;left:50%;transform:translateX(-50%)"></div>
