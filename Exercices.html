@@ -2696,11 +2696,15 @@ document.getElementById('objAddBtn').addEventListener('click', () => {
     const obj = await GymDB.read('exercices-objectifs.json');
     if(obj) { _objectifs = obj; localStorage.setItem(OBJ_KEY, JSON.stringify(obj)); } else { loadObjectifs(); }
     try{ const h = await GymDB.read('historique.json'); if(Array.isArray(h)) _hist = h; }catch{}
+    try{ const cr = await GymDB.read('corps.json'); if(cr && Array.isArray(cr.rows)) _corpsRows = cr.rows; }catch{}
     if(d && Array.isArray(d.rows) && d.rows.length){
       state.rows = d.rows.map(r=>({id:r.id||uid(),...r}));
       state.sortField = d.sortField||null; state.sortDirection = d.sortDirection||'asc'; state.activeGroup = d.activeGroup||'';
       els.searchInput.value = d.search||'';
       localStorage.setItem(STORAGE_KEY, JSON.stringify({rows:state.rows, sortField:state.sortField, sortDirection:state.sortDirection, search:els.searchInput.value, activeGroup:state.activeGroup}));
+      // Lien retour depuis la recherche globale (nav-panel.js) : Exercices.html?q=NomExercice
+      const qParam = new URLSearchParams(location.search).get('q');
+      if (qParam) els.searchInput.value = qParam;
       applyViewMode('read'); renderGroupNav(); renderCards(); setStatus('Données chargées depuis Db.','ok');
       return;
     }
@@ -3359,7 +3363,42 @@ document.addEventListener('keydown', e => {
   .ei-tag-pill { display:inline-flex;align-items:center;padding:.22rem .65rem;border-radius:999px;font-size:.67rem;font-weight:700;background:var(--color-surface-offset);color:var(--color-text-muted);border:1px solid var(--color-border); }
 </style>
 
+<style>
+  .ei-muscle-link{padding:.25rem .35rem;margin:-.25rem -.35rem;border-radius:.4rem;cursor:pointer;transition:background .15s}
+  .ei-muscle-link:hover{background:var(--color-surface-offset)}
+</style>
 <script>
+// ─── LIEN RETOUR VERS CORPS.HTML (mêmes taxonomies muscle/subdivision) ───────
+let _corpsRows = [];
+// Les muscles secondaires (FULL_MUSCLES) peuvent être au format composé
+// "Grand pectoral — Chef claviculaire", plus large que le vocabulaire de corps.json.
+function parseCompoundMuscleName(m) {
+  const parts = (m || '').split(' — ');
+  return { muscle: parts[0].trim(), subdivision: parts[1] ? parts[1].trim() : '' };
+}
+function findCorpsRowByMuscleSub(muscle, subdivision) {
+  if (!muscle) return null;
+  let row = subdivision ? _corpsRows.find(r => r.muscle_cible === muscle && r.subdivision_anatomique === subdivision) : null;
+  if (!row) row = _corpsRows.find(r => r.muscle_cible === muscle);
+  return row || null;
+}
+function muscleLinkHref(row) {
+  const params = new URLSearchParams({ muscle: row.muscle_cible });
+  if (row.subdivision_anatomique && row.subdivision_anatomique !== '-') params.set('subdivision', row.subdivision_anatomique);
+  return 'Corps.html?' + params.toString();
+}
+// Rend un bloc muscle (déjà construit) cliquable vers la fiche Corps.html correspondante —
+// n'est appelé que si une ligne réelle a été trouvée dans corps.json (jamais de lien mort).
+function makeMuscleLinkable(el, corpsRow) {
+  el.classList.add('ei-muscle-link');
+  el.title = 'Voir la fiche muscle dans Corps';
+  const arrow = document.createElement('span');
+  arrow.textContent = '→';
+  arrow.style.cssText = 'margin-left:auto;color:var(--color-text-faint);font-size:.8rem;flex-shrink:0';
+  el.appendChild(arrow);
+  el.addEventListener('click', () => { location.href = muscleLinkHref(corpsRow); });
+}
+
 // ─── MODALE INFORMATION EXERCICE ─────────────────────────────────────────────
 function openExoInfoModal(rowId) {
   const row = state.rows.find(r => r.id === rowId);
@@ -3432,6 +3471,9 @@ function openExoInfoModal(rowId) {
       const stars = document.createElement('span'); stars.style.cssText = 'font-size:.88rem;color:#f5b731;flex-shrink:0';            stars.innerHTML = '<span style="color:#f5b731">★★★★★</span>';
       stars.title = 'Muscle principal — très sollicité';
       row2.append(dot, nm, stars);
+      const rowSubVal = (row.subdivision && row.subdivision !== '—') ? row.subdivision : '';
+      const corpsRow = findCorpsRowByMuscleSub(row.muscle, rowSubVal);
+      if (corpsRow) makeMuscleLinkable(row2, corpsRow);
       sec.appendChild(row2);
     });
   }
@@ -3461,7 +3503,11 @@ function openExoInfoModal(rowId) {
           const st    = document.createElement('span'); st.style.cssText    = 'font-size:.82rem;color:#f5b731;flex-shrink:0';
           st.innerHTML = Array.from({length:5},(_,i)=>i<l?'<span style="color:#f5b731">★</span>':'<span style="color:#d1d0ce">☆</span>').join('');
           st.title = STAR_LABELS[l]||'';
-          rowEl.append(dot, name, st); list.appendChild(rowEl);
+          rowEl.append(dot, name, st);
+          const { muscle: mm, subdivision: ms } = parseCompoundMuscleName(m);
+          const corpsRow = findCorpsRowByMuscleSub(mm, ms);
+          if (corpsRow) makeMuscleLinkable(rowEl, corpsRow);
+          list.appendChild(rowEl);
         });
         sec.appendChild(list);
       });

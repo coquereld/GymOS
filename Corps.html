@@ -401,6 +401,13 @@
     .dm-img-pick-btn:hover{border-color:var(--dm-color,var(--color-primary));color:var(--dm-color,var(--color-primary))}
     .dm-img-pick-btn svg{width:11px;height:11px}
 
+    /* ── Section "Fréquence de sollicitation" ── */
+    .dm-freq-section{flex-shrink:0;padding:var(--space-3) var(--space-4) 0;display:flex;gap:var(--space-3);flex-wrap:wrap}
+    .dm-freq-stat{flex:1;min-width:160px;background:color-mix(in oklab,var(--dm-color,var(--color-primary)) 6%,var(--color-surface));border:1px solid var(--color-border);border-radius:var(--radius-md);padding:var(--space-2) var(--space-3)}
+    .dm-freq-stat-val{font-size:1.05rem;font-weight:800;color:var(--dm-color,var(--color-primary))}
+    .dm-freq-stat-lbl{font-size:.62rem;color:var(--color-text-muted);text-transform:uppercase;letter-spacing:.05em;font-weight:700;margin-top:.15rem}
+    .dm-freq-note{font-size:.62rem;color:var(--color-text-faint);font-style:italic;width:100%}
+
     /* ── Section "Exercices liés à ce muscle" ── */
     .dm-exo-section{
       flex-shrink:0;max-height:240px;overflow-y:auto;
@@ -747,6 +754,13 @@
           <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
           <polyline points="17 21 17 13 7 13 7 21"/>
           <polyline points="7 3 7 8 15 8"/>
+        </svg>
+      </button>
+
+      <!-- Poster imprimable -->
+      <button class="btn icon-btn" id="printPosterBtn" title="Poster imprimable (tous les groupes)" aria-label="Poster imprimable">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/>
         </svg>
       </button>
 
@@ -1122,6 +1136,7 @@
     <div class="dm-body" id="dmBody">
       <!-- 3 colonnes générées par JS -->
     </div>
+    <div class="dm-freq-section" id="dmFreqSection"></div>
     <div class="dm-exo-section" id="dmExoSection">
       <div class="dm-exo-title">Exercices liés à ce muscle</div>
       <div class="dm-exo-grid" id="dmExoGrid"></div>
@@ -1261,6 +1276,35 @@ function findExercisesForMuscle(muscleCible) {
   principaux.sort((a, b) => (a.exo.exercice || '').localeCompare(b.exo.exercice || '', 'fr'));
   secondaires.sort((a, b) => b.level - a.level || (a.exo.exercice || '').localeCompare(b.exo.exercice || '', 'fr'));
   return principaux.concat(secondaires);
+}
+// Fréquence de sollicitation par subdivision anatomique précise, croisée avec l'historique des
+// séances. Rapprochement rétroactif par nom d'exercice : l'historique ne stocke que le groupe
+// musculaire générique au moment de la séance, donc on relit le muscle/subdivision ACTUELS de
+// l'exercice dans _exoLib (si sa classification a changé depuis, l'ancien historique est compté
+// sous la classification actuelle — limite acceptée, cohérente avec le reste de l'app).
+let _subdivFreq = {};
+function computeSubdivisionFrequency() {
+  const freq = {};
+  _hist.forEach(h => {
+    (h.exercices || []).forEach(e => {
+      const exo = _exoLib.find(x => x.exercice === e.nom);
+      if (!exo || !exo.muscle) return;
+      const key = exo.muscle + '|' + (exo.subdivision || '');
+      if (!freq[key]) freq[key] = { count: 0, lastDate: null };
+      freq[key].count++;
+      if (!freq[key].lastDate || h.date > freq[key].lastDate) freq[key].lastDate = h.date;
+    });
+  });
+  const todayMs = new Date(new Date().toISOString().split('T')[0] + 'T00:00').getTime();
+  Object.values(freq).forEach(f => {
+    f.daysAgo = f.lastDate ? Math.round((todayMs - new Date(f.lastDate + 'T00:00').getTime()) / 86400000) : null;
+  });
+  _subdivFreq = freq;
+  return freq;
+}
+function subdivFreqFor(row) {
+  const sub = row.subdivision_anatomique && row.subdivision_anatomique !== '-' ? row.subdivision_anatomique : '';
+  return _subdivFreq[row.muscle_cible + '|' + sub] || null;
 }
 // Met à jour l'image anatomique selon le groupe actif
 function updateAnatomyImage() {
@@ -1705,7 +1749,18 @@ function renderCards() {
     infoBtn.addEventListener('click', e => { e.stopPropagation(); openDetailModal(row.id); });
     const recupBadge = document.createElement('span');
     recupBadge.className = `recup-badge ${recupCls}`; recupBadge.textContent = row.jour_recup || '—';
-    foot.append(footLeft, infoBtn, recupBadge);
+    const freq = subdivFreqFor(row);
+    const freqBadge = document.createElement('span');
+    freqBadge.className = 'freq-badge';
+    if (freq) {
+      freqBadge.textContent = `${freq.daysAgo === 0 ? "auj." : "il y a " + freq.daysAgo + "j"} · ${freq.count}×`;
+      freqBadge.style.cssText = 'font-size:.6rem;font-weight:700;padding:.15rem .45rem;border-radius:999px;background:rgba(1,105,111,.12);color:var(--color-primary);white-space:nowrap';
+      freqBadge.title = `${freq.count} séance(s) au total pour cette subdivision (classification actuelle des exercices)`;
+    } else {
+      freqBadge.textContent = 'Jamais sollicité';
+      freqBadge.style.cssText = 'font-size:.6rem;font-weight:600;padding:.15rem .45rem;border-radius:999px;background:var(--color-surface-offset);color:var(--color-text-faint);white-space:nowrap';
+    }
+    foot.append(footLeft, freqBadge, infoBtn, recupBadge);
     if (muscleImgs.length > 1) {
       card.querySelectorAll('.mc-dot').forEach(dot => {
         dot.addEventListener('click', e => {
@@ -2107,11 +2162,27 @@ function openDetailModal(rowId) {
   }); // fin panels.forEach
   body.appendChild(colPanels);
 
+  renderFreqSection(row);
   renderMuscleExoSection(row);
 
   document.getElementById('detailModal').classList.add('open');
 }
 
+function renderFreqSection(row) {
+  const box = document.getElementById('dmFreqSection');
+  const freq = subdivFreqFor(row);
+  box.innerHTML = `
+    <div class="dm-freq-stat">
+      <div class="dm-freq-stat-val">${freq ? freq.count : 0}</div>
+      <div class="dm-freq-stat-lbl">Séance(s) au total</div>
+    </div>
+    <div class="dm-freq-stat">
+      <div class="dm-freq-stat-val">${freq && freq.daysAgo != null ? (freq.daysAgo === 0 ? "Aujourd'hui" : freq.daysAgo + ' j') : '—'}</div>
+      <div class="dm-freq-stat-lbl">Depuis la dernière fois</div>
+    </div>
+    <div class="dm-freq-note">Basé sur la classification actuelle des exercices — un exercice reclassé depuis compte son historique dans sa nouvelle catégorie.</div>
+  `;
+}
 const EXO_PH_SVG = '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>';
 
 function renderMuscleExoSection(row) {
@@ -2910,6 +2981,52 @@ document.addEventListener('keydown', e => {
   }
 });
 
+// ─── POSTER IMPRIMABLE (référentiel des groupes musculaires) ─────────────────
+function buildPrintPoster() {
+  const box = document.getElementById('printPoster');
+  box.innerHTML = '';
+  GROUPS_LIST.forEach(groupe => {
+    const rows = state.rows.filter(r => r.groupe_musculaire === groupe);
+    if (!rows.length) return;
+    const hex = MUSCLE_COLORS[groupe] || '#333';
+    const sec = document.createElement('div');
+    sec.className = 'poster-group';
+    sec.style.setProperty('--pg-color', hex);
+    const imgFile = _groupImages[groupe] || '';
+    sec.innerHTML = `
+      <div class="poster-group-hdr">
+        ${imgFile ? `<img class="poster-group-img" src="./img/${escapeXml(imgFile)}" alt="">` : ''}
+        <div>
+          <div class="poster-group-title">${escapeXml(groupe)}</div>
+          <div class="poster-group-sub">GymOS — Référentiel anatomique · ${rows.length} subdivision(s) · Exporté le ${new Date().toLocaleDateString('fr-FR')}</div>
+        </div>
+      </div>
+      <table class="poster-table">
+        <thead><tr><th>Muscle</th><th>Subdivision</th><th>Localisation</th><th>Fonction principale</th><th>Récup.</th></tr></thead>
+        <tbody>
+          ${rows.map(r => `<tr>
+            <td>${escapeXml(r.muscle_cible || '')}</td>
+            <td>${escapeXml(r.subdivision_anatomique && r.subdivision_anatomique !== '-' ? r.subdivision_anatomique : '—')}</td>
+            <td>${escapeXml(r.localisation_fonctionnelle || '—')}</td>
+            <td>${escapeXml((r.fonction_principale || '—').slice(0, 140))}</td>
+            <td>${escapeXml(r.jour_recup || '—')}</td>
+          </tr>`).join('')}
+        </tbody>
+      </table>
+      <div class="poster-footer">GymOS · Poster pédagogique — page ${GROUPS_LIST.indexOf(groupe) + 1}</div>
+    `;
+    box.appendChild(sec);
+  });
+}
+function openPrintPoster() {
+  buildPrintPoster();
+  document.body.classList.add('printing');
+  const cleanup = () => { document.body.classList.remove('printing'); window.removeEventListener('afterprint', cleanup); };
+  window.addEventListener('afterprint', cleanup);
+  window.print();
+}
+document.getElementById('printPosterBtn').addEventListener('click', openPrintPoster);
+
 // ─── INIT ─────────────────────────────────────────────────────────────────────
 async function loadFromCorpsDb() {
   const d = await GymDB.read('corps.json');
@@ -2923,6 +3040,18 @@ async function loadFromCorpsDb() {
   return false;
 }
 
+// Lien retour depuis Exercices.html (ou toute autre page) : Corps.html?muscle=...&subdivision=...
+// ouvre directement la fiche de détail correspondante.
+function openDeepLinkIfAny() {
+  const params = new URLSearchParams(location.search);
+  const muscle = params.get('muscle');
+  if (!muscle) return;
+  const subdivision = params.get('subdivision') || '';
+  let row = state.rows.find(r => r.muscle_cible === muscle && (subdivision ? r.subdivision_anatomique === subdivision : true));
+  if (!row) row = state.rows.find(r => r.muscle_cible === muscle);
+  if (row) openDetailModal(row.id);
+}
+
 (async function init() {
   applyTheme(localStorage.getItem('muscle-xml-theme') || 'light');
   loadGroupImages(); // Charger depuis localStorage d'abord
@@ -2933,12 +3062,14 @@ async function loadFromCorpsDb() {
     // Charger images groupes depuis Db si disponibles
     await loadGroupImagesFromDb();
     await loadExoLinkedData();
+    computeSubdivisionFrequency();
     const d = await loadFromCorpsDb();
     if (d) {
       els.searchInput.value = d.search || '';
       applyViewMode('read'); renderGroupNav(); renderTable();
       updateAnatomyImage();
       setStatus('Données chargées depuis Db.', 'ok');
+      openDeepLinkIfAny();
       return;
     }
   }
@@ -2952,8 +3083,31 @@ async function loadFromCorpsDb() {
     loadEmbedded();
   }
   updateAnatomyImage();
+  openDeepLinkIfAny();
 })();
 </script>
+
+<div id="printPoster"></div>
+<style>
+  #printPoster{display:none}
+  .poster-group{padding:14mm 10mm;font-family:Georgia,'Times New Roman',serif;color:#1a1a1a}
+  .poster-group-hdr{display:flex;align-items:center;gap:14mm;border-bottom:3px solid var(--pg-color,#333);padding-bottom:6mm;margin-bottom:8mm}
+  .poster-group-title{font-size:26pt;font-weight:700;color:var(--pg-color,#333)}
+  .poster-group-sub{font-size:10pt;color:#555;font-family:Arial,sans-serif;margin-top:2mm}
+  .poster-group-img{width:55mm;height:55mm;object-fit:contain;flex-shrink:0}
+  .poster-table{width:100%;border-collapse:collapse;font-family:Arial,sans-serif;font-size:9.5pt}
+  .poster-table th{text-align:left;font-size:8pt;text-transform:uppercase;letter-spacing:.04em;color:#666;border-bottom:1.5px solid #999;padding:2mm 3mm}
+  .poster-table td{padding:2.2mm 3mm;border-bottom:.5px solid #ccc;vertical-align:top}
+  .poster-table tr:nth-child(even) td{background:#f5f5f5}
+  .poster-footer{margin-top:8mm;font-family:Arial,sans-serif;font-size:8pt;color:#888;text-align:right}
+  @media print {
+    @page{margin:12mm}
+    body.printing > *:not(#printPoster):not(script){display:none!important}
+    body.printing #printPoster{display:block}
+    body.printing .poster-group{page-break-after:always}
+    body.printing .poster-group:last-child{page-break-after:auto}
+  }
+</style>
 
 <script src="nav-panel.js"></script>
 
