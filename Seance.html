@@ -172,6 +172,13 @@
     .serie-input:focus{border-color:var(--prim)}
     .serie-input.done{background:var(--surfoff);color:var(--txm);border-color:transparent}
     .serie-ref{font-size:.7rem;color:var(--txf);text-align:center}
+    .warmup-toggle{
+      padding:.25rem .5rem;border-radius:999px;border:1px solid var(--bord);
+      background:var(--surf);color:var(--txm);font-size:.65rem;font-weight:700;
+      cursor:pointer;white-space:nowrap;transition:all var(--tr);
+    }
+    .warmup-toggle.active{background:rgba(166,124,0,.18);color:#a67c00;border-color:rgba(166,124,0,.4)}
+    tr.warmup-row{opacity:.7;font-style:italic}
     .check-btn{
       width:32px;height:32px;border-radius:50%;border:2px solid var(--bord);
       background:transparent;cursor:pointer;display:grid;place-items:center;
@@ -364,8 +371,9 @@ const PROG_KEY = 'gymos-programmes-v2';
 const EXO_KEY  = 'exercices-studio-autosave-v2';
 const RESSENTI = [
   { key:'bien',      emoji:'😊', label:'Bien',      bg:'rgba(67,122,34,.18)',  color:'#437a22' },
-  { key:'dur',       emoji:'😤', label:'Dur',       bg:'rgba(150,66,25,.18)',  color:'#964219' },
-  { key:'tres_dur',  emoji:'😰', label:'Très dur',  bg:'rgba(161,44,123,.18)', color:'#a12c7b' },
+  { key:'moyen',     emoji:'😐', label:'Moyen',     bg:'rgba(166,124,0,.18)',  color:'#a67c00' },
+  { key:'dur',       emoji:'😤', label:'Dur',       bg:'rgba(194,101,10,.18)', color:'#c2650a' },
+  { key:'tres_dur',  emoji:'😰', label:'Très dur',  bg:'rgba(192,57,43,.18)',  color:'#c0392b' },
   { key:'super_dur', emoji:'💀', label:'Super dur', bg:'rgba(40,37,29,.12)',   color:'#28251d' },
 ];
 function getExoImage(nom) {
@@ -416,6 +424,14 @@ function parseRecup(v) {
   const n = parseInt(String(v).replace(/[^0-9]/g,''));
   return isNaN(n) ? 90 : n;
 }
+// Dernière séance réelle (historique) où cet exercice a été pratiqué : {date, series} ou null.
+function getLastHistSeries(nom) {
+  const matches = (_historique||[]).filter(h => (h.exercices||[]).some(e => e.nom===nom));
+  if (!matches.length) return null;
+  const last = matches.slice().sort((a,b) => (a.date||'').localeCompare(b.date||'')).pop();
+  const entry = (last.exercices||[]).find(e => e.nom===nom);
+  return entry ? { date: last.date, series: entry.series||[] } : null;
+}
 function getLatestRef(nom) {
   try {
     const row = _exoLib.find(e => e.exercice?.toLowerCase()===nom.toLowerCase());
@@ -426,7 +442,7 @@ function getLatestRef(nom) {
   } catch { return null; }
 }
 function computeVolume(exos) {
-  return exos.reduce((tot,e) => tot + e.series.filter(s=>s.done).reduce((v,s)=>{
+  return exos.reduce((tot,e) => tot + e.series.filter(s=>s.done && !s.echauffement).reduce((v,s)=>{
     const p=parseFloat(s.poids)||0, r=parseInt(s.reps)||0; return v+p*r;
   },0), 0);
 }
@@ -484,10 +500,67 @@ function updateChrono() {
 }
 
 // ══════════════════════════════════════════════════════════════
-// TIMER RÉCUPÉRATION (supprimé — fonctions conservées en no-op)
+// TIMER RÉCUPÉRATION
 // ══════════════════════════════════════════════════════════════
-function startTimer() {}
-function stopTimer() {}
+let _restTimerInterval = null;
+let _restTimerEnd = 0;
+function fmtMMSS(totalSec) {
+  const s=Math.max(0,totalSec); const m=Math.floor(s/60), r=s%60;
+  return `${String(m).padStart(2,'0')}:${String(r).padStart(2,'0')}`;
+}
+function playRestBeep() {
+  try {
+    const ctx = new (window.AudioContext||window.webkitAudioContext)();
+    [0,0.28,0.56].forEach(delay => {
+      const o=ctx.createOscillator(), g=ctx.createGain();
+      o.type='sine'; o.frequency.value=880;
+      o.connect(g); g.connect(ctx.destination);
+      g.gain.setValueAtTime(0.0001, ctx.currentTime+delay);
+      g.gain.exponentialRampToValueAtTime(0.3, ctx.currentTime+delay+0.02);
+      g.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime+delay+0.22);
+      o.start(ctx.currentTime+delay); o.stop(ctx.currentTime+delay+0.24);
+    });
+  } catch {}
+}
+function ensureRestTimerBar() {
+  let bar = document.getElementById('restTimerBar');
+  if (bar) return bar;
+  bar = document.createElement('div'); bar.id='restTimerBar';
+  bar.style.cssText='position:fixed;left:50%;bottom:1.25rem;transform:translateX(-50%);z-index:900;'
+    +'display:flex;align-items:center;gap:.75rem;padding:.6rem 1rem;border-radius:999px;'
+    +'background:var(--surf);border:1px solid var(--bord);box-shadow:0 8px 24px rgba(0,0,0,.18);'
+    +'font-size:.85rem;font-weight:700;color:var(--tx)';
+  bar.innerHTML = `<span class="rt-label" style="color:var(--txm);font-weight:600"></span>
+    <span class="rt-time" style="font-variant-numeric:tabular-nums;color:var(--prim);font-size:1rem"></span>
+    <button type="button" class="rt-skip btn btn-sm" style="min-height:auto;padding:.25rem .6rem">Passer</button>`;
+  bar.querySelector('.rt-skip').addEventListener('click', stopTimer);
+  document.body.appendChild(bar);
+  return bar;
+}
+function startTimer(seconds, label) {
+  stopTimer();
+  if (!seconds || seconds<=0) return;
+  _restTimerEnd = Date.now() + seconds*1000;
+  const bar = ensureRestTimerBar();
+  bar.querySelector('.rt-label').textContent = label ? `Repos · ${label}` : 'Repos';
+  bar.style.display = 'flex';
+  updateTimer();
+  _restTimerInterval = setInterval(updateTimer, 250);
+}
+function updateTimer() {
+  const bar = document.getElementById('restTimerBar');
+  const remaining = Math.round((_restTimerEnd - Date.now())/1000);
+  if (bar) bar.querySelector('.rt-time').textContent = fmtMMSS(remaining);
+  if (remaining<=0) {
+    stopTimer();
+    playRestBeep();
+  }
+}
+function stopTimer() {
+  if (_restTimerInterval) { clearInterval(_restTimerInterval); _restTimerInterval=null; }
+  const bar = document.getElementById('restTimerBar');
+  if (bar) bar.style.display='none';
+}
 
 // ══════════════════════════════════════════════════════════════
 // SIDEBAR
@@ -542,14 +615,14 @@ function buildExercicesFromSeance(seance) {
     const ref = getLatestRef(e.nom);
     const nbSeries = parseInt(e.series)||3;
     return {
-      id: uid(), nom: e.nom, groupe: e.groupe||'',
+      id: uid(), nom: e.nom, groupe: e.groupe||'', groupId: e.groupId||null,
       image: e.image || getExoImage(e.nom),
       refSeries: e.series||'3', refReps: e.reps||'', refPoids: e.poids||'',
       refDuree: e.duree||'', refDistance: e.distance||'',
       refRecup: e.recup||(ref?.recup||'90 s'),
       series: Array.from({length:nbSeries},(_,i)=>({
         num:i+1, reps: ref?.reps||e.reps||'', poids: ref?.poids||e.poids||'',
-        duree:'', distance:'', done:false, ressenti:''
+        duree:'', distance:'', done:false, ressenti:'', rpe:'', echauffement:false, cote:''
       })),
       note: '',
     };
@@ -704,7 +777,24 @@ function renderSession(main) {
     empty.textContent='Aucun exercice. Cliquez sur "+ Ajouter un exercice".'; wrap.appendChild(empty);
   } else {
     S.exercices.forEach((exo,ei) => {
-      wrap.appendChild(buildExoCard(exo, ei));
+      const prevExo = S.exercices[ei-1];
+      if (exo.groupId && prevExo && prevExo.groupId===exo.groupId) {
+        const lastWrap = wrap.lastElementChild;
+        if (lastWrap && lastWrap.dataset.groupId===exo.groupId) {
+          lastWrap.querySelector('.superset-cards').appendChild(buildExoCard(exo, ei));
+          return;
+        }
+      }
+      if (exo.groupId) {
+        const gwrap=document.createElement('div'); gwrap.dataset.groupId=exo.groupId;
+        gwrap.style.cssText='border:1.5px dashed var(--prim);border-radius:var(--rxl);padding:.6rem;display:flex;flex-direction:column;gap:.6rem';
+        const lbl=document.createElement('div'); lbl.style.cssText='font-size:.7rem;font-weight:700;color:var(--prim)'; lbl.textContent='🔗 Superset';
+        const cardsWrap=document.createElement('div'); cardsWrap.className='superset-cards'; cardsWrap.style.cssText='display:flex;flex-direction:column;gap:.6rem';
+        cardsWrap.appendChild(buildExoCard(exo, ei));
+        gwrap.append(lbl,cardsWrap); wrap.appendChild(gwrap);
+      } else {
+        wrap.appendChild(buildExoCard(exo, ei));
+      }
     });
   }
 
@@ -759,12 +849,13 @@ function buildExoCard(exo, ei) {
   // Table séries avec scroll horizontal
   const tblWrap=document.createElement('div'); tblWrap.className='series-table-wrap';
   const tbl=document.createElement('table'); tbl.className='series-table';
-  let thHtml=`<thead><tr><th style="width:32px">#</th><th>Reps</th><th>Kg</th><th>Durée</th><th>Distance</th>`;
-  thHtml+=`<th style="width:56px">Réf.</th><th>Ressenti</th><th style="width:36px"></th></tr></thead>`;
+  let thHtml=`<thead><tr><th style="width:32px">#</th><th style="width:64px">Type</th><th>Reps</th><th>Kg</th><th>Durée</th><th>Distance</th>`;
+  thHtml+=`<th style="width:64px">Réf.</th><th style="width:64px">RPE</th><th style="width:64px">Côté</th><th>Ressenti</th><th style="width:36px"></th></tr></thead>`;
   tbl.innerHTML=thHtml;
   const tbody=document.createElement('tbody');
+  const lastHist = getLastHistSeries(exo.nom);
   exo.series.forEach((serie,si) => {
-    tbody.appendChild(buildSerieRow(exo,ei,serie,si));
+    tbody.appendChild(buildSerieRow(exo,ei,serie,si,lastHist));
   });
   tbl.appendChild(tbody); tblWrap.appendChild(tbl); card.appendChild(tblWrap);
 
@@ -786,7 +877,7 @@ function buildExoCard(exo, ei) {
   addSerie.innerHTML=`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> Série`;
   addSerie.addEventListener('click', ()=>{
     const last=exo.series[exo.series.length-1]||{};
-    exo.series.push({num:exo.series.length+1,reps:last.reps||'',poids:last.poids||'',duree:'',distance:'',done:false,ressenti:''});
+    exo.series.push({num:exo.series.length+1,reps:last.reps||'',poids:last.poids||'',duree:'',distance:'',done:false,ressenti:'',rpe:'',echauffement:false,cote:''});
     saveCurrentSession(); refreshExoCard(card,exo,ei);
   });
   const noteInp=document.createElement('input'); noteInp.className='note-field'; noteInp.type='text';
@@ -811,12 +902,27 @@ function makePh(hex, nom) {
   return ph;
 }
 
-function buildSerieRow(exo,ei,serie,si) {
+function buildSerieRow(exo,ei,serie,si,lastHist) {
   const tr=document.createElement('tr');
   if(serie.done) tr.classList.add('done-row');
+  if(serie.echauffement) tr.classList.add('warmup-row');
 
   // Num
   const tdNum=document.createElement('td'); tdNum.className='serie-num'; tdNum.textContent=si+1;
+
+  // Type (échauffement / travail)
+  const tdType=document.createElement('td'); tdType.style.textAlign='center';
+  const warmBtn=document.createElement('button'); warmBtn.type='button';
+  warmBtn.className='warmup-toggle'+(serie.echauffement?' active':'');
+  warmBtn.title='Marquer comme échauffement / série de travail';
+  warmBtn.textContent = serie.echauffement ? '🔥 Éch.' : 'Travail';
+  warmBtn.addEventListener('click',()=>{
+    serie.echauffement=!serie.echauffement;
+    saveCurrentSession();
+    const card=document.getElementById(`exo-card-${ei}`);
+    if(card) refreshExoCard(card,exo,ei);
+  });
+  tdType.appendChild(warmBtn);
 
   // Reps
   const tdReps=document.createElement('td');
@@ -854,9 +960,36 @@ function buildSerieRow(exo,ei,serie,si) {
   idist.addEventListener('input',()=>{ serie.distance=idist.value; saveCurrentSession(); });
   tdDist.appendChild(idist);
 
-  // Référence
+  // Référence — la vraie performance de la dernière fois sur cette série précise si connue,
+  // sinon repli sur la cible statique du programme.
   const tdRef=document.createElement('td'); tdRef.className='serie-ref';
-  tdRef.textContent=exo.refPoids?`${exo.refPoids}kg`:'—';
+  const lastSerie = lastHist?.series?.[si];
+  if (lastSerie && (lastSerie.reps || lastSerie.poids)) {
+    tdRef.textContent = [lastSerie.reps&&`${lastSerie.reps}×`, lastSerie.poids&&`${lastSerie.poids}kg`].filter(Boolean).join('');
+    tdRef.title = 'Dernière fois : ' + new Date(lastHist.date+'T00:00').toLocaleDateString('fr-FR',{day:'numeric',month:'short'});
+  } else {
+    tdRef.textContent = exo.refPoids?`${exo.refPoids}kg`:'—';
+  }
+
+  // RPE (échelle numérique 6 à 10, par pas de 0,5)
+  const tdRpe=document.createElement('td');
+  const RPE_OPTS=['','6','6.5','7','7.5','8','8.5','9','9.5','10'];
+  const selRpe=document.createElement('select'); selRpe.className='serie-input'+(serie.done?' done':'');
+  selRpe.disabled=serie.done;
+  selRpe.innerHTML=RPE_OPTS.map(v=>`<option value="${v}">${v||'—'}</option>`).join('');
+  selRpe.value=serie.rpe||'';
+  selRpe.addEventListener('change',()=>{ serie.rpe=selRpe.value; saveCurrentSession(); });
+  tdRpe.appendChild(selRpe);
+
+  // Côté (pour le suivi de symétrie gauche/droite sur les exercices unilatéraux — optionnel)
+  const tdCote=document.createElement('td');
+  const COTE_OPTS=[{v:'',l:'—'},{v:'gauche',l:'Gauche'},{v:'droit',l:'Droit'}];
+  const selCote=document.createElement('select'); selCote.className='serie-input'+(serie.done?' done':'');
+  selCote.disabled=serie.done;
+  selCote.innerHTML=COTE_OPTS.map(o=>`<option value="${o.v}">${o.l}</option>`).join('');
+  selCote.value=serie.cote||'';
+  selCote.addEventListener('change',()=>{ serie.cote=selCote.value; saveCurrentSession(); });
+  tdCote.appendChild(selCote);
 
   // Ressenti — 4 emojis ou badge si déjà validé
   const tdRes=document.createElement('td'); tdRes.style.cssText='padding:.3rem .5rem';
@@ -878,7 +1011,13 @@ function buildSerieRow(exo,ei,serie,si) {
     }
     serie.done=true; serie.ressenti=key;
     const recupSec=parseRecup(exo.refRecup);
-    if(recupSec>0) startTimer();
+    // Superset : pas de repos entre les exercices du groupe, seulement après le dernier du tour.
+    const isSupersetNonLast = exo.groupId && (() => {
+      const members=S.exercices.filter(x=>x.groupId===exo.groupId);
+      const idx=members.findIndex(x=>x.id===exo.id);
+      return idx>=0 && idx<members.length-1;
+    })();
+    if(recupSec>0 && !isSupersetNonLast) startTimer(recupSec, exo.nom);
     saveCurrentSession();
     if(card) refreshExoCard(card,exo,ei);
     renderSidebar();
@@ -893,6 +1032,7 @@ function buildSerieRow(exo,ei,serie,si) {
     badge.textContent=`${r.emoji} ${r.label}`;
     badge.addEventListener('click',()=>{
       serie.done=false; serie.ressenti='';
+      stopTimer();
       saveCurrentSession();
       const card=document.getElementById(`exo-card-${ei}`);
       if(card) refreshExoCard(card,exo,ei);
@@ -926,7 +1066,7 @@ function buildSerieRow(exo,ei,serie,si) {
   });
   tdDel.appendChild(delSerieBtn);
 
-  tr.append(tdNum,tdReps,tdPoids,tdDuree,tdDist,tdRef,tdRes,tdDel);
+  tr.append(tdNum,tdType,tdReps,tdPoids,tdDuree,tdDist,tdRef,tdRpe,tdCote,tdRes,tdDel);
   return tr;
 }
 
@@ -1071,7 +1211,7 @@ function saveSession() {
     programmeNom:prog?.nom||'Libre', seanceNom:seance?.nom||'Libre', seanceType:seance?.type||'Autre',
     exercices:S.exercices.map(e=>({
       nom:e.nom, groupe:e.groupe,
-      series:e.series.filter(s=>s.done).map(s=>({reps:s.reps,poids:s.poids,duree:s.duree,distance:s.distance,ressenti:s.ressenti})),
+      series:e.series.filter(s=>s.done).map(s=>({reps:s.reps,poids:s.poids,duree:s.duree,distance:s.distance,ressenti:s.ressenti,rpe:s.rpe||'',echauffement:!!s.echauffement,cote:s.cote||''})),
       note:e.note
     })),
     noteGlobale:S.noteGlobale,
@@ -1216,7 +1356,7 @@ function confirmLibreModal(){
     refRecup:recup?recup+' s':(ref?.recup||'90 s'),
     series:Array.from({length:nbSeries},(_,i)=>({
       num:i+1, reps:reps||ref?.reps||'', poids:poids||ref?.poids||'',
-      duree:'', distance:'', done:false, ressenti:''
+      duree:'', distance:'', done:false, ressenti:'', rpe:'', echauffement:false, cote:''
     })),
     note:'',
   });

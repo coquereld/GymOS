@@ -97,9 +97,13 @@ button,input,select,textarea{font:inherit} button{cursor:pointer}
     <div class="panel">
       <div class="panel-hdr">
         <div><div class="panel-title">Courbe de progression</div><div style="font-size:.7rem;color:var(--txm);margin-top:.1rem">Poids max par séance · Estimation 1RM</div></div>
-        <select class="sel" id="exoSel" style="min-width:180px"><option value="">— Choisir un exercice —</option></select>
+        <div style="display:flex;align-items:center;gap:.5rem">
+          <select class="sel" id="exoSel" style="min-width:180px"><option value="">— Choisir un exercice —</option></select>
+          <button class="btn-icon" id="exportChartBtn" title="Exporter la courbe en image"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></button>
+        </div>
       </div>
       <div class="panel-body" style="padding:.85rem 1.25rem 1rem">
+        <div id="plateauBadge"></div>
         <div class="chart-area" id="progChart">
           <div class="chart-empty"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>Choisissez un exercice</div>
         </div>
@@ -113,6 +117,20 @@ button,input,select,textarea{font:inherit} button{cursor:pointer}
           <tbody id="prBody"></tbody>
         </table>
       </div>
+    </div>
+  </div>
+
+  <!-- Repères de force par mouvement + Exercices en plateau -->
+  <div class="grid-2b">
+    <div class="panel">
+      <div class="panel-hdr">
+        <div><div class="panel-title">Repères de force par mouvement</div><div style="font-size:.7rem;color:var(--txm);margin-top:.1rem">Charge indicative — matériel guidé, pas des standards à barre libre</div></div>
+      </div>
+      <div class="panel-body" id="strengthChart"></div>
+    </div>
+    <div class="panel">
+      <div class="panel-hdr"><div class="panel-title">Exercices en plateau</div><div style="font-size:.7rem;color:var(--txm)">Aucune progression depuis 4 séances</div></div>
+      <div class="panel-body" id="plateauList"></div>
     </div>
   </div>
 
@@ -131,6 +149,22 @@ button,input,select,textarea{font:inherit} button{cursor:pointer}
       </div>
     </div>
   </div>
+
+  <!-- Repères de volume hebdomadaire + Symétrie gauche/droite -->
+  <div class="grid-2b">
+    <div class="panel">
+      <div class="panel-hdr">
+        <div><div class="panel-title">Repères de volume hebdomadaire</div><div style="font-size:.7rem;color:var(--txm);margin-top:.1rem">Séries des 7 derniers jours par groupe (seuils indicatifs)</div></div>
+      </div>
+      <div class="panel-body" id="volLandmarksChart"></div>
+    </div>
+    <div class="panel">
+      <div class="panel-hdr">
+        <div><div class="panel-title">Symétrie gauche/droite</div><div style="font-size:.7rem;color:var(--txm);margin-top:.1rem">Pour l'exercice sélectionné ci-dessus</div></div>
+      </div>
+      <div class="panel-body" id="symmetryChart"></div>
+    </div>
+  </div>
 </div>
 
 <div class="chart-tooltip" id="tooltip"></div>
@@ -139,11 +173,24 @@ button,input,select,textarea{font:inherit} button{cursor:pointer}
 <script src="gymos-utils.js"></script>
 <script>
 const HIST_KEY='gymos-historique-v1';
+const EXO_KEY='exercices-studio-autosave-v2';
 let _hist=[];
+let _exoLib=[];
 
 function hexRgb(h){return[parseInt(h.slice(1,3),16),parseInt(h.slice(3,5),16),parseInt(h.slice(5,7),16)];}
 function epley1RM(w,r){return r===1?w:Math.round(parseFloat(w)*(1+parseInt(r)/30)*10)/10;}
+// Formules alternatives d'estimation du 1RM, pour croiser avec Epley (référence principale de l'appli).
+function brzycki1RM(w,r){ if(r===1) return parseFloat(w); const d=1.0278-0.0278*parseInt(r); return d>0?Math.round(parseFloat(w)/d*10)/10:parseFloat(w); }
+function lombardi1RM(w,r){ return Math.round(parseFloat(w)*Math.pow(parseInt(r)||1,0.10)*10)/10; }
+function fmt1RMTip(p,r){
+  return `Epley ${epley1RM(p,r)}kg · Brzycki ${brzycki1RM(p,r)}kg · Lombardi ${lombardi1RM(p,r)}kg`;
+}
 function loadHist(){try{_hist=JSON.parse(localStorage.getItem(HIST_KEY)||'[]');}catch{_hist=[];}}
+function loadExoLib(){try{_exoLib=JSON.parse(localStorage.getItem(EXO_KEY)||'{}').rows||[];}catch{_exoLib=[];}}
+function patternForExo(nom){
+  const row=_exoLib.find(e=>e.exercice?.toLowerCase()===nom?.toLowerCase());
+  return row?.pattern_mouvement||'';
+}
 
 function filterByDays(days){
   if(!days)return _hist;
@@ -182,15 +229,14 @@ function buildExoList(){
   const sel=document.getElementById('exoSel');
   const sorted=Object.values(exoMap).sort((a,b)=>b.count-a.count);
   sel.innerHTML='<option value="">— Choisir un exercice —</option>'+sorted.map(e=>`<option value="${esc(e.nom)}">${esc(e.nom)}</option>`).join('');
-  if(sorted.length){sel.value=sorted[0].nom;renderProgChart();}
-  sel.addEventListener('change',renderProgChart);
+  if(sorted.length){sel.value=sorted[0].nom;renderProgChart();renderSymmetryChart();}
+  sel.addEventListener('change',()=>{renderProgChart();renderSymmetryChart();});
 }
 
 // ── PROGRESSION CHART ──
-function renderProgChart(){
-  const nom=document.getElementById('exoSel').value;
-  const container=document.getElementById('progChart'); container.innerHTML='';
-  if(!nom){container.innerHTML='<div class="chart-empty"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>Choisissez un exercice</div>';return;}
+// Construit la série chronologique {date, poids, reps, est1rm} d'un exercice (meilleure série par séance,
+// classée par 1RM estimé Epley) — réutilisée par le graphique et par la détection de plateau.
+function buildProgressionPoints(nom){
   const pts=[];
   _hist.slice().reverse().forEach(h=>{
     const e=(h.exercices||[]).find(x=>x.nom===nom); if(!e) return;
@@ -200,6 +246,25 @@ function renderProgChart(){
     },{p:0,r:1,est:0});
     if(maxPset.p>0) pts.push({date:h.date,poids:maxPset.p,reps:maxPset.r,est1rm:maxPset.est});
   });
+  return pts;
+}
+// Plateau = le dernier point n'a pas dépassé le meilleur des n-1 points précédents.
+function detectPlateau(pts,n=4){
+  if(pts.length<n) return false;
+  const recent=pts.slice(-n);
+  const last=recent[recent.length-1];
+  const bestBefore=Math.max(...recent.slice(0,-1).map(p=>p.est1rm));
+  return last.est1rm<=bestBefore;
+}
+function renderProgChart(){
+  const nom=document.getElementById('exoSel').value;
+  const container=document.getElementById('progChart'); container.innerHTML='';
+  const badgeEl=document.getElementById('plateauBadge'); badgeEl.innerHTML='';
+  if(!nom){container.innerHTML='<div class="chart-empty"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>Choisissez un exercice</div>';return;}
+  const pts=buildProgressionPoints(nom);
+  if(detectPlateau(pts)){
+    badgeEl.innerHTML=`<div style="display:inline-flex;align-items:center;gap:.35rem;font-size:.72rem;font-weight:700;padding:.25rem .6rem;border-radius:999px;background:rgba(150,66,25,.15);color:#964219;margin-bottom:.6rem">⚠ Plateau — aucune progression depuis 4 séances</div>`;
+  }
   if(pts.length<2){container.innerHTML=`<div class="chart-empty"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>${pts.length===0?'Aucune donnée pour cet exercice':'Au moins 2 séances nécessaires'}</div>`;return;}
   const exoGrp=((_hist.flatMap(h=>h.exercices||[])).find(e=>e.nom===nom)||{}).groupe||'';
   const hex=grpc(exoGrp);
@@ -240,7 +305,7 @@ function renderProgChart(){
     dot.setAttribute('cx',cx);dot.setAttribute('cy',cy);dot.setAttribute('r',4);
     dot.setAttribute('fill',hex);dot.setAttribute('stroke','var(--surf)');dot.setAttribute('stroke-width',2);
     dot.style.cursor='pointer';
-    dot.addEventListener('mouseenter',ev=>showTip(`${fmtDateShort(p.date)} · ${p.poids}kg × ${p.reps} = 1RM ~${p.est1rm}kg`,ev));
+    dot.addEventListener('mouseenter',ev=>showTip(`${fmtDateShort(p.date)} · ${p.poids}kg × ${p.reps} — ${fmt1RMTip(p.poids,p.reps)}`,ev));
     dot.addEventListener('mouseleave',hideTip);svg.appendChild(dot);
     // Label X
     const every=Math.max(1,Math.floor(pts.length/5));
@@ -265,6 +330,80 @@ function renderProgChart(){
   container.appendChild(wrap);
 }
 
+// ── EXPORT DE LA COURBE EN IMAGE ──
+// Le SVG n'utilise que des attributs inline (pas de <style>), mais certains référencent des
+// variables CSS (var(--bord) etc.) qui ne se résolvent pas une fois le SVG sérialisé hors du DOM —
+// on les remplace par leur valeur calculée concrète avant sérialisation.
+function resolveSvgCssVars(svgClone){
+  const cs=getComputedStyle(document.documentElement);
+  const resolve=v=>{
+    const m=v&&v.match(/^var\((--[\w-]+)\)$/);
+    return m ? (cs.getPropertyValue(m[1]).trim()||v) : v;
+  };
+  svgClone.querySelectorAll('*').forEach(el=>{
+    ['fill','stroke'].forEach(attr=>{
+      const v=el.getAttribute(attr);
+      if(v&&v.startsWith('var(')) el.setAttribute(attr,resolve(v));
+    });
+  });
+}
+function exportProgressionChart(){
+  const svg=document.querySelector('#progChart svg');
+  if(!svg){ return; }
+  const nom=document.getElementById('exoSel').value||'Exercice';
+  const clone=svg.cloneNode(true);
+  resolveSvgCssVars(clone);
+  clone.setAttribute('xmlns','http://www.w3.org/2000/svg');
+  const vb=svg.viewBox.baseVal;
+  const w=(vb&&vb.width)||600, h=(vb&&vb.height)||180;
+  clone.setAttribute('width',w); clone.setAttribute('height',h);
+  const svgStr=new XMLSerializer().serializeToString(clone);
+  const svgDataUrl='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(svgStr);
+  const img=new Image();
+  img.onload=()=>{
+    const scale=2, margin=56;
+    const canvas=document.createElement('canvas');
+    canvas.width=w*scale; canvas.height=(h+margin)*scale;
+    const ctx=canvas.getContext('2d'); ctx.scale(scale,scale);
+    const cs=getComputedStyle(document.documentElement);
+    const bg=cs.getPropertyValue('--surf').trim()||'#ffffff';
+    const tx=cs.getPropertyValue('--tx').trim()||'#000000';
+    const txf=cs.getPropertyValue('--txf').trim()||'#888888';
+    ctx.fillStyle=bg; ctx.fillRect(0,0,w,h+margin);
+    ctx.fillStyle=tx; ctx.font='bold 16px Georgia, serif';
+    ctx.fillText('GymOS — Progression : '+nom,12,26);
+    ctx.fillStyle=txf; ctx.font='11px Arial, sans-serif';
+    ctx.fillText('Exporté le '+new Date().toLocaleDateString('fr-FR'),12,44);
+    ctx.drawImage(img,0,margin,w,h);
+    const a=document.createElement('a');
+    a.href=canvas.toDataURL('image/png');
+    a.download=`gymos-progression-${nom.replace(/[^a-z0-9]+/gi,'-')}-${new Date().toISOString().split('T')[0]}.png`;
+    a.click();
+  };
+  img.src=svgDataUrl;
+}
+
+// ── EXERCICES EN PLATEAU ──
+function renderPlateauList(){
+  const exoMap={};
+  _hist.forEach(h=>(h.exercices||[]).forEach(e=>{ if(!exoMap[e.nom]) exoMap[e.nom]={nom:e.nom,groupe:e.groupe}; }));
+  const container=document.getElementById('plateauList'); container.innerHTML='';
+  const plateaued=Object.values(exoMap).filter(e=>detectPlateau(buildProgressionPoints(e.nom)));
+  if(!plateaued.length){
+    container.innerHTML='<div style="color:var(--txf);font-size:.8rem;font-style:italic;text-align:center;padding:1rem">Aucun plateau détecté — bravo, ça progresse partout 💪</div>';
+    return;
+  }
+  plateaued.forEach(e=>{
+    const hex=grpc(e.groupe);
+    const row=document.createElement('div');
+    row.style.cssText='display:flex;align-items:center;gap:.5rem;padding:.4rem 0;border-bottom:1px solid var(--bord)';
+    row.innerHTML=`<span style="width:8px;height:8px;border-radius:50%;background:${hex};flex-shrink:0"></span>
+      <span style="flex:1;font-size:.8rem;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(e.nom)}</span>
+      <span style="font-size:.68rem;color:#964219;font-weight:700">⚠ Plateau</span>`;
+    container.appendChild(row);
+  });
+}
+
 // ── PRs ──
 function renderPRs(){
   const h=filterByDays(getPeriod());
@@ -285,8 +424,11 @@ function renderPRs(){
     const tr=document.createElement('tr');
     tr.innerHTML=`<td style="font-weight:600;max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(pr.nom)}</td>
       <td><span style="font-weight:700">${pr.p}kg</span> <span style="color:var(--txm);font-size:.7rem">× ${pr.r}</span></td>
-      <td><span style="font-weight:700;color:${hex}">${pr.est}kg</span></td>
+      <td><span style="font-weight:700;color:${hex};cursor:help;border-bottom:1px dotted ${hex}" class="pr-1rm-tip">${pr.est}kg</span></td>
       <td style="color:var(--txm)">${fmtDateShort(pr.date)}</td>`;
+    const tipEl=tr.querySelector('.pr-1rm-tip');
+    tipEl.addEventListener('mouseenter',ev=>showTip(fmt1RMTip(pr.p,pr.r),ev));
+    tipEl.addEventListener('mouseleave',hideTip);
     tbody.appendChild(tr);
   });
 }
@@ -313,6 +455,55 @@ function renderVolChart(){
       <div class="bar-val">${v>0?v.toLocaleString('fr-FR')+' kg':'—'}</div>`;
     container.appendChild(row);
   });
+}
+
+// ── REPÈRES DE FORCE PAR MOUVEMENT (charge absolue, matériel guidé) ──
+const STRENGTH_LANDMARKS = {
+  'Squat':               { debutant:80,  intermediaire:160 },
+  'Poussée':             { debutant:40,  intermediaire:80  },
+  'Charnière de hanche': { debutant:60,  intermediaire:120 },
+};
+function bestEst1RMForPattern(pattern){
+  let best=0;
+  _hist.forEach(h=>(h.exercices||[]).forEach(e=>{
+    if(patternForExo(e.nom)!==pattern) return;
+    (e.series||[]).forEach(s=>{
+      const p=parseFloat(s.poids)||0, r=parseInt(s.reps)||1;
+      if(p<=0) return;
+      const est=epley1RM(p,r);
+      if(est>best) best=est;
+    });
+  }));
+  return best;
+}
+function renderStrengthChart(){
+  const container=document.getElementById('strengthChart'); container.innerHTML='';
+  const patterns=Object.keys(STRENGTH_LANDMARKS);
+  let anyData=false;
+  patterns.forEach(pattern=>{
+    const {debutant,intermediaire}=STRENGTH_LANDMARKS[pattern];
+    const best=bestEst1RMForPattern(pattern);
+    if(best>0) anyData=true;
+    let niveau='Débutant', niveauColor='#964219', nextTarget=debutant, nextLabel='Intermédiaire';
+    if(best>=intermediaire){ niveau='Avancé'; niveauColor='#437a22'; nextTarget=null; }
+    else if(best>=debutant){ niveau='Intermédiaire'; niveauColor='#01696f'; nextTarget=intermediaire; nextLabel='Avancé'; }
+    const cap=intermediaire*1.4;
+    const pct=Math.min(100,Math.round(best/cap*100));
+    const row=document.createElement('div'); row.style.cssText='margin-bottom:.9rem';
+    row.innerHTML=`<div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:.3rem">
+        <span style="font-size:.8rem;font-weight:700">${esc(pattern)}</span>
+        <span style="font-size:.7rem;font-weight:700;color:${niveauColor}">${niveau}${best>0?` · ${best}kg`:''}</span>
+      </div>
+      <div class="bar-bg"><div class="bar-fill" style="width:${pct}%;background:${niveauColor}"></div></div>
+      <div style="font-size:.65rem;color:var(--txf);margin-top:.2rem">${best>0?(nextTarget?`Prochain palier (${nextLabel}) : ${nextTarget}kg`:'Palier maximal atteint'):'Aucune donnée pour ce mouvement'}</div>`;
+    container.appendChild(row);
+  });
+  if(!anyData){
+    const note=document.createElement('div');
+    note.style.cssText='color:var(--txf);font-size:.75rem;font-style:italic;text-align:center;padding:.5rem 0 0';
+    note.textContent="Pratiquez un exercice Squat/Poussée/Charnière de hanche pour voir apparaître vos repères.";
+    container.appendChild(note);
+  }
 }
 
 // ── FRÉQUENCE HEBDOMADAIRE ──
@@ -343,6 +534,80 @@ function renderFreqChart(){
   });
 }
 
+// ── SYMÉTRIE GAUCHE/DROITE ──
+function renderSymmetryChart(){
+  const nom=document.getElementById('exoSel').value;
+  const container=document.getElementById('symmetryChart'); container.innerHTML='';
+  if(!nom){ container.innerHTML='<div style="color:var(--txf);font-size:.8rem;font-style:italic;text-align:center;padding:1rem">Choisissez un exercice</div>'; return; }
+  const sides={gauche:0,droit:0};
+  _hist.forEach(h=>{
+    const e=(h.exercices||[]).find(x=>x.nom===nom); if(!e) return;
+    (e.series||[]).forEach(s=>{
+      if(s.cote!=='gauche'&&s.cote!=='droit') return;
+      const p=parseFloat(s.poids)||0, r=parseInt(s.reps)||1;
+      if(p<=0) return;
+      const est=epley1RM(p,r);
+      if(est>sides[s.cote]) sides[s.cote]=est;
+    });
+  });
+  if(!sides.gauche&&!sides.droit){
+    container.innerHTML=`<div style="color:var(--txf);font-size:.8rem;font-style:italic;text-align:center;padding:1rem">Aucune donnée gauche/droite pour "${esc(nom)}" — pensez à renseigner le côté lors de la saisie en séance.</div>`;
+    return;
+  }
+  const maxV=Math.max(sides.gauche,sides.droit,1);
+  [['Gauche',sides.gauche,'#0161be'],['Droit',sides.droit,'#01696f']].forEach(([label,val,color])=>{
+    const pct=Math.round(val/maxV*100);
+    const row=document.createElement('div'); row.className='bar-row';
+    row.innerHTML=`<div class="bar-label">${label}</div>
+      <div class="bar-bg"><div class="bar-fill" style="width:${pct}%;background:${color}"></div></div>
+      <div class="bar-val">${val?val+'kg':'—'}</div>`;
+    container.appendChild(row);
+  });
+  if(sides.gauche>0&&sides.droit>0){
+    const diff=Math.round(Math.abs(sides.droit-sides.gauche)/Math.min(sides.gauche,sides.droit)*100);
+    const stronger=sides.droit>sides.gauche?'Droit':(sides.gauche>sides.droit?'Gauche':null);
+    const msg=document.createElement('div');
+    msg.style.cssText='margin-top:.5rem;font-size:.75rem;color:var(--txm)';
+    msg.textContent=stronger?`${stronger} ${diff}% plus fort que l'autre côté (1RM estimé).`:'Équilibre parfait entre les deux côtés.';
+    container.appendChild(msg);
+  }
+}
+
+// ── REPÈRES DE VOLUME HEBDOMADAIRE (séries, seuils indicatifs génériques) ──
+const VOL_LANDMARKS = { mev:8, mav:16, mrv:22 };
+function computeWeeklySetsByGroup(){
+  const cutoff=new Date(); cutoff.setDate(cutoff.getDate()-7);
+  const cut=cutoff.toISOString().split('T')[0];
+  const sets={};
+  _hist.filter(h=>h.date>=cut).forEach(h=>(h.exercices||[]).forEach(e=>{
+    (e.groupe||'').split(',').map(g=>g.trim()).filter(Boolean).forEach(g=>{
+      sets[g]=(sets[g]||0)+(e.series||[]).length;
+    });
+  }));
+  return Object.keys(MC).map(g=>({groupe:g,sets:sets[g]||0})).sort((a,b)=>b.sets-a.sets);
+}
+function renderVolLandmarksChart(){
+  const container=document.getElementById('volLandmarksChart'); container.innerHTML='';
+  const {mev,mav,mrv}=VOL_LANDMARKS;
+  const cap=mrv*1.3;
+  computeWeeklySetsByGroup().forEach(({groupe,sets})=>{
+    let color='#9a9891', label='Insuffisant';
+    if(sets>=mrv){ color='#a12c2c'; label='Risque de surcharge'; }
+    else if(sets>=mav){ color='#964219'; label='Élevé'; }
+    else if(sets>=mev){ color='#437a22'; label='Optimal'; }
+    const pct=Math.min(100,Math.round(sets/cap*100));
+    const row=document.createElement('div'); row.className='bar-row';
+    row.innerHTML=`<div class="bar-label" title="${esc(groupe)}">${esc(groupe)}</div>
+      <div class="bar-bg"><div class="bar-fill" style="width:${pct}%;background:${color}"></div></div>
+      <div class="bar-val" title="${label}">${sets} séries</div>`;
+    container.appendChild(row);
+  });
+  const legend=document.createElement('div');
+  legend.style.cssText='margin-top:.6rem;font-size:.65rem;color:var(--txf)';
+  legend.textContent=`Repères génériques indicatifs : MEV ≈ ${mev} séries/sem. · MAV ≈ ${mav} · MRV ≈ ${mrv}`;
+  container.appendChild(legend);
+}
+
 // ── TOOLTIP ──
 const tip=document.getElementById('tooltip');
 function showTip(txt,e){tip.textContent=txt;tip.style.display='block';moveTip(e);}
@@ -352,15 +617,18 @@ document.addEventListener('mousemove',e=>{if(tip.style.display==='block')moveTip
 
 // ── THÈME ──
 document.getElementById('themeBtn').addEventListener('click',()=>applyTheme(document.documentElement.getAttribute('data-theme')==='dark'?'light':'dark'));
-document.getElementById('periodSel').addEventListener('change',()=>{renderStats();renderProgChart();renderPRs();renderVolChart();renderFreqChart();});
+document.getElementById('periodSel').addEventListener('change',()=>{renderStats();renderProgChart();renderPRs();renderVolChart();renderFreqChart();renderSymmetryChart();});
+document.getElementById('exportChartBtn').addEventListener('click',exportProgressionChart);
 
 // ── INIT ──
 (async function init(){
   applyTheme(localStorage.getItem('muscle-xml-theme')||'light');
-  loadHist();
+  loadHist(); loadExoLib();
   await GymDB.init();
   try{const h=await GymDB.read('historique.json');if(Array.isArray(h)&&h.length){_hist=h;localStorage.setItem(HIST_KEY,JSON.stringify(h));}}catch{}
+  try{const d=await GymDB.read('exercices.json');if(d&&Array.isArray(d.rows)&&d.rows.length){_exoLib=d.rows;localStorage.setItem(EXO_KEY,JSON.stringify(d));}}catch{}
   renderStats(); buildExoList(); renderPRs(); renderVolChart(); renderFreqChart();
+  renderStrengthChart(); renderPlateauList(); renderVolLandmarksChart();
 })();
 </script>
 
