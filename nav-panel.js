@@ -14,6 +14,14 @@ document.body.insertAdjacentHTML('beforeend', `
       </div>
       <button id="gymosNavClose" style="border:none;background:none;cursor:pointer;color:var(--color-text-muted,#6e6b64);font-size:1.3rem;line-height:1;padding:.2rem .5rem;border-radius:.35rem;transition:background .12s" onmouseenter="this.style.background='rgba(0,0,0,.06)'" onmouseleave="this.style.background='none'">×</button>
     </div>
+    <!-- Recherche globale -->
+    <div style="padding:.7rem 1rem .4rem">
+      <div style="position:relative">
+        <input id="gymosSearchInp" type="text" placeholder="Rechercher exercice, séance, recette… (/)"
+          style="width:100%;padding:.5rem .7rem;border-radius:.5rem;border:1px solid var(--color-border,#d4d1ca);background:var(--color-surface-2,#fbfbf9);color:var(--color-text,#28251d);font:inherit;font-size:.76rem;outline:none">
+      </div>
+      <div id="gymosSearchResults" style="display:none;margin-top:.4rem;max-height:340px;overflow-y:auto;border:1px solid var(--color-border,#d4d1ca);border-radius:.5rem;background:var(--color-surface-2,#fbfbf9)"></div>
+    </div>
     <!-- Items nav -->
     <nav id="gymosNavItems" style="padding:.6rem .5rem;display:flex;flex-direction:column;gap:.15rem;flex:1"></nav>
     <!-- Footer -->
@@ -52,7 +60,81 @@ document.body.insertAdjacentHTML('beforeend', `
     });
   }
   function openNav(){document.getElementById('gymosNavPanel').style.display='flex';}
-  function closeNav(){document.getElementById('gymosNavPanel').style.display='none';}
+  function closeNav(){document.getElementById('gymosNavPanel').style.display='none'; clearSearch();}
+
+  // ── Recherche globale (exercices, séances, recettes) ────────────────────
+  // Chargement paresseux et indépendant de la page hôte : GymDB.read() ne
+  // dépend pas d'un GymDB.init() préalable, donc ça fonctionne sur n'importe
+  // quelle page, même si elle n'a jamais elle-même chargé ces documents.
+  let _searchData = null;
+  let _searchLoading = null;
+  function loadSearchData(){
+    if (_searchData) return Promise.resolve(_searchData);
+    if (_searchLoading) return _searchLoading;
+    _searchLoading = Promise.all([
+      GymDB.read('exercices.json'),
+      GymDB.read('historique.json'),
+      GymDB.read('nutrition.json'),
+    ]).then(([exoDoc, hist, nutri]) => {
+      _searchData = {
+        exos: (exoDoc && Array.isArray(exoDoc.rows)) ? exoDoc.rows : [],
+        hist: Array.isArray(hist) ? hist : [],
+        recipes: [
+          ...(((nutri && nutri.recipes) || []).map(r => ({ ...r, _type: 'recipe' }))),
+          ...(((nutri && nutri.smoothies) || []).map(r => ({ ...r, _type: 'smoothie' }))),
+        ],
+      };
+      return _searchData;
+    });
+    return _searchLoading;
+  }
+  function escSearch(v){ return String(v==null?'':v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+  function renderSearchResults(q){
+    const box = document.getElementById('gymosSearchResults');
+    if (!q || !_searchData) { box.style.display = 'none'; box.innerHTML = ''; return; }
+    const ql = q.toLowerCase();
+    const exos = _searchData.exos.filter(e => (e.exercice||'').toLowerCase().includes(ql)).slice(0, 5);
+    const seances = _searchData.hist.filter(h => (h.seanceNom||'').toLowerCase().includes(ql)).slice(0, 5);
+    const recettes = _searchData.recipes.filter(r => (r.name||'').toLowerCase().includes(ql)).slice(0, 5);
+    if (!exos.length && !seances.length && !recettes.length) {
+      box.innerHTML = '<div style="padding:.6rem .7rem;font-size:.74rem;color:var(--color-text-faint,#9a9891);font-style:italic">Aucun résultat</div>';
+      box.style.display = 'block';
+      return;
+    }
+    const rowStyle = 'display:block;padding:.4rem .7rem;font-size:.78rem;color:var(--color-text,#28251d);cursor:pointer;text-decoration:none;border-radius:.35rem';
+    function section(title, items, buildRow){
+      if (!items.length) return '';
+      return `<div style="padding:.5rem .7rem .15rem;font-size:.6rem;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--color-text-faint,#9a9891)">${title}</div>`
+        + items.map(buildRow).join('');
+    }
+    box.innerHTML =
+      section('Exercices', exos, e => `<a href="Exercices.html?q=${encodeURIComponent(e.exercice)}" style="${rowStyle}">🏋 ${escSearch(e.exercice)}<div style="font-size:.65rem;color:var(--color-text-faint,#9a9891)">${escSearch(e.groupe_musculaire||'')}</div></a>`)
+      + section('Séances', seances, h => `<a href="Historique.html?id=${encodeURIComponent(h.id)}" style="${rowStyle}">📅 ${escSearch(h.seanceNom||'Séance')}<div style="font-size:.65rem;color:var(--color-text-faint,#9a9891)">${escSearch(h.date||'')}</div></a>`)
+      + section('Recettes', recettes, r => `<a href="Nutrition.html?recipe=${encodeURIComponent(r.id)}&type=${r._type}" style="${rowStyle}">${r._type==='smoothie'?'🥤':'📖'} ${escSearch(r.name)}</a>`);
+    box.style.display = 'block';
+    box.querySelectorAll('a').forEach(a => {
+      a.addEventListener('mouseenter', () => a.style.background = 'var(--color-surface-offset,#f3f0ec)');
+      a.addEventListener('mouseleave', () => a.style.background = 'none');
+    });
+  }
+  const gymosSearchInp = document.getElementById('gymosSearchInp');
+  function clearSearch(){ if(gymosSearchInp) gymosSearchInp.value=''; const r=document.getElementById('gymosSearchResults'); if(r){r.style.display='none';r.innerHTML='';} }
+  if (gymosSearchInp) {
+    gymosSearchInp.addEventListener('focus', () => loadSearchData().then(() => renderSearchResults(gymosSearchInp.value.trim())));
+    gymosSearchInp.addEventListener('input', () => loadSearchData().then(() => renderSearchResults(gymosSearchInp.value.trim())));
+  }
+  // Raccourci clavier global : "/" ou Ctrl/Cmd+K ouvre le panneau et place le focus
+  // dans la recherche, sauf si l'utilisateur est déjà en train de saisir ailleurs.
+  document.addEventListener('keydown', e => {
+    if (e.key === '/' || ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k')) {
+      const tag = (document.activeElement && document.activeElement.tagName) || '';
+      if (tag === 'INPUT' || tag === 'TEXTAREA' || (document.activeElement && document.activeElement.isContentEditable)) return;
+      e.preventDefault();
+      openNav();
+      setTimeout(() => gymosSearchInp && gymosSearchInp.focus(), 30);
+    }
+  });
+
   // Remplacer le homeBtn pour ouvrir le nav panel
   const hb=document.getElementById('homeBtn');
   if(hb){

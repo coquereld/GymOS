@@ -132,6 +132,45 @@
     .hero-stat-val{font-size:var(--text-lg);font-weight:700;color:var(--color-primary);letter-spacing:-.02em}
     .hero-stat-lbl{font-size:.65rem;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:var(--color-text-faint)}
 
+    /* ══ APERÇU RAPIDE ══════════════════════════════════════════════════════ */
+    .resume-banner{
+      display:none;max-width:1200px;margin:0 auto;width:100%;
+      padding:0 var(--space-8);margin-top:calc(-1 * var(--space-6));margin-bottom:var(--space-6);
+    }
+    .resume-banner.show{display:block}
+    .resume-banner-box{
+      display:flex;align-items:center;gap:var(--space-4);flex-wrap:wrap;
+      background:linear-gradient(135deg,var(--color-primary) 0%,var(--color-primary-hover) 100%);
+      color:#fff;border-radius:var(--radius-xl);padding:var(--space-4) var(--space-5);
+      box-shadow:0 8px 24px rgba(1,105,111,.28)
+    }
+    .resume-banner-icon{width:38px;height:38px;border-radius:var(--radius-md);background:rgba(255,255,255,.18);display:grid;place-items:center;flex-shrink:0}
+    .resume-banner-icon svg{width:20px;height:20px}
+    .resume-banner-txt{flex:1;min-width:200px}
+    .resume-banner-title{font-weight:700;font-size:var(--text-sm)}
+    .resume-banner-sub{font-size:var(--text-xs);opacity:.85;margin-top:.15rem}
+    .resume-banner-btn{
+      display:inline-flex;align-items:center;gap:var(--space-2);
+      padding:.6rem 1.1rem;border-radius:var(--radius-lg);font-weight:700;font-size:var(--text-sm);
+      background:#fff;color:var(--color-primary);white-space:nowrap;transition:transform var(--transition)
+    }
+    .resume-banner-btn:hover{transform:translateY(-1px)}
+    .resume-banner-btn svg{width:14px;height:14px}
+
+    .apercu-section{max-width:1200px;margin:0 auto;width:100%;padding:0 var(--space-8) var(--space-6)}
+    .apercu-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:var(--space-4)}
+    .apercu-card{
+      background:var(--color-surface);border:1px solid var(--color-border);border-radius:var(--radius-xl);
+      padding:var(--space-4) var(--space-5);display:flex;flex-direction:column;gap:.35rem;box-shadow:var(--shadow-sm)
+    }
+    .apercu-lbl{font-size:.65rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--color-text-faint)}
+    .apercu-val{font-size:var(--text-base);font-weight:700;color:var(--color-text)}
+    .apercu-sub{font-size:var(--text-xs);color:var(--color-text-muted)}
+    .apercu-empty{font-size:var(--text-xs);color:var(--color-text-faint);font-style:italic}
+    .apercu-cta{display:inline-flex;align-items:center;gap:.3rem;font-size:var(--text-xs);font-weight:700;color:var(--color-primary);margin-top:.2rem;width:fit-content}
+    .apercu-cta svg{width:11px;height:11px}
+    @media(max-width:700px){ .apercu-grid{grid-template-columns:1fr} }
+
     /* ══ MODULES ════════════════════════════════════════════════════════════ */
     .modules-section{
       flex:1;padding:0 var(--space-8) var(--space-12);
@@ -295,6 +334,34 @@
           <div class="hero-stat-val">7</div>
           <div class="hero-stat-lbl">Modules</div>
         </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ BANNIÈRE REPRISE DE SÉANCE ══ -->
+  <div class="resume-banner" id="resumeBanner">
+    <div class="resume-banner-box">
+      <div class="resume-banner-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+      </div>
+      <div class="resume-banner-txt">
+        <div class="resume-banner-title" id="resumeBannerTitle">Séance en cours</div>
+        <div class="resume-banner-sub" id="resumeBannerSub"></div>
+      </div>
+      <a class="resume-banner-btn" href="Seance.html">Reprendre <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg></a>
+    </div>
+  </div>
+
+  <!-- ══ APERÇU RAPIDE ══ -->
+  <section class="apercu-section">
+    <div class="apercu-grid">
+      <div class="apercu-card" id="nextSessionCard">
+        <div class="apercu-lbl">Prochaine séance</div>
+        <div class="apercu-empty">Chargement…</div>
+      </div>
+      <div class="apercu-card" id="lastWeightCard">
+        <div class="apercu-lbl">Dernier poids de corps</div>
+        <div class="apercu-empty">Chargement…</div>
       </div>
     </div>
   </section>
@@ -550,6 +617,110 @@
     el.textContent = state === 'connected' ? '📁 Serveur connecté' : '📂 Serveur non démarré';
     el.title = state === 'connected' ? '' : 'Lancer start-gymos.bat pour démarrer le serveur';
   });
+
+  // ══ APERÇU RAPIDE ══════════════════════════════════════════════════════════
+  const CUR_KEY = 'gymos-session-en-cours-v1';
+  let _hist = [], _progs = [];
+
+  // Bannière de reprise — lue directement en localStorage (Seance.html sauvegarde déjà
+  // ce brouillon à chaque modification et le restaure tout seul à l'ouverture). "progs"
+  // est optionnel : sert uniquement à retrouver un nom de séance/programme plus parlant.
+  function renderResumeBanner(progs){
+    const banner = document.getElementById('resumeBanner');
+    let S;
+    try { S = JSON.parse(localStorage.getItem(CUR_KEY) || 'null'); } catch { S = null; }
+    if (!S || (S.phase !== 'session' && S.phase !== 'summary')) { banner.classList.remove('show'); return; }
+    let nom = 'Séance libre';
+    if (!S.libre && S.progId && S.seanceId) {
+      const prog = (progs || []).find(p => p.id === S.progId);
+      const seance = prog && (prog.seances || []).find(s => s.id === S.seanceId);
+      if (seance) nom = seance.nom + (prog ? ' — ' + prog.nom : '');
+    }
+    const totalSeries = (S.exercices || []).reduce((n, e) => n + (e.series || []).length, 0);
+    const doneSeries = (S.exercices || []).reduce((n, e) => n + (e.series || []).filter(s => s.done).length, 0);
+    const dureeTxt = S.chronoStart ? ` · ${Math.round((Date.now() - S.chronoStart) / 60000)} min` : '';
+    document.getElementById('resumeBannerTitle').textContent = S.phase === 'summary' ? 'Séance terminée — en attente de sauvegarde' : nom;
+    document.getElementById('resumeBannerSub').textContent = `${doneSeries}/${totalSeries} série(s) complétée(s)${dureeTxt}`;
+    banner.classList.add('show');
+  }
+
+  // Prochaine séance programmée — portée depuis Dashboard.html (mêmes règles) :
+  // 1 seul programme actif, jour assigné aujourd'hui/à venir, ou à défaut la séance
+  // jamais faite / la moins récemment faite (approximatif, par nom).
+  const DOW_FR = ['Dimanche','Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi'];
+  function computeNextSession(){
+    const actifs = (_progs || []).filter(p => p.statut === 'actif');
+    if (actifs.length !== 1) return null;
+    const prog = actifs[0];
+    const seances = prog.seances || [];
+    if (!seances.length) return null;
+    const todayIdx = new Date().getDay();
+    const withDays = seances.filter(s => (s.jours || []).length);
+    if (withDays.length) {
+      const todayName = DOW_FR[todayIdx];
+      let match = withDays.find(s => s.jours.includes(todayName));
+      if (match) return { programme: prog.nom, seance: match.nom, when: "Aujourd'hui" };
+      for (let i = 1; i <= 7; i++) {
+        const name = DOW_FR[(todayIdx + i) % 7];
+        match = withDays.find(s => s.jours.includes(name));
+        if (match) return { programme: prog.nom, seance: match.nom, when: `Prévue ${name.toLowerCase()}` };
+      }
+      return null;
+    }
+    const lastDone = {};
+    _hist.forEach(h => {
+      if (h.programmeNom === prog.nom && h.seanceNom && (!lastDone[h.seanceNom] || h.date > lastDone[h.seanceNom])) lastDone[h.seanceNom] = h.date;
+    });
+    const withDate = seances.map(s => ({ s, last: lastDone[s.nom] || null }));
+    withDate.sort((a, b) => {
+      if (!a.last && !b.last) return 0;
+      if (!a.last) return -1;
+      if (!b.last) return 1;
+      return a.last.localeCompare(b.last);
+    });
+    const pick = withDate[0];
+    return { programme: prog.nom, seance: pick.s.nom, when: pick.last ? `Dernière fois : ${fmtDateShort(pick.last)}` : 'Jamais faite' };
+  }
+  function renderNextSessionCard(){
+    const card = document.getElementById('nextSessionCard');
+    const next = computeNextSession();
+    if (!next) {
+      card.innerHTML = `<div class="apercu-lbl">Prochaine séance</div><div class="apercu-empty">Aucun programme actif (ou plusieurs en même temps)</div>`;
+      return;
+    }
+    card.innerHTML = `<div class="apercu-lbl">Prochaine séance</div>
+      <div class="apercu-val">${esc(next.seance)}</div>
+      <div class="apercu-sub">${esc(next.programme)} · ${esc(next.when)}</div>
+      <a class="apercu-cta" href="Seance.html">Commencer <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg></a>`;
+  }
+
+  // Dernier poids de corps — depuis le doc nutrition (_d.weight, ajouté récemment).
+  function renderLastWeightCard(nutriDoc){
+    const card = document.getElementById('lastWeightCard');
+    const weight = nutriDoc && nutriDoc.weight;
+    const dates = weight ? Object.keys(weight).sort() : [];
+    if (!dates.length) {
+      card.innerHTML = `<div class="apercu-lbl">Dernier poids de corps</div><div class="apercu-empty">Aucune pesée enregistrée</div>`;
+      return;
+    }
+    const lastDate = dates[dates.length - 1];
+    const val = weight[lastDate];
+    const days = Math.round((Date.now() - new Date(lastDate + 'T00:00').getTime()) / 86400000);
+    const whenTxt = days <= 0 ? "Aujourd'hui" : days === 1 ? 'Hier' : `il y a ${days} jours`;
+    card.innerHTML = `<div class="apercu-lbl">Dernier poids de corps</div>
+      <div class="apercu-val">${val} kg</div>
+      <div class="apercu-sub">${esc(whenTxt)}</div>
+      <a class="apercu-cta" href="Nutrition.html">Voir le suivi <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg></a>`;
+  }
+
+  renderResumeBanner([]); // affichage immédiat depuis le localStorage, sans attendre le réseau
+  Promise.all([GymDB.read('historique.json'), GymDB.read('programmes.json')]).then(([h, p]) => {
+    if (Array.isArray(h)) _hist = h;
+    if (Array.isArray(p)) _progs = p;
+    renderResumeBanner(_progs);
+    renderNextSessionCard();
+  });
+  GymDB.read('nutrition.json').then(d => renderLastWeightCard(d));
 
   // Animation cartes
   const cards = document.querySelectorAll('.mod-card');
