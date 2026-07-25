@@ -168,6 +168,12 @@
     .et-btn:hover{background:var(--surfoff);color:var(--tx)}
     .et-btn.d:hover{background:rgba(161,44,123,.1);color:var(--err)}
     .et-btn svg{width:13px;height:13px}
+    .et-btn.linked{color:var(--ep-color,var(--prim))}
+
+    /* SUPERSETS / CIRCUITS */
+    .et-grp-badge{display:block;font-size:.62rem;font-weight:700;padding:.05rem 0 .3rem 0;color:var(--ep-color,var(--prim))}
+    .et tr.et-grouped td{background:color-mix(in oklab,var(--ep-color,var(--prim)) 5%,var(--surf))}
+    .et tr.et-grouped td.et-name{border-left:3px solid var(--ep-color,var(--prim))}
 
     /* INLINE EDIT */
     .et-inp{width:100%;min-width:50px;padding:.2rem .35rem;border-radius:var(--rsm);border:1px solid var(--bord);background:var(--surf);color:var(--tx);font-size:var(--text-xs);outline:none;font-family:inherit;transition:border-color var(--tr)}
@@ -272,6 +278,10 @@
       <button class="new-prog-btn" id="newProgBtn">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
         Nouveau programme
+      </button>
+      <button class="new-prog-btn" id="fromTemplateBtn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+        Depuis un modèle
       </button>
       <div id="slActive">
         <div class="sl-label">Actifs</div>
@@ -381,6 +391,7 @@
       </div>
       <input type="hidden" id="exNom">
       <div id="exHint" style="display:none;font-size:.7rem;font-weight:600;margin-top:.4rem;color:var(--prim)"></div>
+      <div id="exProgSuggest" style="display:none;font-size:.72rem;font-weight:600;margin-top:.4rem;color:var(--ok);align-items:center;gap:.5rem"></div>
     </div>
     <!-- Groupe musculaire : lecture seule avec image + couleur -->
     <div class="field ffull">
@@ -423,6 +434,30 @@
   </div>
 </div></div>
 
+<!-- MODAL: MODÈLES DE PROGRAMME -->
+<div class="ov" id="mTemplate"><div class="modal">
+  <div class="modal-hdr">
+    <div class="modal-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg></div>
+    <div class="modal-title">Nouveau programme depuis un modèle</div>
+  </div>
+  <div id="templateList" style="display:flex;flex-direction:column;gap:var(--sp3)"></div>
+  <div class="modal-actions">
+    <button class="btn" id="mTemplateCancel">Annuler</button>
+  </div>
+</div></div>
+
+<!-- MODAL: HISTORIQUE DES MODIFICATIONS -->
+<div class="ov" id="mHistory"><div class="modal">
+  <div class="modal-hdr">
+    <div class="modal-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 2a10 10 0 1 0 0 20A10 10 0 0 0 12 2z"/><polyline points="12 6 12 12 16 14"/></svg></div>
+    <div class="modal-title" id="mHistoryTitle">Historique des modifications</div>
+  </div>
+  <div id="historyList" style="display:flex;flex-direction:column;gap:var(--sp2);max-height:60dvh;overflow-y:auto"></div>
+  <div class="modal-actions">
+    <button class="btn" id="mHistoryClose">Fermer</button>
+  </div>
+</div></div>
+
 <script src="db.js"></script>
 <script src="gymos-utils.js"></script>
 <script>
@@ -434,10 +469,124 @@ const EXO_LIB_KEY  = 'exercices-studio-autosave-v2';
 const OBJ_KEY      = 'exercices-objectifs-v1';
 const JOURS_MAP    = {jL:'Lundi',jM:'Mardi',jMe:'Mercredi',jJ:'Jeudi',jV:'Vendredi',jS:'Samedi',jD:'Dimanche'};
 
+// Modèles de programme prêts à l'emploi — noms d'exercices réels de la bibliothèque,
+// groupe/image résolus à la volée à l'import (jamais codés en dur ici).
+const PROGRAM_TEMPLATES = [
+  {
+    nom:'Push / Pull / Legs', description:'Split en 3 jours orienté hypertrophie/force, à répéter en rotation.',
+    seances:[
+      {nom:'Push', type:'Push', exercices:[
+        {nom:'Smith Machine – Développé couché', series:'4', reps:'8-12', recup:'90 s'},
+        {nom:'Converging Shoulder Press', series:'4', reps:'8-12', recup:'90 s'},
+        {nom:'Dips machine', series:'3', reps:'10-15', recup:'75 s'},
+        {nom:'Écartés vis-à-vis - Position Basse', series:'3', reps:'12-15', recup:'60 s'},
+        {nom:'Élévations latérales Poulie', series:'3', reps:'12-15', recup:'60 s'},
+        {nom:'Extension triceps poulie haute', series:'3', reps:'12-15', recup:'60 s'},
+        {nom:'Planche classique', series:'3', duree:'30-45 s', recup:'45 s'},
+      ]},
+      {nom:'Pull', type:'Pull', exercices:[
+        {nom:'Lat Pulldown', series:'4', reps:'8-12', recup:'90 s'},
+        {nom:'Divergent Seated Row', series:'4', reps:'8-12', recup:'90 s'},
+        {nom:'Low Row - Seated Row - Tirage horizontal prise serrée', series:'3', reps:'10-12', recup:'75 s'},
+        {nom:'Rear Delt', series:'3', reps:'12-15', recup:'60 s'},
+        {nom:'Curl marteau', series:'3', reps:'10-12', recup:'60 s'},
+        {nom:'Curl biceps à la poulie - Corde', series:'3', reps:'10-12', recup:'60 s'},
+        {nom:'Planche latérale', series:'3', duree:'30-45 s/côté', recup:'45 s'},
+      ]},
+      {nom:'Legs', type:'Legs', exercices:[
+        {nom:'Hack Squat', series:'4', reps:'8-12', recup:'120 s'},
+        {nom:'Leg Press', series:'4', reps:'10-12', recup:'90 s'},
+        {nom:'Seated Leg Curl', series:'3', reps:'10-12', recup:'75 s'},
+        {nom:'Hip Thrust', series:'3', reps:'10-12', recup:'90 s'},
+        {nom:'Leg Extension', series:'3', reps:'12-15', recup:'60 s'},
+        {nom:'Dumbbell Bulgarian Split Squat Standards', series:'3', reps:'10 par jambe', recup:'75 s'},
+        {nom:'Extensions des mollets debout', series:'4', reps:'15-20', recup:'45 s'},
+      ]},
+    ]
+  },
+  {
+    nom:'Haut du corps / Bas du corps', description:'Split en 2 jours pour 4 séances/semaine (Haut/Bas/Haut/Bas).',
+    seances:[
+      {nom:'Haut du corps', type:'Haut du corps', exercices:[
+        {nom:'Smith Machine – Développé couché', series:'4', reps:'8-12', recup:'90 s'},
+        {nom:'Lat Pulldown', series:'4', reps:'8-12', recup:'90 s'},
+        {nom:'Shoulder Press', series:'3', reps:'10-12', recup:'75 s'},
+        {nom:'Divergent Seated Row', series:'3', reps:'10-12', recup:'75 s'},
+        {nom:'Curl marteau', series:'3', reps:'10-12', recup:'60 s'},
+        {nom:'Extension triceps poulie haute', series:'3', reps:'10-12', recup:'60 s'},
+      ]},
+      {nom:'Bas du corps', type:'Bas du corps', exercices:[
+        {nom:'Hack Squat', series:'4', reps:'8-12', recup:'120 s'},
+        {nom:'Soulevé de terre jambes tendues à la Smith Machine', series:'4', reps:'8-10', recup:'120 s'},
+        {nom:'Leg Extension', series:'3', reps:'12-15', recup:'60 s'},
+        {nom:'Seated Leg Curl', series:'3', reps:'12-15', recup:'60 s'},
+        {nom:'Hip Adduction Open', series:'3', reps:'15-20', recup:'45 s'},
+        {nom:'Extensions des mollets debout', series:'4', reps:'15-20', recup:'45 s'},
+      ]},
+    ]
+  },
+  {
+    nom:'Full Body', description:'Séance complète, idéale pour 2-3 entraînements par semaine avec peu de temps disponible.',
+    seances:[
+      {nom:'Full Body', type:'Full Body', exercices:[
+        {nom:'Hack Squat', series:'3', reps:'8-12', recup:'90 s'},
+        {nom:'Smith Machine – Développé couché', series:'3', reps:'8-12', recup:'90 s'},
+        {nom:'Lat Pulldown', series:'3', reps:'8-12', recup:'90 s'},
+        {nom:'Shoulder Press', series:'3', reps:'10-12', recup:'75 s'},
+        {nom:'Curl marteau', series:'2', reps:'10-12', recup:'60 s'},
+        {nom:'Planche classique', series:'3', duree:'30-45 s', recup:'45 s'},
+      ]},
+    ]
+  },
+];
+
 // ═══════════════════════════════════════════════════════════════════════════════
 // STATE
 // ═══════════════════════════════════════════════════════════════════════════════
 const S = { progs:[], selProg:null, selSeance:null };
+let _hist = [];
+let _objectifsDb = {};
+
+// --- Versionnage : journal des modifications, centralisé sur l'objet programme ---
+const PROG_MODIF_FIELDS   = ['nom','description','statut'];
+const SEANCE_MODIF_FIELDS = ['nom','type','jours'];
+const EXO_MODIF_FIELDS    = ['series','reps','poids','duree','distance','recup'];
+const MODIF_LABELS = { nom:'Nom', description:'Description', statut:'Statut', type:'Type', jours:'Jours',
+  series:'Séries', reps:'Répétitions', poids:'Poids', duree:'Durée', distance:'Distance', recup:'Récupération' };
+function snapshotFields(obj, fields){
+  const s={}; fields.forEach(f => { s[f] = Array.isArray(obj[f]) ? obj[f].join(', ') : (obj[f]||''); }); return s;
+}
+function recordModifs(prog, before, after, fields){
+  if(!Array.isArray(prog.historique_modifs)) prog.historique_modifs=[];
+  const nowIso = new Date().toISOString();
+  fields.forEach(f => {
+    const newVal = Array.isArray(after[f]) ? after[f].join(', ') : (after[f]||'');
+    if(before[f] !== newVal){
+      prog.historique_modifs.unshift({date:nowIso, champ:MODIF_LABELS[f]||f, ancienne_valeur:before[f], nouvelle_valeur:newVal});
+    }
+  });
+}
+function truncModif(v){ v=v||'—'; return v.length>40 ? v.slice(0,40)+'…' : v; }
+function openHistoryModal(progId){
+  const prog = getProg(progId); if(!prog) return;
+  document.getElementById('mHistoryTitle').textContent = `Historique des modifications — ${prog.nom}`;
+  const list = document.getElementById('historyList'); list.innerHTML='';
+  const modifs = prog.historique_modifs||[];
+  if(!modifs.length){
+    list.innerHTML = '<div style="padding:var(--sp4);text-align:center;color:var(--txf);font-style:italic;font-size:var(--text-sm)">Aucune modification enregistrée pour l\'instant.</div>';
+  } else {
+    modifs.slice(0,60).forEach(m => {
+      const row = document.createElement('div');
+      row.style.cssText = 'padding:.5rem .7rem;border:1px solid var(--bord);border-radius:var(--rmd);font-size:var(--text-xs);display:flex;flex-direction:column;gap:.15rem';
+      const d = new Date(m.date);
+      const dateStr = d.toLocaleDateString('fr-FR',{day:'2-digit',month:'short',year:'numeric'}) + ' ' + d.toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'});
+      row.innerHTML = `<div style="display:flex;justify-content:space-between;gap:.5rem"><strong>${esc(m.champ)}</strong><span style="color:var(--txf)">${dateStr}</span></div>
+        <div style="color:var(--txm)">${esc(truncModif(m.ancienne_valeur))} → <strong style="color:var(--tx)">${esc(truncModif(m.nouvelle_valeur))}</strong></div>`;
+      list.appendChild(row);
+    });
+  }
+  openModal('mHistory');
+}
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // UTILS
@@ -514,6 +663,37 @@ function getLatestRef(nom){
   } catch{ return null; }
 }
 
+// Parse une cible de répétitions ("8-12", "10", "") -> borne basse minimale exigée, ou null si non chiffrée
+function parseRepsTarget(reps){
+  if(!reps) return null;
+  const m = String(reps).match(/(\d+)/);
+  return m ? parseInt(m[1]) : null;
+}
+// Suggestion de progression : si la dernière séance réelle où cet exercice a été pratiqué
+// a vu toutes ses séries réussies (séries complétées >= visées, poids et reps réalisés >= visés),
+// propose +2,5 kg par rapport au poids actuellement visé.
+function checkProgressionSuggestion(nomExercice, targetSeries, targetReps, targetPoids){
+  const poidsNum = parseFloat(targetPoids);
+  if(!nomExercice || !poidsNum || poidsNum<=0) return null;
+  const matches = (_hist||[]).filter(h => (h.exercices||[]).some(e => e.nom===nomExercice));
+  if(!matches.length) return null;
+  const last = matches.slice().sort((a,b) => (a.date||'').localeCompare(b.date||'')).pop();
+  const entry = (last.exercices||[]).find(e => e.nom===nomExercice);
+  const series = entry?.series||[];
+  const seriesVisees = parseInt(targetSeries)||0;
+  if(!series.length || (seriesVisees && series.length < seriesVisees)) return null;
+  const minReps = parseRepsTarget(targetReps);
+  const allSuccess = series.every(s => {
+    const p = parseFloat(s.poids);
+    const r = parseInt(s.reps);
+    const poidsOk = !isNaN(p) ? p >= poidsNum : true;
+    const repsOk = (minReps!==null && !isNaN(r)) ? r >= minReps : true;
+    return poidsOk && repsOk;
+  });
+  if(!allSuccess) return null;
+  return { lastDate: last.date, suggestedPoids: Math.round((poidsNum+2.5)*10)/10 };
+}
+
 // ═══════════════════════════════════════════════════════════════════════════════
 // SIDEBAR
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -587,11 +767,14 @@ function renderMain(){
   const btnArch = document.createElement('button'); btnArch.className = 'btn btn-sm';
   btnArch.textContent = prog.statut === 'actif' ? 'Archiver' : 'Réactiver';
   btnArch.addEventListener('click', () => toggleArchive(prog.id));
+  const btnHist = document.createElement('button'); btnHist.className = 'btn btn-sm'; btnHist.title = 'Historique des modifications';
+  btnHist.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 2a10 10 0 1 0 0 20A10 10 0 0 0 12 2z"/><polyline points="12 6 12 12 16 14"/></svg>${prog.historique_modifs?.length?' '+prog.historique_modifs.length:''}`;
+  btnHist.addEventListener('click', () => openHistoryModal(prog.id));
   const btnDel = document.createElement('button'); btnDel.className = 'btn btn-sm';
   btnDel.style.cssText = 'color:#a12c7b;border-color:#a12c7b44';
   btnDel.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>`;
   btnDel.addEventListener('click', () => openDelModal('prog', prog.id));
-  pha.append(btnMod, btnArch, btnDel);
+  pha.append(btnMod, btnHist, btnArch, btnDel);
   ph.append(phl, pha);
   main.appendChild(ph);
 
@@ -681,7 +864,9 @@ function buildExoPanel(seance){
   if(!exos.length){
     const tr = document.createElement('tr'); const td = document.createElement('td'); td.colSpan=11; td.className='et-empty'; td.textContent='Aucun exercice. Cliquez sur "+ Ajouter un exercice".'; tr.appendChild(td); tbody.appendChild(tr);
   } else {
-    exos.forEach((e,i) => tbody.appendChild(buildExoRow(seance, e, i, exos.length)));
+    const groupLetters = {};
+    { let li=0; exos.forEach(e=>{ if(e.groupId && !(e.groupId in groupLetters)){ groupLetters[e.groupId]=String.fromCharCode(65+li); li++; } }); }
+    exos.forEach((e,i) => tbody.appendChild(buildExoRow(seance, e, i, exos, groupLetters)));
   }
 
   table.appendChild(tbody); wrap.appendChild(table);
@@ -699,9 +884,12 @@ function buildEtImgPh(hex) {
   return ph;
 }
 
-function buildExoRow(seance, e, i, total){
+function buildExoRow(seance, e, i, exos, groupLetters){
+  const total = exos.length;
   const gc = MC[e.groupe]||'#9a9891';
   const tr = document.createElement('tr'); tr.dataset.exoId = e.id;
+  const isGroupFirst = e.groupId && (i===0 || exos[i-1].groupId !== e.groupId);
+  if(e.groupId){ tr.classList.add('et-grouped'); }
 
   // Cellule # et cellule image
   const tdNum = document.createElement('td'); tdNum.className='et-num'; tdNum.textContent=i+1;
@@ -724,8 +912,9 @@ function buildExoRow(seance, e, i, total){
   }
   tr.appendChild(tdImg);
 
+  const grpBadge = isGroupFirst ? `<span class="et-grp-badge">🔗 Superset ${groupLetters[e.groupId]}</span>` : '';
   const cells = [
-    `<td class="et-name"><span class="grp-dot" style="background:${gc}"></span>${esc(e.nom)}</td>`,
+    `<td class="et-name">${grpBadge}<span class="grp-dot" style="background:${gc}"></span>${esc(e.nom)}</td>`,
     `<td style="color:var(--txm);font-size:var(--text-xs)">${esc(e.groupe||'')}</td>`,
     `<td>${e.series||'—'}</td>`,
     `<td>${e.reps||'—'}</td>`,
@@ -739,6 +928,13 @@ function buildExoRow(seance, e, i, total){
   const actTd = document.createElement('td');
   const acts = document.createElement('div'); acts.className = 'et-acts';
 
+  if(i>0){
+    const linked = !!(e.groupId && exos[i-1].groupId===e.groupId);
+    const lk=document.createElement('button');lk.className='et-btn'+(linked?' linked':'');lk.title=linked?'Dissocier du superset':'Lier avec l\'exercice précédent (superset)';
+    lk.innerHTML=`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>`;
+    lk.addEventListener('click',()=>toggleLinkWithPrevious(seance.id,e.id));
+    acts.appendChild(lk);
+  } else { const sp=document.createElement('span');sp.style.width='20px';acts.appendChild(sp); }
   if(i>0){ const u=document.createElement('button');u.className='et-btn';u.title='Monter';u.innerHTML=`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="18 15 12 9 6 15"/></svg>`;u.addEventListener('click',()=>moveExo(seance.id,e.id,-1));acts.appendChild(u); }
   else { const sp=document.createElement('span');sp.style.width='20px';acts.appendChild(sp); }
   if(i<total-1){ const d=document.createElement('button');d.className='et-btn';d.title='Descendre';d.innerHTML=`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="6 9 12 15 18 9"/></svg>`;d.addEventListener('click',()=>moveExo(seance.id,e.id,1));acts.appendChild(d); }
@@ -747,7 +943,14 @@ function buildExoRow(seance, e, i, total){
   const ed=document.createElement('button');ed.className='et-btn';ed.title='Modifier';ed.innerHTML=`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4z"/></svg>`;
   ed.addEventListener('click',()=>inlineEditExo(seance,e,tr));
   const dl=document.createElement('button');dl.className='et-btn d';dl.title='Supprimer';dl.innerHTML=`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>`;
-  dl.addEventListener('click',()=>{ seance.exercices=seance.exercices.filter(x=>x.id!==e.id); save(); S.selSeance=seance.id; renderMain(); });
+  dl.addEventListener('click',()=>{
+    const prog=getProg(S.selProg);
+    if(prog){
+      if(!Array.isArray(prog.historique_modifs)) prog.historique_modifs=[];
+      prog.historique_modifs.unshift({date:new Date().toISOString(), champ:'Exercice supprimé', ancienne_valeur:e.nom, nouvelle_valeur:''});
+    }
+    seance.exercices=seance.exercices.filter(x=>x.id!==e.id); save(); S.selSeance=seance.id; renderMain();
+  });
   acts.append(ed,dl); actTd.appendChild(acts); tr.appendChild(actTd);
   return tr;
 }
@@ -765,11 +968,21 @@ function inlineEditExo(seance, e, tr){
     const inp=document.createElement('input'); inp.className='et-inp'; inp.value=f.val; inp.dataset.field=f.name;
     cells[i+2].innerHTML=''; cells[i+2].appendChild(inp);
   });
+  const seriesInp = tr.querySelector('.et-inp[data-field="series"]');
+  const repsInp    = tr.querySelector('.et-inp[data-field="reps"]');
+  const poidsInp   = tr.querySelector('.et-inp[data-field="poids"]');
+  const suggEl = document.createElement('div');
+  suggEl.style.cssText='display:none;font-size:.65rem;font-weight:600;color:var(--ok);align-items:center;gap:.35rem;margin-top:.25rem;white-space:nowrap';
+  poidsInp.parentElement.appendChild(suggEl);
+  renderProgSuggestion(e.nom, seriesInp, repsInp, poidsInp, suggEl);
   const actTd = cells[cells.length-1]; actTd.innerHTML='';
   const acts=document.createElement('div');acts.style.cssText='display:flex;gap:4px;flex-wrap:wrap';
   const sv=document.createElement('button');sv.className='et-save';sv.textContent='✓ OK';
   sv.addEventListener('click',()=>{
+    const prog=getProg(S.selProg);
+    const before = snapshotFields(e, EXO_MODIF_FIELDS);
     tr.querySelectorAll('.et-inp').forEach(inp=>{ e[inp.dataset.field]=inp.value.trim(); });
+    if(prog) recordModifs(prog, before, e, EXO_MODIF_FIELDS);
     save(); S.selSeance=seance.id; renderMain();
   });
   const cn=document.createElement('button');cn.className='et-cancel';cn.textContent='✗';
@@ -778,10 +991,49 @@ function inlineEditExo(seance, e, tr){
   cells[2].querySelector('input')?.focus();
 }
 
+// Déplace tout le bloc contigu (superset) auquel appartient l'exercice comme une seule unité,
+// en l'échangeant avec le bloc adjacent (simple exercice ou autre superset).
 function moveExo(seanceId,exoId,dir){
   const prog=getProg(S.selProg); const seance=getSeance(prog,seanceId); if(!seance?.exercices)return;
-  const arr=seance.exercices; const idx=arr.findIndex(e=>e.id===exoId); const ni=idx+dir;
-  if(ni<0||ni>=arr.length)return; [arr[idx],arr[ni]]=[arr[ni],arr[idx]];
+  const arr=seance.exercices; const idx=arr.findIndex(e=>e.id===exoId); if(idx<0)return;
+  const gid=arr[idx].groupId;
+  let start=idx, end=idx;
+  if(gid){
+    while(start>0 && arr[start-1].groupId===gid) start--;
+    while(end<arr.length-1 && arr[end+1].groupId===gid) end++;
+  }
+  const block = arr.slice(start,end+1);
+  if(dir<0){
+    if(start===0) return;
+    let otherStart=start-1;
+    const oGid=arr[otherStart].groupId;
+    if(oGid){ while(otherStart>0 && arr[otherStart-1].groupId===oGid) otherStart--; }
+    const other = arr.slice(otherStart,start);
+    arr.splice(otherStart, end-otherStart+1, ...block, ...other);
+  } else {
+    if(end===arr.length-1) return;
+    let otherEnd=end+1;
+    const oGid=arr[otherEnd].groupId;
+    if(oGid){ while(otherEnd<arr.length-1 && arr[otherEnd+1].groupId===oGid) otherEnd++; }
+    const other = arr.slice(end+1,otherEnd+1);
+    arr.splice(start, otherEnd-start+1, ...other, ...block);
+  }
+  save(); S.selSeance=seanceId; renderMain();
+}
+
+// Lie/dissocie un exercice avec celui qui le précède (création/extension/rupture d'un superset)
+function toggleLinkWithPrevious(seanceId,exoId){
+  const prog=getProg(S.selProg); const seance=getSeance(prog,seanceId); if(!seance?.exercices)return;
+  const arr=seance.exercices; const idx=arr.findIndex(e=>e.id===exoId); if(idx<=0)return;
+  const cur=arr[idx], prev=arr[idx-1];
+  if(cur.groupId && cur.groupId===prev.groupId){
+    cur.groupId=null;
+    const remaining=arr.filter(x=>x.groupId===prev.groupId);
+    if(remaining.length===1) remaining[0].groupId=null;
+  } else {
+    const gid=prev.groupId||uid();
+    prev.groupId=gid; cur.groupId=gid;
+  }
   save(); S.selSeance=seanceId; renderMain();
 }
 
@@ -837,14 +1089,59 @@ function confirmProgModal(){
   const desc   = document.getElementById('mpDesc').value.trim();
   const statut = document.getElementById('mpStatut').value;
   if(_editProgId){
-    const p=getProg(_editProgId); if(p){ p.nom=nom; p.description=desc; p.statut=statut; }
+    const p=getProg(_editProgId);
+    if(p){
+      const before = snapshotFields(p, PROG_MODIF_FIELDS);
+      p.nom=nom; p.description=desc; p.statut=statut;
+      recordModifs(p, before, p, PROG_MODIF_FIELDS);
+    }
     save(); closeProgModal(); renderSidebar(); renderMain(); showStatus(`"${nom}" modifié.`);
   } else {
     const newId = uid();
-    S.progs.push({id:newId,nom,description:desc,statut,dateCreation:new Date().toISOString().split('T')[0],seances:[]});
+    S.progs.push({id:newId,nom,description:desc,statut,dateCreation:new Date().toISOString().split('T')[0],seances:[],historique_modifs:[]});
     S.selProg=newId; S.selSeance=null;
     save(); closeProgModal(); renderSidebar(); renderMain(); showStatus(`"${nom}" créé.`);
   }
+}
+
+// --- Modèles de programme prêts à l'emploi ---
+function resolveExoLibFields(nom){
+  try {
+    const lib = getExoLib();
+    const e = lib.find(x => x.exercice?.toLowerCase() === nom?.toLowerCase());
+    return e ? { groupe: e.groupe_musculaire||'', image: e.image||'' } : { groupe:'', image:'' };
+  } catch { return { groupe:'', image:'' }; }
+}
+function openTemplateModal(){
+  const list = document.getElementById('templateList'); list.innerHTML='';
+  PROGRAM_TEMPLATES.forEach((tpl, idx) => {
+    const card = document.createElement('button'); card.type='button';
+    card.style.cssText='display:flex;flex-direction:column;gap:.3rem;text-align:left;padding:var(--sp3) var(--sp4);border-radius:var(--rlg);border:1px solid var(--bord);background:var(--surf2);cursor:pointer;transition:all var(--tr);width:100%;font:inherit;color:var(--tx)';
+    card.addEventListener('mouseenter',()=>card.style.borderColor='var(--prim)');
+    card.addEventListener('mouseleave',()=>card.style.borderColor='var(--bord)');
+    const nbExo = tpl.seances.reduce((n,s)=>n+s.exercices.length,0);
+    card.innerHTML = `<div style="font-weight:700;font-size:var(--text-sm)">${esc(tpl.nom)}</div>
+      <div style="font-size:var(--text-xs);color:var(--txm)">${esc(tpl.description)}</div>
+      <div style="font-size:var(--text-xs);color:var(--txf)">${tpl.seances.length} séance${tpl.seances.length>1?'s':''} · ${nbExo} exercices au total</div>`;
+    card.addEventListener('click', () => createFromTemplate(idx));
+    list.appendChild(card);
+  });
+  openModal('mTemplate');
+}
+function createFromTemplate(idx){
+  const tpl = PROGRAM_TEMPLATES[idx]; if(!tpl) return;
+  const newId = uid();
+  const seances = tpl.seances.map(s => ({
+    id: uid(), nom: s.nom, type: s.type, jours: [],
+    exercices: s.exercices.map(e => {
+      const { groupe, image } = resolveExoLibFields(e.nom);
+      return { id: uid(), nom: e.nom, groupe, image, series: e.series||'', reps: e.reps||'', poids: e.poids||'', recup: e.recup||'', duree: e.duree||'', distance: e.distance||'', note: '' };
+    })
+  }));
+  S.progs.push({ id:newId, nom:tpl.nom, description:tpl.description, statut:'actif', dateCreation:new Date().toISOString().split('T')[0], seances, historique_modifs:[] });
+  S.selProg=newId; S.selSeance=null;
+  save(); closeModal('mTemplate'); renderSidebar(); renderMain();
+  showStatus(`Programme "${tpl.nom}" créé depuis le modèle.`);
 }
 
 // --- Séance ---
@@ -873,7 +1170,12 @@ function confirmSeanceModal(){
   const jours=Object.entries(JOURS_MAP).filter(([id])=>document.getElementById(id).checked).map(([,v])=>v);
   const prog=getProg(S.selProg); if(!prog){closeSeanceModal();return;}
   if(_editSeanceId){
-    const s=getSeance(prog,_editSeanceId); if(s){s.nom=nom;s.type=type;s.jours=jours;}
+    const s=getSeance(prog,_editSeanceId);
+    if(s){
+      const before = snapshotFields(s, SEANCE_MODIF_FIELDS);
+      s.nom=nom; s.type=type; s.jours=jours;
+      recordModifs(prog, before, s, SEANCE_MODIF_FIELDS);
+    }
   } else {
     if(!prog.seances)prog.seances=[];
     prog.seances.push({id:uid(),nom,type,jours,exercices:[]});
@@ -1027,6 +1329,24 @@ function autoFillRef(nom) {
     hint.style.display='block';
     setTimeout(()=>hint.style.display='none',3500);
   }
+  renderProgSuggestion(nom, document.getElementById('exSeries'), document.getElementById('exReps'), document.getElementById('exPoids'), document.getElementById('exProgSuggest'));
+}
+
+// Affiche (si applicable) une suggestion de progression sous les champs séries/reps/poids visés,
+// avec un bouton pour appliquer directement le poids suggéré.
+function renderProgSuggestion(nom, seriesEl, repsEl, poidsEl, el){
+  if(!el) return;
+  el.style.display='none'; el.innerHTML='';
+  if(!seriesEl||!repsEl||!poidsEl) return;
+  const sugg = checkProgressionSuggestion(nom, seriesEl.value, repsEl.value, poidsEl.value);
+  if(!sugg) return;
+  const dateStr = new Date(sugg.lastDate+'T00:00:00').toLocaleDateString('fr-FR',{day:'2-digit',month:'short'});
+  el.innerHTML = `<span>💪 Toutes les séries réussies le ${dateStr} → suggestion : <strong>${sugg.suggestedPoids} kg</strong></span>`;
+  const btn=document.createElement('button'); btn.type='button'; btn.className='btn btn-sm'; btn.style.cssText='padding:.15rem .5rem;min-height:auto';
+  btn.textContent='Appliquer';
+  btn.addEventListener('click',()=>{ poidsEl.value=sugg.suggestedPoids; el.style.display='none'; });
+  el.appendChild(btn);
+  el.style.display='flex';
 }
 
 function openExoModal(seanceId){
@@ -1076,6 +1396,10 @@ function confirmExoModal(){
     duree:document.getElementById('exDuree').value.trim(),distance:document.getElementById('exDist').value.trim(),
     note:document.getElementById('exNote').value.trim()
   });
+  if(prog){
+    if(!Array.isArray(prog.historique_modifs)) prog.historique_modifs=[];
+    prog.historique_modifs.unshift({date:new Date().toISOString(), champ:'Exercice ajouté', ancienne_valeur:'', nouvelle_valeur:nom});
+  }
   const keepSeanceId = _exoSeanceId;
   save(); closeExoModal(); S.selSeance=keepSeanceId; renderMain(); showStatus(`"${nom}" ajouté.`);
 }
@@ -1197,6 +1521,11 @@ async function importXml(file) {
 document.getElementById('homeBtn').addEventListener('click',()=>window.location.href='index.html');
 document.getElementById('newProgBtn').addEventListener('click',()=>openProgModal());
 document.getElementById('hdrNewBtn').addEventListener('click',()=>openProgModal());
+document.getElementById('fromTemplateBtn').addEventListener('click',openTemplateModal);
+document.getElementById('mTemplateCancel').addEventListener('click',()=>closeModal('mTemplate'));
+document.getElementById('mTemplate').addEventListener('click',e=>{if(e.target===document.getElementById('mTemplate'))closeModal('mTemplate');});
+document.getElementById('mHistoryClose').addEventListener('click',()=>closeModal('mHistory'));
+document.getElementById('mHistory').addEventListener('click',e=>{if(e.target===document.getElementById('mHistory'))closeModal('mHistory');});
 document.getElementById('saveBtn').addEventListener('click', exportXml);
 document.getElementById('xmlFile').addEventListener('change', async e => {
   const file = e.target.files?.[0]; if(!file) return;
@@ -1241,6 +1570,8 @@ document.addEventListener('keydown',e=>{
   const dbState = await GymDB.init();
   if(dbState === 'connected'){
     try{ const d=await GymDB.read('exercices.json'); if(d&&Array.isArray(d.rows)&&d.rows.length){ localStorage.setItem(EXO_LIB_KEY,JSON.stringify(d)); } }catch{}
+    try{ const h=await GymDB.read('historique.json'); if(Array.isArray(h)) _hist=h; }catch{}
+    try{ const o=await GymDB.read('exercices-objectifs.json'); if(o) _objectifsDb=o; }catch{}
     const fromDb = await loadFromDb();
     if(fromDb){ renderSidebar(); renderMain(); return; }
   }
