@@ -1,9 +1,10 @@
 const path = require('path');
+const os = require('os');
 const express = require('express');
 const { isValidDocKey, getDoc, setDoc } = require('./db');
 
 const PORT = 4600;
-const HOST = '127.0.0.1'; // local uniquement pour l'instant — pas d'accès réseau/téléphone
+const HOST = '0.0.0.0'; // écoute sur toutes les interfaces (accès LAN depuis le téléphone, etc.)
 const ROOT = path.join(__dirname, '..'); // racine du projet GymOS (fichiers statiques)
 
 const app = express();
@@ -49,6 +50,9 @@ app.get('/api/lookup-barcode/:code', async (req, res) => {
       prot: n['proteins_100g'] ?? 0,
       carb: n['carbohydrates_100g'] ?? 0,
       fat: n['fat_100g'] ?? 0,
+      fibres: n['fiber_100g'] ?? 0,
+      sucres: n['sugars_100g'] ?? 0,
+      sodium: Math.round((n['sodium_100g'] ?? 0) * 1000),
       image: data.product.image_url || '',
     });
   } catch (e) {
@@ -98,5 +102,12 @@ app.get('/api/fetch-recipe', async (req, res) => {
 app.use(express.static(ROOT));
 
 app.listen(PORT, HOST, () => {
-  console.log(`GymOS server running at http://${HOST}:${PORT}/index.html`);
+  console.log(`GymOS server running at http://localhost:${PORT}/index.html`);
+  // Affiche aussi les adresses LAN pour s'y connecter depuis un téléphone/autre appareil.
+  const nets = os.networkInterfaces();
+  Object.values(nets).flat().forEach(net => {
+    if (net.family === 'IPv4' && !net.internal) {
+      console.log(`  → accessible en LAN sur http://${net.address}:${PORT}/index.html`);
+    }
+  });
 });
