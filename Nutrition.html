@@ -98,7 +98,7 @@ button,input,select,textarea{font:inherit}button{cursor:pointer}
 .ring-fill{fill:none;stroke-width:6;stroke-linecap:round;transition:stroke-dashoffset .6s cubic-bezier(.16,1,.3,1)}
 .ring-center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1.1}
 .mr-lbl{font-size:.58rem;font-weight:800;text-transform:uppercase;letter-spacing:.05em;color:var(--txm)}
-.mr-val{font-size:.6rem;font-weight:700}
+.mr-val{font-size:.6rem;font-weight:700;font-variant-numeric:tabular-nums}
 .mr-pct{font-size:.55rem;color:var(--txf)}
 /* Hydratation */
 .hydro-box{padding:.7rem .85rem;border-bottom:1px solid var(--bord);display:flex;flex-direction:column;gap:.4rem}
@@ -107,6 +107,10 @@ button,input,select,textarea{font:inherit}button{cursor:pointer}
 .hydro-bar{height:8px;border-radius:999px;background:var(--surfoff);overflow:hidden}
 .hydro-fill{height:100%;border-radius:999px;background:#0d7fb0;transition:width .4s cubic-bezier(.16,1,.3,1)}
 .hydro-btns{display:flex;gap:.35rem}
+/* Analyse nutritionnelle (fibres/sucres/sodium) */
+.nutri-row{display:flex;flex-direction:column;gap:.2rem}
+.nutri-row-hdr{display:flex;align-items:center;justify-content:space-between;font-size:.72rem;color:var(--txm)}
+.nutri-row-hdr b{font-variant-numeric:tabular-nums}
 /* Hist right */
 .hist-row{display:flex;align-items:center;gap:.5rem;padding:.45rem .85rem;border-bottom:1px solid var(--bord);cursor:pointer;transition:background var(--tr)}
 .hist-row:hover{background:var(--surfoff)}
@@ -152,7 +156,7 @@ button,input,select,textarea{font:inherit}button{cursor:pointer}
 .dash-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem;padding:1rem;flex:1;overflow-y:auto}
 .dash-full{grid-column:1/-1}
 .stat-card{background:var(--surf);border:1px solid var(--bord);border-radius:var(--rxl);padding:.9rem 1.1rem;box-shadow:var(--shsm);border-top:3px solid var(--sc)}
-.sc-val{font-size:1.6rem;font-weight:700;letter-spacing:-.03em;line-height:1;margin:.2rem 0}
+.sc-val{font-size:1.6rem;font-weight:700;letter-spacing:-.03em;line-height:1;margin:.2rem 0;font-variant-numeric:tabular-nums}
 .sc-lbl{font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--txm)}
 .sc-sub{font-size:.68rem;color:var(--txf);margin-top:.2rem}
 
@@ -188,6 +192,7 @@ button,input,select,textarea{font:inherit}button{cursor:pointer}
   <span style="font-weight:700;font-size:1rem;flex:1">Nutrition</span>
   <button class="btn btn-sm" id="copyDayBtn">📋 Copier ce jour</button>
   <button class="btn btn-sm" id="fastBtn">⏱ Jeûne</button>
+  <button class="btn btn-sm" id="reportBtn">📄 Rapport</button>
   <button class="btn btn-sm" id="goalsBtn">⚙ Objectifs</button>
   <input type="file" id="nutriImportFile" accept=".json,application/json" style="display:none">
   <button class="btn-icon" id="nutriImportBtn" title="Importer (remplace toutes les données nutrition)">
@@ -230,6 +235,7 @@ button,input,select,textarea{font:inherit}button{cursor:pointer}
     <div class="repas-right">
       <div class="macro-rings-grid" id="macroRings"></div>
       <div id="hydroPanel"></div>
+      <div id="nutriAnalysisPanel"></div>
       <div class="ph"><span class="pt">📅 Historique</span><span id="histCount" style="font-size:.68rem;color:var(--txm)"></span></div>
       <div style="overflow-y:auto;flex:1" id="histPanel"></div>
     </div>
@@ -316,6 +322,11 @@ button,input,select,textarea{font:inherit}button{cursor:pointer}
   <div class="mr2">
     <div class="fld"><label>Glucides (g)</label><input class="inp" type="number" id="fv-carb" placeholder="0" step="0.1"></div>
     <div class="fld"><label>Lipides (g)</label><input class="inp" type="number" id="fv-fat" placeholder="0" step="0.1"></div>
+  </div>
+  <div class="mr3">
+    <div class="fld"><label>Fibres (g)</label><input class="inp" type="number" id="fv-fibres" placeholder="0" step="0.1"></div>
+    <div class="fld"><label>Sucres (g)</label><input class="inp" type="number" id="fv-sucres" placeholder="0" step="0.1"></div>
+    <div class="fld"><label>Sodium (mg)</label><input class="inp" type="number" id="fv-sodium" placeholder="0" step="1"></div>
   </div>
   <div class="fld"><label>Commentaire / Notes</label><textarea class="inp" id="fv-comment" rows="2" placeholder="Ex. : marque préférée, conservation, préparation…" style="resize:vertical;min-height:52px;font-size:.8rem;line-height:1.45"></textarea></div>
   <div id="fv-unitVals" style="display:none;background:var(--surfoff);border-radius:var(--rmd);padding:.5rem .65rem;font-size:.75rem"></div>
@@ -444,6 +455,20 @@ button,input,select,textarea{font:inherit}button{cursor:pointer}
   <div class="ma"><button class="btn btn-sm" id="cp-cancel">Annuler</button><button class="btn btn-sm btn-p" id="cp-confirm">Copier</button></div>
 </div></div>
 
+<!-- Rapport visuel exportable -->
+<div class="ov" id="reportOv">
+<div class="modal" style="max-width:360px">
+  <div class="mt">📄 Rapport de suivi</div>
+  <div class="fld"><label>Période</label>
+    <select class="sel" id="rp-period">
+      <option value="7">7 derniers jours</option>
+      <option value="14">14 derniers jours</option>
+      <option value="30">30 derniers jours</option>
+    </select>
+  </div>
+  <div class="ma"><button class="btn btn-sm" id="rp-cancel">Annuler</button><button class="btn btn-sm btn-p" id="rp-generate">Générer et télécharger</button></div>
+</div></div>
+
 <div id="toast" style="opacity:0;pointer-events:none;position:fixed;bottom:1.5rem;left:50%;transform:translateX(-50%);z-index:999"></div>
 
 <script src="db.js"></script>
@@ -485,11 +510,11 @@ function migrateDefaults(){
 }
 
 // ══ HELPERS ══
-function macros4qty(food,qty){const f=qty/100;return{cal:n1((food.per100.cal||0)*f),prot:n1((food.per100.prot||0)*f),carb:n1((food.per100.carb||0)*f),fat:n1((food.per100.fat||0)*f)};}
-function dayTotals(d){return(_d.logs[d]||[]).reduce((t,e)=>({cal:t.cal+(e.cal||0),prot:t.prot+(e.prot||0),carb:t.carb+(e.carb||0),fat:t.fat+(e.fat||0)}),{cal:0,prot:0,carb:0,fat:0});}
+function macros4qty(food,qty){const f=qty/100;return{cal:n1((food.per100.cal||0)*f),prot:n1((food.per100.prot||0)*f),carb:n1((food.per100.carb||0)*f),fat:n1((food.per100.fat||0)*f),fibres:n1((food.per100.fibres||0)*f),sucres:n1((food.per100.sucres||0)*f),sodium:n1((food.per100.sodium||0)*f)};}
+function dayTotals(d){return(_d.logs[d]||[]).reduce((t,e)=>({cal:t.cal+(e.cal||0),prot:t.prot+(e.prot||0),carb:t.carb+(e.carb||0),fat:t.fat+(e.fat||0),fibres:t.fibres+(e.fibres||0),sucres:t.sucres+(e.sucres||0),sodium:t.sodium+(e.sodium||0)}),{cal:0,prot:0,carb:0,fat:0,fibres:0,sucres:0,sodium:0});}
 function fmtD(iso){const d=new Date(iso+'T00:00'),t=todayISO(),y=addDaysTo(t,-1);if(iso===t)return"Aujourd'hui";if(iso===y)return'Hier';return d.toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long'});}
 function fmtShort(iso){const d=new Date(iso+'T00:00');return d.toLocaleDateString('fr-FR',{day:'numeric',month:'short'});}
-function recipeCalc(ings){return ings.reduce((t,ing)=>{const f=_d.foods.find(x=>x.id===ing.foodId);if(!f)return t;const m=macros4qty(f,ing.qty);return{cal:t.cal+m.cal,prot:t.prot+m.prot,carb:t.carb+m.carb,fat:t.fat+m.fat};},{cal:0,prot:0,carb:0,fat:0});}
+function recipeCalc(ings){return ings.reduce((t,ing)=>{const f=_d.foods.find(x=>x.id===ing.foodId);if(!f)return t;const m=macros4qty(f,ing.qty);return{cal:t.cal+m.cal,prot:t.prot+m.prot,carb:t.carb+m.carb,fat:t.fat+m.fat,fibres:t.fibres+m.fibres,sucres:t.sucres+m.sucres,sodium:t.sodium+m.sodium};},{cal:0,prot:0,carb:0,fat:0,fibres:0,sucres:0,sodium:0});}
 function showToast(msg, isErr=false){
   const t=document.getElementById('toast');
   t.textContent=msg;
@@ -606,6 +631,22 @@ function renderDash(){
   const logDates=Object.keys(_d.logs).filter(d=>(_d.logs[d]||[]).length>0).sort().reverse();
   const tot=dayTotals(today);
   const g7=_d.goals;
+
+  // Résumé du jour — vue "à la Nutrium" du jour réel, indépendante de _cur
+  const todayIso=todayISO();
+  const totToday=dayTotals(todayIso);
+  const remaining=Math.round(g7.cal-totToday.cal);
+  const summaryCard=document.createElement('div'); summaryCard.className='panel dash-full';
+  summaryCard.innerHTML=`<div class="ph"><span class="pt">🩺 Résumé du jour</span><span style="font-size:.68rem;color:var(--txm)">${fmtD(todayIso)}</span></div>
+    <div style="display:flex;align-items:center;gap:1.25rem;padding:.9rem 1.1rem;flex-wrap:wrap">
+      <div class="macro-rings-grid" style="border-bottom:none;padding:0;flex:2;min-width:260px">${renderDashSummaryRings(totToday,g7)}</div>
+      <div style="flex:1;min-width:160px;display:flex;flex-direction:column;gap:.2rem">
+        <div style="font-size:1.5rem;font-weight:700;font-variant-numeric:tabular-nums;color:${remaining>=0?'var(--tx)':'#c0392b'}">${remaining>=0?remaining+' kcal':(-remaining)+' kcal en trop'}</div>
+        <div style="font-size:.7rem;color:var(--txm)">${remaining>=0?'restantes sur':'au-delà de'} l'objectif de ${g7.cal} kcal</div>
+      </div>
+    </div>`;
+  g.appendChild(summaryCard);
+
   // Stat cards
   const cards=[
     {val:logDates.length,lbl:'Jours enregistrés',sub:'au total',sc:'var(--prim)'},
@@ -628,6 +669,11 @@ function renderDash(){
     return`<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px"><div style="width:100%;height:${pct}%;background:${isT?'var(--ccal)':'var(--txm)'};opacity:${isT?1:.45};border-radius:3px 3px 0 0;min-height:2px" title="${cal} kcal"></div><div style="font-size:.6rem;color:var(--txf)">${new Date(d+'T00:00').toLocaleDateString('fr-FR',{day:'numeric',month:'numeric'})}</div></div>`;
   }).join('')}</div>`;
   g.appendChild(weekCard);
+  // Analyse nutritionnelle du jour (fibres/sucres/sodium)
+  const microCard=document.createElement('div'); microCard.className='panel dash-full';
+  microCard.innerHTML=`<div class="ph"><span class="pt">🔬 Analyse nutritionnelle — ${fmtD(todayIso)}</span></div>
+    <div style="padding:.75rem 1rem;display:grid;grid-template-columns:repeat(3,1fr);gap:1rem">${buildMicroRowsHtml(totToday)}</div>`;
+  g.appendChild(microCard);
   // Poids & objectif calorique adaptatif
   const weightCard=document.createElement('div'); weightCard.className='panel dash-full'; weightCard.id='weightPanel';
   g.appendChild(weightCard);
@@ -756,7 +802,7 @@ function renderMeals(){
       const f=_d.foods.find(x=>x.id===e.foodId)||{name:e.name,image:e.image||''};
       const row=document.createElement('div'); row.className='food-row';
       const del=document.createElement('button'); del.className='btn-icon' ; del.style.cssText='width:22px;height:22px;border:none;background:none;color:var(--txf)'; del.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" width="11" height="11"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>';
-      del.addEventListener('click',()=>{_d.logs[_cur]=(_d.logs[_cur]||[]).filter(x=>x.id!==e.id);save();renderMeals();renderMacroRings();renderHist();renderCalSidebar();});
+      del.addEventListener('click',()=>{_d.logs[_cur]=(_d.logs[_cur]||[]).filter(x=>x.id!==e.id);save();renderMeals();renderMacroRings();renderNutriAnalysis();renderHist();renderCalSidebar();});
       const imgEl=e.image||f.image?document.createElement('img'):document.createElement('div');
       if(e.image||f.image){imgEl.className='fi';imgEl.src=`./img/${e.image||f.image}`;imgEl.onerror=()=>{imgEl.className='fph';imgEl.innerHTML='🍽';};}
       else{imgEl.className='fph';imgEl.innerHTML='🍽';}
@@ -843,7 +889,7 @@ function buildMealPicker(mealId){
     const entry={id:uid(),meal:mealId,foodId:food.id||'',name:food.name,image:food.image||'',qty:Math.round(qty),...m};
     if(!_d.logs[_cur])_d.logs[_cur]=[];
     _d.logs[_cur].push(entry); save();
-    _openMeal=null; renderMeals(); renderMacroRings(); renderHist(); renderCalSidebar();
+    _openMeal=null; renderMeals(); renderMacroRings();renderNutriAnalysis(); renderHist(); renderCalSidebar();
   });
   return wrap;
 }
@@ -868,6 +914,23 @@ function renderMacroRings(){
     wrap.innerHTML+=`<div class="mr-lbl">${l}</div><div class="mr-val" style="color:${col}">${Math.round(val)}/${Math.round(goal)}${u}</div><div class="mr-pct">${Math.round(pct*100)}%</div>`;
     wrap.insertBefore(ro,wrap.firstChild); c.appendChild(wrap);
   });
+}
+// Version "chaîne HTML" des anneaux macro, pour la carte Résumé du jour du Dashboard
+// (mêmes classes CSS que renderMacroRings, calculée pour un jour/objectifs donnés).
+function renderDashSummaryRings(tot,goals){
+  return MACROS.map(({k,l,u,c:col})=>{
+    const val=tot[k]||0, goal=goals[k]||1;
+    const pct=Math.min(1,val/goal);
+    const offset=CIRC*(1-pct);
+    return `<div class="mr-wrap">
+      <div class="ring-outer"><svg class="ring-svg" viewBox="0 0 52 52">
+        <circle class="ring-bg" cx="26" cy="26" r="22"/>
+        <circle class="ring-fill" cx="26" cy="26" r="22" stroke="${col}" stroke-dasharray="${CIRC}" stroke-dashoffset="${offset}"/>
+      </svg>
+      <div class="ring-center"><span style="font-size:.62rem;font-weight:800;color:${col}">${Math.round(val)}</span><span style="font-size:.5rem;color:var(--txf)">${u}</span></div></div>
+      <div class="mr-lbl">${l}</div><div class="mr-val" style="color:${col}">${Math.round(val)}/${Math.round(goal)}${u}</div><div class="mr-pct">${Math.round(pct*100)}%</div>
+    </div>`;
+  }).join('');
 }
 
 // ══ POIDS & OBJECTIF CALORIQUE ADAPTATIF ══
@@ -917,7 +980,7 @@ function renderWeightSuggestion(){
   </div>`;
   box.querySelector('#wt-apply').addEventListener('click',()=>{
     _d.goals.cal=Math.max(800,Math.round(_d.goals.cal+s.deltaKcalPerDay));
-    save(); showToast('Objectif calorique mis à jour : '+_d.goals.cal+' kcal'); renderWeightPanel(); renderMacroRings();
+    save(); showToast('Objectif calorique mis à jour : '+_d.goals.cal+' kcal'); renderWeightPanel(); renderMacroRings();renderNutriAnalysis();
   });
   box.querySelector('#wt-ignore').addEventListener('click',()=>{box.innerHTML='';});
 }
@@ -970,6 +1033,34 @@ function renderHydration(){
   box.querySelector('#waterM250').addEventListener('click',()=>addWater(-250));
   box.querySelector('#waterP250').addEventListener('click',()=>addWater(250));
   box.querySelector('#waterP500').addEventListener('click',()=>addWater(500));
+}
+
+// ══ ANALYSE NUTRITIONNELLE (fibres/sucres/sodium) ══
+// Repères indicatifs fixes (non personnalisables) — fibres = objectif minimum, sucres/sodium = plafond.
+const MICRO_REFS={
+  fibres:{label:'Fibres',target:30,unit:'g',mode:'min'},
+  sucres:{label:'Sucres',target:50,unit:'g',mode:'max'},
+  sodium:{label:'Sodium',target:2300,unit:'mg',mode:'max'},
+};
+function buildMicroRowsHtml(tot){
+  return Object.entries(MICRO_REFS).map(([k,ref])=>{
+    const val=tot[k]||0;
+    const pct=Math.min(100,Math.round(val/ref.target*100));
+    const over=ref.mode==='max'&&val>ref.target;
+    const color=over?'#c0392b':(ref.mode==='min'?'#437a22':'#0d7fb0');
+    return `<div class="nutri-row">
+      <div class="nutri-row-hdr"><span>${ref.label}</span><span><b style="color:${color}">${n1(val)}${ref.unit}</b> <span style="color:var(--txf)">/ ${ref.mode==='max'?'max ':''}${ref.target}${ref.unit}</span></span></div>
+      <div class="hydro-bar"><div class="hydro-fill" style="width:${pct}%;background:${color}"></div></div>
+    </div>`;
+  }).join('');
+}
+function renderNutriAnalysis(){
+  const box=document.getElementById('nutriAnalysisPanel'); if(!box)return;
+  box.innerHTML=`<div class="hydro-box">
+    <div class="hydro-hdr"><span style="font-size:.72rem;font-weight:700;color:var(--txm);text-transform:uppercase;letter-spacing:.05em">🔬 Analyse nutritionnelle</span></div>
+    ${buildMicroRowsHtml(dayTotals(_cur))}
+    <div style="font-size:.6rem;color:var(--txf);font-style:italic">Repères indicatifs (recommandations générales), non personnalisés.</div>
+  </div>`;
 }
 
 // ══ JEÛNE INTERMITTENT ══
@@ -1070,7 +1161,7 @@ function setDate(iso){
   const today=todayISO();
   document.getElementById('nextDay').disabled=iso>=today;
   if(document.getElementById('tab-repas').classList.contains('active')){
-    renderMeals(); renderMacroRings(); renderHydration(); renderHist(); renderCalSidebar();
+    renderMeals(); renderMacroRings();renderNutriAnalysis(); renderHydration(); renderHist(); renderCalSidebar();
   }
 }
 document.getElementById('prevDay').addEventListener('click',()=>setDate(addDaysTo(_cur,-1)));
@@ -1108,6 +1199,11 @@ function renderFoodDetail(f){
         </div>
         <div style="font-size:.72rem;font-weight:700;color:var(--txm);margin-bottom:.45rem;text-transform:uppercase;letter-spacing:.05em">Pour 100g</div>
         ${MACROS.map(({k,l,u,c})=>`<div class="macro-bar-row"><div class="mbl" style="color:${c}">${l}</div><div class="mbb"><div class="mbf" style="width:${Math.round(f.per100[k]/maxM*100)}%;background:${c}"></div></div><div class="mbv">${f.per100[k]}${u}</div></div>`).join('')}
+        ${(f.per100.fibres||f.per100.sucres||f.per100.sodium)?`<div style="margin-top:.5rem;padding-top:.5rem;border-top:1px dashed var(--bord);display:flex;gap:1rem;flex-wrap:wrap">
+          <div style="font-size:.72rem;color:var(--txm)">Fibres <strong style="color:var(--tx)">${n1(f.per100.fibres||0)}g</strong></div>
+          <div style="font-size:.72rem;color:var(--txm)">Sucres <strong style="color:var(--tx)">${n1(f.per100.sucres||0)}g</strong></div>
+          <div style="font-size:.72rem;color:var(--txm)">Sodium <strong style="color:var(--tx)">${Math.round(f.per100.sodium||0)}mg</strong></div>
+        </div>`:''}
         ${f.unitWeight?`<div style="margin-top:.65rem;padding:.45rem .6rem;background:var(--surfoff);border-radius:var(--rmd);font-size:.75rem">
           <div style="font-weight:700;color:var(--txm);margin-bottom:.2rem">Par unité (${f.unitWeight}g)</div>
           ${MACROS.map(({k,l,u,c})=>`<span style="color:${c};font-weight:600">${n1(f.per100[k]*f.unitWeight/100)}${u}</span> <span style="color:var(--txm)">${l}</span>  `).join('')}
@@ -1169,7 +1265,7 @@ document.getElementById('atm-confirm').addEventListener('click',()=>{
   if(!_d.logs[date])_d.logs[date]=[];
   _d.logs[date].push(entry); save();
   document.getElementById('addToMealOv').style.display='none';
-  if(date===_cur){renderMeals();renderMacroRings();renderHist();renderCalSidebar();}
+  if(date===_cur){renderMeals();renderMacroRings();renderNutriAnalysis();renderHist();renderCalSidebar();}
 });
 document.getElementById('atm-cancel').addEventListener('click',()=>document.getElementById('addToMealOv').style.display='none');
 
@@ -1289,6 +1385,9 @@ async function handleBarcodeResult(code,mealTarget){
       document.getElementById('fv-prot').value=data.prot||0;
       document.getElementById('fv-carb').value=data.carb||0;
       document.getElementById('fv-fat').value=data.fat||0;
+      document.getElementById('fv-fibres').value=data.fibres||0;
+      document.getElementById('fv-sucres').value=data.sucres||0;
+      document.getElementById('fv-sodium').value=data.sodium||0;
       showToast("Produit trouvé — vérifiez les valeurs avant d'enregistrer");
     } else {
       showToast('Produit non trouvé en ligne, saisie manuelle',true);
@@ -1312,6 +1411,9 @@ function openFoodModal(id=null,mealTarget=null){
   document.getElementById('fv-prot').value=f?.per100.prot||'';
   document.getElementById('fv-carb').value=f?.per100.carb||'';
   document.getElementById('fv-fat').value=f?.per100.fat||'';
+  document.getElementById('fv-fibres').value=f?.per100.fibres||'';
+  document.getElementById('fv-sucres').value=f?.per100.sucres||'';
+  document.getElementById('fv-sodium').value=f?.per100.sodium||'';
   document.getElementById('fv-comment').value=f?.comment||'';
   const prev=document.getElementById('fv-imgPrev'); if(f?.image){prev.src='./img/'+f.image;prev.style.display='block';}else prev.style.display='none';
   document.getElementById('fv-pricekg').value=f?.pricePerKg||'';
@@ -1400,7 +1502,7 @@ document.getElementById('fv-save').addEventListener('click',()=>{
     pricePerKg:parseFloat(document.getElementById('fv-pricekg').value)||0,
     pricePerUnit:parseFloat(document.getElementById('fv-priceunit').value)||0,
     comment:document.getElementById('fv-comment').value.trim(),
-    per100:{cal:parseFloat(document.getElementById('fv-cal').value)||0,prot:parseFloat(document.getElementById('fv-prot').value)||0,carb:parseFloat(document.getElementById('fv-carb').value)||0,fat:parseFloat(document.getElementById('fv-fat').value)||0}
+    per100:{cal:parseFloat(document.getElementById('fv-cal').value)||0,prot:parseFloat(document.getElementById('fv-prot').value)||0,carb:parseFloat(document.getElementById('fv-carb').value)||0,fat:parseFloat(document.getElementById('fv-fat').value)||0,fibres:parseFloat(document.getElementById('fv-fibres').value)||0,sucres:parseFloat(document.getElementById('fv-sucres').value)||0,sodium:parseFloat(document.getElementById('fv-sodium').value)||0}
   };
   if(_editFoodId){const i=_d.foods.findIndex(f=>f.id===_editFoodId);if(i>=0)_d.foods[i]=food;}
   else _d.foods.push(food);
@@ -1648,7 +1750,7 @@ document.getElementById('go-save').addEventListener('click',()=>{
   ['cal','prot','carb','fat','water'].forEach(k=>_d.goals[k]=parseFloat(document.getElementById('go-'+k).value)||_d.goals[k]);
   _d.goals.weightDir=document.getElementById('go-weightDir').value;
   _d.goals.weightRate=parseFloat(document.getElementById('go-weightRate').value)||_d.goals.weightRate;
-  save(); document.getElementById('goalsOv').style.display='none'; renderMacroRings(); renderHydration(); renderWeightPanel();
+  save(); document.getElementById('goalsOv').style.display='none'; renderMacroRings();renderNutriAnalysis(); renderHydration(); renderWeightPanel();
 });
 document.getElementById('go-cancel').addEventListener('click',()=>document.getElementById('goalsOv').style.display='none');
 
@@ -1816,10 +1918,10 @@ function openStockAddModal(){
 document.getElementById('stockAddBtn').addEventListener('click',openStockAddModal);
 
 // ══ FERMETURE MODALES ══
-['foodOv','recipeOv','addToMealOv','goalsOv','copyOv'].forEach(id=>{
+['foodOv','recipeOv','addToMealOv','goalsOv','copyOv','reportOv'].forEach(id=>{
   document.getElementById(id).addEventListener('click',e=>{if(e.target===document.getElementById(id))document.getElementById(id).style.display='none';});
 });
-document.addEventListener('keydown',e=>{if(e.key==='Escape'){['foodOv','recipeOv','addToMealOv','goalsOv','copyOv'].forEach(id=>{const el=document.getElementById(id);if(el.style.display==='flex')el.style.display='none';});if(document.getElementById('scanOv').style.display==='flex')closeScanner();}});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){['foodOv','recipeOv','addToMealOv','goalsOv','copyOv','reportOv'].forEach(id=>{const el=document.getElementById(id);if(el.style.display==='flex')el.style.display='none';});if(document.getElementById('scanOv').style.display==='flex')closeScanner();}});
 document.getElementById('scanOv').addEventListener('click',e=>{if(e.target===document.getElementById('scanOv'))closeScanner();});
 
 // ══ EXPORT / IMPORT ══
@@ -1831,6 +1933,99 @@ function downloadJSON(data, filename){
 function exportNutrition(){
   downloadJSON(_d, `nutrition-${new Date().toISOString().split('T')[0]}.json`);
 }
+
+// ══ RAPPORT VISUEL EXPORTABLE ══
+function computeReportStats(nbJours){
+  const endIso=todayISO();
+  const dates=Array.from({length:nbJours},(_,i)=>addDaysTo(endIso,-(nbJours-1-i)));
+  const totals=dates.map(d=>dayTotals(d));
+  const avg=k=>n1(totals.reduce((s,t)=>s+(t[k]||0),0)/nbJours);
+  const withinGoal=totals.filter(t=>t.cal>0 && Math.abs(t.cal-_d.goals.cal)<=_d.goals.cal*0.1).length;
+  const loggedDays=totals.filter(t=>t.cal>0).length;
+  const weightDates=Object.keys(_d.weight).filter(d=>d>=dates[0]&&d<=endIso).sort();
+  const weightStart=weightDates.length?_d.weight[weightDates[0]]:null;
+  const weightEnd=weightDates.length?_d.weight[weightDates[weightDates.length-1]]:null;
+  return {dates,totals,avgCal:avg('cal'),avgProt:avg('prot'),avgCarb:avg('carb'),avgFat:avg('fat'),avgFibres:avg('fibres'),avgSucres:avg('sucres'),avgSodium:avg('sodium'),withinGoal,loggedDays,weightStart,weightEnd};
+}
+function exportNutritionReport(nbJours){
+  const stats=computeReportStats(nbJours);
+  const scale=2, W=800, H=1000;
+  const canvas=document.createElement('canvas'); canvas.width=W*scale; canvas.height=H*scale;
+  const ctx=canvas.getContext('2d'); ctx.scale(scale,scale);
+  const cs=getComputedStyle(document.documentElement);
+  const bg=cs.getPropertyValue('--surf').trim()||'#fff';
+  const tx=cs.getPropertyValue('--tx').trim()||'#000';
+  const txm=cs.getPropertyValue('--txm').trim()||'#666';
+  const prim=cs.getPropertyValue('--prim').trim()||'#01696f';
+  ctx.fillStyle=bg; ctx.fillRect(0,0,W,H);
+
+  ctx.fillStyle=prim; ctx.fillRect(0,0,W,90);
+  ctx.fillStyle='#fff'; ctx.font='bold 26px Georgia, serif';
+  ctx.fillText('GymOS — Rapport de suivi nutritionnel',30,45);
+  ctx.font='13px Arial, sans-serif';
+  ctx.fillText(`Période : ${fmtShort(stats.dates[0])} → ${fmtShort(stats.dates[stats.dates.length-1])} (${nbJours} jours) · Généré le ${new Date().toLocaleDateString('fr-FR')}`,30,70);
+
+  let y=130;
+  ctx.fillStyle=tx; ctx.font='bold 16px Arial, sans-serif';
+  ctx.fillText('Moyennes journalières',30,y);
+  const rows=[
+    ['Calories',`${stats.avgCal} kcal`,`objectif ${_d.goals.cal} kcal`],
+    ['Protéines',`${stats.avgProt} g`,`objectif ${_d.goals.prot} g`],
+    ['Glucides',`${stats.avgCarb} g`,`objectif ${_d.goals.carb} g`],
+    ['Lipides',`${stats.avgFat} g`,`objectif ${_d.goals.fat} g`],
+    ['Fibres',`${stats.avgFibres} g`,'repère ≈30 g'],
+    ['Sucres',`${stats.avgSucres} g`,'repère <50 g'],
+    ['Sodium',`${Math.round(stats.avgSodium)} mg`,'repère <2300 mg'],
+  ];
+  ctx.font='13px Arial, sans-serif';
+  rows.forEach(([label,val,goal])=>{
+    y+=28;
+    ctx.fillStyle=txm; ctx.font='13px Arial, sans-serif'; ctx.fillText(label,30,y);
+    ctx.fillStyle=tx; ctx.font='bold 13px Arial, sans-serif'; ctx.fillText(val,220,y);
+    ctx.fillStyle=txm; ctx.font='12px Arial, sans-serif'; ctx.fillText(goal,320,y);
+  });
+
+  y+=50;
+  ctx.fillStyle=tx; ctx.font='bold 16px Arial, sans-serif';
+  ctx.fillText('Observance & poids',30,y); y+=28;
+  ctx.font='13px Arial, sans-serif'; ctx.fillStyle=txm;
+  ctx.fillText(`${stats.loggedDays}/${nbJours} jours enregistrés · ${stats.withinGoal} jour(s) dans l'objectif calorique (±10%)`,30,y); y+=24;
+  if(stats.weightStart!=null && stats.weightEnd!=null){
+    const delta=n1(stats.weightEnd-stats.weightStart);
+    ctx.fillText(`Poids : ${stats.weightStart}kg → ${stats.weightEnd}kg (${delta>=0?'+':''}${delta}kg)`,30,y);
+  } else {
+    ctx.fillText('Poids : aucune pesée sur la période',30,y);
+  }
+  y+=50;
+
+  ctx.fillStyle=tx; ctx.font='bold 16px Arial, sans-serif';
+  ctx.fillText('Calories par jour',30,y); y+=20;
+  const chartH=140, chartW=W-60;
+  const mx=Math.max(1,...stats.totals.map(t=>t.cal),_d.goals.cal);
+  const barW=chartW/nbJours;
+  stats.totals.forEach((t,i)=>{
+    const h=Math.max(2,Math.round((t.cal/mx)*chartH));
+    ctx.fillStyle=prim; ctx.globalAlpha=.85;
+    ctx.fillRect(30+i*barW+1,y+chartH-h,Math.max(1,barW-2),h);
+    ctx.globalAlpha=1;
+  });
+  const goalY=y+chartH-Math.round((_d.goals.cal/mx)*chartH);
+  ctx.strokeStyle='#c0392b'; ctx.setLineDash([4,3]); ctx.beginPath(); ctx.moveTo(30,goalY); ctx.lineTo(30+chartW,goalY); ctx.stroke(); ctx.setLineDash([]);
+  ctx.fillStyle=txm; ctx.font='11px Arial, sans-serif';
+  ctx.fillText(`Objectif ${_d.goals.cal} kcal`,30+chartW-140,goalY-6);
+
+  const a=document.createElement('a');
+  a.href=canvas.toDataURL('image/png');
+  a.download=`gymos-rapport-nutrition-${nbJours}j-${new Date().toISOString().split('T')[0]}.png`;
+  a.click();
+}
+document.getElementById('reportBtn').addEventListener('click',()=>{document.getElementById('reportOv').style.display='flex';});
+document.getElementById('rp-cancel').addEventListener('click',()=>document.getElementById('reportOv').style.display='none');
+document.getElementById('rp-generate').addEventListener('click',()=>{
+  const n=parseInt(document.getElementById('rp-period').value)||7;
+  exportNutritionReport(n);
+  document.getElementById('reportOv').style.display='none';
+});
 function importNutrition(file){
   const reader=new FileReader();
   reader.onload=e=>{
