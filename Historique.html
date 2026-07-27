@@ -284,7 +284,21 @@ let _selId = null;
 let _editMode = false;
 let _exoLib = [];
 let _progs = [];
+let _objectifs = {};
 let _hardOnly = false;
+
+// Champs pertinents pour un exercice, déduits des références remplies dans
+// Exercices.html (mêmes règles que Seance.html/Programme.html) — sans référence
+// enregistrée, tous les champs sont affichés par défaut.
+const CHAMP_KEYS = ['series','reps','poids','rm1','duree','distance','puissance','inclinaison'];
+function computeChampsActifs(nom) {
+  const row = _exoLib.find(e => e.exercice?.toLowerCase()===nom?.toLowerCase());
+  const entries = row ? (_objectifs[row.id]||[]) : [];
+  if (!entries.length) return new Set(CHAMP_KEYS);
+  const actifs = new Set();
+  entries.forEach(e => CHAMP_KEYS.forEach(k => { if (e[k]) actifs.add(k); }));
+  return actifs;
+}
 
 // ══════════════════════════════════════════════════════════════
 // UTILS
@@ -636,7 +650,7 @@ function renderDetail(){
       addS.addEventListener('click',()=>{
         exo.series=exo.series||[];
         const last=exo.series[exo.series.length-1]||{};
-        exo.series.push({reps:last.reps||'',poids:last.poids||'',duree:'',distance:'',ressenti:''});
+        exo.series.push({reps:last.reps||'',poids:last.poids||'',duree:'',distance:'',puissance:'',inclinaison:'',ressenti:''});
         renderDetail();
       });
       const delExoBtn=document.createElement('button'); delExoBtn.className='btn'; delExoBtn.style.cssText='font-size:.72rem;padding:.3rem .55rem;min-height:28px;color:var(--err);border-color:var(--err)44';
@@ -658,9 +672,16 @@ function renderDetail(){
       block.appendChild(empty);
     }
     if((exo.series||[]).length){
+      const champs=computeChampsActifs(exo.nom);
       const swrap=document.createElement('div'); swrap.className='exo-series-wrap';
       const tbl=document.createElement('table'); tbl.className='exo-series-table';
-      let thHtml=`<thead><tr><th>#</th><th>Reps</th><th>Poids</th><th>Durée</th><th>Distance</th>`;
+      let thHtml=`<thead><tr><th>#</th>`;
+      if(champs.has('reps')) thHtml+=`<th>Reps</th>`;
+      if(champs.has('poids')) thHtml+=`<th>Poids</th>`;
+      if(champs.has('duree')) thHtml+=`<th>Durée</th>`;
+      if(champs.has('distance')) thHtml+=`<th>Distance</th>`;
+      if(champs.has('puissance')) thHtml+=`<th>Puissance</th>`;
+      if(champs.has('inclinaison')) thHtml+=`<th>Inclin.</th>`;
       thHtml+=`<th>Ressenti</th>${_editMode?'<th></th>':''}</tr></thead>`;
       tbl.innerHTML=thHtml;
       const tbody=document.createElement('tbody');
@@ -668,19 +689,18 @@ function renderDetail(){
         const tr=document.createElement('tr');
         if(_editMode){
           const tdNum=document.createElement('td'); tdNum.style.color='var(--txm)'; tdNum.textContent=si+1;
-          const ireps=document.createElement('input'); ireps.className='edit-inp'; ireps.type='text'; ireps.value=s.reps||''; ireps.placeholder='reps';
-          ireps.addEventListener('input',()=>s.reps=ireps.value);
-          const ipoids=document.createElement('input'); ipoids.className='edit-inp'; ipoids.type='text'; ipoids.value=s.poids||''; ipoids.placeholder='kg';
-          ipoids.addEventListener('input',()=>s.poids=ipoids.value);
-          const tdR=document.createElement('td'); tdR.appendChild(ireps);
-          const tdP=document.createElement('td'); tdP.appendChild(ipoids);
-          const cells=[tdNum,tdR,tdP];
-          const iduree=document.createElement('input'); iduree.className='edit-inp'; iduree.type='text'; iduree.value=s.duree||''; iduree.placeholder='durée';
-          iduree.addEventListener('input',()=>s.duree=iduree.value);
-          const tdD=document.createElement('td'); tdD.appendChild(iduree); cells.push(tdD);
-          const idist=document.createElement('input'); idist.className='edit-inp'; idist.type='text'; idist.value=s.distance||''; idist.placeholder='dist.';
-          idist.addEventListener('input',()=>s.distance=idist.value);
-          const tdDi=document.createElement('td'); tdDi.appendChild(idist); cells.push(tdDi);
+          const cells=[tdNum];
+          const addEditCell=(field,placeholder)=>{
+            const inp=document.createElement('input'); inp.className='edit-inp'; inp.type='text'; inp.value=s[field]||''; inp.placeholder=placeholder;
+            inp.addEventListener('input',()=>s[field]=inp.value);
+            const td=document.createElement('td'); td.appendChild(inp); cells.push(td);
+          };
+          if(champs.has('reps')) addEditCell('reps','reps');
+          if(champs.has('poids')) addEditCell('poids','kg');
+          if(champs.has('duree')) addEditCell('duree','durée');
+          if(champs.has('distance')) addEditCell('distance','dist.');
+          if(champs.has('puissance')) addEditCell('puissance','W');
+          if(champs.has('inclinaison')) addEditCell('inclinaison','%');
           const sel=document.createElement('select'); sel.className='edit-sel';
           sel.innerHTML=`<option value="">—</option>`+RESSENTI.map(r=>`<option value="${r.key}"${s.ressenti===r.key?' selected':''}>${r.emoji} ${r.label}</option>`).join('');
           sel.addEventListener('change',()=>s.ressenti=sel.value);
@@ -694,8 +714,13 @@ function renderDetail(){
         } else {
           const ress=RESSENTI.find(x=>x.key===s.ressenti);
           const resHtml=ress?`<span class="ressenti-badge" style="background:${ress.bg};color:${ress.color}">${ress.emoji} ${ress.label}</span>`:'<span style="color:var(--txf)">—</span>';
-          let rowHtml=`<td style="color:var(--txm);font-size:.7rem">${si+1}</td><td>${esc(s.reps||'—')}</td><td>${s.poids?esc(s.poids)+' kg':'—'}</td>`;
-          rowHtml+=`<td>${esc(s.duree||'—')}</td><td>${esc(s.distance||'—')}</td>`;
+          let rowHtml=`<td style="color:var(--txm);font-size:.7rem">${si+1}</td>`;
+          if(champs.has('reps')) rowHtml+=`<td>${esc(s.reps||'—')}</td>`;
+          if(champs.has('poids')) rowHtml+=`<td>${s.poids?esc(s.poids)+' kg':'—'}</td>`;
+          if(champs.has('duree')) rowHtml+=`<td>${esc(s.duree||'—')}</td>`;
+          if(champs.has('distance')) rowHtml+=`<td>${esc(s.distance||'—')}</td>`;
+          if(champs.has('puissance')) rowHtml+=`<td>${s.puissance?esc(s.puissance)+' W':'—'}</td>`;
+          if(champs.has('inclinaison')) rowHtml+=`<td>${s.inclinaison?esc(s.inclinaison)+' %':'—'}</td>`;
           rowHtml+=`<td>${resHtml}</td>`;
           tr.innerHTML=rowHtml;
         }
@@ -1768,6 +1793,7 @@ document.getElementById('resetBtn').addEventListener('click',()=>{
   try{ const h=await GymDB.read('historique.json'); if(Array.isArray(h)&&h.length){ _hist=h; localStorage.setItem(HIST_KEY,JSON.stringify(h)); } }catch{}
   try{ const d=await GymDB.read('exercices.json'); if(d&&Array.isArray(d.rows)&&d.rows.length){ _exoLib=d.rows; localStorage.setItem(EXO_KEY,JSON.stringify(d)); } }catch{}
   try{ const p=await GymDB.read('programmes.json'); if(Array.isArray(p)) _progs=p; }catch{}
+  try{ const o=await GymDB.read('exercices-objectifs.json'); if(o) _objectifs=o; }catch{}
   renderSidebar();
   // Sélectionner la première séance si disponible (ou celle demandée par un lien retour ?id=,
   // ex. depuis la recherche globale de nav-panel.js)

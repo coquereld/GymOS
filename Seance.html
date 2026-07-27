@@ -432,6 +432,19 @@ function getLastHistSeries(nom) {
   const entry = (last.exercices||[]).find(e => e.nom===nom);
   return entry ? { date: last.date, series: entry.series||[] } : null;
 }
+// Champs pertinents pour un exercice, déduits des références déjà remplies dans
+// Exercices.html (exercices-objectifs.json) — pas de configuration séparée : dès
+// qu'un champ a été rempli une fois pour cet exercice, il reste affiché partout.
+// Sans aucune référence enregistrée, tous les champs sont affichés par défaut.
+const CHAMP_KEYS = ['series','reps','poids','rm1','duree','distance','puissance','inclinaison'];
+function computeChampsActifs(nom) {
+  const row = _exoLib.find(e => e.exercice?.toLowerCase()===nom?.toLowerCase());
+  const entries = row ? (_objectifs[row.id]||[]) : [];
+  if (!entries.length) return new Set(CHAMP_KEYS);
+  const actifs = new Set();
+  entries.forEach(e => CHAMP_KEYS.forEach(k => { if (e[k]) actifs.add(k); }));
+  return actifs;
+}
 function getLatestRef(nom) {
   try {
     const row = _exoLib.find(e => e.exercice?.toLowerCase()===nom.toLowerCase());
@@ -619,10 +632,11 @@ function buildExercicesFromSeance(seance) {
       image: e.image || getExoImage(e.nom),
       refSeries: e.series||'3', refReps: e.reps||'', refPoids: e.poids||'',
       refDuree: e.duree||'', refDistance: e.distance||'',
+      refPuissance: e.puissance||'', refInclinaison: e.inclinaison||'',
       refRecup: e.recup||(ref?.recup||'90 s'),
       series: Array.from({length:nbSeries},(_,i)=>({
         num:i+1, reps: ref?.reps||e.reps||'', poids: ref?.poids||e.poids||'',
-        duree:'', distance:'', done:false, ressenti:'', rpe:'', echauffement:false, cote:''
+        duree:'', distance:'', puissance:'', inclinaison:'', done:false, ressenti:'', rpe:'', echauffement:false, cote:''
       })),
       note: '',
     };
@@ -847,15 +861,22 @@ function buildExoCard(exo, ei) {
   hdr.append(dot,name,ref,doneBadge); card.appendChild(hdr);
 
   // Table séries avec scroll horizontal
+  const champs = computeChampsActifs(exo.nom);
   const tblWrap=document.createElement('div'); tblWrap.className='series-table-wrap';
   const tbl=document.createElement('table'); tbl.className='series-table';
-  let thHtml=`<thead><tr><th style="width:32px">#</th><th style="width:64px">Type</th><th>Reps</th><th>Kg</th><th>Durée</th><th>Distance</th>`;
+  let thHtml=`<thead><tr><th style="width:32px">#</th><th style="width:64px">Type</th>`;
+  if(champs.has('reps')) thHtml+=`<th>Reps</th>`;
+  if(champs.has('poids')) thHtml+=`<th>Kg</th>`;
+  if(champs.has('duree')) thHtml+=`<th>Durée</th>`;
+  if(champs.has('distance')) thHtml+=`<th>Distance</th>`;
+  if(champs.has('puissance')) thHtml+=`<th>Puissance</th>`;
+  if(champs.has('inclinaison')) thHtml+=`<th>Inclin.</th>`;
   thHtml+=`<th style="width:64px">Réf.</th><th style="width:64px">RPE</th><th style="width:64px">Côté</th><th>Ressenti</th><th style="width:36px"></th></tr></thead>`;
   tbl.innerHTML=thHtml;
   const tbody=document.createElement('tbody');
   const lastHist = getLastHistSeries(exo.nom);
   exo.series.forEach((serie,si) => {
-    tbody.appendChild(buildSerieRow(exo,ei,serie,si,lastHist));
+    tbody.appendChild(buildSerieRow(exo,ei,serie,si,lastHist,champs));
   });
   tbl.appendChild(tbody); tblWrap.appendChild(tbl); card.appendChild(tblWrap);
 
@@ -877,7 +898,7 @@ function buildExoCard(exo, ei) {
   addSerie.innerHTML=`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> Série`;
   addSerie.addEventListener('click', ()=>{
     const last=exo.series[exo.series.length-1]||{};
-    exo.series.push({num:exo.series.length+1,reps:last.reps||'',poids:last.poids||'',duree:'',distance:'',done:false,ressenti:'',rpe:'',echauffement:false,cote:''});
+    exo.series.push({num:exo.series.length+1,reps:last.reps||'',poids:last.poids||'',duree:'',distance:'',puissance:'',inclinaison:'',done:false,ressenti:'',rpe:'',echauffement:false,cote:''});
     saveCurrentSession(); refreshExoCard(card,exo,ei);
   });
   const noteInp=document.createElement('input'); noteInp.className='note-field'; noteInp.type='text';
@@ -902,7 +923,8 @@ function makePh(hex, nom) {
   return ph;
 }
 
-function buildSerieRow(exo,ei,serie,si,lastHist) {
+function buildSerieRow(exo,ei,serie,si,lastHist,champs) {
+  champs = champs || computeChampsActifs(exo.nom);
   const tr=document.createElement('tr');
   if(serie.done) tr.classList.add('done-row');
   if(serie.echauffement) tr.classList.add('warmup-row');
@@ -959,6 +981,20 @@ function buildSerieRow(exo,ei,serie,si,lastHist) {
   if(!serie.distance && idist.value) { serie.distance=idist.value; }
   idist.addEventListener('input',()=>{ serie.distance=idist.value; saveCurrentSession(); });
   tdDist.appendChild(idist);
+
+  // Puissance (W) — cardio machine (rameur, vélo...)
+  const tdPuissance=document.createElement('td');
+  const ipuissance=document.createElement('input'); ipuissance.type='number'; ipuissance.className='serie-input'+(serie.done?' done':'');
+  ipuissance.value=serie.puissance||''; ipuissance.placeholder=exo.refPuissance||'—'; ipuissance.style.width='64px'; ipuissance.min=0; ipuissance.disabled=serie.done;
+  ipuissance.addEventListener('input',()=>{ serie.puissance=ipuissance.value; saveCurrentSession(); });
+  tdPuissance.appendChild(ipuissance);
+
+  // Inclinaison (%) — tapis de course
+  const tdInclinaison=document.createElement('td');
+  const iinclinaison=document.createElement('input'); iinclinaison.type='number'; iinclinaison.className='serie-input'+(serie.done?' done':'');
+  iinclinaison.value=serie.inclinaison||''; iinclinaison.placeholder=exo.refInclinaison||'—'; iinclinaison.style.width='60px'; iinclinaison.step=0.5; iinclinaison.disabled=serie.done;
+  iinclinaison.addEventListener('input',()=>{ serie.inclinaison=iinclinaison.value; saveCurrentSession(); });
+  tdInclinaison.appendChild(iinclinaison);
 
   // Référence — la vraie performance de la dernière fois sur cette série précise si connue,
   // sinon repli sur la cible statique du programme.
@@ -1066,7 +1102,14 @@ function buildSerieRow(exo,ei,serie,si,lastHist) {
   });
   tdDel.appendChild(delSerieBtn);
 
-  tr.append(tdNum,tdType,tdReps,tdPoids,tdDuree,tdDist,tdRef,tdRpe,tdCote,tdRes,tdDel);
+  const optionalCells=[];
+  if(champs.has('reps')) optionalCells.push(tdReps);
+  if(champs.has('poids')) optionalCells.push(tdPoids);
+  if(champs.has('duree')) optionalCells.push(tdDuree);
+  if(champs.has('distance')) optionalCells.push(tdDist);
+  if(champs.has('puissance')) optionalCells.push(tdPuissance);
+  if(champs.has('inclinaison')) optionalCells.push(tdInclinaison);
+  tr.append(tdNum,tdType,...optionalCells,tdRef,tdRpe,tdCote,tdRes,tdDel);
   return tr;
 }
 
@@ -1211,7 +1254,7 @@ function saveSession() {
     programmeNom:prog?.nom||'Libre', seanceNom:seance?.nom||'Libre', seanceType:seance?.type||'Autre',
     exercices:S.exercices.map(e=>({
       nom:e.nom, groupe:e.groupe,
-      series:e.series.filter(s=>s.done).map(s=>({reps:s.reps,poids:s.poids,duree:s.duree,distance:s.distance,ressenti:s.ressenti,rpe:s.rpe||'',echauffement:!!s.echauffement,cote:s.cote||''})),
+      series:e.series.filter(s=>s.done).map(s=>({reps:s.reps,poids:s.poids,duree:s.duree,distance:s.distance,puissance:s.puissance||'',inclinaison:s.inclinaison||'',ressenti:s.ressenti,rpe:s.rpe||'',echauffement:!!s.echauffement,cote:s.cote||''})),
       note:e.note
     })),
     noteGlobale:S.noteGlobale,
@@ -1356,7 +1399,7 @@ function confirmLibreModal(){
     refRecup:recup?recup+' s':(ref?.recup||'90 s'),
     series:Array.from({length:nbSeries},(_,i)=>({
       num:i+1, reps:reps||ref?.reps||'', poids:poids||ref?.poids||'',
-      duree:'', distance:'', done:false, ressenti:'', rpe:'', echauffement:false, cote:''
+      duree:'', distance:'', puissance:'', inclinaison:'', done:false, ressenti:'', rpe:'', echauffement:false, cote:''
     })),
     note:'',
   });

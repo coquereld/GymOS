@@ -57,6 +57,25 @@
     .sidebar-section{margin-top:var(--space-2)}
     .sidebar-label{font-size:.65rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--color-text-faint);padding:0 var(--space-2);margin-bottom:var(--space-2)}
 
+    /* ── FILTRES AVANCÉS (popover à côté de la recherche) ── */
+    .filters-pop-wrap{position:relative;flex-shrink:0}
+    #filtersToggleBtn{position:relative}
+    .filters-badge{position:absolute;top:-4px;right:-4px;min-width:16px;height:16px;padding:0 3px;border-radius:999px;background:var(--color-primary);color:#fff;font-size:.6rem;font-weight:800;display:grid;place-items:center;line-height:1}
+    .filters-pop{
+      display:none;position:absolute;top:calc(100% + 8px);right:0;z-index:60;
+      width:260px;background:var(--color-surface);border:1px solid var(--color-border);
+      border-radius:var(--radius-lg);box-shadow:var(--shadow-md);padding:var(--space-3);
+    }
+    .filters-pop.open{display:block}
+    .sidebar-label-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:var(--space-3)}
+    .reset-filters-btn{font-size:.62rem;font-weight:700;color:var(--color-primary);background:none;border:none;cursor:pointer;padding:0;text-transform:none;letter-spacing:0;opacity:.85}
+    .reset-filters-btn:hover{opacity:1;text-decoration:underline}
+    .adv-filters{display:flex;flex-direction:column;gap:.5rem}
+    .af-check{display:flex;align-items:center;gap:.45rem;font-size:.78rem;color:var(--color-text);cursor:pointer;user-select:none}
+    .af-check input{accent-color:var(--color-primary);cursor:pointer}
+    .af-select{width:100%;padding:.4rem .55rem;border-radius:var(--radius-md);border:1px solid var(--color-border);background:var(--color-surface);color:var(--color-text);font-size:.76rem;outline:none;cursor:pointer}
+    .af-select:focus{border-color:var(--color-primary)}
+
     /* ── ANATOMIE IMAGE ── */
     .sidebar-anatomy{margin-bottom:var(--space-4);border-radius:var(--radius-lg);overflow:hidden;border:1px solid var(--color-border);background:var(--color-surface-offset);line-height:0}
     .sidebar-anatomy img{width:100%;height:auto;object-fit:contain;display:block;transition:opacity var(--transition)}
@@ -370,8 +389,17 @@
       display:grid;place-items:center;
       background:color-mix(in oklab,var(--obj-color,var(--color-primary)) 15%,var(--color-surface));
       color:var(--obj-color,var(--color-primary));
+      position:relative;cursor:pointer;
     }
     .obj-panel-icon svg{width:20px;height:20px}
+    .obj-icon-preview{
+      position:absolute;top:calc(100% + 8px);left:0;z-index:20;
+      width:160px;height:160px;border-radius:var(--radius-lg);overflow:hidden;
+      background:var(--color-surface);border:1px solid var(--color-border);box-shadow:var(--shadow-md);
+      display:none;align-items:center;justify-content:center;
+    }
+    .obj-icon-preview img{width:100%;height:100%;object-fit:contain;padding:.4rem}
+    .obj-panel-icon:hover .obj-icon-preview{display:flex}
     .obj-panel-title{font-weight:700;font-size:var(--text-sm)}
     .obj-panel-subtitle{font-size:var(--text-xs);color:var(--color-text-muted);margin-top:.1rem}
     .obj-panel-close{margin-left:auto;background:none;border:none;color:var(--color-text-faint);cursor:pointer;padding:.3rem;border-radius:var(--radius-sm);display:grid;place-items:center;transition:all var(--transition)}
@@ -416,7 +444,31 @@
       transition:border-color var(--transition);width:100%
     }
     .obj-field input:focus{border-color:var(--obj-color,var(--color-primary))}
-    .obj-form-actions{margin-top:var(--space-3);display:flex;justify-content:flex-end}
+    .obj-form-actions{margin-top:var(--space-3);display:flex;justify-content:flex-end;gap:var(--space-2)}
+
+    /* ── Aide repères de poids (lbs → kg) ── */
+    .poids-help-btn{
+      width:16px;height:16px;border-radius:50%;border:1px solid var(--color-border);
+      background:var(--color-surface-offset);color:var(--color-text-faint);
+      font-size:.62rem;font-weight:800;line-height:1;display:inline-grid;place-items:center;
+      cursor:pointer;padding:0;flex-shrink:0;transition:all var(--transition)
+    }
+    .poids-help-btn:hover{background:var(--color-primary);border-color:var(--color-primary);color:#fff}
+    .poids-helper-list{display:flex;flex-direction:column;gap:2px;padding:.3rem}
+    .poids-row{
+      display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:.6rem;
+      padding:.45rem .7rem;border-radius:var(--radius-md);cursor:pointer;
+      transition:background var(--transition),color var(--transition);
+      font-size:.82rem;color:var(--color-text);
+    }
+    .poids-row:hover{background:var(--color-surface-offset)}
+    .poids-row .poids-lbs{color:var(--color-text-muted);font-size:.76rem}
+    .poids-row .poids-kg{font-weight:700;text-align:right}
+    .poids-row .poids-dot{width:7px;height:7px;border-radius:50%;background:var(--color-border);justify-self:center}
+    .poids-row.active{background:color-mix(in oklab,#c0392b 12%,var(--color-surface));color:#c0392b}
+    .poids-row.active .poids-lbs{color:#c0392b;opacity:.85}
+    .poids-row.active .poids-dot{background:#c0392b}
+    .poids-row.active .poids-kg{color:#c0392b}
     .obj-add-btn{
       display:inline-flex;align-items:center;gap:var(--space-2);
       padding:.5rem 1rem;border-radius:var(--radius-md);
@@ -426,6 +478,15 @@
     }
     .obj-add-btn:hover{filter:brightness(1.1)}
     .obj-add-btn svg{width:13px;height:13px}
+    .obj-search-btn{
+      display:inline-flex;align-items:center;gap:var(--space-2);
+      padding:.5rem 1rem;border-radius:var(--radius-md);
+      background:var(--color-surface);color:var(--obj-color,var(--color-primary));
+      border:1px solid var(--obj-color,var(--color-primary));font-size:var(--text-xs);font-weight:700;cursor:pointer;
+      transition:background var(--transition)
+    }
+    .obj-search-btn:hover{background:color-mix(in oklab,var(--obj-color,var(--color-primary)) 10%,var(--color-surface))}
+    .obj-search-btn svg{width:13px;height:13px}
 
     @media(max-width:900px){
       .obj-body{grid-template-columns:1fr}
@@ -493,6 +554,26 @@
         <div class="search" style="flex:1;min-width:0">
           <span>🔎</span>
           <input id="searchInput" placeholder="Rechercher exercice, muscle, groupe..." />
+        </div>
+        <div class="filters-pop-wrap" id="filtersPopWrap">
+          <button class="btn icon-btn" id="filtersToggleBtn" title="Filtres avancés" aria-label="Filtres avancés">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>
+            <span class="filters-badge" id="filtersBadge" style="display:none">0</span>
+          </button>
+          <div class="filters-pop" id="filtersPop">
+            <div class="sidebar-label-row">
+              <span class="sidebar-label" style="padding:0;margin:0">Filtres avancés</span>
+              <button class="reset-filters-btn" id="resetFiltersBtn" title="Réinitialiser tous les filtres">✕ Réinitialiser</button>
+            </div>
+            <div class="adv-filters" id="advFilters">
+              <label class="af-check"><input type="checkbox" id="filtSansRef"> Sans référence</label>
+              <label class="af-check"><input type="checkbox" id="filtJamaisTravaille"> Jamais travaillé</label>
+              <select class="af-select" id="filtMouvement"><option value="">Type de mouvement (tous)</option></select>
+              <select class="af-select" id="filtTypeExercice"><option value="">Type d'exercice (tous)</option></select>
+              <select class="af-select" id="filtEquipement"><option value="">Équipement (tous)</option></select>
+              <select class="af-select" id="filtNiveau"><option value="">Niveau (tous)</option></select>
+            </div>
+          </div>
         </div>
       </div>
       <button class="btn btn-primary icon-btn" id="openAddModalBtn" title="Ajouter un exercice" aria-label="Ajouter">
@@ -598,10 +679,13 @@
     <div id="objPanel" class="obj-panel" style="display:none">
       <div class="obj-panel-bar" id="objPanelBar"></div>
       <div class="obj-panel-header">
-        <div class="obj-panel-icon" id="objPanelIcon">
+        <div class="obj-panel-icon" id="objPanelIcon" title="Voir l'image de l'exercice">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
             <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
           </svg>
+          <div class="obj-icon-preview" id="objIconPreview">
+            <img id="objIconPreviewImg" src="" alt="">
+          </div>
         </div>
         <div>
           <div class="obj-panel-title" id="objPanelTitle">Référence & Objectif</div>
@@ -626,13 +710,15 @@
                   <th>1RM (kg)</th>
                   <th>Durée</th>
                   <th>Distance</th>
+                  <th>Puissance (W)</th>
+                  <th>Inclinaison (%)</th>
                   <th>Récup</th>
                   <th>Note</th>
                   <th style="width:64px"></th>
                 </tr>
               </thead>
               <tbody id="objHistoryBody">
-                <tr><td colspan="9" class="obj-empty">Aucune référence enregistrée.</td></tr>
+                <tr><td colspan="12" class="obj-empty">Aucune référence enregistrée.</td></tr>
               </tbody>
             </table>
           </div>
@@ -654,7 +740,9 @@
               <input type="text" id="obj-reps" placeholder="ex: 8-12">
             </div>
             <div class="obj-field">
-              <label>Poids (kg)</label>
+              <label style="display:flex;align-items:center;gap:.35rem">Poids (kg)
+                <button type="button" class="poids-help-btn" id="obj-poids-help" title="Repères de poids (lbs → kg)">?</button>
+              </label>
               <input type="number" id="obj-poids" placeholder="ex: 80" step="0.5">
             </div>
             <div class="obj-field">
@@ -669,6 +757,14 @@
               <label>Distance</label>
               <input type="text" id="obj-distance" placeholder="ex: 5 km">
             </div>
+            <div class="obj-field">
+              <label>Puissance (W)</label>
+              <input type="number" id="obj-puissance" placeholder="ex: 180" step="1">
+            </div>
+            <div class="obj-field">
+              <label>Inclinaison (%)</label>
+              <input type="number" id="obj-inclinaison" placeholder="ex: 5" step="0.5">
+            </div>
             <div class="obj-field" style="grid-column:1/-1">
               <label>Récupération</label>
               <input type="text" id="obj-recup" placeholder="ex: 90 s">
@@ -679,6 +775,10 @@
             </div>
           </div>
           <div class="obj-form-actions">
+            <button class="obj-search-btn" id="objSearchBtn" type="button">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+              Rechercher la dernière fois
+            </button>
             <button class="obj-add-btn" id="objAddBtn">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
               Enregistrer
@@ -899,6 +999,17 @@
       <button class="btn" id="videoEditCancel">Annuler</button>
       <button class="btn btn-primary" id="videoEditConfirm">Valider</button>
     </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════ AIDE REPÈRES DE POIDS (lbs → kg) -->
+<div class="modal-overlay" id="poidsHelperOverlay" role="dialog" aria-modal="true">
+  <div class="modal" style="max-width:320px;padding:0;overflow:hidden">
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:.9rem 1.1rem .7rem;border-bottom:1px solid var(--color-border)">
+      <div style="font-weight:700;font-size:.86rem">Repères de poids (lbs → kg)</div>
+      <button id="poidsHelperClose" style="border:none;background:none;cursor:pointer;color:var(--color-text-muted);font-size:1.1rem;line-height:1;padding:.2rem" aria-label="Fermer">×</button>
+    </div>
+    <div class="poids-helper-list" id="poidsHelperList" style="max-height:60vh;overflow-y:auto"></div>
   </div>
 </div>
 
@@ -1194,7 +1305,9 @@ let _hist=[]; // historique des séances, chargé pour le compteur d'usage par e
 const state = {
   rows:[], filteredRows:[], selectedId:null,
   sortField:null, sortDirection:'asc',
-  viewMode:'edit', activeGroup:'', displayMode:'cards'
+  viewMode:'edit', activeGroup:'', displayMode:'cards',
+  filtSansRef:false, filtJamaisTravaille:false,
+  filtMouvement:'', filtTypeExercice:'', filtEquipement:'', filtNiveau:''
 };
 
 // ─── DOM ──────────────────────────────────────────────────────────────────────
@@ -1213,7 +1326,17 @@ const els = {
   sfGroups:     document.getElementById('sfGroups'),
   cardGrid:     document.getElementById('cardGrid'),
   tableWrap:    document.getElementById('tableWrap'),
-  sectionTitle: document.getElementById('sectionTitle')
+  sectionTitle: document.getElementById('sectionTitle'),
+  filtSansRef:        document.getElementById('filtSansRef'),
+  filtJamaisTravaille:document.getElementById('filtJamaisTravaille'),
+  filtMouvement:      document.getElementById('filtMouvement'),
+  filtTypeExercice:   document.getElementById('filtTypeExercice'),
+  filtEquipement:     document.getElementById('filtEquipement'),
+  filtNiveau:         document.getElementById('filtNiveau'),
+  resetFiltersBtn:    document.getElementById('resetFiltersBtn'),
+  filtersToggleBtn:   document.getElementById('filtersToggleBtn'),
+  filtersPop:         document.getElementById('filtersPop'),
+  filtersBadge:       document.getElementById('filtersBadge')
 };
 
 // ─── UTILS ────────────────────────────────────────────────────────────────────
@@ -1355,12 +1478,71 @@ function groupeList(gm) {
   return (gm||'').split(',').map(g=>g.trim()).filter(Boolean);
 }
 
+// ─── FILTRES AVANCÉS (cumulatifs avec le groupe musculaire et la recherche) ───
+function hasReference(rowId) { return !!(_objectifs[rowId] && _objectifs[rowId].length); }
+function wasEverPracticed(nom) { return (_hist||[]).some(h=>(h.exercices||[]).some(e=>e.nom===nom)); }
+function populateAdvFilters() {
+  const fill = (sel, opts, cur) => {
+    sel.innerHTML = sel.querySelector('option[value=""]').outerHTML;
+    opts.forEach(o=>{
+      const opt=document.createElement('option'); opt.value=o; opt.textContent=o;
+      if(o===cur) opt.selected=true;
+      sel.appendChild(opt);
+    });
+  };
+  fill(els.filtMouvement, MOUVEMENT_OPTS, state.filtMouvement);
+  fill(els.filtTypeExercice, TYPE_OPTS, state.filtTypeExercice);
+  fill(els.filtEquipement, EQUIPEMENT_OPTS, state.filtEquipement);
+  fill(els.filtNiveau, NIVEAU_OPTS, state.filtNiveau);
+  els.filtSansRef.checked = state.filtSansRef;
+  els.filtJamaisTravaille.checked = state.filtJamaisTravaille;
+}
+function resetAllFilters() {
+  state.activeGroup=''; state.filtSansRef=false; state.filtJamaisTravaille=false;
+  state.filtMouvement=''; state.filtTypeExercice=''; state.filtEquipement=''; state.filtNiveau='';
+  els.searchInput.value='';
+  populateAdvFilters(); updateFiltersBadge(); renderGroupNav(); renderTable(); saveAutosave();
+}
+function updateFiltersBadge() {
+  const n = [state.filtSansRef, state.filtJamaisTravaille, state.filtMouvement, state.filtTypeExercice, state.filtEquipement, state.filtNiveau].filter(Boolean).length;
+  els.filtersBadge.textContent = n;
+  els.filtersBadge.style.display = n ? 'grid' : 'none';
+}
+els.filtSansRef.addEventListener('change',()=>{ state.filtSansRef=els.filtSansRef.checked; updateFiltersBadge(); renderTable(); saveAutosave(); });
+els.filtJamaisTravaille.addEventListener('change',()=>{ state.filtJamaisTravaille=els.filtJamaisTravaille.checked; updateFiltersBadge(); renderTable(); saveAutosave(); });
+els.filtMouvement.addEventListener('change',()=>{ state.filtMouvement=els.filtMouvement.value; updateFiltersBadge(); renderTable(); saveAutosave(); });
+els.filtTypeExercice.addEventListener('change',()=>{ state.filtTypeExercice=els.filtTypeExercice.value; updateFiltersBadge(); renderTable(); saveAutosave(); });
+els.filtEquipement.addEventListener('change',()=>{ state.filtEquipement=els.filtEquipement.value; updateFiltersBadge(); renderTable(); saveAutosave(); });
+els.filtNiveau.addEventListener('change',()=>{ state.filtNiveau=els.filtNiveau.value; updateFiltersBadge(); renderTable(); saveAutosave(); });
+els.resetFiltersBtn.addEventListener('click', resetAllFilters);
+
+// Popover filtres : ouverture/fermeture au clic sur le bouton, fermeture au clic extérieur ou Échap.
+els.filtersToggleBtn.addEventListener('click', e=>{
+  e.stopPropagation();
+  els.filtersPop.classList.toggle('open');
+});
+document.addEventListener('click', e=>{
+  const wrap = document.getElementById('filtersPopWrap');
+  if (els.filtersPop.classList.contains('open') && wrap && !wrap.contains(e.target)) {
+    els.filtersPop.classList.remove('open');
+  }
+});
+document.addEventListener('keydown', e=>{
+  if (e.key==='Escape') els.filtersPop.classList.remove('open');
+});
+
 // ─── FILTRE / TRI ─────────────────────────────────────────────────────────────
 function getVisibleRows() {
   const q = els.searchInput.value.trim().toLowerCase();
   let rows = state.rows.filter(r=>
     (!state.activeGroup || groupeList(r.groupe_musculaire).includes(state.activeGroup)) &&
-    (!q || searchableFields.some(f=>(r[f]||'').toLowerCase().includes(q)))
+    (!q || searchableFields.some(f=>(r[f]||'').toLowerCase().includes(q))) &&
+    (!state.filtSansRef || !hasReference(r.id)) &&
+    (!state.filtJamaisTravaille || !wasEverPracticed(r.exercice)) &&
+    (!state.filtMouvement || r.type_mouvement===state.filtMouvement) &&
+    (!state.filtTypeExercice || r.type_exercice===state.filtTypeExercice) &&
+    (!state.filtEquipement || r.equipement===state.filtEquipement) &&
+    (!state.filtNiveau || r.niveau===state.filtNiveau)
   );
   if (state.sortField) {
     rows = [...rows].sort((a,b)=>{
@@ -1918,7 +2100,7 @@ function startEdit(td) {
     const ta = document.createElement('textarea');
     ta.value=cur; ta.style.cssText='width:100%;min-height:80px;padding:.3rem;border:none;outline:none;background:transparent;resize:vertical;font:inherit;font-size:var(--text-sm);color:var(--color-text)';
     td.innerHTML=''; td.appendChild(ta); ta.focus();
-    ta.addEventListener('blur',()=>{target[field]=ta.value.trim();td.classList.remove('editing');td.textContent=ta.value.trim();saveAutosave();setStatus('Modifié.','ok')});
+    ta.addEventListener('blur',()=>{target[field]=ta.value.trim();td.classList.remove('editing');td.textContent=ta.value.trim();saveAutosave();renderTable();setStatus('Modifié.','ok')});
     ta.addEventListener('keydown',e=>{if(e.key==='Escape'){td.classList.remove('editing');td.textContent=cur;setStatus('Annulé.','warn')}});
     return;
   }
@@ -1933,7 +2115,9 @@ function finishEdit(td, commit=true) {
   const target=state.rows.find(r=>r.id===td.dataset.id);
   if(target&&commit){target[field]=td.textContent.trim();setStatus('Modifié.','ok');}
   td.contentEditable='false'; td.classList.remove('editing');
-  saveAutosave(); updateStats(getVisibleRows());
+  saveAutosave();
+  // Réapplique les filtres actifs (le champ modifié peut en faire sortir/entrer la ligne).
+  renderTable();
 }
 
 // ─── GALERIE CARTES ───────────────────────────────────────────────────────────
@@ -2459,6 +2643,7 @@ document.getElementById('pwdToggle').addEventListener('click',()=>{
 // Échap global
 document.addEventListener('keydown',e=>{
   if(e.key!=='Escape')return;
+  if(document.getElementById('poidsHelperOverlay').classList.contains('open')){closePoidsHelper();return;}
   if(document.getElementById('lightboxModal').classList.contains('open')){closeLightbox();return;}
   if(document.getElementById('videoModal').classList.contains('open')){closeVideoModal();return;}
   if(document.getElementById('addModal').classList.contains('open')){closeAddModal();return;}
@@ -2480,6 +2665,37 @@ function saveObjectifs() {
   GymDB.write('exercices-objectifs.json', _objectifs);
 }
 
+// ── Aide repères de poids (lbs → kg), table standard des disques/haltères ──
+const WEIGHT_TABLE = [
+  {lbs:5,kg:2.3},{lbs:10,kg:4.5},{lbs:15,kg:6.8},{lbs:20,kg:9},{lbs:25,kg:11.3},
+  {lbs:30,kg:13.5},{lbs:35,kg:15.8},{lbs:40,kg:18},{lbs:45,kg:20.3},{lbs:50,kg:22.5},
+  {lbs:55,kg:24.8},{lbs:60,kg:27},{lbs:65,kg:29.3},{lbs:70,kg:31.5},{lbs:75,kg:33.8},
+  {lbs:80,kg:36},{lbs:85,kg:38.3},{lbs:90,kg:40.5},{lbs:95,kg:42.8},{lbs:100,kg:45},
+];
+function renderPoidsHelperList(){
+  const list = document.getElementById('poidsHelperList');
+  const current = parseFloat(document.getElementById('obj-poids').value);
+  list.innerHTML = WEIGHT_TABLE.map(w=>{
+    const active = current === w.kg;
+    return `<div class="poids-row${active?' active':''}" data-kg="${w.kg}">
+      <span class="poids-lbs">${w.lbs} lbs</span>
+      <span class="poids-dot"></span>
+      <span class="poids-kg">${w.kg} kg</span>
+    </div>`;
+  }).join('');
+  list.querySelectorAll('.poids-row').forEach(row=>{
+    row.addEventListener('click', ()=>{
+      document.getElementById('obj-poids').value = row.dataset.kg;
+      renderPoidsHelperList();
+    });
+  });
+}
+function openPoidsHelper(){ renderPoidsHelperList(); document.getElementById('poidsHelperOverlay').classList.add('open'); }
+function closePoidsHelper(){ document.getElementById('poidsHelperOverlay').classList.remove('open'); }
+document.getElementById('obj-poids-help').addEventListener('click', openPoidsHelper);
+document.getElementById('poidsHelperClose').addEventListener('click', closePoidsHelper);
+document.getElementById('poidsHelperOverlay').addEventListener('click', e=>{ if(e.target.id==='poidsHelperOverlay') closePoidsHelper(); });
+
 function openObjPanel(rowId) {
   const row = state.rows.find(r => r.id === rowId);
   if (!row) return;
@@ -2493,6 +2709,13 @@ function openObjPanel(rowId) {
   document.getElementById('objPanelIcon').style.background =
     `color-mix(in oklab,${hex} 15%,var(--color-surface))`;
 
+  // Aperçu de l'image de l'exercice au survol de l'icône + agrandissement au clic (lightbox existante)
+  const iconEl = document.getElementById('objPanelIcon');
+  const previewImg = document.getElementById('objIconPreviewImg');
+  if (row.image) { previewImg.src = './img/' + row.image; previewImg.style.display=''; }
+  else { previewImg.style.display='none'; }
+  iconEl.onclick = () => openLightbox(rowId);
+
   const title = row.exercice || 'Exercice';
   const sub = [row.groupe_musculaire, row.muscle, row.subdivision && row.subdivision !== '—' ? row.subdivision : '']
     .filter(Boolean).join(' · ');
@@ -2501,7 +2724,7 @@ function openObjPanel(rowId) {
 
   // Date par défaut = aujourd'hui
   document.getElementById('obj-date').value = new Date().toISOString().split('T')[0];
-  ['series','reps','poids','rm1','duree','distance','recup'].forEach(f =>
+  ['series','reps','poids','rm1','duree','distance','puissance','inclinaison','recup'].forEach(f =>
     document.getElementById('obj-' + f).value = '');
 
   renderObjHistory(rowId, hex);
@@ -2520,7 +2743,7 @@ function renderObjHistory(rowId, hex) {
   const color = hex || 'var(--color-primary)';
 
   if (!entries.length) {
-    body.innerHTML = '<tr><td colspan="10" class="obj-empty">Aucune référence. Ajoutez la première ci-contre.</td></tr>';
+    body.innerHTML = '<tr><td colspan="12" class="obj-empty">Aucune référence. Ajoutez la première ci-contre.</td></tr>';
     return;
   }
 
@@ -2551,6 +2774,8 @@ function renderObjHistory(rowId, hex) {
       <td>${fmt(e.rm1,'kg')}</td>
       <td>${fmt(e.duree)}</td>
       <td>${fmt(e.distance)}</td>
+      <td>${fmt(e.puissance,'W')}</td>
+      <td>${fmt(e.inclinaison,'%')}</td>
       <td>${fmt(e.recup)}</td>
       <td style="max-width:160px;color:var(--color-text-muted);font-size:var(--text-xs);white-space:normal;line-height:1.4">${escapeXml(e.note||'')}</td>
       <td>
@@ -2568,8 +2793,8 @@ function renderObjHistory(rowId, hex) {
       [...tr.querySelectorAll('td')].forEach(td => td.style.fontWeight = '600');
       tr.querySelectorAll('td').forEach(td => td.style.color = color);
       // Réinitialiser les couleurs spécifiques
-      tr.querySelector('td:nth-child(9)').style.color = 'var(--color-text-muted)';
-      tr.querySelector('td:nth-child(9)').style.fontWeight = '400';
+      tr.querySelector('td:nth-child(11)').style.color = 'var(--color-text-muted)';
+      tr.querySelector('td:nth-child(11)').style.fontWeight = '400';
     }
 
     // Bouton ÉDITER → bascule la ligne en mode inline edit
@@ -2584,6 +2809,8 @@ function renderObjHistory(rowId, hex) {
       _objectifs[rowId] = (_objectifs[rowId] || []).filter(e => e !== toRemove);
       saveObjectifs();
       renderObjHistory(rowId, color);
+      // Le filtre "Sans référence" dépend du nombre d'entrées restantes pour cet exercice.
+      renderTable();
     });
 
     body.appendChild(tr);
@@ -2598,10 +2825,10 @@ function startInlineEdit(tr, rowId, sortedIdx, sortedEntries, color) {
 
   tr.classList.add('editing');
   const cells = tr.querySelectorAll('td');
-  const fields = ['date','series','reps','poids','rm1','duree','distance','recup','note'];
-  const types  = ['date','number','text','number','number','text','text','text','textarea'];
-  const units  = ['','','','kg','kg','','','',''];
-  const placeholders = ['','ex: 4','ex: 8-12','ex: 80','ex: 100','ex: 45 min','ex: 5 km','ex: 90 s','Observations…'];
+  const fields = ['date','series','reps','poids','rm1','duree','distance','puissance','inclinaison','recup','note'];
+  const types  = ['date','number','text','number','number','text','text','number','number','text','textarea'];
+  const units  = ['','','','kg','kg','','','W','%','',''];
+  const placeholders = ['','ex: 4','ex: 8-12','ex: 80','ex: 100','ex: 45 min','ex: 5 km','ex: 180','ex: 5','ex: 90 s','Observations…'];
 
   fields.forEach((f, fi) => {
     const cell = cells[fi];
@@ -2643,6 +2870,55 @@ function startInlineEdit(tr, rowId, sortedIdx, sortedEntries, color) {
   cells[0].querySelector('input').focus();
 }
 
+// Retrouve, dans l'historique des séances, la dernière fois où cet exercice a été
+// pratiqué et propose un jeu de valeurs représentatif (séries/reps/poids ou durée/
+// distance) pour préremplir le formulaire de référence — l'utilisateur n'a plus qu'à
+// vérifier/ajuster avant d'enregistrer.
+function estimeRM(reps, poids) {
+  const r = parseFloat(reps), p = parseFloat(poids);
+  if (!r || !p) return -1;
+  return r === 1 ? p : p * (1 + r / 30);
+}
+function findLastPerformance(exerciseName) {
+  const candidates = (_hist || []).filter(h => (h.exercices || []).some(e => e.nom === exerciseName));
+  if (!candidates.length) return null;
+  candidates.sort((a, b) => b.date.localeCompare(a.date));
+  const h = candidates[0];
+  const exo = h.exercices.find(e => e.nom === exerciseName);
+  const allSeries = exo.series || [];
+  const workSeries = allSeries.filter(s => !s.echauffement && (s.reps || s.poids || s.duree || s.distance || s.puissance || s.inclinaison));
+  const pool = workSeries.length ? workSeries : allSeries;
+  if (!pool.length) return { date: h.date, series: 0, reps: '', poids: '', duree: '', distance: '', puissance: '', inclinaison: '' };
+  // Choisit la série la plus représentative : le meilleur 1RM estimé si poids/reps
+  // renseignés, sinon la plus longue durée/distance (exercices cardio).
+  let best = pool[0];
+  pool.forEach(s => { if (estimeRM(s.reps, s.poids) > estimeRM(best.reps, best.poids)) best = s; });
+  if (estimeRM(best.reps, best.poids) <= 0) {
+    pool.forEach(s => {
+      if ((parseFloat(s.duree) || 0) > (parseFloat(best.duree) || 0)) best = s;
+      if ((parseFloat(s.distance) || 0) > (parseFloat(best.distance) || 0)) best = s;
+    });
+  }
+  return { date: h.date, series: pool.length, reps: best.reps || '', poids: best.poids || '', duree: best.duree || '', distance: best.distance || '', puissance: best.puissance || '', inclinaison: best.inclinaison || '' };
+}
+document.getElementById('objSearchBtn').addEventListener('click', () => {
+  const rowId = state.selectedId;
+  const row = rowId && state.rows.find(r => r.id === rowId);
+  if (!row) return;
+  const last = findLastPerformance(row.exercice);
+  if (!last) { setStatus("Aucune séance trouvée pour cet exercice dans l'historique.", 'warn'); return; }
+  document.getElementById('obj-series').value = last.series || '';
+  document.getElementById('obj-reps').value = last.reps || '';
+  document.getElementById('obj-poids').value = last.poids || '';
+  const rm = estimeRM(last.reps, last.poids);
+  document.getElementById('obj-rm1').value = rm > 0 ? Math.round(rm * 10) / 10 : '';
+  document.getElementById('obj-duree').value = last.duree || '';
+  document.getElementById('obj-distance').value = last.distance || '';
+  document.getElementById('obj-puissance').value = last.puissance || '';
+  document.getElementById('obj-inclinaison').value = last.inclinaison || '';
+  setStatus(`Dernière séance du ${fmtDateShort(last.date)} — vérifiez avant d'enregistrer.`, 'ok');
+});
+
 function addObjectif(rowId) {
   const date = document.getElementById('obj-date').value;
   if (!date) { setStatus('La date est obligatoire.', 'warn'); document.getElementById('obj-date').focus(); return; }
@@ -2655,6 +2931,8 @@ function addObjectif(rowId) {
     rm1:      document.getElementById('obj-rm1').value.trim(),
     duree:    document.getElementById('obj-duree').value.trim(),
     distance: document.getElementById('obj-distance').value.trim(),
+    puissance:   document.getElementById('obj-puissance').value.trim(),
+    inclinaison: document.getElementById('obj-inclinaison').value.trim(),
     recup:    document.getElementById('obj-recup').value.trim(),
     note:     document.getElementById('obj-note').value.trim()
   };
@@ -2666,9 +2944,11 @@ function addObjectif(rowId) {
   const row = state.rows.find(r => r.id === rowId);
   const hex = MUSCLE_COLORS[row?.groupe_musculaire] || 'var(--color-primary)';
   renderObjHistory(rowId, hex);
+  // Le filtre "Sans référence" dépend du nombre d'entrées pour cet exercice.
+  renderTable();
 
   // Reset form (garde la date)
-  ['series','reps','poids','rm1','duree','distance','recup'].forEach(f =>
+  ['series','reps','poids','rm1','duree','distance','puissance','inclinaison','recup'].forEach(f =>
     document.getElementById('obj-' + f).value = '');
   document.getElementById('obj-note').value = '';
   setStatus('Référence enregistrée.', 'ok');
@@ -2705,12 +2985,14 @@ document.getElementById('objAddBtn').addEventListener('click', () => {
       // Lien retour depuis la recherche globale (nav-panel.js) : Exercices.html?q=NomExercice
       const qParam = new URLSearchParams(location.search).get('q');
       if (qParam) els.searchInput.value = qParam;
+      populateAdvFilters(); updateFiltersBadge();
       applyViewMode('read'); renderGroupNav(); renderCards(); setStatus('Données chargées depuis Db.','ok');
       return;
     }
   } else { loadObjectifs(); }
 
   const saved = loadAutosave();
+  populateAdvFilters(); updateFiltersBadge();
   if(saved){
     els.searchInput.value=saved.search||'';
     applyViewMode('read'); renderGroupNav(); renderCards(); setStatus("Session restaurée.",'ok');
@@ -3187,7 +3469,7 @@ function confirmExoEditModal() {
 
   saveAutosave();
   closeExoEditModal();
-  renderTable();
+  renderGroupNav(); renderTable();
   setStatus(`"${row.exercice || 'Exercice'}" mis à jour.`, 'ok');
 }
 

@@ -409,12 +409,14 @@
         <span class="grp-display-badge" id="grpBadge"></span>
       </div>
     </div>
-    <div class="field"><label>Séries</label><div class="finp"><input type="number" id="exSeries" placeholder="4" min="1"></div></div>
-    <div class="field"><label>Répétitions</label><div class="finp"><input type="text" id="exReps" placeholder="8-12"></div></div>
-    <div class="field"><label>Poids (kg)</label><div class="finp"><input type="number" id="exPoids" placeholder="80" step="0.5"></div></div>
+    <div class="field" id="fldExSeries"><label>Séries</label><div class="finp"><input type="number" id="exSeries" placeholder="4" min="1"></div></div>
+    <div class="field" id="fldExReps"><label>Répétitions</label><div class="finp"><input type="text" id="exReps" placeholder="8-12"></div></div>
+    <div class="field" id="fldExPoids"><label>Poids (kg)</label><div class="finp"><input type="number" id="exPoids" placeholder="80" step="0.5"></div></div>
     <div class="field"><label>Récupération</label><div class="finp"><input type="text" id="exRecup" placeholder="90 s"></div></div>
-    <div class="field"><label>Durée</label><div class="finp"><input type="text" id="exDuree" placeholder="45 min"></div></div>
-    <div class="field"><label>Distance</label><div class="finp"><input type="text" id="exDist" placeholder="5 km"></div></div>
+    <div class="field" id="fldExDuree"><label>Durée</label><div class="finp"><input type="text" id="exDuree" placeholder="45 min"></div></div>
+    <div class="field" id="fldExDist"><label>Distance</label><div class="finp"><input type="text" id="exDist" placeholder="5 km"></div></div>
+    <div class="field" id="fldExPuissance"><label>Puissance (W)</label><div class="finp"><input type="number" id="exPuissance" placeholder="180" step="1"></div></div>
+    <div class="field" id="fldExInclinaison"><label>Inclinaison (%)</label><div class="finp"><input type="number" id="exInclinaison" placeholder="5" step="0.5"></div></div>
     <div class="field ffull"><label>Note</label><div class="finp"><input type="text" id="exNote" placeholder="Observations…"></div></div>
   </div>
   <div id="exErr" style="display:none"><div class="merr"></div></div>
@@ -661,6 +663,30 @@ function getLatestRef(nom){
     if(!entries?.length) return null;
     return entries.slice().sort((a,b) => b.date.localeCompare(a.date))[0];
   } catch{ return null; }
+}
+// Champs pertinents pour un exercice, déduits des références remplies dans Exercices.html
+// (mêmes règles que Seance.html/Historique.html) — sans référence, tout est affiché.
+const CHAMP_KEYS = ['series','reps','poids','rm1','duree','distance','puissance','inclinaison'];
+function computeChampsActifs(nom){
+  try {
+    const lib = getExoLib();
+    const objs = JSON.parse(localStorage.getItem(OBJ_KEY)||'{}');
+    const row = lib.find(e => e.exercice?.toLowerCase() === nom?.toLowerCase());
+    const entries = row ? (objs[row.id]||[]) : [];
+    if(!entries.length) return new Set(CHAMP_KEYS);
+    const actifs = new Set();
+    entries.forEach(e => CHAMP_KEYS.forEach(k => { if(e[k]) actifs.add(k); }));
+    return actifs;
+  } catch { return new Set(CHAMP_KEYS); }
+}
+// Affiche/masque les champs du formulaire d'exercice selon la pertinence pour l'exercice choisi.
+function applyChampsVisibility(nom){
+  const champs = nom ? computeChampsActifs(nom) : new Set(CHAMP_KEYS);
+  const map = {series:'fldExSeries',reps:'fldExReps',poids:'fldExPoids',duree:'fldExDuree',distance:'fldExDist',puissance:'fldExPuissance',inclinaison:'fldExInclinaison'};
+  Object.entries(map).forEach(([k,id])=>{
+    const el=document.getElementById(id);
+    if(el) el.style.display = champs.has(k) ? '' : 'none';
+  });
 }
 
 // Parse une cible de répétitions ("8-12", "10", "") -> borne basse minimale exigée, ou null si non chiffrée
@@ -1254,6 +1280,7 @@ function buildExoPicker(lib) {
     const dot=document.createElement('span'); dot.className='epp-dot'; dot.style.background=hex;
     preview.append(dot); preview.style.display='flex';
     updateGroupDisplay(e);
+    applyChampsVisibility(e.exercice);
     autoFillRef(e.exercice);
   }
 
@@ -1361,7 +1388,8 @@ function openExoModal(seanceId){
   document.getElementById('exoSearch').value='';
   document.getElementById('exoPreview').innerHTML=''; document.getElementById('exoPreview').style.display='none';
   document.getElementById('exGroupe').value='';
-  ['exSeries','exReps','exPoids','exRecup','exDuree','exDist','exNote'].forEach(id=>document.getElementById(id).value='');
+  ['exSeries','exReps','exPoids','exRecup','exDuree','exDist','exPuissance','exInclinaison','exNote'].forEach(id=>document.getElementById(id).value='');
+  applyChampsVisibility(null);
   document.getElementById('exHint').style.display='none';
   document.getElementById('exErr').style.display='none';
   document.getElementById('exOk').disabled=false;
@@ -1394,6 +1422,7 @@ function confirmExoModal(){
     series:document.getElementById('exSeries').value.trim(),reps:document.getElementById('exReps').value.trim(),
     poids:document.getElementById('exPoids').value.trim(),recup:document.getElementById('exRecup').value.trim(),
     duree:document.getElementById('exDuree').value.trim(),distance:document.getElementById('exDist').value.trim(),
+    puissance:document.getElementById('exPuissance').value.trim(),inclinaison:document.getElementById('exInclinaison').value.trim(),
     note:document.getElementById('exNote').value.trim()
   });
   if(prog){
