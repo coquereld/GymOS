@@ -1,0 +1,695 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Exercices — GymOS Mobile</title>
+<link rel="stylesheet" href="theme.css">
+<style>
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;height:100%;background:var(--bg);color:var(--tx);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;-webkit-tap-highlight-color:transparent}
+button,input,select,textarea{font-family:inherit;color:inherit}
+::-webkit-scrollbar{display:none}
+
+.m-app{display:flex;flex-direction:column;height:100dvh;overflow:hidden}
+.m-hdr{flex-shrink:0;display:flex;align-items:center;gap:.6rem;padding:.7rem .9rem;padding-top:calc(.7rem + env(safe-area-inset-top));border-bottom:1px solid var(--bord);background:var(--surf)}
+.m-hdr-title{flex:1;min-width:0;font-size:1.05rem;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.m-theme-btn{flex-shrink:0;width:36px;height:36px;border-radius:999px;border:1px solid var(--bord);background:var(--surf2);display:flex;align-items:center;justify-content:center;font-size:1rem}
+
+.m-main{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:.9rem .8rem;padding-bottom:calc(74px + env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:.7rem}
+.m-main > *{flex-shrink:0}
+
+.m-tabbar{position:fixed;left:0;right:0;bottom:0;height:calc(58px + env(safe-area-inset-bottom));padding-bottom:env(safe-area-inset-bottom);display:flex;background:var(--surf2);border-top:1px solid var(--bord);z-index:90}
+.m-tab{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.12rem;font-size:.5rem;font-weight:700;color:var(--txf);text-decoration:none;border:none;background:none}
+.m-tab .m-tab-ic{font-size:1.05rem;line-height:1}
+.m-tab.active{color:var(--prim)}
+
+.m-search-row{display:flex;gap:.5rem}
+.m-search{flex:1;min-height:46px;border-radius:.8rem;border:1px solid var(--bord);background:var(--surf2);padding:.5rem .8rem;font-size:.95rem}
+.m-filter-btn{position:relative;flex-shrink:0;width:46px;height:46px;border-radius:.8rem;border:1px solid var(--bord);background:var(--surf2);font-size:1.1rem}
+.m-filter-badge{position:absolute;top:-4px;right:-4px;min-width:16px;height:16px;padding:0 3px;border-radius:999px;background:var(--prim);color:#fff;font-size:.6rem;font-weight:800;display:none;align-items:center;justify-content:center}
+.m-filter-badge.show{display:flex}
+.m-empty{text-align:center;color:var(--txf);font-size:.85rem;padding:2rem 1rem;background:var(--surf);border:1px dashed var(--bord);border-radius:1rem}
+
+.m-grp-strip{display:flex;gap:.5rem;overflow-x:auto;-webkit-overflow-scrolling:touch;padding:.05rem .05rem .3rem}
+.m-grp-chip{flex-shrink:0;display:flex;align-items:center;gap:.4rem;padding:.45rem .75rem;border-radius:999px;border:1.5px solid var(--bord);background:var(--surf);font-size:.75rem;font-weight:700;white-space:nowrap}
+.m-grp-chip.active{border-color:var(--gc-color,var(--prim));background:color-mix(in srgb, var(--gc-color,var(--prim)) 14%, var(--surf));color:var(--gc-color,var(--prim))}
+.m-grp-dot{width:8px;height:8px;border-radius:999px;flex-shrink:0}
+.m-grp-count{font-size:.68rem;opacity:.7}
+
+/* Carte exercice */
+.m-exo-card{background:var(--surf);border:1px solid var(--bord);border-radius:1rem;overflow:hidden}
+.m-exo-img-wrap{position:relative;height:150px;background:var(--surf2)}
+.m-exo-img{width:100%;height:100%;object-fit:contain}
+.m-exo-img-ph{width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.3rem;color:var(--txf);opacity:.55;font-size:.72rem}
+.m-exo-img-ph svg{width:30px;height:30px}
+.m-exo-badge-group{position:absolute;top:.5rem;left:.5rem;font-size:.6rem;font-weight:800;padding:.2rem .55rem;border-radius:999px;background:rgba(0,0,0,.55);color:#fff}
+.m-exo-badge-video{position:absolute;top:.5rem;right:.5rem;font-size:.6rem;font-weight:800;padding:.2rem .5rem;border-radius:999px;background:rgba(0,0,0,.55);color:#fff;display:flex;align-items:center;gap:.25rem}
+.m-exo-body{padding:.7rem .8rem .3rem}
+.m-exo-name{font-weight:800;font-size:.98rem}
+.m-exo-muscle{font-size:.78rem;color:var(--txm);margin-top:.1rem}
+.m-exo-desc{font-size:.75rem;color:var(--txf);margin-top:.3rem;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.m-exo-footer{display:flex;align-items:center;gap:.4rem;padding:.6rem .8rem}
+.m-exo-sec-badge{font-size:.65rem;color:var(--txf);flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.m-exo-info-btn{flex-shrink:0;width:28px;height:28px;border-radius:999px;border:1px solid var(--bord);background:var(--surf2)}
+
+/* Overlays plein écran (détail exercice, filtres, lightbox) */
+.m-overlay{position:fixed;inset:0;background:var(--bg);z-index:200;display:flex;flex-direction:column}
+.m-overlay-hdr{flex-shrink:0;display:flex;align-items:center;gap:.6rem;padding:.7rem .9rem;padding-top:calc(.7rem + env(safe-area-inset-top));border-bottom:1px solid var(--bord);background:var(--surf)}
+.m-back-btn{flex-shrink:0;width:38px;height:38px;border-radius:999px;border:1px solid var(--bord);background:var(--surf2);font-size:1.1rem}
+.m-overlay-title{flex:1;min-width:0}
+.m-overlay-name{font-weight:800;font-size:1rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.m-overlay-sub{font-size:.75rem;color:var(--txf);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.m-overlay-body{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:.9rem .8rem;padding-bottom:calc(1.2rem + env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:.9rem}
+.m-overlay-body > *{flex-shrink:0}
+
+.m-ei-img-wrap{height:210px;border-radius:1rem;background:var(--surf);border:1px solid var(--bord);display:flex;align-items:center;justify-content:center;overflow:hidden}
+.m-ei-img-wrap img{width:100%;height:100%;object-fit:contain;cursor:zoom-in}
+
+.m-ei-tags{display:flex;flex-wrap:wrap;gap:.4rem}
+.m-ei-tag{font-size:.67rem;font-weight:800;padding:.22rem .7rem;border-radius:999px}
+
+.m-sec-title{font-size:.68rem;font-weight:800;text-transform:uppercase;letter-spacing:.05em;color:var(--txf);margin-bottom:.3rem}
+.m-sec-text{font-size:.85rem;line-height:1.5;white-space:pre-wrap}
+.m-sec-empty{font-size:.85rem;color:var(--txf);font-style:italic}
+
+.m-muscle-row{display:flex;align-items:center;gap:.5rem;padding:.5rem .6rem;border-radius:.7rem}
+.m-muscle-row.linkable{background:var(--surf2);cursor:pointer}
+.m-muscle-dot{width:9px;height:9px;border-radius:999px;flex-shrink:0}
+.m-muscle-name{flex:1;min-width:0;font-weight:700;font-size:.85rem}
+.m-muscle-stars{font-size:.8rem;flex-shrink:0}
+.m-muscle-arrow{color:var(--txf);font-size:.85rem;flex-shrink:0}
+.m-muscle-list{display:flex;flex-direction:column;gap:.35rem}
+
+/* Formulaire référence */
+.m-obj-form{display:grid;grid-template-columns:1fr 1fr;gap:.55rem}
+.m-fld{display:flex;flex-direction:column;gap:.15rem;min-width:0}
+.m-fld.full{grid-column:1/-1}
+.m-fld label{font-size:.65rem;font-weight:700;color:var(--txf);text-transform:uppercase;letter-spacing:.03em}
+.m-fld input,.m-fld textarea{width:100%;min-width:0;min-height:42px;border-radius:.6rem;border:1px solid var(--bord);background:var(--surf2);padding:.4rem .5rem;font-size:.85rem;box-sizing:border-box}
+.m-fld textarea{min-height:60px;resize:vertical}
+.m-poids-row{display:flex;gap:.4rem;min-width:0}
+.m-poids-row input{flex:1;min-width:0}
+.m-poids-help-btn{flex-shrink:0;width:42px;height:42px;border-radius:.6rem;border:1px solid var(--bord);background:var(--surf2);font-weight:800}
+.m-obj-actions{display:flex;gap:.5rem}
+.m-btn-ghost{flex:1;min-height:46px;padding:0 .9rem;border-radius:.75rem;border:1px solid var(--bord);background:var(--surf2);font-weight:700;font-size:.85rem}
+.m-btn-primary{flex:1;min-height:46px;padding:0 .9rem;border-radius:.75rem;border:none;background:var(--prim);color:#fff;font-weight:800;font-size:.9rem}
+
+/* Historique des références (cartes empilées) */
+.m-obj-entry{background:var(--surf);border:1px solid var(--bord);border-radius:.85rem;padding:.6rem .7rem;display:flex;flex-direction:column;gap:.4rem}
+.m-obj-entry.latest{border-color:var(--oe-color,var(--prim))}
+.m-obj-entry-hdr{display:flex;align-items:center;gap:.4rem}
+.m-obj-entry-date{font-weight:700;font-size:.8rem}
+.m-obj-latest-badge{font-size:.6rem;font-weight:800;padding:.15rem .45rem;border-radius:999px;background:color-mix(in srgb, var(--oe-color,var(--prim)) 14%, transparent);color:var(--oe-color,var(--prim))}
+.m-obj-del{margin-left:auto;width:26px;height:26px;border-radius:999px;border:none;background:none;color:var(--txf);font-size:1rem}
+.m-obj-chips{display:flex;flex-wrap:wrap;gap:.35rem}
+.m-obj-chip{font-size:.72rem;font-weight:700;padding:.2rem .5rem;border-radius:.5rem;background:var(--surf2)}
+.m-obj-note{font-size:.78rem;color:var(--txm);font-style:italic}
+
+/* Poids-helper */
+.m-poids-list{display:flex;flex-direction:column;gap:.4rem}
+.m-poids-row-item{display:flex;align-items:center;justify-content:space-between;padding:.6rem .8rem;border-radius:.75rem;border:1px solid var(--bord);background:var(--surf)}
+.m-poids-row-item.active{border-color:var(--prim);background:var(--primhi);color:var(--primh)}
+.m-poids-lbs{font-weight:700}
+.m-poids-kg{font-weight:800}
+
+.m-lightbox{position:fixed;inset:0;background:rgba(0,0,0,.92);z-index:400;display:flex;align-items:center;justify-content:center;padding:1rem}
+.m-lightbox img{max-width:100%;max-height:100%;object-fit:contain}
+
+/* Overlay filtres */
+.m-filter-section{display:flex;flex-direction:column;gap:.4rem}
+.m-filter-check{display:flex;align-items:center;gap:.6rem;padding:.6rem .7rem;border-radius:.7rem;background:var(--surf);border:1px solid var(--bord);font-size:.88rem;font-weight:600}
+.m-filter-check input{width:18px;height:18px}
+.m-select{width:100%;min-height:46px;padding:.5rem .7rem;border-radius:.7rem;border:1px solid var(--bord);background:var(--surf2);font-size:.9rem}
+</style>
+</head>
+<body>
+<div class="m-app">
+  <div class="m-hdr">
+    <div class="m-hdr-title">Exercices</div>
+    <button class="m-theme-btn" id="themeBtn">🌓</button>
+  </div>
+  <div class="m-main" id="mainArea"></div>
+  <nav class="m-tabbar">
+    <a class="m-tab" href="./index-mobile.html"><span class="m-tab-ic">🏠</span>Accueil</a>
+    <a class="m-tab" href="./Seance-mobile.html"><span class="m-tab-ic">🏋</span>Séance</a>
+    <a class="m-tab" href="./Programme-mobile.html"><span class="m-tab-ic">🗓</span>Programme</a>
+    <a class="m-tab" href="./Historique-mobile.html"><span class="m-tab-ic">📅</span>Historique</a>
+    <a class="m-tab" href="./Corps-mobile.html"><span class="m-tab-ic">🫀</span>Corps</a>
+    <button class="m-tab active" id="tabExercices"><span class="m-tab-ic">📋</span>Exercices</button>
+    <a class="m-tab" href="./index.html"><span class="m-tab-ic">🖥</span>Version PC</a>
+  </nav>
+</div>
+
+<script src="db.js"></script>
+<script src="gymos-utils.js"></script>
+<script>
+// ══════════════════════════════════════════════════════════════
+// CONSTANTES (identiques à Exercices.html desktop — compatibilité des données)
+// ══════════════════════════════════════════════════════════════
+const STORAGE_KEY = 'exercices-studio-autosave-v2';
+const OBJ_KEY     = 'exercices-objectifs-v1';
+const HIST_KEY    = 'gymos-historique-v1';
+const searchableFields = ['exercice','descriptif','groupe_musculaire','muscle','subdivision','muscle_secondaire','equipement','type_exercice','type_mouvement','pattern_mouvement','niveau'];
+const EQUIPEMENT_OPTS = ['Machine','Poids du corps','Haltères','Élastique','Barre'];
+const TYPE_OPTS       = ['Renforcement Musculaire','Cardio'];
+const MOUVEMENT_OPTS  = ['Polyarticulaire','Isolation'];
+const NIVEAU_OPTS     = ['Débutant','Intermédiaire','Avancé'];
+const STAR_LABELS = ['','Peu sollicité','Légèrement','Moyennement','Bien sollicité','Très sollicité'];
+const WEIGHT_TABLE = [
+  {lbs:5,kg:2.3},{lbs:10,kg:4.5},{lbs:15,kg:6.8},{lbs:20,kg:9},{lbs:25,kg:11.3},
+  {lbs:30,kg:13.5},{lbs:35,kg:15.8},{lbs:40,kg:18},{lbs:45,kg:20.3},{lbs:50,kg:22.5},
+  {lbs:55,kg:24.8},{lbs:60,kg:27},{lbs:65,kg:29.3},{lbs:70,kg:31.5},{lbs:75,kg:33.8},
+  {lbs:80,kg:36},{lbs:85,kg:38.3},{lbs:90,kg:40.5},{lbs:95,kg:42.8},{lbs:100,kg:45},
+];
+
+let _rows = [], _objectifs = {}, _hist = [], _corpsRows = [];
+let _activeGroup = '';
+let _filters = { sansRef:false, jamaisTravaille:false, mouvement:'', typeExercice:'', equipement:'', niveau:'' };
+
+// ══════════════════════════════════════════════════════════════
+// DONNÉES (logique identique à Exercices.html desktop)
+// ══════════════════════════════════════════════════════════════
+function loadData() {
+  try { const raw = JSON.parse(localStorage.getItem(STORAGE_KEY)||'{}'); _rows = Array.isArray(raw.rows) ? raw.rows : []; } catch { _rows = []; }
+  try { _objectifs = JSON.parse(localStorage.getItem(OBJ_KEY)||'{}'); } catch { _objectifs = {}; }
+  try { _hist = JSON.parse(localStorage.getItem(HIST_KEY)||'[]'); } catch { _hist = []; }
+}
+function saveObjectifs() {
+  localStorage.setItem(OBJ_KEY, JSON.stringify(_objectifs));
+  GymDB.write('exercices-objectifs.json', _objectifs);
+}
+function groupeList(gm) { return (gm||'').split(',').map(g=>g.trim()).filter(Boolean); }
+function parseSecValue(str) {
+  if (!str) return [];
+  return str.split(',').map(s => {
+    const trimmed = s.trim();
+    const colon = trimmed.lastIndexOf(':');
+    if (colon > 0) { const m=trimmed.slice(0,colon).trim(); const l=parseInt(trimmed.slice(colon+1))||3; return {m,l}; }
+    return { m: trimmed, l: 3 };
+  }).filter(x=>x.m);
+}
+function renderStarsHtml(level) {
+  return Array.from({length:5},(_,i)=> i<level ? '<span style="color:#f5b731">★</span>' : '<span style="color:#d1d0ce">☆</span>').join('');
+}
+function hasReference(rowId) { return !!(_objectifs[rowId] && _objectifs[rowId].length); }
+function wasEverPracticed(nom) { return (_hist||[]).some(h=>(h.exercices||[]).some(e=>e.nom===nom)); }
+function findCorpsRowByMuscleSub(muscle, subdivision) {
+  if (!muscle) return null;
+  let row = subdivision ? _corpsRows.find(r=>r.muscle_cible===muscle && r.subdivision_anatomique===subdivision) : null;
+  if (!row) row = _corpsRows.find(r=>r.muscle_cible===muscle);
+  return row || null;
+}
+function muscleLinkHref(row) {
+  const params = new URLSearchParams({ muscle: row.muscle_cible });
+  if (row.subdivision_anatomique && row.subdivision_anatomique !== '-') params.set('subdivision', row.subdivision_anatomique);
+  return 'Corps-mobile.html?' + params.toString();
+}
+function estimeRM(reps, poids) {
+  const r = parseFloat(reps), p = parseFloat(poids);
+  if (!r || !p) return -1;
+  return r===1 ? p : p*(1+r/30);
+}
+function findLastPerformance(exerciseName) {
+  const candidates = (_hist||[]).filter(h=>(h.exercices||[]).some(e=>e.nom===exerciseName));
+  if (!candidates.length) return null;
+  candidates.sort((a,b)=>b.date.localeCompare(a.date));
+  const h = candidates[0];
+  const exo = h.exercices.find(e=>e.nom===exerciseName);
+  const allSeries = exo.series||[];
+  const workSeries = allSeries.filter(s=>!s.echauffement && (s.reps||s.poids||s.duree||s.distance||s.puissance||s.inclinaison));
+  const pool = workSeries.length ? workSeries : allSeries;
+  if (!pool.length) return { date:h.date, series:0, reps:'', poids:'', duree:'', distance:'', puissance:'', inclinaison:'' };
+  let best = pool[0];
+  pool.forEach(s => { if (estimeRM(s.reps,s.poids) > estimeRM(best.reps,best.poids)) best = s; });
+  if (estimeRM(best.reps,best.poids) <= 0) {
+    pool.forEach(s => {
+      if ((parseFloat(s.duree)||0) > (parseFloat(best.duree)||0)) best = s;
+      if ((parseFloat(s.distance)||0) > (parseFloat(best.distance)||0)) best = s;
+    });
+  }
+  return { date:h.date, series:pool.length, reps:best.reps||'', poids:best.poids||'', duree:best.duree||'', distance:best.distance||'', puissance:best.puissance||'', inclinaison:best.inclinaison||'' };
+}
+function getVisibleRows(q) {
+  q = (q||'').trim().toLowerCase();
+  return _rows.filter(r =>
+    (!_activeGroup || groupeList(r.groupe_musculaire).includes(_activeGroup)) &&
+    (!q || searchableFields.some(f=>(r[f]||'').toLowerCase().includes(q))) &&
+    (!_filters.sansRef || !hasReference(r.id)) &&
+    (!_filters.jamaisTravaille || !wasEverPracticed(r.exercice)) &&
+    (!_filters.mouvement || r.type_mouvement===_filters.mouvement) &&
+    (!_filters.typeExercice || r.type_exercice===_filters.typeExercice) &&
+    (!_filters.equipement || r.equipement===_filters.equipement) &&
+    (!_filters.niveau || r.niveau===_filters.niveau)
+  );
+}
+function getGroupCounts() {
+  const counts = {};
+  _rows.forEach(r => groupeList(r.groupe_musculaire).forEach(g => { counts[g] = (counts[g]||0)+1; }));
+  return counts;
+}
+function updateFilterBadge() {
+  const n = [_filters.sansRef,_filters.jamaisTravaille,_filters.mouvement,_filters.typeExercice,_filters.equipement,_filters.niveau].filter(Boolean).length;
+  const badge = document.getElementById('filterBadge');
+  badge.textContent = n; badge.classList.toggle('show', n>0);
+}
+
+// ══════════════════════════════════════════════════════════════
+// RENDU LISTE
+// ══════════════════════════════════════════════════════════════
+function render() {
+  const main = document.getElementById('mainArea');
+  main.innerHTML = '';
+
+  const searchRow = document.createElement('div'); searchRow.className='m-search-row';
+  const search = document.createElement('input'); search.className='m-search'; search.placeholder='🔎 Rechercher un exercice…';
+  const filterBtn = document.createElement('button'); filterBtn.className='m-filter-btn'; filterBtn.innerHTML = '⚙<span class="m-filter-badge" id="filterBadge"></span>';
+  filterBtn.addEventListener('click', openFiltersOverlay);
+  searchRow.append(search, filterBtn);
+  main.appendChild(searchRow);
+  updateFilterBadge();
+
+  main.appendChild(buildGroupStrip());
+
+  const listWrap = document.createElement('div');
+  listWrap.style.cssText = 'display:flex;flex-direction:column;gap:.7rem';
+  main.appendChild(listWrap);
+
+  function drawList() {
+    const rows = getVisibleRows(search.value);
+    listWrap.innerHTML = '';
+    if (!rows.length) {
+      const empty = document.createElement('div'); empty.className='m-empty';
+      empty.textContent = _rows.length ? 'Aucun résultat.' : 'Aucun exercice disponible.';
+      listWrap.appendChild(empty);
+      return;
+    }
+    rows.forEach(row => listWrap.appendChild(buildExoCard(row)));
+  }
+  search.addEventListener('input', drawList);
+  drawList();
+  main._drawList = drawList;
+}
+
+function buildGroupStrip() {
+  const counts = getGroupCounts();
+  const strip = document.createElement('div'); strip.className='m-grp-strip';
+  const allChip = document.createElement('div'); allChip.className='m-grp-chip'+(_activeGroup===''?' active':'');
+  allChip.innerHTML = `<span>Tous</span><span class="m-grp-count">${_rows.length}</span>`;
+  allChip.addEventListener('click', ()=>{ _activeGroup=''; render(); });
+  strip.appendChild(allChip);
+
+  Object.keys(counts).sort((a,b)=>a.localeCompare(b,'fr')).forEach(g => {
+    const hex = MC[g]||'#9a9891';
+    const chip = document.createElement('div'); chip.className='m-grp-chip'+(_activeGroup===g?' active':'');
+    chip.style.setProperty('--gc-color', hex);
+    chip.innerHTML = `<span class="m-grp-dot" style="background:${hex}"></span><span>${esc(g)}</span><span class="m-grp-count">${counts[g]}</span>`;
+    chip.addEventListener('click', ()=>{ _activeGroup=(_activeGroup===g?'':g); render(); });
+    strip.appendChild(chip);
+  });
+  return strip;
+}
+
+function buildExoCard(row) {
+  const hex = grpc(row.groupe_musculaire);
+  const hasImg = !!row.image, hasVideo = !!row.video;
+  const card = document.createElement('div'); card.className='m-exo-card';
+
+  const imgWrap = document.createElement('div'); imgWrap.className='m-exo-img-wrap';
+  if (hasImg) {
+    const img = document.createElement('img'); img.className='m-exo-img'; img.src='./img/'+row.image; img.alt=row.exercice||'';
+    img.onerror = ()=>{ img.remove(); imgWrap.insertBefore(makeExoPh(row), imgWrap.firstChild); };
+    imgWrap.appendChild(img);
+  } else {
+    imgWrap.appendChild(makeExoPh(row));
+  }
+  if (row.groupe_musculaire) { const b=document.createElement('span'); b.className='m-exo-badge-group'; b.textContent=row.groupe_musculaire; imgWrap.appendChild(b); }
+  if (hasVideo) { const b=document.createElement('span'); b.className='m-exo-badge-video'; b.textContent='▶ MP4'; imgWrap.appendChild(b); }
+  card.appendChild(imgWrap);
+
+  const body = document.createElement('div'); body.className='m-exo-body';
+  body.innerHTML = `<div class="m-exo-name">${esc(row.exercice||'—')}</div>`
+    + (row.muscle ? `<div class="m-exo-muscle">${esc(row.muscle)}${row.subdivision&&row.subdivision!=='—'?' · '+esc(row.subdivision):''}</div>` : '')
+    + (row.descriptif ? `<div class="m-exo-desc">${esc(row.descriptif)}</div>` : '');
+  card.appendChild(body);
+
+  const foot = document.createElement('div'); foot.className='m-exo-footer';
+  const secBadge = document.createElement('div'); secBadge.className='m-exo-sec-badge';
+  if (row.muscle_secondaire) secBadge.textContent = row.muscle_secondaire;
+  foot.appendChild(secBadge);
+  const infoBtn = document.createElement('button'); infoBtn.className='m-exo-info-btn'; infoBtn.textContent='ⓘ'; infoBtn.title='Détails';
+  foot.appendChild(infoBtn);
+  card.appendChild(foot);
+
+  card.addEventListener('click', ()=>openDetailOverlay(row.id));
+  return card;
+}
+function makeExoPh(row) {
+  const ph = document.createElement('div'); ph.className='m-exo-img-ph';
+  ph.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg><span>${esc(row.groupe_musculaire||'Exercice')}</span>`;
+  return ph;
+}
+
+// ══════════════════════════════════════════════════════════════
+// OVERLAY FILTRES
+// ══════════════════════════════════════════════════════════════
+function openFiltersOverlay() {
+  const ov = document.createElement('div'); ov.className='m-overlay';
+  const hdr = document.createElement('div'); hdr.className='m-overlay-hdr';
+  const backBtn = document.createElement('button'); backBtn.className='m-back-btn'; backBtn.textContent='←';
+  backBtn.addEventListener('click', ()=>ov.remove());
+  const title = document.createElement('div'); title.className='m-overlay-title'; title.innerHTML='<div class="m-overlay-name">Filtres</div>';
+  hdr.append(backBtn, title);
+  ov.appendChild(hdr);
+
+  const body = document.createElement('div'); body.className='m-overlay-body';
+
+  const chkSansRef = document.createElement('label'); chkSansRef.className='m-filter-check';
+  chkSansRef.innerHTML = `<input type="checkbox" ${_filters.sansRef?'checked':''}> Sans référence enregistrée`;
+  chkSansRef.querySelector('input').addEventListener('change', e=>{ _filters.sansRef=e.target.checked; });
+
+  const chkJamais = document.createElement('label'); chkJamais.className='m-filter-check';
+  chkJamais.innerHTML = `<input type="checkbox" ${_filters.jamaisTravaille?'checked':''}> Jamais travaillé`;
+  chkJamais.querySelector('input').addEventListener('change', e=>{ _filters.jamaisTravaille=e.target.checked; });
+
+  body.append(chkSansRef, chkJamais);
+
+  function buildSelect(labelTxt, opts, curVal, onChange) {
+    const fld = document.createElement('div'); fld.className='m-fld';
+    const lbl = document.createElement('label'); lbl.textContent = labelTxt;
+    const sel = document.createElement('select'); sel.className='m-select';
+    sel.innerHTML = '<option value="">— Tous —</option>' + opts.map(o=>`<option value="${esc(o)}" ${o===curVal?'selected':''}>${esc(o)}</option>`).join('');
+    sel.addEventListener('change', ()=>onChange(sel.value));
+    fld.append(lbl, sel);
+    return fld;
+  }
+  body.appendChild(buildSelect('Type de mouvement', MOUVEMENT_OPTS, _filters.mouvement, v=>_filters.mouvement=v));
+  body.appendChild(buildSelect("Type d'exercice", TYPE_OPTS, _filters.typeExercice, v=>_filters.typeExercice=v));
+  body.appendChild(buildSelect('Équipement', EQUIPEMENT_OPTS, _filters.equipement, v=>_filters.equipement=v));
+  body.appendChild(buildSelect('Niveau', NIVEAU_OPTS, _filters.niveau, v=>_filters.niveau=v));
+
+  const actions = document.createElement('div'); actions.className='m-obj-actions';
+  const resetBtn = document.createElement('button'); resetBtn.className='m-btn-ghost'; resetBtn.textContent='Réinitialiser';
+  resetBtn.addEventListener('click', ()=>{
+    _activeGroup=''; _filters = { sansRef:false, jamaisTravaille:false, mouvement:'', typeExercice:'', equipement:'', niveau:'' };
+    ov.remove(); render();
+  });
+  const applyBtn = document.createElement('button'); applyBtn.className='m-btn-primary'; applyBtn.textContent='Appliquer';
+  applyBtn.addEventListener('click', ()=>{ ov.remove(); render(); });
+  actions.append(resetBtn, applyBtn);
+  body.appendChild(actions);
+
+  ov.appendChild(body);
+  document.body.appendChild(ov);
+}
+
+// ══════════════════════════════════════════════════════════════
+// DÉTAIL EXERCICE (infos + référence & objectif)
+// ══════════════════════════════════════════════════════════════
+function openDetailOverlay(rowId) {
+  const row = _rows.find(r=>r.id===rowId);
+  if (!row) return;
+  const hex = grpc(row.groupe_musculaire) || '#01696f';
+
+  const ov = document.createElement('div'); ov.className='m-overlay';
+  const hdr = document.createElement('div'); hdr.className='m-overlay-hdr';
+  const backBtn = document.createElement('button'); backBtn.className='m-back-btn'; backBtn.textContent='←';
+  backBtn.addEventListener('click', ()=>ov.remove());
+  const titleWrap = document.createElement('div'); titleWrap.className='m-overlay-title';
+  const sub = [row.muscle, row.subdivision&&row.subdivision!=='—'?row.subdivision:''].filter(Boolean).join(' · ');
+  titleWrap.innerHTML = `<div class="m-overlay-name">${esc(row.exercice||'')}</div><div class="m-overlay-sub">${esc(sub)}</div>`;
+  hdr.append(backBtn, titleWrap);
+  ov.appendChild(hdr);
+
+  const body = document.createElement('div'); body.className='m-overlay-body';
+
+  // Image
+  if (row.image) {
+    const imgWrap = document.createElement('div'); imgWrap.className='m-ei-img-wrap';
+    const img = document.createElement('img'); img.src='./img/'+row.image; img.alt=row.exercice||'';
+    img.onerror = ()=>{ imgWrap.innerHTML=''; imgWrap.appendChild(makeExoPh(row)); };
+    img.addEventListener('click', ()=>openImageLightbox(row.image, row.exercice||''));
+    imgWrap.appendChild(img);
+    body.appendChild(imgWrap);
+  }
+
+  // Groupe(s) musculaire(s)
+  const grpTags = document.createElement('div'); grpTags.className='m-ei-tags';
+  groupeList(row.groupe_musculaire).forEach(g => {
+    const ghex = MC[g]||hex;
+    const t = document.createElement('span'); t.className='m-ei-tag';
+    t.style.cssText = `background:${ghex}22;color:${ghex}`;
+    t.textContent = g;
+    grpTags.appendChild(t);
+  });
+  if (grpTags.children.length) body.appendChild(grpTags);
+
+  // Muscle principal (cliquable vers Corps-mobile)
+  if (row.muscle) {
+    const secTitle = document.createElement('div'); secTitle.className='m-sec-title'; secTitle.textContent='Muscle principal';
+    body.appendChild(secTitle);
+    const subVal = row.subdivision && row.subdivision!=='—' ? row.subdivision : '';
+    const corpsRow = findCorpsRowByMuscleSub(row.muscle, subVal);
+    const mrow = document.createElement('div'); mrow.className='m-muscle-row'+(corpsRow?' linkable':'');
+    mrow.innerHTML = `<span class="m-muscle-dot" style="background:${hex}"></span><span class="m-muscle-name" style="color:${hex}">${esc(row.muscle)}</span><span class="m-muscle-stars">★★★★★</span>`+(corpsRow?'<span class="m-muscle-arrow">→</span>':'');
+    if (corpsRow) mrow.addEventListener('click', ()=>{ location.href = muscleLinkHref(corpsRow); });
+    body.appendChild(mrow);
+  }
+
+  // Muscles secondaires
+  const parsed = parseSecValue(row.muscle_secondaire);
+  if (parsed.length) {
+    const secTitle = document.createElement('div'); secTitle.className='m-sec-title'; secTitle.textContent='Muscles secondaires';
+    body.appendChild(secTitle);
+    const list = document.createElement('div'); list.className='m-muscle-list';
+    parsed.forEach(({m,l}) => {
+      const corpsRow = findCorpsRowByMuscleSub(m, '');
+      const mrow = document.createElement('div'); mrow.className='m-muscle-row'+(corpsRow?' linkable':'');
+      mrow.innerHTML = `<span class="m-muscle-dot" style="background:${hex}66"></span><span class="m-muscle-name">${esc(m)}</span><span class="m-muscle-stars">${renderStarsHtml(l)}</span>`+(corpsRow?'<span class="m-muscle-arrow">→</span>':'');
+      mrow.title = STAR_LABELS[l]||'';
+      if (corpsRow) mrow.addEventListener('click', ()=>{ location.href = muscleLinkHref(corpsRow); });
+      list.appendChild(mrow);
+    });
+    body.appendChild(list);
+  }
+
+  // Équipement / type / pattern / niveau / descriptif / exécution / vidéo
+  [
+    { label:'Équipement', val: row.equipement },
+    { label:"Type d'exercice", val: row.type_exercice },
+    { label:'Type de mouvement', val: row.type_mouvement },
+    { label:'Pattern de mouvement', val: row.pattern_mouvement },
+    { label:'Niveau', val: row.niveau },
+    { label:'Descriptif', val: row.descriptif },
+    { label:'Exécution / Technique', val: row.execution },
+  ].forEach(({label,val}) => {
+    if (!val) return;
+    const sec = document.createElement('div');
+    const t = document.createElement('div'); t.className='m-sec-title'; t.textContent=label;
+    const v = document.createElement('div'); v.className='m-sec-text'; v.textContent=val;
+    sec.append(t,v);
+    body.appendChild(sec);
+  });
+  if (row.video) {
+    const vb = document.createElement('span'); vb.className='m-ei-tag'; vb.style.cssText='background:var(--surf2);color:var(--txm)';
+    vb.textContent = '▶ ' + row.video;
+    body.appendChild(vb);
+  }
+
+  // ── Référence & Objectif ──
+  const objTitle = document.createElement('div'); objTitle.className='m-sec-title'; objTitle.textContent='Référence & objectif';
+  body.appendChild(objTitle);
+
+  const form = document.createElement('div'); form.className='m-obj-form';
+  function mkFld(labelTxt, id, type, full, step) {
+    const fld = document.createElement('div'); fld.className='m-fld'+(full?' full':'');
+    const lbl = document.createElement('label'); lbl.textContent = labelTxt;
+    const inp = document.createElement(type==='textarea'?'textarea':'input');
+    if (type!=='textarea') inp.type = type;
+    if (type==='number') { inp.inputMode='decimal'; inp.min='0'; if (step) inp.step=step; }
+    inp.id = id;
+    fld.append(lbl, inp);
+    return fld;
+  }
+  const dateFld = mkFld('Date', 'obj-date', 'date'); dateFld.querySelector('input').value = new Date().toISOString().split('T')[0];
+  form.appendChild(dateFld);
+  form.appendChild(mkFld('Séries', 'obj-series', 'number', false, '1'));
+  form.appendChild(mkFld('Répétitions', 'obj-reps', 'text'));
+
+  const poidsFld = document.createElement('div'); poidsFld.className='m-fld';
+  const poidsLbl = document.createElement('label'); poidsLbl.textContent = 'Poids (kg)';
+  const poidsRow = document.createElement('div'); poidsRow.className='m-poids-row';
+  const poidsInp = document.createElement('input'); poidsInp.type='number'; poidsInp.inputMode='decimal'; poidsInp.min='0'; poidsInp.step='0.5'; poidsInp.id='obj-poids';
+  const poidsHelpBtn = document.createElement('button'); poidsHelpBtn.className='m-poids-help-btn'; poidsHelpBtn.type='button'; poidsHelpBtn.textContent='?';
+  poidsHelpBtn.addEventListener('click', ()=>openPoidsHelper(poidsInp));
+  poidsRow.append(poidsInp, poidsHelpBtn);
+  poidsFld.append(poidsLbl, poidsRow);
+  form.appendChild(poidsFld);
+
+  form.appendChild(mkFld('1RM estimé (kg)', 'obj-rm1', 'number', false, '0.5'));
+  form.appendChild(mkFld('Durée cible', 'obj-duree', 'text'));
+  form.appendChild(mkFld('Distance', 'obj-distance', 'text'));
+  form.appendChild(mkFld('Puissance (W)', 'obj-puissance', 'number', false, '1'));
+  form.appendChild(mkFld('Inclinaison (%)', 'obj-inclinaison', 'number', false, '0.5'));
+  form.appendChild(mkFld('Récupération', 'obj-recup', 'text'));
+  form.appendChild(mkFld('Note', 'obj-note', 'textarea', true));
+  body.appendChild(form);
+
+  const actions = document.createElement('div'); actions.className='m-obj-actions';
+  const searchBtn = document.createElement('button'); searchBtn.className='m-btn-ghost'; searchBtn.textContent='↩ Dernière fois';
+  searchBtn.addEventListener('click', ()=>{
+    const last = findLastPerformance(row.exercice);
+    if (!last) { showToast("Aucune séance trouvée pour cet exercice."); return; }
+    form.querySelector('#obj-series').value = last.series||'';
+    form.querySelector('#obj-reps').value = last.reps||'';
+    form.querySelector('#obj-poids').value = last.poids||'';
+    const rm = estimeRM(last.reps, last.poids);
+    form.querySelector('#obj-rm1').value = rm>0 ? Math.round(rm*10)/10 : '';
+    form.querySelector('#obj-duree').value = last.duree||'';
+    form.querySelector('#obj-distance').value = last.distance||'';
+    form.querySelector('#obj-puissance').value = last.puissance||'';
+    form.querySelector('#obj-inclinaison').value = last.inclinaison||'';
+    showToast(`Dernière séance du ${fmtDateShort(last.date)} — vérifiez avant d'enregistrer.`);
+  });
+  const saveBtn = document.createElement('button'); saveBtn.className='m-btn-primary'; saveBtn.textContent='Enregistrer';
+  saveBtn.addEventListener('click', ()=>{
+    const date = form.querySelector('#obj-date').value;
+    if (!date) { showToast('La date est obligatoire.'); return; }
+    const entry = {
+      date,
+      series: form.querySelector('#obj-series').value.trim(),
+      reps: form.querySelector('#obj-reps').value.trim(),
+      poids: form.querySelector('#obj-poids').value.trim(),
+      rm1: form.querySelector('#obj-rm1').value.trim(),
+      duree: form.querySelector('#obj-duree').value.trim(),
+      distance: form.querySelector('#obj-distance').value.trim(),
+      puissance: form.querySelector('#obj-puissance').value.trim(),
+      inclinaison: form.querySelector('#obj-inclinaison').value.trim(),
+      recup: form.querySelector('#obj-recup').value.trim(),
+      note: form.querySelector('#obj-note').value.trim(),
+    };
+    if (!_objectifs[rowId]) _objectifs[rowId] = [];
+    _objectifs[rowId].push(entry);
+    saveObjectifs();
+    renderObjHistory(rowId, hex, historyWrap);
+    ['series','reps','poids','rm1','duree','distance','puissance','inclinaison','recup'].forEach(f => form.querySelector('#obj-'+f).value = '');
+    form.querySelector('#obj-note').value = '';
+    showToast('Référence enregistrée ✅');
+  });
+  actions.append(searchBtn, saveBtn);
+  body.appendChild(actions);
+
+  const historyTitle = document.createElement('div'); historyTitle.className='m-sec-title'; historyTitle.textContent='Historique des références';
+  body.appendChild(historyTitle);
+  const historyWrap = document.createElement('div'); historyWrap.style.cssText='display:flex;flex-direction:column;gap:.5rem';
+  body.appendChild(historyWrap);
+  renderObjHistory(rowId, hex, historyWrap);
+
+  ov.appendChild(body);
+  document.body.appendChild(ov);
+}
+
+function renderObjHistory(rowId, hex, wrap) {
+  const entries = (_objectifs[rowId]||[]).slice().sort((a,b)=>b.date.localeCompare(a.date));
+  wrap.innerHTML = '';
+  if (!entries.length) {
+    const e = document.createElement('div'); e.className='m-sec-empty'; e.textContent='Aucune référence enregistrée pour l\'instant.';
+    wrap.appendChild(e);
+    return;
+  }
+  entries.forEach((entry,i) => {
+    const isLatest = i===0;
+    const card = document.createElement('div'); card.className='m-obj-entry'+(isLatest?' latest':'');
+    card.style.setProperty('--oe-color', hex);
+    const hdrRow = document.createElement('div'); hdrRow.className='m-obj-entry-hdr';
+    const dateStr = entry.date ? new Date(entry.date+'T00:00:00').toLocaleDateString('fr-FR',{day:'2-digit',month:'short',year:'numeric'}) : '—';
+    hdrRow.innerHTML = `<span class="m-obj-entry-date">${esc(dateStr)}</span>` + (isLatest?'<span class="m-obj-latest-badge">Actuel</span>':'');
+    const delBtn = document.createElement('button'); delBtn.className='m-obj-del'; delBtn.textContent='×'; delBtn.title='Supprimer';
+    delBtn.addEventListener('click', ()=>{
+      _objectifs[rowId] = (_objectifs[rowId]||[]).filter(e=>e!==entry);
+      saveObjectifs();
+      renderObjHistory(rowId, hex, wrap);
+    });
+    hdrRow.appendChild(delBtn);
+    card.appendChild(hdrRow);
+
+    const chips = document.createElement('div'); chips.className='m-obj-chips';
+    [
+      entry.series && `${entry.series} séries`, entry.reps && `${entry.reps} reps`, entry.poids && `${entry.poids} kg`,
+      entry.rm1 && `1RM ${entry.rm1} kg`, entry.duree && entry.duree, entry.distance && entry.distance,
+      entry.puissance && `${entry.puissance} W`, entry.inclinaison && `${entry.inclinaison}%`, entry.recup && `Récup ${entry.recup}`,
+    ].filter(Boolean).forEach(c => { const s=document.createElement('span'); s.className='m-obj-chip'; s.textContent=c; chips.appendChild(s); });
+    if (chips.children.length) card.appendChild(chips);
+    if (entry.note) { const n=document.createElement('div'); n.className='m-obj-note'; n.textContent=entry.note; card.appendChild(n); }
+
+    wrap.appendChild(card);
+  });
+}
+
+// ══════════════════════════════════════════════════════════════
+// POIDS-HELPER (lbs → kg)
+// ══════════════════════════════════════════════════════════════
+function openPoidsHelper(targetInput) {
+  const ov = document.createElement('div'); ov.className='m-overlay';
+  const hdr = document.createElement('div'); hdr.className='m-overlay-hdr';
+  const backBtn = document.createElement('button'); backBtn.className='m-back-btn'; backBtn.textContent='←';
+  backBtn.addEventListener('click', ()=>ov.remove());
+  const title = document.createElement('div'); title.className='m-overlay-title'; title.innerHTML='<div class="m-overlay-name">Repères de poids (lbs → kg)</div>';
+  hdr.append(backBtn, title);
+  ov.appendChild(hdr);
+
+  const body = document.createElement('div'); body.className='m-overlay-body';
+  const list = document.createElement('div'); list.className='m-poids-list';
+  const current = parseFloat(targetInput.value);
+  WEIGHT_TABLE.forEach(w => {
+    const row = document.createElement('div'); row.className='m-poids-row-item'+(current===w.kg?' active':'');
+    row.innerHTML = `<span class="m-poids-lbs">${w.lbs} lbs</span><span class="m-poids-kg">${w.kg} kg</span>`;
+    row.addEventListener('click', ()=>{ targetInput.value = w.kg; ov.remove(); });
+    list.appendChild(row);
+  });
+  body.appendChild(list);
+  ov.appendChild(body);
+  document.body.appendChild(ov);
+}
+
+// ══════════════════════════════════════════════════════════════
+// LIGHTBOX / TOAST
+// ══════════════════════════════════════════════════════════════
+function openImageLightbox(src, title) {
+  const lb = document.createElement('div'); lb.className='m-lightbox';
+  const img = document.createElement('img'); img.src='./img/'+src; img.alt=title||'';
+  lb.appendChild(img);
+  lb.addEventListener('click', ()=>lb.remove());
+  document.body.appendChild(lb);
+}
+function showToast(msg) {
+  let t = document.getElementById('toast');
+  if (!t) {
+    t = document.createElement('div'); t.id='toast';
+    t.style.cssText = 'position:fixed;left:50%;bottom:calc(74px + env(safe-area-inset-bottom) + .6rem);transform:translateX(-50%);background:var(--tx);color:var(--bg);padding:.6rem 1.1rem;border-radius:999px;font-size:.82rem;font-weight:700;z-index:500;opacity:0;transition:opacity .25s;max-width:85vw;text-align:center';
+    document.body.appendChild(t);
+  }
+  t.textContent = msg; t.style.opacity='1';
+  clearTimeout(t._h); t._h = setTimeout(()=>t.style.opacity='0', 2400);
+}
+
+// ══════════════════════════════════════════════════════════════
+// WIRING / INIT
+// ══════════════════════════════════════════════════════════════
+document.getElementById('themeBtn').addEventListener('click', ()=>applyTheme(document.documentElement.getAttribute('data-theme')==='dark'?'light':'dark'));
+
+(async function init(){
+  applyTheme(localStorage.getItem('muscle-xml-theme')||'light');
+  loadData();
+  const dbState = await GymDB.init();
+  if (dbState === 'connected') {
+    try { const d=await GymDB.read('exercices.json'); if(d&&Array.isArray(d.rows)&&d.rows.length){ _rows=d.rows; localStorage.setItem(STORAGE_KEY,JSON.stringify(d)); } } catch{}
+    try { const o=await GymDB.read('exercices-objectifs.json'); if(o){ _objectifs=o; localStorage.setItem(OBJ_KEY,JSON.stringify(o)); } } catch{}
+    try { const h=await GymDB.read('historique.json'); if(Array.isArray(h)){ _hist=h; localStorage.setItem(HIST_KEY,JSON.stringify(h)); } } catch{}
+    try { const cr=await GymDB.read('corps.json'); if(cr&&Array.isArray(cr.rows)) _corpsRows=cr.rows; } catch{}
+  }
+  render();
+})();
+</script>
+</body>
+</html>

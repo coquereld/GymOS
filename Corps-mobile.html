@@ -1,0 +1,644 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Corps — GymOS Mobile</title>
+<link rel="stylesheet" href="theme.css">
+<style>
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;height:100%;background:var(--bg);color:var(--tx);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;-webkit-tap-highlight-color:transparent}
+button,input{font-family:inherit;color:inherit}
+::-webkit-scrollbar{display:none}
+
+.m-app{display:flex;flex-direction:column;height:100dvh;overflow:hidden}
+.m-hdr{flex-shrink:0;display:flex;align-items:center;gap:.6rem;padding:.7rem .9rem;padding-top:calc(.7rem + env(safe-area-inset-top));border-bottom:1px solid var(--bord);background:var(--surf)}
+.m-hdr-title{flex:1;min-width:0;font-size:1.05rem;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.m-theme-btn{flex-shrink:0;width:36px;height:36px;border-radius:999px;border:1px solid var(--bord);background:var(--surf2);display:flex;align-items:center;justify-content:center;font-size:1rem}
+
+.m-main{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:.9rem .8rem;padding-bottom:calc(74px + env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:.7rem}
+.m-main > *{flex-shrink:0}
+
+.m-tabbar{position:fixed;left:0;right:0;bottom:0;height:calc(58px + env(safe-area-inset-bottom));padding-bottom:env(safe-area-inset-bottom);display:flex;background:var(--surf2);border-top:1px solid var(--bord);z-index:90}
+.m-tab{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.12rem;font-size:.5rem;font-weight:700;color:var(--txf);text-decoration:none;border:none;background:none}
+.m-tab .m-tab-ic{font-size:1.05rem;line-height:1}
+.m-tab.active{color:var(--prim)}
+
+.m-search{width:100%;min-height:46px;border-radius:.8rem;border:1px solid var(--bord);background:var(--surf2);padding:.5rem .8rem;font-size:.95rem}
+.m-empty{text-align:center;color:var(--txf);font-size:.85rem;padding:2rem 1rem;background:var(--surf);border:1px dashed var(--bord);border-radius:1rem}
+
+/* Chips de filtre par groupe musculaire */
+.m-grp-strip{display:flex;gap:.5rem;overflow-x:auto;-webkit-overflow-scrolling:touch;padding:.05rem .05rem .3rem}
+.m-grp-chip{flex-shrink:0;display:flex;align-items:center;gap:.4rem;padding:.45rem .75rem;border-radius:999px;border:1.5px solid var(--bord);background:var(--surf);font-size:.75rem;font-weight:700;white-space:nowrap}
+.m-grp-chip.active{border-color:var(--gc-color,var(--prim));background:color-mix(in srgb, var(--gc-color,var(--prim)) 14%, var(--surf));color:var(--gc-color,var(--prim))}
+.m-grp-dot{width:8px;height:8px;border-radius:999px;flex-shrink:0}
+.m-grp-count{font-size:.68rem;opacity:.7}
+
+/* Carte muscle (une par ligne, empilées) */
+.m-muscle-card{background:var(--surf);border:1px solid var(--bord);border-radius:1rem;overflow:hidden}
+.m-mc-img-wrap{position:relative;height:150px;background:var(--surf2);display:flex;align-items:center;justify-content:center;overflow:hidden}
+.m-mc-img{width:100%;height:100%;object-fit:contain}
+.m-mc-img-ph{display:flex;flex-direction:column;align-items:center;gap:.3rem;color:var(--txf);opacity:.6;font-size:.72rem;text-align:center;padding:0 1rem}
+.m-mc-img-ph svg{width:32px;height:32px}
+.m-mc-grp-badge{position:absolute;top:.5rem;left:.5rem;font-size:.6rem;font-weight:800;padding:.2rem .55rem;border-radius:999px;background:rgba(0,0,0,.55);color:#fff}
+.m-mc-dots{position:absolute;bottom:.4rem;left:50%;transform:translateX(-50%);display:flex;gap:.3rem}
+.m-mc-dot{width:6px;height:6px;border-radius:999px;background:rgba(255,255,255,.55)}
+.m-mc-dot.active{background:#fff}
+.m-mc-body{padding:.7rem .8rem .3rem}
+.m-mc-name{font-weight:800;font-size:.98rem}
+.m-mc-sub{font-size:.78rem;color:var(--txm);margin-top:.1rem}
+.m-mc-loc{font-size:.74rem;color:var(--txf);margin-top:.3rem;display:flex;align-items:flex-start;gap:.3rem}
+.m-mc-footer{display:flex;align-items:center;gap:.4rem;flex-wrap:wrap;padding:.6rem .8rem}
+.m-badge{font-size:.62rem;font-weight:700;padding:.2rem .5rem;border-radius:999px;white-space:nowrap}
+.m-badge-type{background:var(--surf2);color:var(--txm)}
+.m-badge-recup-24{background:rgba(161,44,123,.14);color:#a12c7b}
+.m-badge-recup-48{background:rgba(1,105,111,.14);color:var(--prim)}
+.m-badge-recup-72{background:rgba(150,66,25,.14);color:#964219}
+.m-badge-freq{background:rgba(1,105,111,.12);color:var(--prim)}
+.m-badge-freq-never{background:var(--surf2);color:var(--txf)}
+.m-mc-info-btn{margin-left:auto;width:28px;height:28px;border-radius:999px;border:1px solid var(--bord);background:var(--surf2);flex-shrink:0}
+
+/* Overlay détail / fiche muscle + recap exercice (plein écran) */
+.m-overlay{position:fixed;inset:0;background:var(--bg);z-index:200;display:flex;flex-direction:column}
+.m-overlay-hdr{flex-shrink:0;display:flex;align-items:center;gap:.6rem;padding:.7rem .9rem;padding-top:calc(.7rem + env(safe-area-inset-top));border-bottom:1px solid var(--bord);background:var(--surf)}
+.m-back-btn{flex-shrink:0;width:38px;height:38px;border-radius:999px;border:1px solid var(--bord);background:var(--surf2);font-size:1.1rem}
+.m-overlay-title{flex:1;min-width:0}
+.m-overlay-name{font-weight:800;font-size:1rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.m-overlay-sub{font-size:.75rem;color:var(--txf);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.m-overlay-body{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:.9rem .8rem;padding-bottom:calc(1.2rem + env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:.9rem}
+.m-overlay-body > *{flex-shrink:0}
+
+.m-dm-img-wrap{position:relative;height:210px;background:var(--surf);border:1px solid var(--bord);border-radius:1rem;display:flex;align-items:center;justify-content:center;overflow:hidden}
+.m-dm-img{width:100%;height:100%;object-fit:contain;cursor:zoom-in}
+
+.m-stat-grid{display:flex;gap:.55rem}
+.m-stat-grid>div{flex:1;background:var(--surf);border:1px solid var(--bord);border-radius:.85rem;padding:.65rem .3rem;text-align:center}
+.m-stat-val{font-size:1.05rem;font-weight:800;font-variant-numeric:tabular-nums}
+.m-stat-lbl{font-size:.65rem;color:var(--txf);margin-top:.1rem}
+.m-freq-note{font-size:.68rem;color:var(--txf);font-style:italic;line-height:1.4}
+
+.m-dm-loc-row{display:flex;gap:.5rem}
+.m-dm-loc-img,.m-dm-loc-ph{flex:1;height:110px;border-radius:.75rem;object-fit:contain;background:var(--surf);border:1px solid var(--bord)}
+.m-dm-loc-ph{display:flex;align-items:center;justify-content:center;color:var(--txf);font-size:.68rem}
+
+.m-sec-title{font-size:.68rem;font-weight:800;text-transform:uppercase;letter-spacing:.05em;color:var(--txf);margin-bottom:.3rem}
+.m-sec-text{font-size:.85rem;line-height:1.5;white-space:pre-wrap}
+.m-sec-empty{font-size:.85rem;color:var(--txf);font-style:italic}
+
+.m-dm-panels-row{display:flex;gap:.5rem}
+.m-dm-panel-col{flex:1;min-width:0;display:flex;flex-direction:column}
+.m-dm-panel-img,.m-dm-panel-ph{width:100%;height:88px;border-radius:.65rem;object-fit:contain;background:var(--surf);border:1px solid var(--bord);cursor:zoom-in}
+.m-dm-panel-ph{display:flex;align-items:center;justify-content:center;color:var(--txf);font-size:.62rem;text-align:center;padding:.3rem}
+.m-dm-panel-title{font-size:.56rem;font-weight:800;text-transform:uppercase;letter-spacing:.02em;color:var(--txf);margin-bottom:.25rem;text-align:center;line-height:1.25}
+
+.m-exo-row{display:flex;align-items:center;gap:.6rem;background:var(--surf);border:1px solid var(--bord);border-radius:.85rem;padding:.55rem .6rem;text-align:left}
+.m-exo-row-img,.m-exo-row-ph{width:40px;height:40px;border-radius:.6rem;object-fit:cover;flex-shrink:0}
+.m-exo-row-ph{display:flex;align-items:center;justify-content:center;background:var(--surf2);color:var(--txf)}
+.m-exo-row-info{flex:1;min-width:0}
+.m-exo-row-name{font-weight:700;font-size:.85rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.m-exo-row-badge{font-size:.65rem;font-weight:700;margin-top:.15rem;display:flex;align-items:center;gap:.3rem}
+.m-exo-row-badge.principal{color:var(--prim)}
+.m-exo-row-badge.secondaire{color:var(--txf)}
+
+.m-erb-tags{display:flex;flex-wrap:wrap;gap:.35rem}
+.m-erb-tag{font-size:.68rem;font-weight:700;padding:.2rem .55rem;border-radius:999px;background:var(--surf2);color:var(--txm)}
+.m-erb-series-row{display:flex;flex-wrap:wrap;align-items:center;gap:.35rem;margin-top:.3rem}
+.m-erb-chip{font-size:.72rem;font-weight:700;padding:.2rem .5rem;border-radius:.5rem;background:var(--surf2);color:var(--tx)}
+
+.m-lightbox{position:fixed;inset:0;background:rgba(0,0,0,.92);z-index:400;display:flex;align-items:center;justify-content:center;padding:1rem}
+.m-lightbox img{max-width:100%;max-height:100%;object-fit:contain}
+</style>
+</head>
+<body>
+<div class="m-app">
+  <div class="m-hdr">
+    <div class="m-hdr-title">Corps</div>
+    <button class="m-theme-btn" id="themeBtn">🌓</button>
+  </div>
+  <div class="m-main" id="mainArea"></div>
+  <nav class="m-tabbar">
+    <a class="m-tab" href="./index-mobile.html"><span class="m-tab-ic">🏠</span>Accueil</a>
+    <a class="m-tab" href="./Seance-mobile.html"><span class="m-tab-ic">🏋</span>Séance</a>
+    <a class="m-tab" href="./Programme-mobile.html"><span class="m-tab-ic">🗓</span>Programme</a>
+    <a class="m-tab" href="./Historique-mobile.html"><span class="m-tab-ic">📅</span>Historique</a>
+    <button class="m-tab active" id="tabCorps"><span class="m-tab-ic">🫀</span>Corps</button>
+    <a class="m-tab" href="./Exercices-mobile.html"><span class="m-tab-ic">📋</span>Exercices</a>
+    <a class="m-tab" href="./index.html"><span class="m-tab-ic">🖥</span>Version PC</a>
+  </nav>
+</div>
+
+<script src="db.js"></script>
+<script src="gymos-utils.js"></script>
+<script>
+// ══════════════════════════════════════════════════════════════
+// CONSTANTES (identiques à Corps.html desktop — lecture seule)
+// ══════════════════════════════════════════════════════════════
+const STORAGE_KEY = 'muscle-xml-studio-autosave-v9';
+const EXO_KEY      = 'exercices-studio-autosave-v2';
+const OBJ_KEY      = 'exercices-objectifs-v1';
+const HIST_KEY     = 'gymos-historique-v1';
+const GROUPS_LIST  = ['Abdominaux','Avant-bras','Bras','Cuisses (arrière)','Cuisses (avant)','Cuisses (intérieur)','Dos','Épaules','Fessiers','Mollets','Pectoraux'];
+const searchableFields = ['groupe_musculaire','muscle_cible','type_subdivision','subdivision_anatomique','localisation_fonctionnelle','jour_recup'];
+const TEXT_DETAIL_FIELDS = [
+  { key:'fonction_principale', label:'Fonction principale' },
+  { key:'origine',             label:'Origine' },
+  { key:'insertion',           label:'Insertion' },
+  { key:'innervation',         label:'Innervation' },
+  { key:'action',              label:'Action' },
+];
+const PANELS = [
+  { key:'image_zoom_insertion',  title:'Zoom · insertion' },
+  { key:'image_vue_profonde',    title:'Vue profonde' },
+  { key:'image_faisceau_groupe', title:'Faisceaux du groupe' },
+];
+
+let _rows = [], _exoLib = [], _objectifs = {}, _hist = [];
+let _subdivFreq = {};
+let _activeGroup = '';
+
+// ══════════════════════════════════════════════════════════════
+// DONNÉES (logique identique à Corps.html desktop)
+// ══════════════════════════════════════════════════════════════
+function loadData() {
+  try { const raw = JSON.parse(localStorage.getItem(STORAGE_KEY)||'{}'); _rows = Array.isArray(raw.rows) ? raw.rows : []; } catch { _rows = []; }
+  try { _exoLib = JSON.parse(localStorage.getItem(EXO_KEY)||'{}').rows||[]; } catch { _exoLib=[]; }
+  try { _objectifs = JSON.parse(localStorage.getItem(OBJ_KEY)||'{}'); } catch { _objectifs={}; }
+  try { _hist = JSON.parse(localStorage.getItem(HIST_KEY)||'[]'); } catch { _hist=[]; }
+}
+function parseSecValue(str) {
+  if (!str) return [];
+  return str.split(',').map(s => {
+    const trimmed = s.trim();
+    const colon = trimmed.lastIndexOf(':');
+    if (colon > 0) {
+      const m = trimmed.slice(0, colon).trim();
+      const l = parseInt(trimmed.slice(colon+1)) || 3;
+      return { m, l };
+    }
+    return { m: trimmed, l: 3 };
+  }).filter(x => x.m);
+}
+function renderStarsHtml(level) {
+  return Array.from({length:5},(_,i)=> i<level ? '<span style="color:#f5b731">★</span>' : '<span style="color:#d1d0ce">☆</span>').join('');
+}
+function findExercisesForMuscle(muscleCible) {
+  const principaux = [], secondaires = [];
+  _exoLib.forEach(exo => {
+    if (exo.muscle === muscleCible) principaux.push({ exo, role:'principal', level:5 });
+    else { const sec = parseSecValue(exo.muscle_secondaire).find(s=>s.m===muscleCible); if (sec) secondaires.push({ exo, role:'secondaire', level: sec.l }); }
+  });
+  principaux.sort((a,b)=>(a.exo.exercice||'').localeCompare(b.exo.exercice||'','fr'));
+  secondaires.sort((a,b)=>b.level-a.level || (a.exo.exercice||'').localeCompare(b.exo.exercice||'','fr'));
+  return principaux.concat(secondaires);
+}
+function computeSubdivisionFrequency() {
+  const freq = {};
+  _hist.forEach(h => {
+    (h.exercices||[]).forEach(e => {
+      const exo = _exoLib.find(x=>x.exercice===e.nom);
+      if (!exo || !exo.muscle) return;
+      const key = exo.muscle+'|'+(exo.subdivision||'');
+      if (!freq[key]) freq[key] = { count:0, lastDate:null };
+      freq[key].count++;
+      if (!freq[key].lastDate || h.date > freq[key].lastDate) freq[key].lastDate = h.date;
+    });
+  });
+  const todayMs = new Date(new Date().toISOString().split('T')[0]+'T00:00').getTime();
+  Object.values(freq).forEach(f => { f.daysAgo = f.lastDate ? Math.round((todayMs-new Date(f.lastDate+'T00:00').getTime())/86400000) : null; });
+  _subdivFreq = freq;
+}
+function subdivFreqFor(row) {
+  const sub = row.subdivision_anatomique && row.subdivision_anatomique !== '-' ? row.subdivision_anatomique : '';
+  return _subdivFreq[row.muscle_cible+'|'+sub] || null;
+}
+function getMuscleImages(row) {
+  return ['image_muscle','image_muscle_2','image_muscle_3','image_muscle_4'].map(f=>row[f]||'').filter(Boolean);
+}
+function getGroupStats() {
+  const stats = {};
+  _rows.forEach(r => {
+    const g = r.groupe_musculaire; if (!g) return;
+    if (!stats[g]) stats[g] = { count:0, recups:{} };
+    stats[g].count++;
+    const rv = r.jour_recup||'48h';
+    stats[g].recups[rv] = (stats[g].recups[rv]||0)+1;
+  });
+  return stats;
+}
+function getVisibleRows(q) {
+  q = (q||'').trim().toLowerCase();
+  return _rows.filter(r =>
+    (!_activeGroup || r.groupe_musculaire===_activeGroup) &&
+    (!q || searchableFields.some(f=>(r[f]||'').toLowerCase().includes(q)))
+  );
+}
+
+// ══════════════════════════════════════════════════════════════
+// RENDU LISTE
+// ══════════════════════════════════════════════════════════════
+function render() {
+  const main = document.getElementById('mainArea');
+  main.innerHTML = '';
+
+  const search = document.createElement('input');
+  search.className = 'm-search'; search.placeholder = '🔎 Rechercher un muscle, une subdivision…';
+  main.appendChild(search);
+
+  main.appendChild(buildGroupStrip());
+
+  const listWrap = document.createElement('div');
+  listWrap.style.cssText = 'display:flex;flex-direction:column;gap:.7rem';
+  main.appendChild(listWrap);
+
+  function drawList() {
+    const rows = getVisibleRows(search.value);
+    listWrap.innerHTML = '';
+    if (!rows.length) {
+      const empty = document.createElement('div'); empty.className='m-empty';
+      empty.textContent = _rows.length ? 'Aucun résultat.' : 'Aucune donnée disponible.';
+      listWrap.appendChild(empty);
+      return;
+    }
+    rows.forEach(row => listWrap.appendChild(buildMuscleCard(row)));
+  }
+  search.addEventListener('input', drawList);
+  drawList();
+  main._drawList = drawList;
+}
+
+function buildGroupStrip() {
+  const stats = getGroupStats();
+  const strip = document.createElement('div'); strip.className='m-grp-strip'; strip.id='grpStrip';
+
+  const allChip = document.createElement('div'); allChip.className='m-grp-chip'+(_activeGroup===''?' active':'');
+  allChip.innerHTML = `<span>Tous</span><span class="m-grp-count">${_rows.length}</span>`;
+  allChip.addEventListener('click', ()=>{ _activeGroup=''; render(); });
+  strip.appendChild(allChip);
+
+  GROUPS_LIST.filter(g=>stats[g]).forEach(g => {
+    const hex = MC[g]||'#9a9891';
+    const chip = document.createElement('div'); chip.className='m-grp-chip'+(_activeGroup===g?' active':'');
+    chip.style.setProperty('--gc-color', hex);
+    chip.innerHTML = `<span class="m-grp-dot" style="background:${hex}"></span><span>${esc(g)}</span><span class="m-grp-count">${stats[g].count}</span>`;
+    chip.addEventListener('click', ()=>{ _activeGroup = (_activeGroup===g?'':g); render(); });
+    strip.appendChild(chip);
+  });
+  return strip;
+}
+
+function buildMuscleCard(row) {
+  const hex = MC[row.groupe_musculaire]||'#9a9891';
+  const muscleImgs = getMuscleImages(row);
+  const card = document.createElement('div'); card.className='m-muscle-card';
+
+  const imgWrap = document.createElement('div'); imgWrap.className='m-mc-img-wrap'; imgWrap.style.background=`${hex}11`;
+  let curIdx = 0;
+  function drawImg(idx) {
+    imgWrap.querySelector('.m-mc-img,.m-mc-img-ph')?.remove();
+    const src = muscleImgs[idx];
+    if (src) {
+      const img = document.createElement('img'); img.className='m-mc-img'; img.src='./img/'+src; img.alt=row.muscle_cible||'';
+      img.onerror = ()=>{ img.remove(); imgWrap.insertBefore(makeMcPh(row), imgWrap.firstChild); };
+      imgWrap.insertBefore(img, imgWrap.firstChild);
+    } else {
+      imgWrap.insertBefore(makeMcPh(row), imgWrap.firstChild);
+    }
+  }
+  drawImg(0);
+  const grpBadge = document.createElement('span'); grpBadge.className='m-mc-grp-badge'; grpBadge.textContent = row.groupe_musculaire||'';
+  imgWrap.appendChild(grpBadge);
+  if (muscleImgs.length > 1) {
+    const dots = document.createElement('div'); dots.className='m-mc-dots';
+    muscleImgs.forEach((_,i)=>{
+      const d = document.createElement('span'); d.className='m-mc-dot'+(i===0?' active':'');
+      d.addEventListener('click', e=>{ e.stopPropagation(); curIdx=i; drawImg(i); dots.querySelectorAll('.m-mc-dot').forEach((x,xi)=>x.classList.toggle('active',xi===i)); });
+      dots.appendChild(d);
+    });
+    imgWrap.appendChild(dots);
+  }
+  card.appendChild(imgWrap);
+
+  const body = document.createElement('div'); body.className='m-mc-body';
+  const subLabel = row.subdivision_anatomique && row.subdivision_anatomique!=='-' ? row.subdivision_anatomique : '';
+  body.innerHTML = `<div class="m-mc-name">${esc(row.muscle_cible||'')}</div>`
+    + (subLabel ? `<div class="m-mc-sub">${esc(subLabel)}</div>` : '')
+    + (row.localisation_fonctionnelle ? `<div class="m-mc-loc">📍 ${esc(row.localisation_fonctionnelle)}</div>` : '');
+  card.appendChild(body);
+
+  const foot = document.createElement('div'); foot.className='m-mc-footer';
+  const typeLabel = row.type_subdivision && row.type_subdivision!=='Aucune' ? row.type_subdivision : '';
+  if (typeLabel) { const t=document.createElement('span'); t.className='m-badge m-badge-type'; t.textContent=typeLabel; foot.appendChild(t); }
+  const freq = subdivFreqFor(row);
+  const freqBadge = document.createElement('span');
+  if (freq) { freqBadge.className='m-badge m-badge-freq'; freqBadge.textContent = `${freq.daysAgo===0?'auj.':'il y a '+freq.daysAgo+'j'} · ${freq.count}×`; }
+  else { freqBadge.className='m-badge m-badge-freq-never'; freqBadge.textContent='Jamais sollicité'; }
+  foot.appendChild(freqBadge);
+  const recupCls = row.jour_recup==='24h'?'m-badge-recup-24':row.jour_recup==='72h'?'m-badge-recup-72':'m-badge-recup-48';
+  const recupBadge = document.createElement('span'); recupBadge.className='m-badge '+recupCls; recupBadge.textContent = row.jour_recup||'—';
+  foot.appendChild(recupBadge);
+  const infoBtn = document.createElement('button'); infoBtn.className='m-mc-info-btn'; infoBtn.textContent='ⓘ'; infoBtn.title='Fiche détaillée';
+  foot.appendChild(infoBtn);
+  card.appendChild(foot);
+
+  card.addEventListener('click', ()=>openDetailOverlay(row.id));
+  return card;
+}
+function makeMcPh(row) {
+  const ph = document.createElement('div'); ph.className='m-mc-img-ph';
+  ph.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M6 18V8.5C6 6.57 7.57 5 9.5 5h.5v14H9.5A3.5 3.5 0 0 1 6 15.5"/><path d="M18 18V8.5C18 6.57 16.43 5 14.5 5H14v14h.5a3.5 3.5 0 0 0 3.5-3.5"/></svg><span>${esc(row.groupe_musculaire||'')}</span>`;
+  return ph;
+}
+
+// ══════════════════════════════════════════════════════════════
+// FICHE DÉTAIL (lecture seule)
+// ══════════════════════════════════════════════════════════════
+function openDetailOverlay(rowId) {
+  const row = _rows.find(r=>r.id===rowId);
+  if (!row) return;
+  const muscleImgs = getMuscleImages(row);
+
+  const ov = document.createElement('div'); ov.className='m-overlay';
+  const hdr = document.createElement('div'); hdr.className='m-overlay-hdr';
+  const backBtn = document.createElement('button'); backBtn.className='m-back-btn'; backBtn.textContent='←';
+  backBtn.addEventListener('click', ()=>ov.remove());
+  const titleWrap = document.createElement('div'); titleWrap.className='m-overlay-title';
+  const subLabel = [row.subdivision_anatomique!=='-'?row.subdivision_anatomique:'', row.type_subdivision!=='Aucune'?row.type_subdivision:''].filter(Boolean).join(' · ');
+  titleWrap.innerHTML = `<div class="m-overlay-name">${esc(row.muscle_cible||'')}</div><div class="m-overlay-sub">${esc(row.groupe_musculaire||'')}${subLabel?' — '+esc(subLabel):''}</div>`;
+  hdr.append(backBtn, titleWrap);
+  ov.appendChild(hdr);
+
+  const body = document.createElement('div'); body.className='m-overlay-body';
+
+  // Image muscle principale (+ dots si plusieurs)
+  const imgWrap = document.createElement('div'); imgWrap.className='m-dm-img-wrap';
+  let curIdx = 0;
+  function drawMainImg() {
+    imgWrap.innerHTML = '';
+    const src = muscleImgs[curIdx] || row.image_groupe || '';
+    if (src) {
+      const img = document.createElement('img'); img.className='m-dm-img'; img.src='./img/'+src; img.alt=row.muscle_cible||'';
+      img.onerror = ()=>{ imgWrap.innerHTML=''; imgWrap.appendChild(makeMcPh(row)); };
+      img.addEventListener('click', ()=>openImageLightbox(src, row.muscle_cible||''));
+      imgWrap.appendChild(img);
+    } else {
+      imgWrap.appendChild(makeMcPh(row));
+    }
+  }
+  drawMainImg();
+  body.appendChild(imgWrap);
+  if (muscleImgs.length > 1) {
+    const dots = document.createElement('div'); dots.style.cssText='display:flex;justify-content:center;gap:.4rem';
+    muscleImgs.forEach((_,i)=>{
+      const d = document.createElement('button'); d.style.cssText=`width:8px;height:8px;border-radius:999px;border:none;background:${i===curIdx?'var(--prim)':'var(--bord)'}`;
+      d.addEventListener('click', ()=>{ curIdx=i; drawMainImg(); dots.querySelectorAll('button').forEach((b,bi)=>b.style.background=bi===i?'var(--prim)':'var(--bord)'); });
+      dots.appendChild(d);
+    });
+    body.appendChild(dots);
+  }
+
+  // Stats fréquence
+  const freq = subdivFreqFor(row);
+  const stats = document.createElement('div'); stats.className='m-stat-grid';
+  stats.innerHTML = `<div><div class="m-stat-val">${freq?freq.count:0}</div><div class="m-stat-lbl">Séance(s) au total</div></div>
+    <div><div class="m-stat-val">${freq&&freq.daysAgo!=null?(freq.daysAgo===0?"Aujourd'hui":freq.daysAgo+'j'):'—'}</div><div class="m-stat-lbl">Depuis la dernière fois</div></div>
+    <div><div class="m-stat-val">${esc(row.jour_recup||'—')}</div><div class="m-stat-lbl">Récupération</div></div>`;
+  body.appendChild(stats);
+  const freqNote = document.createElement('div'); freqNote.className='m-freq-note';
+  freqNote.textContent = 'Basé sur la classification actuelle des exercices — un exercice reclassé depuis compte son historique dans sa nouvelle catégorie.';
+  body.appendChild(freqNote);
+
+  // Sections texte
+  TEXT_DETAIL_FIELDS.forEach(({key,label}) => {
+    const sec = document.createElement('div');
+    const title = document.createElement('div'); title.className='m-sec-title'; title.textContent=label;
+    const text = document.createElement('div'); text.className = row[key] ? 'm-sec-text' : 'm-sec-empty';
+    text.textContent = row[key] || '—';
+    sec.append(title,text);
+    body.appendChild(sec);
+  });
+
+  // Encarts (zoom insertion / vue profonde / faisceaux) — les 3 sur une seule ligne
+  const panelsWithData = PANELS.filter(({key}) => row[key]);
+  if (panelsWithData.length) {
+    const panelsRow = document.createElement('div'); panelsRow.className='m-dm-panels-row';
+    panelsWithData.forEach(({key,title}) => {
+      const src = row[key];
+      const sec = document.createElement('div'); sec.className='m-dm-panel-col';
+      const t = document.createElement('div'); t.className='m-dm-panel-title'; t.textContent=title;
+      const img = document.createElement('img'); img.className='m-dm-panel-img'; img.src='./img/'+src; img.alt='';
+      img.onerror=()=>{ img.outerHTML='<div class="m-dm-panel-ph">Image indisponible</div>'; };
+      img.addEventListener('click', ()=>openImageLightbox(src, title+' · '+(row.muscle_cible||'')));
+      sec.append(t,img);
+      panelsRow.appendChild(sec);
+    });
+    body.appendChild(panelsRow);
+  }
+
+  // Localisation (2 vues)
+  const hasLoc = row.image_localisation_1 || row.image_localisation_2;
+  if (hasLoc) {
+    const locTitle = document.createElement('div'); locTitle.className='m-sec-title'; locTitle.textContent='Localisation';
+    body.appendChild(locTitle);
+    const locRow = document.createElement('div'); locRow.className='m-dm-loc-row';
+    ['image_localisation_1','image_localisation_2'].forEach((key,idx)=>{
+      const src = row[key]||'';
+      if (src) {
+        const img = document.createElement('img'); img.className='m-dm-loc-img'; img.src='./img/'+src; img.alt='';
+        img.onerror=()=>{ img.outerHTML='<div class="m-dm-loc-ph">Vue '+(idx+1)+'</div>'; };
+        img.addEventListener('click', ()=>openImageLightbox(src, 'Localisation vue '+(idx+1)+' · '+(row.muscle_cible||'')));
+        locRow.appendChild(img);
+      } else {
+        const ph = document.createElement('div'); ph.className='m-dm-loc-ph'; ph.textContent='Vue '+(idx+1);
+        locRow.appendChild(ph);
+      }
+    });
+    body.appendChild(locRow);
+  }
+
+  // Exercices ciblant ce muscle
+  const matches = findExercisesForMuscle(row.muscle_cible);
+  const exoTitle = document.createElement('div'); exoTitle.className='m-sec-title'; exoTitle.textContent='Exercices liés';
+  body.appendChild(exoTitle);
+  if (!matches.length) {
+    const e = document.createElement('div'); e.className='m-sec-empty'; e.textContent="Aucun exercice ne cible ce muscle pour l'instant.";
+    body.appendChild(e);
+  } else {
+    const exoList = document.createElement('div'); exoList.style.cssText='display:flex;flex-direction:column;gap:.5rem';
+    matches.forEach(({exo,role,level}) => {
+      const row2 = document.createElement('button'); row2.className='m-exo-row';
+      if (exo.image) {
+        const img = document.createElement('img'); img.className='m-exo-row-img'; img.src='./img/'+exo.image; img.alt='';
+        img.onerror=()=>img.replaceWith(makeExoPh());
+        row2.appendChild(img);
+      } else row2.appendChild(makeExoPh());
+      const info = document.createElement('div'); info.className='m-exo-row-info';
+      info.innerHTML = `<div class="m-exo-row-name">${esc(exo.exercice||'')}</div>`
+        + (role==='principal'
+          ? `<div class="m-exo-row-badge principal">Principal</div>`
+          : `<div class="m-exo-row-badge secondaire">Secondaire ${renderStarsHtml(level)}</div>`);
+      row2.appendChild(info);
+      row2.addEventListener('click', ()=>openExoRecapOverlay(exo.id));
+      exoList.appendChild(row2);
+    });
+    body.appendChild(exoList);
+  }
+
+  ov.appendChild(body);
+  document.body.appendChild(ov);
+}
+function makeExoPh() {
+  const ph = document.createElement('div'); ph.className='m-exo-row-ph';
+  ph.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>';
+  return ph;
+}
+
+// ══════════════════════════════════════════════════════════════
+// RÉCAP EXERCICE (lecture seule)
+// ══════════════════════════════════════════════════════════════
+function openExoRecapOverlay(exoId) {
+  const exo = _exoLib.find(e=>e.id===exoId);
+  if (!exo) return;
+
+  const ov = document.createElement('div'); ov.className='m-overlay';
+  const hdr = document.createElement('div'); hdr.className='m-overlay-hdr';
+  const backBtn = document.createElement('button'); backBtn.className='m-back-btn'; backBtn.textContent='←';
+  backBtn.addEventListener('click', ()=>ov.remove());
+  const titleWrap = document.createElement('div'); titleWrap.className='m-overlay-title';
+  const sub = [exo.muscle, exo.subdivision&&exo.subdivision!=='—'?exo.subdivision:''].filter(Boolean).join(' · ');
+  titleWrap.innerHTML = `<div class="m-overlay-name">${esc(exo.exercice||'')}</div><div class="m-overlay-sub">${esc(sub)}</div>`;
+  hdr.append(backBtn, titleWrap);
+  ov.appendChild(hdr);
+
+  const body = document.createElement('div'); body.className='m-overlay-body';
+
+  if (exo.image) {
+    const imgWrap = document.createElement('div'); imgWrap.className='m-dm-img-wrap';
+    const img = document.createElement('img'); img.className='m-dm-img'; img.src='./img/'+exo.image; img.alt='';
+    img.onerror=()=>{ imgWrap.innerHTML=''; imgWrap.appendChild(makeExoPh()); };
+    img.addEventListener('click', ()=>openImageLightbox(exo.image, exo.exercice||''));
+    imgWrap.appendChild(img);
+    body.appendChild(imgWrap);
+  }
+
+  const tagVals = [exo.equipement, exo.type_exercice, exo.type_mouvement, exo.pattern_mouvement, exo.niveau].filter(Boolean);
+  if (tagVals.length) {
+    const row = document.createElement('div'); row.className='m-erb-tags';
+    tagVals.forEach(t=>{ const s=document.createElement('span'); s.className='m-erb-tag'; s.textContent=t; row.appendChild(s); });
+    body.appendChild(row);
+  }
+
+  const sec = parseSecValue(exo.muscle_secondaire);
+  if (sec.length) {
+    const t = document.createElement('div'); t.className='m-sec-title'; t.textContent='Muscles secondaires';
+    body.appendChild(t);
+    const list = document.createElement('div'); list.style.cssText='display:flex;flex-direction:column;gap:.3rem';
+    sec.forEach(({m,l})=>{
+      const line = document.createElement('div'); line.style.cssText='display:flex;align-items:center;justify-content:space-between;font-size:.82rem';
+      line.innerHTML = `<span>${esc(m)}</span><span style="font-size:.78rem">${renderStarsHtml(l)}</span>`;
+      list.appendChild(line);
+    });
+    body.appendChild(list);
+  }
+
+  [{lbl:'Descriptif', val:exo.descriptif},{lbl:'Exécution / Technique', val:exo.execution}].forEach(({lbl,val})=>{
+    if (!val) return;
+    const t = document.createElement('div'); t.className='m-sec-title'; t.textContent=lbl;
+    const v = document.createElement('div'); v.className='m-sec-text'; v.textContent=val;
+    body.append(t,v);
+  });
+
+  // Objectif actuel
+  const objs = _objectifs[exo.id];
+  const lastObj = Array.isArray(objs) && objs.length ? objs.slice().sort((a,b)=>(a.date||'').localeCompare(b.date||'')).pop() : null;
+  const objTitle = document.createElement('div'); objTitle.className='m-sec-title'; objTitle.textContent='Objectif actuel';
+  body.appendChild(objTitle);
+  if (lastObj) {
+    const chips = [
+      lastObj.series&&`${lastObj.series} séries`, lastObj.reps&&`${lastObj.reps} reps`, lastObj.poids&&`${lastObj.poids} kg`,
+      lastObj.rm1&&`1RM estimé ${lastObj.rm1} kg`, lastObj.duree&&`${lastObj.duree}`, lastObj.distance&&`${lastObj.distance}`,
+      lastObj.recup&&`Récup ${lastObj.recup}s`,
+    ].filter(Boolean);
+    const row = document.createElement('div'); row.className='m-erb-series-row';
+    chips.forEach(c=>{ const s=document.createElement('span'); s.className='m-erb-chip'; s.textContent=c; row.appendChild(s); });
+    body.appendChild(row);
+    if (lastObj.date) { const d=document.createElement('div'); d.style.cssText='font-size:.7rem;color:var(--txf);margin-top:.2rem'; d.textContent='Défini le '+fmtDateShort(lastObj.date); body.appendChild(d); }
+    if (lastObj.note) { const n=document.createElement('div'); n.className='m-sec-text'; n.style.marginTop='.3rem'; n.textContent=lastObj.note; body.appendChild(n); }
+  } else {
+    const e = document.createElement('div'); e.className='m-sec-empty'; e.textContent='Aucun objectif défini.';
+    body.appendChild(e);
+  }
+
+  // Dernière séance
+  const matches = (_hist||[]).filter(h=>(h.exercices||[]).some(e=>e.nom===exo.exercice));
+  const lastSeance = matches.length ? matches.slice().sort((a,b)=>(a.date||'').localeCompare(b.date||'')).pop() : null;
+  const seanceTitle = document.createElement('div'); seanceTitle.className='m-sec-title'; seanceTitle.textContent='Dernière séance';
+  body.appendChild(seanceTitle);
+  if (lastSeance) {
+    const entry = (lastSeance.exercices||[]).find(e=>e.nom===exo.exercice);
+    const d = document.createElement('div'); d.style.cssText='font-size:.78rem;color:var(--txm);margin-bottom:.3rem';
+    d.textContent = fmtDateShort(lastSeance.date) + (lastSeance.seanceNom?' · '+lastSeance.seanceNom:'');
+    body.appendChild(d);
+    (entry?.series||[]).forEach((s,i)=>{
+      const chips = [s.reps&&`${s.reps} reps`, s.poids&&`${s.poids} kg`, s.duree&&`${s.duree}`, s.distance&&`${s.distance}`, s.ressenti&&s.ressenti].filter(Boolean);
+      if (!chips.length) return;
+      const row = document.createElement('div'); row.className='m-erb-series-row';
+      const lbl = document.createElement('span'); lbl.style.cssText='font-size:.72rem;color:var(--txf);flex-shrink:0'; lbl.textContent=`Série ${i+1} :`;
+      row.appendChild(lbl);
+      chips.forEach(c=>{ const s2=document.createElement('span'); s2.className='m-erb-chip'; s2.textContent=c; row.appendChild(s2); });
+      body.appendChild(row);
+    });
+    if (entry?.note) { const n=document.createElement('div'); n.className='m-sec-text'; n.style.marginTop='.3rem'; n.textContent=entry.note; body.appendChild(n); }
+  } else {
+    const e = document.createElement('div'); e.className='m-sec-empty'; e.textContent='Jamais pratiqué.';
+    body.appendChild(e);
+  }
+
+  ov.appendChild(body);
+  document.body.appendChild(ov);
+}
+
+// ══════════════════════════════════════════════════════════════
+// LIGHTBOX (image plein écran)
+// ══════════════════════════════════════════════════════════════
+function openImageLightbox(src, title) {
+  const lb = document.createElement('div'); lb.className='m-lightbox';
+  const img = document.createElement('img'); img.src='./img/'+src; img.alt=title||'';
+  lb.appendChild(img);
+  lb.addEventListener('click', ()=>lb.remove());
+  document.body.appendChild(lb);
+}
+
+// Lien entrant depuis Exercices-mobile.html (ou toute autre page) : Corps-mobile.html?muscle=...&subdivision=...
+// ouvre directement la fiche de détail correspondante.
+function openDeepLinkIfAny() {
+  const params = new URLSearchParams(location.search);
+  const muscle = params.get('muscle');
+  if (!muscle) return;
+  const subdivision = params.get('subdivision') || '';
+  let row = _rows.find(r => r.muscle_cible === muscle && (subdivision ? r.subdivision_anatomique === subdivision : true));
+  if (!row) row = _rows.find(r => r.muscle_cible === muscle);
+  if (row) openDetailOverlay(row.id);
+}
+
+// ══════════════════════════════════════════════════════════════
+// WIRING / INIT
+// ══════════════════════════════════════════════════════════════
+document.getElementById('themeBtn').addEventListener('click', ()=>applyTheme(document.documentElement.getAttribute('data-theme')==='dark'?'light':'dark'));
+
+(async function init(){
+  applyTheme(localStorage.getItem('muscle-xml-theme')||'light');
+  loadData();
+  const dbState = await GymDB.init();
+  if (dbState === 'connected') {
+    try { const d=await GymDB.read('corps.json'); if(d&&Array.isArray(d.rows)&&d.rows.length){ _rows=d.rows; localStorage.setItem(STORAGE_KEY,JSON.stringify(d)); } } catch{}
+    try { const d=await GymDB.read('exercices.json'); if(d&&Array.isArray(d.rows)){ _exoLib=d.rows; localStorage.setItem(EXO_KEY,JSON.stringify(d)); } } catch{}
+    try { const o=await GymDB.read('exercices-objectifs.json'); if(o){ _objectifs=o; localStorage.setItem(OBJ_KEY,JSON.stringify(o)); } } catch{}
+    try { const h=await GymDB.read('historique.json'); if(Array.isArray(h)){ _hist=h; localStorage.setItem(HIST_KEY,JSON.stringify(h)); } } catch{}
+  }
+  computeSubdivisionFrequency();
+  render();
+  openDeepLinkIfAny();
+})();
+</script>
+</body>
+</html>

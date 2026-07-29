@@ -1,0 +1,1176 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Programme — GymOS Mobile</title>
+<link rel="stylesheet" href="theme.css">
+<style>
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;height:100%;background:var(--bg);color:var(--tx);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;-webkit-tap-highlight-color:transparent}
+button,input,select,textarea{font-family:inherit;color:inherit}
+::-webkit-scrollbar{display:none}
+
+.m-app{display:flex;flex-direction:column;height:100dvh;overflow:hidden}
+.m-hdr{flex-shrink:0;display:flex;align-items:center;gap:.6rem;padding:.7rem .9rem;padding-top:calc(.7rem + env(safe-area-inset-top));border-bottom:1px solid var(--bord);background:var(--surf)}
+.m-hdr-title{flex:1;min-width:0;font-size:1.05rem;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.m-theme-btn{flex-shrink:0;width:36px;height:36px;border-radius:999px;border:1px solid var(--bord);background:var(--surf2);display:flex;align-items:center;justify-content:center;font-size:1rem}
+
+.m-main{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:.9rem .8rem;padding-bottom:calc(74px + env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:.7rem}
+.m-main > *{flex-shrink:0}
+
+.m-tabbar{position:fixed;left:0;right:0;bottom:0;height:calc(58px + env(safe-area-inset-bottom));padding-bottom:env(safe-area-inset-bottom);display:flex;background:var(--surf2);border-top:1px solid var(--bord);z-index:90}
+.m-tab{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.12rem;font-size:.5rem;font-weight:700;color:var(--txf);text-decoration:none;border:none;background:none}
+.m-tab .m-tab-ic{font-size:1.02rem;line-height:1}
+.m-tab.active{color:var(--prim)}
+
+.m-empty{text-align:center;color:var(--txf);font-size:.85rem;padding:2rem 1rem;background:var(--surf);border:1px dashed var(--bord);border-radius:1rem}
+.m-card-title{font-size:.7rem;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:var(--txf)}
+.m-btn-ghost{min-height:46px;padding:0 .9rem;border-radius:.75rem;border:1px solid var(--bord);background:var(--surf2);font-weight:700;font-size:.85rem}
+.m-btn-primary{min-height:46px;padding:0 .9rem;border-radius:.75rem;border:none;background:var(--prim);color:#fff;font-weight:800;font-size:.9rem}
+.m-btn-danger{min-height:44px;padding:0 .9rem;border-radius:.75rem;border:1px solid var(--err);background:none;color:var(--err);font-weight:700;font-size:.82rem}
+.m-actions-row{display:flex;gap:.5rem;flex-wrap:wrap}
+.m-actions-row > *{flex:1;min-width:100px}
+
+/* Boutons de lancement (nouveau prog / modèle) */
+.m-launch-row{display:flex;gap:.55rem}
+.m-launch-btn{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.3rem;min-height:74px;border-radius:1rem;border:1.5px dashed var(--prim);background:var(--primhi);color:var(--primh);font-weight:700;font-size:.78rem;text-align:center;padding:.6rem}
+.m-launch-btn .ic{font-size:1.3rem}
+
+/* Carte programme */
+.m-prog-card{background:var(--surf);border:1px solid var(--bord);border-radius:1rem;padding:.85rem .9rem;display:flex;flex-direction:column;gap:.4rem}
+.m-prog-card.archived{opacity:.75}
+.m-prog-name{font-weight:800;font-size:1rem}
+.m-prog-desc{font-size:.78rem;color:var(--txm);line-height:1.4}
+.m-prog-badges{display:flex;flex-wrap:wrap;gap:.4rem;margin-top:.15rem}
+.m-badge{font-size:.62rem;font-weight:700;padding:.2rem .55rem;border-radius:999px}
+.m-badge-actif{background:rgba(67,122,34,.14);color:var(--ok)}
+.m-badge-archive{background:var(--surf2);color:var(--txf)}
+.m-badge-count{background:var(--surf2);color:var(--txm)}
+
+/* Séance card */
+.m-seance-card{background:var(--surf);border:1px solid var(--bord);border-radius:1rem;overflow:hidden}
+.m-seance-bar{height:4px}
+.m-seance-body{padding:.7rem .8rem;display:flex;flex-direction:column;gap:.4rem}
+.m-seance-hdr-row{display:flex;align-items:flex-start;justify-content:space-between;gap:.5rem}
+.m-seance-name{font-weight:800;font-size:.95rem;flex:1}
+.m-type-badge{font-size:.62rem;font-weight:800;padding:.2rem .55rem;border-radius:999px;white-space:nowrap;flex-shrink:0}
+.m-jours-row{display:flex;flex-wrap:wrap;gap:.3rem}
+.m-jour-pill{background:var(--surf2);padding:.1rem .5rem;border-radius:999px;font-size:.65rem;font-weight:600;color:var(--txm)}
+.m-seance-footer{padding:.5rem .8rem;border-top:1px solid var(--bord);display:flex;align-items:center;justify-content:space-between}
+.m-seance-cnt{font-size:.72rem;color:var(--txf)}
+.m-seance-acts{display:flex;gap:.3rem}
+.m-icon-btn{width:30px;height:30px;border-radius:.5rem;border:1px solid var(--bord);background:var(--surf2);display:flex;align-items:center;justify-content:center;font-size:.85rem;flex-shrink:0}
+.m-add-card{border:1.5px dashed var(--bord);border-radius:1rem;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.3rem;padding:1rem;min-height:70px;color:var(--txm);font-size:.82rem;font-weight:700}
+.m-add-card:active{border-color:var(--prim);color:var(--prim)}
+
+/* Exercice (dans le détail séance) */
+.m-exo-item{background:var(--surf);border:1px solid var(--bord);border-radius:1rem;overflow:hidden}
+.m-exo-item.grouped{border-color:var(--prim)}
+.m-exo-item-super{font-size:.62rem;font-weight:800;color:var(--prim);padding:.35rem .7rem 0}
+.m-exo-item-hdr{display:flex;align-items:center;gap:.6rem;padding:.6rem .7rem}
+.m-exo-item-img,.m-exo-item-ph{width:38px;height:38px;border-radius:.55rem;object-fit:contain;background:var(--surf2);border:1px solid var(--bord);flex-shrink:0;cursor:pointer}
+.m-exo-item-ph{display:flex;align-items:center;justify-content:center;font-size:1rem}
+.m-exo-item-name{font-weight:700;font-size:.88rem}
+.m-exo-item-grp{font-size:.7rem;color:var(--txf)}
+.m-exo-item-chips{display:flex;flex-wrap:wrap;gap:.35rem;padding:0 .7rem .55rem}
+.m-exo-item-chip{font-size:.68rem;font-weight:700;padding:.18rem .5rem;border-radius:.5rem;background:var(--surf2);color:var(--tx)}
+.m-exo-item-note{padding:0 .7rem .55rem;font-size:.72rem;color:var(--txm);font-style:italic}
+.m-exo-item-acts{display:flex;gap:.3rem;padding:.5rem .7rem;border-top:1px solid var(--bord)}
+.m-exo-item-acts .m-icon-btn.active{border-color:var(--prim);color:var(--prim);background:var(--primhi)}
+.m-exo-item-acts .m-icon-btn.danger{border-color:var(--err);color:var(--err)}
+.m-exo-item-acts .m-icon-btn:disabled{opacity:.3}
+
+/* Overlays */
+.m-overlay{position:fixed;inset:0;background:var(--bg);z-index:200;display:flex;flex-direction:column}
+.m-overlay-hdr{flex-shrink:0;display:flex;align-items:center;gap:.6rem;padding:.7rem .9rem;padding-top:calc(.7rem + env(safe-area-inset-top));border-bottom:1px solid var(--bord);background:var(--surf)}
+.m-back-btn{flex-shrink:0;width:38px;height:38px;border-radius:999px;border:1px solid var(--bord);background:var(--surf2);font-size:1.1rem}
+.m-overlay-title{flex:1;min-width:0}
+.m-overlay-name{font-weight:800;font-size:1rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.m-overlay-sub{font-size:.75rem;color:var(--txf);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.m-overlay-body{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:.9rem .8rem;padding-bottom:calc(1.2rem + env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:.9rem}
+.m-overlay-body > *{flex-shrink:0}
+
+/* Formulaires */
+.m-fld{display:flex;flex-direction:column;gap:.15rem;min-width:0}
+.m-fld.full{grid-column:1/-1}
+.m-fld label{font-size:.65rem;font-weight:700;color:var(--txf);text-transform:uppercase;letter-spacing:.03em}
+.m-fld input,.m-fld textarea,.m-fld select{width:100%;min-width:0;min-height:44px;border-radius:.6rem;border:1px solid var(--bord);background:var(--surf2);padding:.4rem .6rem;font-size:.9rem}
+.m-fld textarea{min-height:64px;resize:vertical}
+.m-form-grid{display:grid;grid-template-columns:1fr 1fr;gap:.55rem}
+.m-err{font-size:.78rem;color:var(--err);background:color-mix(in srgb, var(--err) 10%, transparent);border:1px solid color-mix(in srgb, var(--err) 30%, transparent);border-radius:.6rem;padding:.5rem .7rem}
+.m-jours-toggle-row{display:flex;flex-wrap:wrap;gap:.4rem}
+.m-jour-toggle{padding:.4rem .8rem;border-radius:999px;border:1px solid var(--bord);background:var(--surf2);color:var(--txm);font-size:.78rem;font-weight:700}
+.m-jour-toggle.active{background:var(--primhi);color:var(--prim);border-color:var(--prim)}
+
+/* Picker exercice / groupe display / hint / suggestion */
+.m-exo-pick-trigger{display:flex;align-items:center;gap:.6rem;padding:.6rem .7rem;border-radius:.75rem;border:1px solid var(--bord);background:var(--surf2)}
+.m-exo-pick-trigger img,.m-exo-pick-trigger .ph{width:36px;height:36px;border-radius:.55rem;object-fit:contain;background:var(--surf);border:1px solid var(--bord);flex-shrink:0}
+.m-exo-pick-trigger .ph{display:flex;align-items:center;justify-content:center;font-size:.95rem}
+.m-exo-pick-name{flex:1;font-weight:700;font-size:.88rem;color:var(--txm)}
+.m-exo-pick-name.filled{color:var(--tx)}
+.m-grp-display{display:flex;align-items:center;gap:.5rem;padding:.5rem .7rem;border-radius:.7rem;background:var(--surf2);border:1px solid var(--bord)}
+.m-grp-display-name{font-size:.82rem;font-weight:700}
+.m-ref-hint{font-size:.75rem;font-weight:700;color:var(--prim);background:var(--primhi);border-radius:.6rem;padding:.4rem .6rem}
+.m-prog-suggest{display:flex;align-items:center;gap:.5rem;flex-wrap:wrap;font-size:.75rem;font-weight:600;color:var(--ok);background:rgba(67,122,34,.1);border-radius:.6rem;padding:.4rem .6rem}
+.m-prog-suggest button{min-height:30px;padding:.15rem .55rem;border-radius:.5rem;border:1px solid var(--ok);background:none;color:var(--ok);font-weight:700;font-size:.72rem}
+
+.m-search{width:100%;min-height:46px;border-radius:.8rem;border:1px solid var(--bord);background:var(--surf2);padding:.5rem .8rem;font-size:.95rem}
+.m-picker-item{display:flex;align-items:center;gap:.65rem;padding:.55rem .6rem;border-radius:.8rem;border:1px solid var(--bord);background:var(--surf);text-align:left;width:100%}
+.m-picker-img{width:40px;height:40px;border-radius:.55rem;object-fit:contain;flex-shrink:0;background:var(--surf2)}
+.m-picker-ph{width:40px;height:40px;border-radius:.55rem;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:1.1rem}
+.m-picker-info{flex:1;min-width:0}
+.m-picker-name{font-weight:700;font-size:.88rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.m-picker-grp{font-size:.72rem;color:var(--txf)}
+.m-overlay-list{flex:1;overflow-y:auto;padding:.6rem .8rem;display:flex;flex-direction:column;gap:.5rem;padding-bottom:calc(1rem + env(safe-area-inset-bottom))}
+
+/* Modèles */
+.m-tpl-card{background:var(--surf);border:1px solid var(--bord);border-radius:1rem;padding:.8rem .9rem;display:flex;flex-direction:column;gap:.3rem;text-align:left;width:100%}
+.m-tpl-name{font-weight:800;font-size:.92rem}
+.m-tpl-desc{font-size:.78rem;color:var(--txm)}
+.m-tpl-meta{font-size:.7rem;color:var(--txf)}
+
+/* Suppression */
+.m-del-icon{width:52px;height:52px;border-radius:999px;background:color-mix(in srgb, var(--err) 12%, transparent);display:flex;align-items:center;justify-content:center;font-size:1.6rem;margin:0 auto}
+.m-del-title{font-weight:800;font-size:1rem;text-align:center}
+.m-del-desc{font-size:.85rem;color:var(--txm);text-align:center;line-height:1.5}
+
+/* Fiche exercice (récap) réutilisée */
+.m-dm-img-wrap{height:120px;border-radius:1rem;background:var(--surf);border:1px solid var(--bord);display:flex;align-items:center;justify-content:center;overflow:hidden}
+.m-dm-img-wrap img{width:100%;height:100%;object-fit:contain;cursor:zoom-in}
+.m-sec-title{font-size:.68rem;font-weight:800;text-transform:uppercase;letter-spacing:.05em;color:var(--txf);margin-bottom:.3rem}
+.m-sec-text{font-size:.85rem;line-height:1.5;white-space:pre-wrap}
+.m-sec-empty{font-size:.85rem;color:var(--txf);font-style:italic}
+.m-erb-tags{display:flex;flex-wrap:wrap;gap:.35rem}
+.m-erb-tag{font-size:.68rem;font-weight:700;padding:.2rem .55rem;border-radius:999px;background:var(--surf2);color:var(--txm)}
+.m-erb-series-row{display:flex;flex-wrap:wrap;align-items:center;gap:.35rem;margin-top:.3rem}
+.m-erb-chip{font-size:.72rem;font-weight:700;padding:.2rem .5rem;border-radius:.5rem;background:var(--surf2);color:var(--tx)}
+.m-lightbox{position:fixed;inset:0;background:rgba(0,0,0,.92);z-index:400;display:flex;align-items:center;justify-content:center;padding:1rem}
+.m-lightbox img{max-width:100%;max-height:100%;object-fit:contain}
+
+.m-toast{position:fixed;left:50%;bottom:calc(140px + env(safe-area-inset-bottom));transform:translateX(-50%);background:var(--tx);color:var(--bg);padding:.6rem 1.1rem;border-radius:999px;font-size:.85rem;font-weight:700;z-index:500;opacity:0;transition:opacity .25s;max-width:85vw;text-align:center}
+.m-toast.show{opacity:1}
+</style>
+</head>
+<body>
+<div class="m-app">
+  <div class="m-hdr">
+    <div class="m-hdr-title">Programme</div>
+    <button class="m-theme-btn" id="themeBtn">🌓</button>
+  </div>
+  <div class="m-main" id="mainArea"></div>
+  <nav class="m-tabbar">
+    <a class="m-tab" href="./index-mobile.html"><span class="m-tab-ic">🏠</span>Accueil</a>
+    <a class="m-tab" href="./Seance-mobile.html"><span class="m-tab-ic">🏋</span>Séance</a>
+    <button class="m-tab active" id="tabProgramme"><span class="m-tab-ic">🗓</span>Programme</button>
+    <a class="m-tab" href="./Historique-mobile.html"><span class="m-tab-ic">📅</span>Historique</a>
+    <a class="m-tab" href="./Corps-mobile.html"><span class="m-tab-ic">🫀</span>Corps</a>
+    <a class="m-tab" href="./Exercices-mobile.html"><span class="m-tab-ic">📋</span>Exercices</a>
+    <a class="m-tab" href="./index.html"><span class="m-tab-ic">🖥</span>Version PC</a>
+  </nav>
+</div>
+<div class="m-toast" id="toast"></div>
+
+<script src="db.js"></script>
+<script src="gymos-utils.js"></script>
+<script>
+// ══════════════════════════════════════════════════════════════
+// CONSTANTES (identiques à Programme.html desktop — compatibilité des données)
+// ══════════════════════════════════════════════════════════════
+const STORAGE_KEY = 'gymos-programmes-v2';
+const EXO_LIB_KEY = 'exercices-studio-autosave-v2';
+const OBJ_KEY     = 'exercices-objectifs-v1';
+const HIST_KEY    = 'gymos-historique-v1';
+const JOURS_LIST  = ['Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi','Dimanche'];
+const TYPE_OPTS   = ['Push','Pull','Legs','Full Body','Haut du corps','Bas du corps','Cardio','Autre'];
+const CHAMP_KEYS  = ['series','reps','poids','rm1','duree','distance','puissance','inclinaison'];
+
+const PROG_MODIF_FIELDS   = ['nom','description','statut'];
+const SEANCE_MODIF_FIELDS = ['nom','type','jours'];
+const EXO_MODIF_FIELDS    = ['nom','series','reps','poids','duree','distance','recup'];
+const MODIF_LABELS = { nom:'Nom', description:'Description', statut:'Statut', type:'Type', jours:'Jours',
+  series:'Séries', reps:'Répétitions', poids:'Poids', duree:'Durée', distance:'Distance', recup:'Récupération' };
+
+// Modèles de programme prêts à l'emploi (identiques à Programme.html desktop)
+const PROGRAM_TEMPLATES = [
+  { nom:'Push / Pull / Legs', description:'Split en 3 jours orienté hypertrophie/force, à répéter en rotation.',
+    seances:[
+      {nom:'Push', type:'Push', exercices:[
+        {nom:'Smith Machine – Développé couché', series:'4', reps:'8-12', recup:'90 s'},
+        {nom:'Converging Shoulder Press', series:'4', reps:'8-12', recup:'90 s'},
+        {nom:'Dips machine', series:'3', reps:'10-15', recup:'75 s'},
+        {nom:'Écartés vis-à-vis - Position Basse', series:'3', reps:'12-15', recup:'60 s'},
+        {nom:'Élévations latérales Poulie', series:'3', reps:'12-15', recup:'60 s'},
+        {nom:'Extension triceps poulie haute', series:'3', reps:'12-15', recup:'60 s'},
+        {nom:'Planche classique', series:'3', duree:'30-45 s', recup:'45 s'},
+      ]},
+      {nom:'Pull', type:'Pull', exercices:[
+        {nom:'Lat Pulldown', series:'4', reps:'8-12', recup:'90 s'},
+        {nom:'Divergent Seated Row', series:'4', reps:'8-12', recup:'90 s'},
+        {nom:'Low Row - Seated Row - Tirage horizontal prise serrée', series:'3', reps:'10-12', recup:'75 s'},
+        {nom:'Rear Delt', series:'3', reps:'12-15', recup:'60 s'},
+        {nom:'Curl marteau', series:'3', reps:'10-12', recup:'60 s'},
+        {nom:'Curl biceps à la poulie - Corde', series:'3', reps:'10-12', recup:'60 s'},
+        {nom:'Planche latérale', series:'3', duree:'30-45 s/côté', recup:'45 s'},
+      ]},
+      {nom:'Legs', type:'Legs', exercices:[
+        {nom:'Hack Squat', series:'4', reps:'8-12', recup:'120 s'},
+        {nom:'Leg Press', series:'4', reps:'10-12', recup:'90 s'},
+        {nom:'Seated Leg Curl', series:'3', reps:'10-12', recup:'75 s'},
+        {nom:'Hip Thrust', series:'3', reps:'10-12', recup:'90 s'},
+        {nom:'Leg Extension', series:'3', reps:'12-15', recup:'60 s'},
+        {nom:'Dumbbell Bulgarian Split Squat Standards', series:'3', reps:'10 par jambe', recup:'75 s'},
+        {nom:'Extensions des mollets debout', series:'4', reps:'15-20', recup:'45 s'},
+      ]},
+    ]
+  },
+  { nom:'Haut du corps / Bas du corps', description:'Split en 2 jours pour 4 séances/semaine (Haut/Bas/Haut/Bas).',
+    seances:[
+      {nom:'Haut du corps', type:'Haut du corps', exercices:[
+        {nom:'Smith Machine – Développé couché', series:'4', reps:'8-12', recup:'90 s'},
+        {nom:'Lat Pulldown', series:'4', reps:'8-12', recup:'90 s'},
+        {nom:'Shoulder Press', series:'3', reps:'10-12', recup:'75 s'},
+        {nom:'Divergent Seated Row', series:'3', reps:'10-12', recup:'75 s'},
+        {nom:'Curl marteau', series:'3', reps:'10-12', recup:'60 s'},
+        {nom:'Extension triceps poulie haute', series:'3', reps:'10-12', recup:'60 s'},
+      ]},
+      {nom:'Bas du corps', type:'Bas du corps', exercices:[
+        {nom:'Hack Squat', series:'4', reps:'8-12', recup:'120 s'},
+        {nom:'Soulevé de terre jambes tendues à la Smith Machine', series:'4', reps:'8-10', recup:'120 s'},
+        {nom:'Leg Extension', series:'3', reps:'12-15', recup:'60 s'},
+        {nom:'Seated Leg Curl', series:'3', reps:'12-15', recup:'60 s'},
+        {nom:'Hip Adduction Open', series:'3', reps:'15-20', recup:'45 s'},
+        {nom:'Extensions des mollets debout', series:'4', reps:'15-20', recup:'45 s'},
+      ]},
+    ]
+  },
+  { nom:'Full Body', description:'Séance complète, idéale pour 2-3 entraînements par semaine avec peu de temps disponible.',
+    seances:[
+      {nom:'Full Body', type:'Full Body', exercices:[
+        {nom:'Hack Squat', series:'3', reps:'8-12', recup:'90 s'},
+        {nom:'Smith Machine – Développé couché', series:'3', reps:'8-12', recup:'90 s'},
+        {nom:'Lat Pulldown', series:'3', reps:'8-12', recup:'90 s'},
+        {nom:'Shoulder Press', series:'3', reps:'10-12', recup:'75 s'},
+        {nom:'Curl marteau', series:'2', reps:'10-12', recup:'60 s'},
+        {nom:'Planche classique', series:'3', duree:'30-45 s', recup:'45 s'},
+      ]},
+    ]
+  },
+];
+
+let S = { progs: [] };
+let _exoLib = [], _objectifs = {}, _hist = [];
+
+// ══════════════════════════════════════════════════════════════
+// DONNÉES (logique identique à Programme.html desktop)
+// ══════════════════════════════════════════════════════════════
+function loadData() {
+  try { const r = JSON.parse(localStorage.getItem(STORAGE_KEY)||'[]'); S.progs = Array.isArray(r) ? r : []; } catch { S.progs = []; }
+  try { _exoLib = JSON.parse(localStorage.getItem(EXO_LIB_KEY)||'{}').rows||[]; } catch { _exoLib=[]; }
+  try { _objectifs = JSON.parse(localStorage.getItem(OBJ_KEY)||'{}'); } catch { _objectifs={}; }
+  try { _hist = JSON.parse(localStorage.getItem(HIST_KEY)||'[]'); } catch { _hist=[]; }
+}
+function save() {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(S.progs));
+  GymDB.write('programmes.json', S.progs);
+}
+const getProg = id => S.progs.find(p=>p.id===id);
+const getSeance = (prog,id) => prog?.seances?.find(s=>s.id===id);
+function getExoImage(nom) {
+  const e = _exoLib.find(x=>x.exercice?.toLowerCase()===nom?.toLowerCase());
+  return e ? (e.image||e.image_muscle||e.image_groupe||'') : '';
+}
+function getLatestRef(nom) {
+  try {
+    const row = _exoLib.find(e=>e.exercice?.toLowerCase()===nom.toLowerCase());
+    if (!row) return null;
+    const entries = _objectifs[row.id];
+    if (!entries?.length) return null;
+    return entries.slice().sort((a,b)=>b.date.localeCompare(a.date))[0];
+  } catch { return null; }
+}
+function computeChampsActifs(nom) {
+  const row = _exoLib.find(e=>e.exercice?.toLowerCase()===nom?.toLowerCase());
+  const entries = row ? (_objectifs[row.id]||[]) : [];
+  if (!entries.length) return new Set(CHAMP_KEYS);
+  const actifs = new Set();
+  entries.forEach(e => CHAMP_KEYS.forEach(k => { if (e[k]) actifs.add(k); }));
+  return actifs;
+}
+function parseRepsTarget(reps) {
+  if (!reps) return null;
+  const m = String(reps).match(/(\d+)/);
+  return m ? parseInt(m[1]) : null;
+}
+function checkProgressionSuggestion(nomExercice, targetSeries, targetReps, targetPoids) {
+  const poidsNum = parseFloat(targetPoids);
+  if (!nomExercice || !poidsNum || poidsNum<=0) return null;
+  const matches = (_hist||[]).filter(h=>(h.exercices||[]).some(e=>e.nom===nomExercice));
+  if (!matches.length) return null;
+  const last = matches.slice().sort((a,b)=>(a.date||'').localeCompare(b.date||'')).pop();
+  const entry = (last.exercices||[]).find(e=>e.nom===nomExercice);
+  const series = entry?.series||[];
+  const seriesVisees = parseInt(targetSeries)||0;
+  if (!series.length || (seriesVisees && series.length < seriesVisees)) return null;
+  const minReps = parseRepsTarget(targetReps);
+  const allSuccess = series.every(s=>{
+    const p=parseFloat(s.poids), r=parseInt(s.reps);
+    const poidsOk = !isNaN(p) ? p>=poidsNum : true;
+    const repsOk = (minReps!==null && !isNaN(r)) ? r>=minReps : true;
+    return poidsOk && repsOk;
+  });
+  if (!allSuccess) return null;
+  return { lastDate: last.date, suggestedPoids: Math.round((poidsNum+2.5)*10)/10 };
+}
+function snapshotFields(obj, fields) {
+  const s={}; fields.forEach(f => { s[f] = Array.isArray(obj[f]) ? obj[f].join(', ') : (obj[f]||''); }); return s;
+}
+function recordModifs(prog, before, after, fields) {
+  if (!Array.isArray(prog.historique_modifs)) prog.historique_modifs=[];
+  const nowIso = new Date().toISOString();
+  fields.forEach(f => {
+    const newVal = Array.isArray(after[f]) ? after[f].join(', ') : (after[f]||'');
+    if (before[f] !== newVal) prog.historique_modifs.unshift({date:nowIso, champ:MODIF_LABELS[f]||f, ancienne_valeur:before[f], nouvelle_valeur:newVal});
+  });
+}
+function typeColor(t) { return TC[t]||'#9a9891'; }
+function showToast(msg) {
+  const t = document.getElementById('toast'); t.textContent=msg; t.classList.add('show');
+  clearTimeout(t._h); t._h = setTimeout(()=>t.classList.remove('show'), 2200);
+}
+function parseSecValue(str) {
+  if (!str) return [];
+  return str.split(',').map(s => {
+    const trimmed = s.trim();
+    const colon = trimmed.lastIndexOf(':');
+    if (colon > 0) { const m=trimmed.slice(0,colon).trim(); const l=parseInt(trimmed.slice(colon+1))||3; return {m,l}; }
+    return { m: trimmed, l: 3 };
+  }).filter(x=>x.m);
+}
+function renderStarsHtml(level) {
+  return Array.from({length:5},(_,i)=> i<level ? '<span style="color:#f5b731">★</span>' : '<span style="color:#d1d0ce">☆</span>').join('');
+}
+function openImageLightbox(src, title) {
+  const lb = document.createElement('div'); lb.className='m-lightbox';
+  const img = document.createElement('img'); img.src='./img/'+src; img.alt=title||'';
+  lb.appendChild(img);
+  lb.addEventListener('click', ()=>lb.remove());
+  document.body.appendChild(lb);
+}
+
+// ══════════════════════════════════════════════════════════════
+// LISTE PRINCIPALE (programmes actifs + archivés)
+// ══════════════════════════════════════════════════════════════
+function render() {
+  const main = document.getElementById('mainArea');
+  main.innerHTML = '';
+
+  const launchRow = document.createElement('div'); launchRow.className='m-launch-row';
+  const newBtn = document.createElement('button'); newBtn.className='m-launch-btn';
+  newBtn.innerHTML = '<span class="ic">＋</span><span>Nouveau programme</span>';
+  newBtn.addEventListener('click', ()=>openProgModal());
+  const tplBtn = document.createElement('button'); tplBtn.className='m-launch-btn';
+  tplBtn.innerHTML = '<span class="ic">📋</span><span>Depuis un modèle</span>';
+  tplBtn.addEventListener('click', openTemplateModal);
+  launchRow.append(newBtn, tplBtn);
+  main.appendChild(launchRow);
+
+  const active = S.progs.filter(p=>p.statut==='actif');
+  const archived = S.progs.filter(p=>p.statut!=='actif');
+
+  if (!S.progs.length) {
+    const empty = document.createElement('div'); empty.className='m-empty';
+    empty.textContent = 'Aucun programme. Créez-en un ou partez d\'un modèle.';
+    main.appendChild(empty);
+  }
+
+  if (active.length) {
+    const t = document.createElement('div'); t.className='m-card-title'; t.textContent=`Actifs (${active.length})`;
+    main.appendChild(t);
+    active.forEach(p => main.appendChild(buildProgCard(p)));
+  }
+  if (archived.length) {
+    const t = document.createElement('div'); t.className='m-card-title'; t.style.marginTop='.3rem'; t.textContent=`Archivés (${archived.length})`;
+    main.appendChild(t);
+    archived.forEach(p => main.appendChild(buildProgCard(p)));
+  }
+}
+
+function buildProgCard(p) {
+  const card = document.createElement('div'); card.className='m-prog-card'+(p.statut!=='actif'?' archived':'');
+  const nbSeances = p.seances?.length||0;
+  card.innerHTML = `<div class="m-prog-name">${esc(p.nom)}</div>`
+    + (p.description ? `<div class="m-prog-desc">${esc(p.description)}</div>` : '')
+    + `<div class="m-prog-badges">
+        <span class="m-badge ${p.statut==='actif'?'m-badge-actif':'m-badge-archive'}">${p.statut==='actif'?'● Actif':'● Archivé'}</span>
+        <span class="m-badge m-badge-count">${nbSeances} séance${nbSeances!==1?'s':''}</span>
+      </div>`;
+  card.addEventListener('click', ()=>openProgDetail(p.id));
+  return card;
+}
+
+// ══════════════════════════════════════════════════════════════
+// DÉTAIL PROGRAMME (séances)
+// ══════════════════════════════════════════════════════════════
+function openProgDetail(progId) {
+  const ov = document.createElement('div'); ov.className='m-overlay';
+  const hdr = document.createElement('div'); hdr.className='m-overlay-hdr';
+  const backBtn = document.createElement('button'); backBtn.className='m-back-btn'; backBtn.textContent='←';
+  backBtn.addEventListener('click', ()=>{ ov.remove(); render(); });
+  const titleWrap = document.createElement('div'); titleWrap.className='m-overlay-title'; titleWrap.id='progDetailTitle';
+  hdr.append(backBtn, titleWrap);
+  ov.appendChild(hdr);
+  const body = document.createElement('div'); body.className='m-overlay-body'; body.id='progDetailBody';
+  ov.appendChild(body);
+  document.body.appendChild(ov);
+
+  function refresh() {
+    const prog = getProg(progId);
+    if (!prog) { ov.remove(); render(); return; }
+    titleWrap.innerHTML = `<div class="m-overlay-name">${esc(prog.nom)}</div><div class="m-overlay-sub">${prog.seances?.length||0} séance${(prog.seances?.length||0)!==1?'s':''}</div>`;
+    body.innerHTML = '';
+
+    if (prog.description) { const d=document.createElement('div'); d.className='m-sec-text'; d.textContent=prog.description; body.appendChild(d); }
+
+    const badges = document.createElement('div'); badges.className='m-prog-badges';
+    badges.innerHTML = `<span class="m-badge ${prog.statut==='actif'?'m-badge-actif':'m-badge-archive'}">${prog.statut==='actif'?'● Actif':'● Archivé'}</span>`;
+    body.appendChild(badges);
+
+    const actionsRow = document.createElement('div'); actionsRow.className='m-actions-row';
+    const modBtn = document.createElement('button'); modBtn.className='m-btn-ghost'; modBtn.textContent='Modifier';
+    modBtn.addEventListener('click', ()=>openProgModal(progId, refresh));
+    const archBtn = document.createElement('button'); archBtn.className='m-btn-ghost';
+    archBtn.textContent = prog.statut==='actif' ? 'Archiver' : 'Réactiver';
+    archBtn.addEventListener('click', ()=>{
+      prog.statut = prog.statut==='actif' ? 'archive' : 'actif';
+      save(); refresh(); showToast(`Programme ${prog.statut==='actif'?'réactivé':'archivé'}.`);
+    });
+    const delBtn = document.createElement('button'); delBtn.className='m-btn-danger'; delBtn.textContent='Supprimer';
+    delBtn.addEventListener('click', ()=>openDeleteOverlay({
+      title: 'Supprimer ce programme ?',
+      desc: `Vous allez supprimer <strong>${esc(prog.nom)}</strong> et toutes ses séances. Action irréversible.`,
+      onConfirm: ()=>{ S.progs = S.progs.filter(x=>x.id!==progId); save(); ov.remove(); render(); showToast('Programme supprimé.'); }
+    }));
+    actionsRow.append(modBtn, archBtn, delBtn);
+    body.appendChild(actionsRow);
+
+    const secTitle = document.createElement('div'); secTitle.className='m-card-title'; secTitle.style.marginTop='.3rem'; secTitle.textContent='Séances';
+    body.appendChild(secTitle);
+
+    (prog.seances||[]).forEach(s => body.appendChild(buildSeanceCard(prog, s, refresh)));
+
+    const addCard = document.createElement('div'); addCard.className='m-add-card';
+    addCard.textContent = '＋ Ajouter une séance';
+    addCard.addEventListener('click', ()=>openSeanceModal(progId, null, refresh));
+    body.appendChild(addCard);
+  }
+  refresh();
+}
+
+function buildSeanceCard(prog, s, onChange) {
+  const hex = typeColor(s.type);
+  const card = document.createElement('div'); card.className='m-seance-card';
+  const bar = document.createElement('div'); bar.className='m-seance-bar'; bar.style.background=hex;
+  const sbody = document.createElement('div'); sbody.className='m-seance-body';
+  const hdrRow = document.createElement('div'); hdrRow.className='m-seance-hdr-row';
+  const name = document.createElement('div'); name.className='m-seance-name'; name.textContent=s.nom;
+  const typeBadge = document.createElement('span'); typeBadge.className='m-type-badge'; typeBadge.style.cssText=`background:${hex}26;color:${hex}`; typeBadge.textContent=s.type;
+  hdrRow.append(name, typeBadge);
+  sbody.appendChild(hdrRow);
+  if (s.jours?.length) {
+    const jr = document.createElement('div'); jr.className='m-jours-row';
+    s.jours.forEach(j=>{ const p=document.createElement('span'); p.className='m-jour-pill'; p.textContent=j.slice(0,3); jr.appendChild(p); });
+    sbody.appendChild(jr);
+  }
+  card.appendChild(sbody);
+  const foot = document.createElement('div'); foot.className='m-seance-footer';
+  const cnt = document.createElement('span'); cnt.className='m-seance-cnt'; cnt.textContent=`${s.exercices?.length||0} exercice${(s.exercices?.length||0)!==1?'s':''}`;
+  const acts = document.createElement('div'); acts.className='m-seance-acts';
+  const editBtn = document.createElement('button'); editBtn.className='m-icon-btn'; editBtn.textContent='✎'; editBtn.title='Modifier';
+  editBtn.addEventListener('click', e=>{ e.stopPropagation(); openSeanceModal(prog.id, s.id, onChange); });
+  const delBtn = document.createElement('button'); delBtn.className='m-icon-btn'; delBtn.textContent='🗑'; delBtn.title='Supprimer';
+  delBtn.addEventListener('click', e=>{
+    e.stopPropagation();
+    openDeleteOverlay({
+      title: 'Supprimer cette séance ?',
+      desc: `Vous allez supprimer <strong>${esc(s.nom)}</strong> et ses exercices. Action irréversible.`,
+      onConfirm: ()=>{ prog.seances=prog.seances.filter(x=>x.id!==s.id); save(); onChange(); showToast('Séance supprimée.'); }
+    });
+  });
+  acts.append(editBtn, delBtn);
+  foot.append(cnt, acts);
+  card.appendChild(foot);
+  card.addEventListener('click', ()=>openSeanceDetail(prog.id, s.id, onChange));
+  return card;
+}
+
+// ══════════════════════════════════════════════════════════════
+// DÉTAIL SÉANCE (exercices)
+// ══════════════════════════════════════════════════════════════
+function openSeanceDetail(progId, seanceId, onParentChange) {
+  const ov = document.createElement('div'); ov.className='m-overlay';
+  const hdr = document.createElement('div'); hdr.className='m-overlay-hdr';
+  const backBtn = document.createElement('button'); backBtn.className='m-back-btn'; backBtn.textContent='←';
+  backBtn.addEventListener('click', ()=>{ ov.remove(); onParentChange(); });
+  const titleWrap = document.createElement('div'); titleWrap.className='m-overlay-title'; titleWrap.id='seanceDetailTitle';
+  hdr.append(backBtn, titleWrap);
+  ov.appendChild(hdr);
+  const body = document.createElement('div'); body.className='m-overlay-body'; body.id='seanceDetailBody';
+  ov.appendChild(body);
+  document.body.appendChild(ov);
+
+  function refresh() {
+    const prog = getProg(progId); const seance = getSeance(prog, seanceId);
+    if (!seance) { ov.remove(); onParentChange(); return; }
+    const hex = typeColor(seance.type);
+    titleWrap.innerHTML = `<div class="m-overlay-name">${esc(seance.nom)}</div><div class="m-overlay-sub">${esc(seance.type)}${seance.jours?.length?' · '+esc(seance.jours.join(', ')):''}</div>`;
+    body.innerHTML = '';
+
+    const addBtn = document.createElement('button'); addBtn.className='m-btn-primary'; addBtn.style.width='100%';
+    addBtn.textContent = '＋ Ajouter un exercice';
+    addBtn.addEventListener('click', ()=>openExoModal(progId, seanceId, null, refresh));
+    body.appendChild(addBtn);
+
+    const exos = seance.exercices||[];
+    if (!exos.length) {
+      const empty = document.createElement('div'); empty.className='m-empty';
+      empty.textContent = 'Aucun exercice. Touchez "＋ Ajouter un exercice".';
+      body.appendChild(empty);
+    } else {
+      const groupLetters = {};
+      { let li=0; exos.forEach(e=>{ if(e.groupId && !(e.groupId in groupLetters)){ groupLetters[e.groupId]=String.fromCharCode(65+li); li++; } }); }
+      exos.forEach((e,i) => body.appendChild(buildExoItem(prog, seance, e, i, exos, groupLetters, refresh)));
+    }
+  }
+  refresh();
+}
+
+function buildExoItem(prog, seance, e, i, exos, groupLetters, refresh) {
+  const total = exos.length;
+  const gc = MC[e.groupe]||'#9a9891';
+  const isGroupFirst = e.groupId && (i===0 || exos[i-1].groupId !== e.groupId);
+  const item = document.createElement('div'); item.className='m-exo-item'+(e.groupId?' grouped':''); item.dataset.exoId=e.id;
+
+  if (isGroupFirst) { const sb=document.createElement('div'); sb.className='m-exo-item-super'; sb.textContent=`🔗 Superset ${groupLetters[e.groupId]}`; item.appendChild(sb); }
+
+  const hdr = document.createElement('div'); hdr.className='m-exo-item-hdr';
+  const imgSrc = e.image || getExoImage(e.nom);
+  const exoRow = _exoLib.find(x=>x.exercice?.toLowerCase()===e.nom?.toLowerCase());
+  let thumb;
+  if (imgSrc) {
+    thumb = document.createElement('img'); thumb.className='m-exo-item-img'; thumb.src='./img/'+imgSrc; thumb.alt=e.nom;
+    thumb.onerror = ()=>thumb.replaceWith(makeExoPh(gc));
+  } else { thumb = makeExoPh(gc); }
+  if (exoRow) thumb.addEventListener('click', ()=>openExoRecapOverlay(exoRow.id));
+  hdr.appendChild(thumb);
+  const info = document.createElement('div'); info.style.cssText='flex:1;min-width:0';
+  info.innerHTML = `<div class="m-exo-item-name">${esc(e.nom)}</div><div class="m-exo-item-grp">${esc(e.groupe||'')}</div>`;
+  hdr.appendChild(info);
+  item.appendChild(hdr);
+
+  const chips = document.createElement('div'); chips.className='m-exo-item-chips';
+  [
+    e.series&&`${e.series} séries`, e.reps&&`${e.reps} reps`, e.poids&&`${e.poids} kg`,
+    e.duree&&e.duree, e.distance&&e.distance, e.recup&&`Récup ${e.recup}`,
+  ].filter(Boolean).forEach(c=>{ const s=document.createElement('span'); s.className='m-exo-item-chip'; s.textContent=c; chips.appendChild(s); });
+  if (chips.children.length) item.appendChild(chips);
+  if (e.note) { const n=document.createElement('div'); n.className='m-exo-item-note'; n.textContent=e.note; item.appendChild(n); }
+
+  const acts = document.createElement('div'); acts.className='m-exo-item-acts';
+  const linked = !!(e.groupId && exos[i-1]?.groupId===e.groupId);
+  const linkBtn = document.createElement('button'); linkBtn.className='m-icon-btn'+(linked?' active':''); linkBtn.textContent='🔗';
+  linkBtn.title = linked ? 'Dissocier du superset' : "Lier avec l'exercice précédent";
+  linkBtn.disabled = i===0;
+  linkBtn.addEventListener('click', ()=>{ toggleLinkWithPrevious(seance.id, e.id); refresh(); });
+  const upBtn = document.createElement('button'); upBtn.className='m-icon-btn'; upBtn.textContent='↑'; upBtn.title='Monter'; upBtn.disabled=i===0;
+  upBtn.addEventListener('click', ()=>{ moveExo(seance.id, e.id, -1); refresh(); });
+  const dnBtn = document.createElement('button'); dnBtn.className='m-icon-btn'; dnBtn.textContent='↓'; dnBtn.title='Descendre'; dnBtn.disabled=i===total-1;
+  dnBtn.addEventListener('click', ()=>{ moveExo(seance.id, e.id, 1); refresh(); });
+  const editBtn = document.createElement('button'); editBtn.className='m-icon-btn'; editBtn.textContent='✎'; editBtn.title='Modifier';
+  editBtn.addEventListener('click', ()=>openExoModal(prog.id, seance.id, e.id, refresh));
+  const delBtn = document.createElement('button'); delBtn.className='m-icon-btn danger'; delBtn.textContent='🗑'; delBtn.title='Supprimer';
+  delBtn.addEventListener('click', ()=>{
+    if (!Array.isArray(prog.historique_modifs)) prog.historique_modifs=[];
+    prog.historique_modifs.unshift({date:new Date().toISOString(), champ:'Exercice supprimé', ancienne_valeur:e.nom, nouvelle_valeur:''});
+    seance.exercices = seance.exercices.filter(x=>x.id!==e.id);
+    save(); refresh();
+  });
+  acts.append(linkBtn, upBtn, dnBtn, editBtn, delBtn);
+  item.appendChild(acts);
+  return item;
+}
+function makeExoPh(hex) {
+  const ph = document.createElement('div'); ph.className='m-exo-item-ph';
+  ph.style.cssText = `color:${hex}`;
+  ph.textContent = '🏋';
+  return ph;
+}
+
+// Déplace tout le bloc contigu (superset) auquel appartient l'exercice comme une seule unité.
+function moveExo(seanceId, exoId, dir) {
+  const prog = S.progs.find(p=>p.seances?.some(s=>s.id===seanceId));
+  const seance = prog?.seances?.find(s=>s.id===seanceId); if (!seance?.exercices) return;
+  const arr = seance.exercices; const idx = arr.findIndex(e=>e.id===exoId); if (idx<0) return;
+  const gid = arr[idx].groupId;
+  let start=idx, end=idx;
+  if (gid) { while(start>0 && arr[start-1].groupId===gid) start--; while(end<arr.length-1 && arr[end+1].groupId===gid) end++; }
+  const block = arr.slice(start, end+1);
+  if (dir<0) {
+    if (start===0) return;
+    let otherStart=start-1;
+    const oGid=arr[otherStart].groupId;
+    if (oGid) { while(otherStart>0 && arr[otherStart-1].groupId===oGid) otherStart--; }
+    const other = arr.slice(otherStart, start);
+    arr.splice(otherStart, end-otherStart+1, ...block, ...other);
+  } else {
+    if (end===arr.length-1) return;
+    let otherEnd=end+1;
+    const oGid=arr[otherEnd].groupId;
+    if (oGid) { while(otherEnd<arr.length-1 && arr[otherEnd+1].groupId===oGid) otherEnd++; }
+    const other = arr.slice(end+1, otherEnd+1);
+    arr.splice(start, otherEnd-start+1, ...other, ...block);
+  }
+  save();
+}
+function toggleLinkWithPrevious(seanceId, exoId) {
+  const prog = S.progs.find(p=>p.seances?.some(s=>s.id===seanceId));
+  const seance = prog?.seances?.find(s=>s.id===seanceId); if (!seance?.exercices) return;
+  const arr = seance.exercices; const idx = arr.findIndex(e=>e.id===exoId); if (idx<=0) return;
+  const cur=arr[idx], prev=arr[idx-1];
+  if (cur.groupId && cur.groupId===prev.groupId) {
+    cur.groupId = null;
+    const remaining = arr.filter(x=>x.groupId===prev.groupId);
+    if (remaining.length===1) remaining[0].groupId=null;
+  } else {
+    const gid = prev.groupId || uid();
+    prev.groupId = gid; cur.groupId = gid;
+  }
+  save();
+}
+
+// ══════════════════════════════════════════════════════════════
+// MODAL PROGRAMME
+// ══════════════════════════════════════════════════════════════
+function openProgModal(progId, onSaved) {
+  const editing = progId ? getProg(progId) : null;
+  const ov = document.createElement('div'); ov.className='m-overlay';
+  const hdr = document.createElement('div'); hdr.className='m-overlay-hdr';
+  const backBtn = document.createElement('button'); backBtn.className='m-back-btn'; backBtn.textContent='←';
+  backBtn.addEventListener('click', ()=>ov.remove());
+  const titleWrap = document.createElement('div'); titleWrap.className='m-overlay-title';
+  titleWrap.innerHTML = `<div class="m-overlay-name">${editing?'Modifier le programme':'Nouveau programme'}</div>`;
+  hdr.append(backBtn, titleWrap);
+  ov.appendChild(hdr);
+
+  const body = document.createElement('div'); body.className='m-overlay-body';
+  const errBox = document.createElement('div'); errBox.className='m-err'; errBox.style.display='none';
+
+  const nomFld = document.createElement('div'); nomFld.className='m-fld';
+  nomFld.innerHTML = '<label>Nom *</label>';
+  const nomInp = document.createElement('input'); nomInp.type='text'; nomInp.value=editing?.nom||''; nomInp.placeholder='ex: Push / Pull / Legs';
+  nomFld.appendChild(nomInp);
+
+  const descFld = document.createElement('div'); descFld.className='m-fld';
+  descFld.innerHTML = '<label>Description</label>';
+  const descInp = document.createElement('textarea'); descInp.value=editing?.description||''; descInp.placeholder='Objectif, contexte…';
+  descFld.appendChild(descInp);
+
+  const statutFld = document.createElement('div'); statutFld.className='m-fld';
+  statutFld.innerHTML = '<label>Statut</label>';
+  const statutSel = document.createElement('select');
+  statutSel.innerHTML = '<option value="actif">Actif</option><option value="archive">Archivé</option>';
+  statutSel.value = editing?.statut||'actif';
+  statutFld.appendChild(statutSel);
+
+  body.append(nomFld, descFld, statutFld, errBox);
+
+  const saveBtn = document.createElement('button'); saveBtn.className='m-btn-primary'; saveBtn.style.width='100%';
+  saveBtn.textContent = editing ? 'Enregistrer' : 'Créer';
+  saveBtn.addEventListener('click', ()=>{
+    const nom = nomInp.value.trim();
+    if (!nom) { errBox.textContent='Le nom est obligatoire.'; errBox.style.display='block'; return; }
+    const desc = descInp.value.trim(); const statut = statutSel.value;
+    if (editing) {
+      const before = snapshotFields(editing, PROG_MODIF_FIELDS);
+      editing.nom=nom; editing.description=desc; editing.statut=statut;
+      recordModifs(editing, before, editing, PROG_MODIF_FIELDS);
+      save(); ov.remove(); if (onSaved) onSaved(); else render();
+      showToast(`"${nom}" modifié.`);
+    } else {
+      const newId = uid();
+      S.progs.push({ id:newId, nom, description:desc, statut, dateCreation:new Date().toISOString().split('T')[0], seances:[], historique_modifs:[] });
+      save(); ov.remove(); render();
+      showToast(`"${nom}" créé.`);
+    }
+  });
+  body.appendChild(saveBtn);
+
+  ov.appendChild(body);
+  document.body.appendChild(ov);
+  setTimeout(()=>nomInp.focus(), 60);
+}
+
+// ══════════════════════════════════════════════════════════════
+// MODAL SÉANCE
+// ══════════════════════════════════════════════════════════════
+function openSeanceModal(progId, seanceId, onSaved) {
+  const prog = getProg(progId);
+  const editing = seanceId ? getSeance(prog, seanceId) : null;
+  let selectedJours = editing?.jours ? [...editing.jours] : [];
+
+  const ov = document.createElement('div'); ov.className='m-overlay';
+  const hdr = document.createElement('div'); hdr.className='m-overlay-hdr';
+  const backBtn = document.createElement('button'); backBtn.className='m-back-btn'; backBtn.textContent='←';
+  backBtn.addEventListener('click', ()=>ov.remove());
+  const titleWrap = document.createElement('div'); titleWrap.className='m-overlay-title';
+  titleWrap.innerHTML = `<div class="m-overlay-name">${editing?'Modifier la séance':'Nouvelle séance'}</div>`;
+  hdr.append(backBtn, titleWrap);
+  ov.appendChild(hdr);
+
+  const body = document.createElement('div'); body.className='m-overlay-body';
+  const errBox = document.createElement('div'); errBox.className='m-err'; errBox.style.display='none';
+
+  const nomFld = document.createElement('div'); nomFld.className='m-fld';
+  nomFld.innerHTML = '<label>Nom *</label>';
+  const nomInp = document.createElement('input'); nomInp.type='text'; nomInp.value=editing?.nom||''; nomInp.placeholder='ex: Push';
+  nomFld.appendChild(nomInp);
+
+  const typeFld = document.createElement('div'); typeFld.className='m-fld';
+  typeFld.innerHTML = '<label>Type</label>';
+  const typeSel = document.createElement('select');
+  typeSel.innerHTML = TYPE_OPTS.map(t=>`<option value="${esc(t)}">${esc(t)}</option>`).join('');
+  typeSel.value = editing?.type||'Push';
+  typeFld.appendChild(typeSel);
+
+  const joursFld = document.createElement('div'); joursFld.className='m-fld';
+  joursFld.innerHTML = '<label>Jours</label>';
+  const joursRow = document.createElement('div'); joursRow.className='m-jours-toggle-row';
+  JOURS_LIST.forEach(j => {
+    const btn = document.createElement('button'); btn.type='button'; btn.className='m-jour-toggle'+(selectedJours.includes(j)?' active':'');
+    btn.textContent = j.slice(0,3);
+    btn.addEventListener('click', ()=>{
+      if (selectedJours.includes(j)) selectedJours = selectedJours.filter(x=>x!==j); else selectedJours.push(j);
+      btn.classList.toggle('active', selectedJours.includes(j));
+    });
+    joursRow.appendChild(btn);
+  });
+  joursFld.appendChild(joursRow);
+
+  body.append(nomFld, typeFld, joursFld, errBox);
+
+  const saveBtn = document.createElement('button'); saveBtn.className='m-btn-primary'; saveBtn.style.width='100%';
+  saveBtn.textContent = editing ? 'Enregistrer' : 'Créer';
+  saveBtn.addEventListener('click', ()=>{
+    const nom = nomInp.value.trim();
+    if (!nom) { errBox.textContent='Le nom est obligatoire.'; errBox.style.display='block'; return; }
+    const type = typeSel.value;
+    if (editing) {
+      const before = snapshotFields(editing, SEANCE_MODIF_FIELDS);
+      editing.nom=nom; editing.type=type; editing.jours=selectedJours;
+      recordModifs(prog, before, editing, SEANCE_MODIF_FIELDS);
+    } else {
+      if (!prog.seances) prog.seances=[];
+      prog.seances.push({ id:uid(), nom, type, jours:selectedJours, exercices:[] });
+    }
+    save(); ov.remove(); if (onSaved) onSaved();
+    showToast(`Séance "${nom}" ${editing?'modifiée':'créée'}.`);
+  });
+  body.appendChild(saveBtn);
+
+  ov.appendChild(body);
+  document.body.appendChild(ov);
+  setTimeout(()=>nomInp.focus(), 60);
+}
+
+// ══════════════════════════════════════════════════════════════
+// MODAL EXERCICE (ajout / édition partagés)
+// ══════════════════════════════════════════════════════════════
+function openExoModal(progId, seanceId, exoId, onSaved) {
+  const prog = getProg(progId); const seance = getSeance(prog, seanceId);
+  const editing = exoId ? seance?.exercices?.find(x=>x.id===exoId) : null;
+  const hex = typeColor(seance?.type||'Autre');
+
+  let selected = editing ? {
+    exercice: editing.nom, groupe_musculaire: editing.groupe||'',
+    image: editing.image || getExoImage(editing.nom),
+  } : null;
+
+  const ov = document.createElement('div'); ov.className='m-overlay';
+  const hdr = document.createElement('div'); hdr.className='m-overlay-hdr';
+  const backBtn = document.createElement('button'); backBtn.className='m-back-btn'; backBtn.textContent='←';
+  backBtn.addEventListener('click', ()=>ov.remove());
+  const titleWrap = document.createElement('div'); titleWrap.className='m-overlay-title';
+  titleWrap.innerHTML = `<div class="m-overlay-name">${editing?"Modifier l'exercice":'Ajouter un exercice'}</div><div class="m-overlay-sub">${esc(seance?.nom||'')} · ${esc(seance?.type||'')}</div>`;
+  hdr.append(backBtn, titleWrap);
+  ov.appendChild(hdr);
+
+  const body = document.createElement('div'); body.className='m-overlay-body';
+
+  // Trigger de sélection d'exercice
+  const pickTrigger = document.createElement('button'); pickTrigger.type='button'; pickTrigger.className='m-exo-pick-trigger';
+  function drawTrigger() {
+    pickTrigger.innerHTML = '';
+    if (selected) {
+      const imgSrc = selected.image;
+      if (imgSrc) { const img=document.createElement('img'); img.src='./img/'+imgSrc; img.alt=''; img.onerror=()=>img.replaceWith(makeTriggerPh()); pickTrigger.appendChild(img); }
+      else pickTrigger.appendChild(makeTriggerPh());
+      const nm = document.createElement('span'); nm.className='m-exo-pick-name filled'; nm.textContent = selected.exercice;
+      pickTrigger.appendChild(nm);
+    } else {
+      pickTrigger.appendChild(makeTriggerPh());
+      const nm = document.createElement('span'); nm.className='m-exo-pick-name'; nm.textContent = 'Choisir un exercice…';
+      pickTrigger.appendChild(nm);
+    }
+    const arrow = document.createElement('span'); arrow.textContent='›'; arrow.style.cssText='color:var(--txf);font-size:1.1rem'; pickTrigger.appendChild(arrow);
+  }
+  function makeTriggerPh() { const ph=document.createElement('div'); ph.className='ph'; ph.textContent='🏋'; return ph; }
+  drawTrigger();
+
+  const grpDisplay = document.createElement('div'); grpDisplay.className='m-grp-display';
+  function drawGrpDisplay() {
+    if (!selected || !selected.groupe_musculaire) { grpDisplay.style.display='none'; return; }
+    grpDisplay.style.display='flex';
+    const ghex = MC[selected.groupe_musculaire]||hex;
+    grpDisplay.innerHTML = `<span style="width:10px;height:10px;border-radius:999px;background:${ghex};flex-shrink:0"></span><span class="m-grp-display-name" style="color:${ghex}">${esc(selected.groupe_musculaire)}</span>`;
+  }
+  drawGrpDisplay();
+
+  body.append(pickTrigger, grpDisplay);
+
+  const errBox = document.createElement('div'); errBox.className='m-err'; errBox.style.display='none';
+  const refHint = document.createElement('div'); refHint.className='m-ref-hint'; refHint.style.display='none';
+  const suggestBox = document.createElement('div'); suggestBox.className='m-prog-suggest'; suggestBox.style.display='none';
+
+  const form = document.createElement('div'); form.className='m-form-grid';
+  function mkFld(labelTxt, id, type, full, step) {
+    const fld = document.createElement('div'); fld.className='m-fld'+(full?' full':''); fld.dataset.champKey = ({exSeries:'series',exReps:'reps',exPoids:'poids',exDuree:'duree',exDist:'distance',exPuissance:'puissance',exInclinaison:'inclinaison'})[id]||'';
+    const lbl = document.createElement('label'); lbl.textContent = labelTxt;
+    const inp = document.createElement(type==='textarea'?'textarea':'input');
+    if (type!=='textarea') inp.type = type;
+    if (type==='number') { inp.inputMode='decimal'; inp.min='0'; if (step) inp.step=step; }
+    inp.id = id;
+    fld.append(lbl, inp);
+    return fld;
+  }
+  const seriesFld = mkFld('Séries','exSeries','number',false,'1');
+  const repsFld = mkFld('Répétitions','exReps','text');
+  const poidsFld = mkFld('Poids (kg)','exPoids','number',false,'0.5');
+  const recupFld = mkFld('Récupération','exRecup','text');
+  const dureeFld = mkFld('Durée','exDuree','text');
+  const distFld = mkFld('Distance','exDist','text');
+  const puissFld = mkFld('Puissance (W)','exPuissance','number',false,'1');
+  const inclFld = mkFld('Inclinaison (%)','exInclinaison','number',false,'0.5');
+  const noteFld = mkFld('Note','exNote','textarea',true);
+  form.append(seriesFld, repsFld, poidsFld, recupFld, dureeFld, distFld, puissFld, inclFld, noteFld);
+  body.append(refHint, suggestBox, form, errBox);
+
+  function applyChampsVisibility(nom) {
+    const champs = nom ? computeChampsActifs(nom) : new Set(CHAMP_KEYS);
+    [seriesFld, repsFld, poidsFld, dureeFld, distFld, puissFld, inclFld].forEach(fld => {
+      const k = fld.dataset.champKey;
+      fld.style.display = (!k || champs.has(k)) ? '' : 'none';
+    });
+  }
+  function refreshSuggestion() {
+    if (!selected) { suggestBox.style.display='none'; return; }
+    const sugg = checkProgressionSuggestion(selected.exercice, form.querySelector('#exSeries').value, form.querySelector('#exReps').value, form.querySelector('#exPoids').value);
+    if (!sugg) { suggestBox.style.display='none'; return; }
+    const dateStr = new Date(sugg.lastDate+'T00:00:00').toLocaleDateString('fr-FR',{day:'2-digit',month:'short'});
+    suggestBox.innerHTML = `<span>💪 Toutes les séries réussies le ${dateStr} → suggestion : <strong>${sugg.suggestedPoids} kg</strong></span>`;
+    const btn = document.createElement('button'); btn.type='button'; btn.textContent='Appliquer';
+    btn.addEventListener('click', ()=>{ form.querySelector('#exPoids').value = sugg.suggestedPoids; suggestBox.style.display='none'; });
+    suggestBox.appendChild(btn);
+    suggestBox.style.display='flex';
+  }
+  ['exSeries','exReps','exPoids'].forEach(id => form.querySelector('#'+id).addEventListener('input', refreshSuggestion));
+
+  function fillFromExisting() {
+    if (!editing) return;
+    form.querySelector('#exSeries').value = editing.series||'';
+    form.querySelector('#exReps').value = editing.reps||'';
+    form.querySelector('#exPoids').value = editing.poids||'';
+    form.querySelector('#exRecup').value = editing.recup||'';
+    form.querySelector('#exDuree').value = editing.duree||'';
+    form.querySelector('#exDist').value = editing.distance||'';
+    form.querySelector('#exPuissance').value = editing.puissance||'';
+    form.querySelector('#exInclinaison').value = editing.inclinaison||'';
+    form.querySelector('#exNote').value = editing.note||'';
+  }
+  function autoFillRef(nom) {
+    const ref = getLatestRef(nom);
+    if (ref) {
+      if (ref.series) form.querySelector('#exSeries').value = ref.series;
+      if (ref.reps) form.querySelector('#exReps').value = ref.reps;
+      if (ref.poids) form.querySelector('#exPoids').value = ref.poids;
+      if (ref.duree) form.querySelector('#exDuree').value = ref.duree;
+      if (ref.distance) form.querySelector('#exDist').value = ref.distance;
+      if (ref.recup) form.querySelector('#exRecup').value = ref.recup;
+      refHint.textContent = `↩ Référence du ${new Date(ref.date+'T00:00:00').toLocaleDateString('fr-FR',{day:'2-digit',month:'short',year:'numeric'})} chargée`;
+      refHint.style.display = 'block';
+      setTimeout(()=>refHint.style.display='none', 3500);
+    }
+    refreshSuggestion();
+  }
+
+  applyChampsVisibility(editing?editing.nom:null);
+  fillFromExisting();
+
+  // Sélection d'un exercice via l'overlay picker plein écran
+  pickTrigger.addEventListener('click', ()=>{
+    openExoPickerOverlay(exoData => {
+      selected = { exercice: exoData.exercice, groupe_musculaire: exoData.groupe_musculaire||'', image: exoData.image||exoData.image_muscle||exoData.image_groupe||'' };
+      drawTrigger(); drawGrpDisplay();
+      applyChampsVisibility(selected.exercice);
+      autoFillRef(selected.exercice);
+      errBox.style.display = 'none';
+    });
+  });
+
+  const saveBtn = document.createElement('button'); saveBtn.className='m-btn-primary'; saveBtn.style.width='100%';
+  saveBtn.textContent = editing ? 'Enregistrer' : 'Ajouter';
+  saveBtn.addEventListener('click', ()=>{
+    if (!selected) { errBox.textContent='Sélectionnez un exercice dans la liste.'; errBox.style.display='block'; return; }
+    const fields = {
+      nom: selected.exercice, groupe: selected.groupe_musculaire, image: getExoImage(selected.exercice)||selected.image||'',
+      series: form.querySelector('#exSeries').value.trim(), reps: form.querySelector('#exReps').value.trim(),
+      poids: form.querySelector('#exPoids').value.trim(), recup: form.querySelector('#exRecup').value.trim(),
+      duree: form.querySelector('#exDuree').value.trim(), distance: form.querySelector('#exDist').value.trim(),
+      puissance: form.querySelector('#exPuissance').value.trim(), inclinaison: form.querySelector('#exInclinaison').value.trim(),
+      note: form.querySelector('#exNote').value.trim(),
+    };
+    if (editing) {
+      const before = snapshotFields(editing, EXO_MODIF_FIELDS);
+      Object.assign(editing, fields);
+      if (prog) recordModifs(prog, before, editing, EXO_MODIF_FIELDS);
+    } else {
+      if (!seance.exercices) seance.exercices=[];
+      seance.exercices.push({ id:uid(), ...fields });
+      if (prog) {
+        if (!Array.isArray(prog.historique_modifs)) prog.historique_modifs=[];
+        prog.historique_modifs.unshift({date:new Date().toISOString(), champ:'Exercice ajouté', ancienne_valeur:'', nouvelle_valeur:fields.nom});
+      }
+    }
+    save(); ov.remove(); if (onSaved) onSaved();
+    showToast(editing?`"${fields.nom}" modifié.`:`"${fields.nom}" ajouté.`);
+  });
+  body.appendChild(saveBtn);
+
+  ov.appendChild(body);
+  document.body.appendChild(ov);
+}
+
+// Overlay plein écran de sélection d'exercice (recherche + liste illustrée)
+function openExoPickerOverlay(onPick) {
+  const ov = document.createElement('div'); ov.className='m-overlay';
+  ov.innerHTML = `<div class="m-overlay-hdr"><input class="m-search" id="pickSearch" placeholder="🔎 Rechercher un exercice…"><button class="m-back-btn" id="pickClose">×</button></div><div class="m-overlay-list" id="pickList"></div>`;
+  document.body.appendChild(ov);
+  const listEl = ov.querySelector('#pickList');
+  const allExos = _exoLib.filter(e=>e.exercice).slice().sort((a,b)=>a.exercice.localeCompare(b.exercice,'fr'));
+
+  function draw(q) {
+    const filtered = allExos.filter(e=>!q || e.exercice.toLowerCase().includes(q.toLowerCase()));
+    listEl.innerHTML = filtered.length ? '' : '<div class="m-empty">Aucun résultat</div>';
+    filtered.forEach(e => {
+      const hex = MC[e.groupe_musculaire]||'#9a9891';
+      const imgSrc = e.image||e.image_muscle||e.image_groupe||'';
+      const item = document.createElement('button'); item.className='m-picker-item';
+      item.innerHTML = `${imgSrc?`<img class="m-picker-img" src="./img/${esc(imgSrc)}" onerror="this.style.display='none'">`:`<div class="m-picker-ph" style="background:${hex}22;color:${hex}">🏋</div>`}<div class="m-picker-info"><div class="m-picker-name">${esc(e.exercice)}</div><div class="m-picker-grp">${esc(e.groupe_musculaire||'')}${e.muscle?' · '+esc(e.muscle):''}</div></div>`;
+      item.addEventListener('click', ()=>{ ov.remove(); onPick(e); });
+      listEl.appendChild(item);
+    });
+  }
+  draw('');
+  ov.querySelector('#pickSearch').addEventListener('input', e=>draw(e.target.value));
+  ov.querySelector('#pickClose').addEventListener('click', ()=>ov.remove());
+  setTimeout(()=>ov.querySelector('#pickSearch').focus(), 60);
+}
+
+// ══════════════════════════════════════════════════════════════
+// MODÈLES DE PROGRAMME
+// ══════════════════════════════════════════════════════════════
+function resolveExoLibFields(nom) {
+  const e = _exoLib.find(x=>x.exercice?.toLowerCase()===nom?.toLowerCase());
+  return e ? { groupe: e.groupe_musculaire||'', image: e.image||'' } : { groupe:'', image:'' };
+}
+function openTemplateModal() {
+  const ov = document.createElement('div'); ov.className='m-overlay';
+  const hdr = document.createElement('div'); hdr.className='m-overlay-hdr';
+  const backBtn = document.createElement('button'); backBtn.className='m-back-btn'; backBtn.textContent='←';
+  backBtn.addEventListener('click', ()=>ov.remove());
+  const titleWrap = document.createElement('div'); titleWrap.className='m-overlay-title';
+  titleWrap.innerHTML = '<div class="m-overlay-name">Nouveau programme depuis un modèle</div>';
+  hdr.append(backBtn, titleWrap);
+  ov.appendChild(hdr);
+
+  const body = document.createElement('div'); body.className='m-overlay-body';
+  PROGRAM_TEMPLATES.forEach((tpl, idx) => {
+    const nbExo = tpl.seances.reduce((n,s)=>n+s.exercices.length,0);
+    const card = document.createElement('button'); card.type='button'; card.className='m-tpl-card';
+    card.innerHTML = `<div class="m-tpl-name">${esc(tpl.nom)}</div><div class="m-tpl-desc">${esc(tpl.description)}</div><div class="m-tpl-meta">${tpl.seances.length} séance${tpl.seances.length>1?'s':''} · ${nbExo} exercices au total</div>`;
+    card.addEventListener('click', ()=>{
+      const newId = uid();
+      const seances = tpl.seances.map(s => ({
+        id: uid(), nom: s.nom, type: s.type, jours: [],
+        exercices: s.exercices.map(e => {
+          const { groupe, image } = resolveExoLibFields(e.nom);
+          return { id: uid(), nom: e.nom, groupe, image, series: e.series||'', reps: e.reps||'', poids: e.poids||'', recup: e.recup||'', duree: e.duree||'', distance: e.distance||'', note:'' };
+        })
+      }));
+      S.progs.push({ id:newId, nom:tpl.nom, description:tpl.description, statut:'actif', dateCreation:new Date().toISOString().split('T')[0], seances, historique_modifs:[] });
+      save(); ov.remove(); render();
+      showToast(`Programme "${tpl.nom}" créé depuis le modèle.`);
+    });
+    body.appendChild(card);
+  });
+  ov.appendChild(body);
+  document.body.appendChild(ov);
+}
+
+// ══════════════════════════════════════════════════════════════
+// SUPPRESSION (confirmation générique)
+// ══════════════════════════════════════════════════════════════
+function openDeleteOverlay({title, desc, onConfirm}) {
+  const ov = document.createElement('div'); ov.className='m-overlay';
+  const hdr = document.createElement('div'); hdr.className='m-overlay-hdr';
+  const backBtn = document.createElement('button'); backBtn.className='m-back-btn'; backBtn.textContent='←';
+  backBtn.addEventListener('click', ()=>ov.remove());
+  const titleWrap = document.createElement('div'); titleWrap.className='m-overlay-title'; titleWrap.innerHTML='<div class="m-overlay-name">Confirmation</div>';
+  hdr.append(backBtn, titleWrap);
+  ov.appendChild(hdr);
+
+  const body = document.createElement('div'); body.className='m-overlay-body'; body.style.justifyContent='center';
+  body.innerHTML = `<div class="m-del-icon">🗑</div><div class="m-del-title">${esc(title)}</div><div class="m-del-desc">${desc}</div>`;
+  const actions = document.createElement('div'); actions.className='m-actions-row'; actions.style.marginTop='.5rem';
+  const cancelBtn = document.createElement('button'); cancelBtn.className='m-btn-ghost'; cancelBtn.textContent='Annuler';
+  cancelBtn.addEventListener('click', ()=>ov.remove());
+  const confirmBtn = document.createElement('button'); confirmBtn.className='m-btn-danger'; confirmBtn.style.borderStyle='solid'; confirmBtn.textContent='Supprimer';
+  confirmBtn.addEventListener('click', ()=>{ ov.remove(); onConfirm(); });
+  actions.append(cancelBtn, confirmBtn);
+  body.appendChild(actions);
+  ov.appendChild(body);
+  document.body.appendChild(ov);
+}
+
+// ══════════════════════════════════════════════════════════════
+// FICHE EXERCICE (récap, lecture seule) — même contenu que les autres pages mobiles
+// ══════════════════════════════════════════════════════════════
+function openExoRecapOverlay(exoId) {
+  const exo = _exoLib.find(e=>e.id===exoId);
+  if (!exo) return;
+
+  const ov = document.createElement('div'); ov.className='m-overlay';
+  const hdr = document.createElement('div'); hdr.className='m-overlay-hdr';
+  const backBtn = document.createElement('button'); backBtn.className='m-back-btn'; backBtn.textContent='←';
+  backBtn.addEventListener('click', ()=>ov.remove());
+  const titleWrap = document.createElement('div'); titleWrap.className='m-overlay-title';
+  const sub = [exo.muscle, exo.subdivision&&exo.subdivision!=='—'?exo.subdivision:''].filter(Boolean).join(' · ');
+  titleWrap.innerHTML = `<div class="m-overlay-name">${esc(exo.exercice||'')}</div><div class="m-overlay-sub">${esc(sub)}</div>`;
+  hdr.append(backBtn, titleWrap);
+  ov.appendChild(hdr);
+
+  const body = document.createElement('div'); body.className='m-overlay-body';
+
+  if (exo.image) {
+    const imgWrap = document.createElement('div'); imgWrap.className='m-dm-img-wrap';
+    const img = document.createElement('img'); img.src='./img/'+exo.image; img.alt='';
+    img.onerror=()=>{ imgWrap.innerHTML=''; imgWrap.appendChild(makeExoPh(grpc(exo.groupe_musculaire))); };
+    img.addEventListener('click', ()=>openImageLightbox(exo.image, exo.exercice||''));
+    imgWrap.appendChild(img);
+    body.appendChild(imgWrap);
+  }
+
+  const tagVals = [exo.equipement, exo.type_exercice, exo.type_mouvement, exo.pattern_mouvement, exo.niveau].filter(Boolean);
+  if (tagVals.length) {
+    const row = document.createElement('div'); row.className='m-erb-tags';
+    tagVals.forEach(t=>{ const s=document.createElement('span'); s.className='m-erb-tag'; s.textContent=t; row.appendChild(s); });
+    body.appendChild(row);
+  }
+
+  const sec = parseSecValue(exo.muscle_secondaire);
+  if (sec.length) {
+    const t = document.createElement('div'); t.className='m-sec-title'; t.textContent='Muscles secondaires';
+    body.appendChild(t);
+    const list = document.createElement('div'); list.style.cssText='display:flex;flex-direction:column;gap:.3rem';
+    sec.forEach(({m,l})=>{
+      const line = document.createElement('div'); line.style.cssText='display:flex;align-items:center;justify-content:space-between;font-size:.82rem';
+      line.innerHTML = `<span>${esc(m)}</span><span style="font-size:.78rem">${renderStarsHtml(l)}</span>`;
+      list.appendChild(line);
+    });
+    body.appendChild(list);
+  }
+
+  [{lbl:'Descriptif', val:exo.descriptif},{lbl:'Exécution / Technique', val:exo.execution}].forEach(({lbl,val})=>{
+    if (!val) return;
+    const t = document.createElement('div'); t.className='m-sec-title'; t.textContent=lbl;
+    const v = document.createElement('div'); v.className='m-sec-text'; v.textContent=val;
+    body.append(t,v);
+  });
+
+  const objs = _objectifs[exo.id];
+  const lastObj = Array.isArray(objs) && objs.length ? objs.slice().sort((a,b)=>(a.date||'').localeCompare(b.date||'')).pop() : null;
+  const objTitle = document.createElement('div'); objTitle.className='m-sec-title'; objTitle.textContent='Objectif actuel';
+  body.appendChild(objTitle);
+  if (lastObj) {
+    const chips = [
+      lastObj.series&&`${lastObj.series} séries`, lastObj.reps&&`${lastObj.reps} reps`, lastObj.poids&&`${lastObj.poids} kg`,
+      lastObj.rm1&&`1RM estimé ${lastObj.rm1} kg`, lastObj.duree&&`${lastObj.duree}`, lastObj.distance&&`${lastObj.distance}`,
+      lastObj.recup&&`Récup ${lastObj.recup}s`,
+    ].filter(Boolean);
+    const row = document.createElement('div'); row.className='m-erb-series-row';
+    chips.forEach(c=>{ const s=document.createElement('span'); s.className='m-erb-chip'; s.textContent=c; row.appendChild(s); });
+    body.appendChild(row);
+    if (lastObj.date) { const d=document.createElement('div'); d.style.cssText='font-size:.7rem;color:var(--txf);margin-top:.2rem'; d.textContent='Défini le '+fmtDateShort(lastObj.date); body.appendChild(d); }
+    if (lastObj.note) { const n=document.createElement('div'); n.className='m-sec-text'; n.style.marginTop='.3rem'; n.textContent=lastObj.note; body.appendChild(n); }
+  } else {
+    const e = document.createElement('div'); e.className='m-sec-empty'; e.textContent='Aucun objectif défini.';
+    body.appendChild(e);
+  }
+
+  const matches = (_hist||[]).filter(h=>(h.exercices||[]).some(e=>e.nom===exo.exercice));
+  const lastSeance = matches.length ? matches.slice().sort((a,b)=>(a.date||'').localeCompare(b.date||'')).pop() : null;
+  const seanceTitle = document.createElement('div'); seanceTitle.className='m-sec-title'; seanceTitle.textContent='Dernière séance';
+  body.appendChild(seanceTitle);
+  if (lastSeance) {
+    const entry = (lastSeance.exercices||[]).find(e=>e.nom===exo.exercice);
+    const d = document.createElement('div'); d.style.cssText='font-size:.78rem;color:var(--txm);margin-bottom:.3rem';
+    d.textContent = fmtDateShort(lastSeance.date) + (lastSeance.seanceNom?' · '+lastSeance.seanceNom:'');
+    body.appendChild(d);
+    (entry?.series||[]).forEach((s,i)=>{
+      const chips = [s.reps&&`${s.reps} reps`, s.poids&&`${s.poids} kg`, s.duree&&`${s.duree}`, s.distance&&`${s.distance}`, s.ressenti&&s.ressenti].filter(Boolean);
+      if (!chips.length) return;
+      const row = document.createElement('div'); row.className='m-erb-series-row';
+      const lbl = document.createElement('span'); lbl.style.cssText='font-size:.72rem;color:var(--txf);flex-shrink:0'; lbl.textContent=`Série ${i+1} :`;
+      row.appendChild(lbl);
+      chips.forEach(c=>{ const s2=document.createElement('span'); s2.className='m-erb-chip'; s2.textContent=c; row.appendChild(s2); });
+      body.appendChild(row);
+    });
+    if (entry?.note) { const n=document.createElement('div'); n.className='m-sec-text'; n.style.marginTop='.3rem'; n.textContent=entry.note; body.appendChild(n); }
+  } else {
+    const e = document.createElement('div'); e.className='m-sec-empty'; e.textContent='Jamais pratiqué.';
+    body.appendChild(e);
+  }
+
+  ov.appendChild(body);
+  document.body.appendChild(ov);
+}
+
+// ══════════════════════════════════════════════════════════════
+// WIRING / INIT
+// ══════════════════════════════════════════════════════════════
+document.getElementById('themeBtn').addEventListener('click', ()=>applyTheme(document.documentElement.getAttribute('data-theme')==='dark'?'light':'dark'));
+
+(async function init(){
+  applyTheme(localStorage.getItem('muscle-xml-theme')||'light');
+  loadData();
+  const dbState = await GymDB.init();
+  if (dbState === 'connected') {
+    try { const d=await GymDB.read('exercices.json'); if(d&&Array.isArray(d.rows)){ _exoLib=d.rows; localStorage.setItem(EXO_LIB_KEY,JSON.stringify(d)); } } catch{}
+    try { const o=await GymDB.read('exercices-objectifs.json'); if(o){ _objectifs=o; localStorage.setItem(OBJ_KEY,JSON.stringify(o)); } } catch{}
+    try { const h=await GymDB.read('historique.json'); if(Array.isArray(h)){ _hist=h; localStorage.setItem(HIST_KEY,JSON.stringify(h)); } } catch{}
+    try { const d=await GymDB.read('programmes.json'); if(Array.isArray(d)&&d.length){ S.progs=d; localStorage.setItem(STORAGE_KEY,JSON.stringify(d)); } } catch{}
+  }
+  render();
+})();
+</script>
+</body>
+</html>

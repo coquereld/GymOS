@@ -175,13 +175,6 @@
     .et tr.et-grouped td{background:color-mix(in oklab,var(--ep-color,var(--prim)) 5%,var(--surf))}
     .et tr.et-grouped td.et-name{border-left:3px solid var(--ep-color,var(--prim))}
 
-    /* INLINE EDIT */
-    .et-inp{width:100%;min-width:50px;padding:.2rem .35rem;border-radius:var(--rsm);border:1px solid var(--bord);background:var(--surf);color:var(--tx);font-size:var(--text-xs);outline:none;font-family:inherit;transition:border-color var(--tr)}
-    .et-inp:focus{border-color:var(--ep-color,var(--prim))}
-    .et tr.editing td{background:color-mix(in oklab,var(--ep-color,var(--prim)) 4%,var(--surf))}
-    .et-save{background:var(--ep-color,var(--prim));border:none;color:#fff;cursor:pointer;padding:.2rem .5rem;border-radius:var(--rsm);font-size:.65rem;font-weight:700}
-    .et-cancel{background:none;border:1px solid var(--bord);color:var(--txm);cursor:pointer;padding:.2rem .5rem;border-radius:var(--rsm);font-size:.65rem;font-weight:700}
-
     /* MODALS */
     .ov{position:fixed;inset:0;background:rgba(0,0,0,.55);backdrop-filter:blur(4px);z-index:100;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity 180ms ease}
     .ov.open{opacity:1;pointer-events:all}
@@ -375,7 +368,7 @@
 <div class="ov" id="mExo"><div class="modal">
   <div class="modal-hdr">
     <div class="modal-icon" id="mExoIcon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6.5 6.5h11"/><path d="M6.5 17.5h11"/><path d="M3 8.5v7"/><path d="M21 8.5v7"/><path d="M1 10.5v3"/><path d="M23 10.5v3"/></svg></div>
-    <div><div class="modal-title">Ajouter un exercice</div><div id="mExoSub" style="font-size:var(--text-xs);color:var(--txf);margin-top:.2rem"></div></div>
+    <div><div class="modal-title" id="mExoTitle">Ajouter un exercice</div><div id="mExoSub" style="font-size:var(--text-xs);color:var(--txf);margin-top:.2rem"></div></div>
   </div>
   <div class="mgrid">
     <!-- Exercice : picker custom -->
@@ -552,7 +545,7 @@ let _objectifsDb = {};
 // --- Versionnage : journal des modifications, centralisé sur l'objet programme ---
 const PROG_MODIF_FIELDS   = ['nom','description','statut'];
 const SEANCE_MODIF_FIELDS = ['nom','type','jours'];
-const EXO_MODIF_FIELDS    = ['series','reps','poids','duree','distance','recup'];
+const EXO_MODIF_FIELDS    = ['nom','series','reps','poids','duree','distance','recup'];
 const MODIF_LABELS = { nom:'Nom', description:'Description', statut:'Statut', type:'Type', jours:'Jours',
   series:'Séries', reps:'Répétitions', poids:'Poids', duree:'Durée', distance:'Distance', recup:'Récupération' };
 function snapshotFields(obj, fields){
@@ -967,7 +960,7 @@ function buildExoRow(seance, e, i, exos, groupLetters){
   else { const sp=document.createElement('span');sp.style.width='20px';acts.appendChild(sp); }
 
   const ed=document.createElement('button');ed.className='et-btn';ed.title='Modifier';ed.innerHTML=`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4z"/></svg>`;
-  ed.addEventListener('click',()=>inlineEditExo(seance,e,tr));
+  ed.addEventListener('click',()=>openExoModal(seance.id,e.id));
   const dl=document.createElement('button');dl.className='et-btn d';dl.title='Supprimer';dl.innerHTML=`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>`;
   dl.addEventListener('click',()=>{
     const prog=getProg(S.selProg);
@@ -979,42 +972,6 @@ function buildExoRow(seance, e, i, exos, groupLetters){
   });
   acts.append(ed,dl); actTd.appendChild(acts); tr.appendChild(actTd);
   return tr;
-}
-
-function inlineEditExo(seance, e, tr){
-  tr.classList.add('editing');
-  const fields = [
-    {name:'nom',val:e.nom,wide:true},{name:'groupe',val:e.groupe||''},{name:'series',val:e.series||''},{name:'reps',val:e.reps||''},
-    {name:'poids',val:e.poids||''},{name:'duree',val:e.duree||''},{name:'distance',val:e.distance||''},{name:'recup',val:e.recup||''}
-  ];
-  const cells = [...tr.querySelectorAll('td')];
-  cells[0].textContent = '✎';
-  // cells[1] = image (on la laisse telle quelle)
-  fields.forEach((f,i)=>{
-    const inp=document.createElement('input'); inp.className='et-inp'; inp.value=f.val; inp.dataset.field=f.name;
-    cells[i+2].innerHTML=''; cells[i+2].appendChild(inp);
-  });
-  const seriesInp = tr.querySelector('.et-inp[data-field="series"]');
-  const repsInp    = tr.querySelector('.et-inp[data-field="reps"]');
-  const poidsInp   = tr.querySelector('.et-inp[data-field="poids"]');
-  const suggEl = document.createElement('div');
-  suggEl.style.cssText='display:none;font-size:.65rem;font-weight:600;color:var(--ok);align-items:center;gap:.35rem;margin-top:.25rem;white-space:nowrap';
-  poidsInp.parentElement.appendChild(suggEl);
-  renderProgSuggestion(e.nom, seriesInp, repsInp, poidsInp, suggEl);
-  const actTd = cells[cells.length-1]; actTd.innerHTML='';
-  const acts=document.createElement('div');acts.style.cssText='display:flex;gap:4px;flex-wrap:wrap';
-  const sv=document.createElement('button');sv.className='et-save';sv.textContent='✓ OK';
-  sv.addEventListener('click',()=>{
-    const prog=getProg(S.selProg);
-    const before = snapshotFields(e, EXO_MODIF_FIELDS);
-    tr.querySelectorAll('.et-inp').forEach(inp=>{ e[inp.dataset.field]=inp.value.trim(); });
-    if(prog) recordModifs(prog, before, e, EXO_MODIF_FIELDS);
-    save(); S.selSeance=seance.id; renderMain();
-  });
-  const cn=document.createElement('button');cn.className='et-cancel';cn.textContent='✗';
-  cn.addEventListener('click',()=>{ S.selSeance=seance.id; renderMain(); });
-  acts.append(sv,cn); actTd.appendChild(acts);
-  cells[2].querySelector('input')?.focus();
 }
 
 // Déplace tout le bloc contigu (superset) auquel appartient l'exercice comme une seule unité,
@@ -1376,32 +1333,62 @@ function renderProgSuggestion(nom, seriesEl, repsEl, poidsEl, el){
   el.style.display='flex';
 }
 
-function openExoModal(seanceId){
-  _exoSeanceId=seanceId;
+let _editExoId=null;
+function openExoModal(seanceId, exoId){
+  _exoSeanceId=seanceId; _editExoId=exoId||null;
   const prog=getProg(S.selProg); const seance=getSeance(prog,seanceId);
+  const editing=_editExoId ? seance?.exercices?.find(x=>x.id===_editExoId) : null;
   const hex=typeColor(seance?.type||'Autre');
   document.getElementById('mExoIcon').style.background=`color-mix(in oklab,${hex} 15%,var(--surfoff))`;
   document.getElementById('mExoIcon').style.color=hex;
+  document.getElementById('mExoTitle').textContent=editing?"Modifier l'exercice":'Ajouter un exercice';
   document.getElementById('mExoSub').textContent=seance?`${seance.nom} · ${seance.type}`:'';
+  document.getElementById('exOk').textContent=editing?'Enregistrer':'Ajouter';
   // Reset champs
-  document.getElementById('exNom').value='';
-  document.getElementById('exoSearch').value='';
+  document.getElementById('exNom').value=editing?editing.nom:'';
+  document.getElementById('exoSearch').value=editing?editing.nom:'';
   document.getElementById('exoPreview').innerHTML=''; document.getElementById('exoPreview').style.display='none';
-  document.getElementById('exGroupe').value='';
+  document.getElementById('exGroupe').value=editing?(editing.groupe||''):'';
   ['exSeries','exReps','exPoids','exRecup','exDuree','exDist','exPuissance','exInclinaison','exNote'].forEach(id=>document.getElementById(id).value='');
-  applyChampsVisibility(null);
+  if(editing){
+    document.getElementById('exSeries').value=editing.series||'';
+    document.getElementById('exReps').value=editing.reps||'';
+    document.getElementById('exPoids').value=editing.poids||'';
+    document.getElementById('exRecup').value=editing.recup||'';
+    document.getElementById('exDuree').value=editing.duree||'';
+    document.getElementById('exDist').value=editing.distance||'';
+    document.getElementById('exPuissance').value=editing.puissance||'';
+    document.getElementById('exInclinaison').value=editing.inclinaison||'';
+    document.getElementById('exNote').value=editing.note||'';
+  }
+  applyChampsVisibility(editing?editing.nom:null);
   document.getElementById('exHint').style.display='none';
   document.getElementById('exErr').style.display='none';
   document.getElementById('exOk').disabled=false;
   document.getElementById('exoPicker').classList.remove('open');
-  updateGroupDisplay(null);
   // Build picker
   _exoLibCache = getExoLib();
   buildExoPicker(_exoLibCache);
+  if(editing){
+    const libEntry=_exoLibCache.find(x=>x.exercice?.toLowerCase()===editing.nom.toLowerCase());
+    updateGroupDisplay(libEntry||{groupe_musculaire:editing.groupe||''});
+    const preview=document.getElementById('exoPreview');
+    const pHex=MC[editing.groupe]||'#9a9891'; const imgSrc=editing.image||getExoImage(editing.nom);
+    preview.innerHTML='';
+    if(imgSrc){
+      const img=document.createElement('img'); img.className='epp-img'; img.src=`./img/${imgSrc}`; img.alt=editing.nom;
+      img.onerror=()=>{ const [r,g,b]=hexRgb(pHex); const ph=document.createElement('div'); ph.className='epp-ph'; ph.style.background=`rgba(${r},${g},${b},.15)`; ph.innerHTML=`<svg viewBox="0 0 24 24" fill="none" stroke="${pHex}" stroke-width="1.5"><path d="M6 18V8.5C6 6.57 7.57 5 9.5 5h.5v14H9.5A3.5 3.5 0 0 1 6 15.5"/><path d="M18 18V8.5C18 6.57 16.43 5 14.5 5H14v14h.5a3.5 3.5 0 0 0 3.5-3.5"/></svg>`; img.replaceWith(ph); };
+      preview.appendChild(img);
+    }
+    const dot=document.createElement('span'); dot.className='epp-dot'; dot.style.background=pHex;
+    preview.append(dot); preview.style.display='flex';
+  } else {
+    updateGroupDisplay(null);
+  }
   openModal('mExo');
   setTimeout(()=>document.getElementById('exoSearch').focus(),60);
 }
-function closeExoModal(){ closeModal('mExo'); _exoSeanceId=null; }
+function closeExoModal(){ closeModal('mExo'); _exoSeanceId=null; _editExoId=null; }
 function getExoImage(nom) {
   try {
     const lib = getExoLib();
@@ -1415,22 +1402,34 @@ function confirmExoModal(){
   if(!nom){ document.getElementById('exErr').style.display='block'; document.getElementById('exErr').querySelector('div').textContent="Sélectionnez un exercice dans la liste."; document.getElementById('exoSearch').focus(); return; }
   document.getElementById('exOk').disabled=true;
   const prog=getProg(S.selProg); const seance=getSeance(prog,_exoSeanceId); if(!seance){closeExoModal();return;}
-  if(!seance.exercices)seance.exercices=[];
-  seance.exercices.push({
-    id:uid(),nom,groupe:document.getElementById('exGroupe').value,
+  const fields = {
+    nom, groupe:document.getElementById('exGroupe').value,
     image: getExoImage(nom),
     series:document.getElementById('exSeries').value.trim(),reps:document.getElementById('exReps').value.trim(),
     poids:document.getElementById('exPoids').value.trim(),recup:document.getElementById('exRecup').value.trim(),
     duree:document.getElementById('exDuree').value.trim(),distance:document.getElementById('exDist').value.trim(),
     puissance:document.getElementById('exPuissance').value.trim(),inclinaison:document.getElementById('exInclinaison').value.trim(),
     note:document.getElementById('exNote').value.trim()
-  });
-  if(prog){
-    if(!Array.isArray(prog.historique_modifs)) prog.historique_modifs=[];
-    prog.historique_modifs.unshift({date:new Date().toISOString(), champ:'Exercice ajouté', ancienne_valeur:'', nouvelle_valeur:nom});
+  };
+  if(_editExoId){
+    if(!seance.exercices)seance.exercices=[];
+    const e=seance.exercices.find(x=>x.id===_editExoId);
+    if(e){
+      const before=snapshotFields(e, EXO_MODIF_FIELDS);
+      Object.assign(e, fields);
+      if(prog) recordModifs(prog, before, e, EXO_MODIF_FIELDS);
+    }
+  } else {
+    if(!seance.exercices)seance.exercices=[];
+    seance.exercices.push({ id:uid(), ...fields });
+    if(prog){
+      if(!Array.isArray(prog.historique_modifs)) prog.historique_modifs=[];
+      prog.historique_modifs.unshift({date:new Date().toISOString(), champ:'Exercice ajouté', ancienne_valeur:'', nouvelle_valeur:nom});
+    }
   }
+  const wasEditing = !!_editExoId;
   const keepSeanceId = _exoSeanceId;
-  save(); closeExoModal(); S.selSeance=keepSeanceId; renderMain(); showStatus(`"${nom}" ajouté.`);
+  save(); closeExoModal(); S.selSeance=keepSeanceId; renderMain(); showStatus(wasEditing?`"${nom}" modifié.`:`"${nom}" ajouté.`);
 }
 
 // --- Suppression ---

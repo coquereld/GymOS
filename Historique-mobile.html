@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Historique — GymOS Mobile</title>
+<link rel="stylesheet" href="theme.css">
+<style>
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;height:100%;background:var(--bg);color:var(--tx);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;-webkit-tap-highlight-color:transparent}
+button,input{font-family:inherit;color:inherit}
+::-webkit-scrollbar{display:none}
+
+.m-app{display:flex;flex-direction:column;height:100dvh;overflow:hidden}
+.m-hdr{flex-shrink:0;display:flex;align-items:center;gap:.6rem;padding:.7rem .9rem;padding-top:calc(.7rem + env(safe-area-inset-top));border-bottom:1px solid var(--bord);background:var(--surf)}
+.m-hdr-title{flex:1;min-width:0;font-size:1.05rem;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.m-theme-btn{flex-shrink:0;width:36px;height:36px;border-radius:999px;border:1px solid var(--bord);background:var(--surf2);display:flex;align-items:center;justify-content:center;font-size:1rem}
+
+.m-main{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:.9rem .8rem;padding-bottom:calc(74px + env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:.8rem}
+/* Empêche les enfants d'être écrasés par flex-shrink quand leur hauteur cumulée dépasse
+   la hauteur visible — sans ça, un élément avec overflow:hidden (ex. .exo-mob-card) obtient
+   une taille minimale automatique de 0 et se retrouve compressé au lieu de simplement
+   dépasser (scroll). */
+.m-main > *{flex-shrink:0}
+
+.m-tabbar{position:fixed;left:0;right:0;bottom:0;height:calc(58px + env(safe-area-inset-bottom));padding-bottom:env(safe-area-inset-bottom);display:flex;background:var(--surf2);border-top:1px solid var(--bord);z-index:90}
+.m-tab{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.12rem;font-size:.5rem;font-weight:700;color:var(--txf);text-decoration:none;border:none;background:none}
+.m-tab .m-tab-ic{font-size:1.05rem;line-height:1}
+.m-tab.active{color:var(--prim)}
+
+.m-search{width:100%;min-height:46px;border-radius:.8rem;border:1px solid var(--bord);background:var(--surf2);padding:.5rem .8rem;font-size:.95rem}
+.m-empty{text-align:center;color:var(--txf);font-size:.85rem;padding:2rem 1rem;background:var(--surf);border:1px dashed var(--bord);border-radius:1rem}
+
+.m-sess-card{display:flex;align-items:center;gap:.65rem;background:var(--surf);border:1px solid var(--bord);border-radius:1rem;padding:.7rem .8rem}
+.m-sess-dot{width:10px;height:10px;border-radius:999px;flex-shrink:0}
+.m-sess-date{width:56px;flex-shrink:0;font-size:.72rem;color:var(--txm);text-align:center}
+.m-sess-date b{display:block;font-size:1rem;color:var(--tx)}
+.m-sess-info{flex:1;min-width:0}
+.m-sess-seance{font-weight:800;font-size:.9rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.m-sess-prog{font-size:.75rem;color:var(--txf);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.m-sess-stats{display:flex;flex-direction:column;align-items:flex-end;gap:.15rem;flex-shrink:0}
+.m-sess-stat{font-size:.7rem;color:var(--txm);white-space:nowrap}
+.m-pr-flag{font-size:.85rem}
+
+/* Détail (plein écran) */
+.m-overlay{position:fixed;inset:0;background:var(--bg);z-index:200;display:flex;flex-direction:column}
+.m-overlay-hdr{flex-shrink:0;display:flex;align-items:center;gap:.6rem;padding:.7rem .9rem;padding-top:calc(.7rem + env(safe-area-inset-top));border-bottom:1px solid var(--bord);background:var(--surf)}
+.m-back-btn{flex-shrink:0;width:38px;height:38px;border-radius:999px;border:1px solid var(--bord);background:var(--surf2);font-size:1.1rem}
+.m-overlay-title{flex:1;min-width:0}
+.m-overlay-name{font-weight:800;font-size:1rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.m-overlay-sub{font-size:.75rem;color:var(--txf)}
+.m-overlay-body{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:.9rem .8rem;padding-bottom:calc(1.2rem + env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:.8rem}
+.m-overlay-body > *{flex-shrink:0}
+
+.m-stat-grid{display:flex;gap:.55rem}
+.m-stat-grid>div{flex:1;background:var(--surf);border:1px solid var(--bord);border-radius:.85rem;padding:.65rem .3rem;text-align:center}
+.m-stat-val{font-size:1.05rem;font-weight:800;font-variant-numeric:tabular-nums}
+.m-stat-lbl{font-size:.65rem;color:var(--txf);margin-top:.1rem}
+
+.m-badge-row{display:flex;flex-wrap:wrap;gap:.4rem}
+.m-badge{font-size:.68rem;font-weight:700;padding:.25rem .6rem;border-radius:999px}
+
+.exo-mob-card{background:var(--surf);border:1px solid var(--bord);border-radius:1rem;overflow:hidden}
+.exo-mob-hdr{display:flex;align-items:center;gap:.6rem;padding:.65rem .8rem;border-bottom:1px solid var(--bord)}
+.exo-mob-img,.exo-mob-img-ph{width:40px;height:40px;border-radius:.6rem;object-fit:cover;flex-shrink:0}
+.exo-mob-img-ph{display:flex;align-items:center;justify-content:center;font-size:1.1rem;border:1.5px solid;background:var(--surf2)}
+.exo-mob-name{font-weight:800;font-size:.9rem;flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.exo-mob-pr{flex-shrink:0;font-size:.7rem;font-weight:800;color:#a67c00}
+.m-hist-series-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;margin:.6rem .8rem}
+.m-hist-series-table{border-collapse:collapse;width:100%;font-size:.82rem}
+.m-hist-series-table th{font-size:.62rem;font-weight:800;text-transform:uppercase;letter-spacing:.03em;color:var(--txf);padding:.35rem .5rem;text-align:left;white-space:nowrap;border-bottom:1px solid var(--bord)}
+.m-hist-series-table td{padding:.4rem .5rem;white-space:nowrap;border-bottom:1px solid var(--bord);font-variant-numeric:tabular-nums}
+.m-hist-series-table tr:last-child td{border-bottom:none}
+.m-hist-series-table tr.warmup td{background:color-mix(in srgb, var(--warn) 10%, transparent)}
+.m-th-ressenti,.m-td-ressenti{text-align:center;width:2.2rem}
+.m-exo-note{padding:.5rem .8rem .7rem;font-size:.78rem;color:var(--txm);font-style:italic;border-top:1px solid var(--bord)}
+.m-note-global{background:var(--surf);border:1px solid var(--bord);border-radius:1rem;padding:.7rem .8rem;font-size:.85rem;white-space:pre-wrap}
+
+/* Fiche exercice (récap, lecture seule) */
+.m-dm-img-wrap{height:120px;border-radius:1rem;background:var(--surf);border:1px solid var(--bord);display:flex;align-items:center;justify-content:center;overflow:hidden}
+.m-dm-img-wrap img{width:100%;height:100%;object-fit:contain;cursor:zoom-in}
+.m-sec-title{font-size:.68rem;font-weight:800;text-transform:uppercase;letter-spacing:.05em;color:var(--txf);margin-bottom:.3rem}
+.m-sec-text{font-size:.85rem;line-height:1.5;white-space:pre-wrap}
+.m-sec-empty{font-size:.85rem;color:var(--txf);font-style:italic}
+.m-erb-tags{display:flex;flex-wrap:wrap;gap:.35rem}
+.m-erb-tag{font-size:.68rem;font-weight:700;padding:.2rem .55rem;border-radius:999px;background:var(--surf2);color:var(--txm)}
+.m-erb-series-row{display:flex;flex-wrap:wrap;align-items:center;gap:.35rem;margin-top:.3rem}
+.m-erb-chip{font-size:.72rem;font-weight:700;padding:.2rem .5rem;border-radius:.5rem;background:var(--surf2);color:var(--tx)}
+.m-lightbox{position:fixed;inset:0;background:rgba(0,0,0,.92);z-index:400;display:flex;align-items:center;justify-content:center;padding:1rem}
+.m-lightbox img{max-width:100%;max-height:100%;object-fit:contain}
+</style>
+</head>
+<body>
+<div class="m-app">
+  <div class="m-hdr">
+    <div class="m-hdr-title">Historique</div>
+    <button class="m-theme-btn" id="themeBtn">🌓</button>
+  </div>
+  <div class="m-main" id="mainArea"></div>
+  <nav class="m-tabbar">
+    <a class="m-tab" href="./index-mobile.html"><span class="m-tab-ic">🏠</span>Accueil</a>
+    <a class="m-tab" href="./Seance-mobile.html"><span class="m-tab-ic">🏋</span>Séance</a>
+    <a class="m-tab" href="./Programme-mobile.html"><span class="m-tab-ic">🗓</span>Programme</a>
+    <button class="m-tab active" id="tabHist"><span class="m-tab-ic">📅</span>Historique</button>
+    <a class="m-tab" href="./Corps-mobile.html"><span class="m-tab-ic">🫀</span>Corps</a>
+    <a class="m-tab" href="./Exercices-mobile.html"><span class="m-tab-ic">📋</span>Exercices</a>
+    <a class="m-tab" href="./index.html"><span class="m-tab-ic">🖥</span>Version PC</a>
+  </nav>
+</div>
+
+<script src="db.js"></script>
+<script src="gymos-utils.js"></script>
+<script>
+// ══════════════════════════════════════════════════════════════
+// CONSTANTES (identiques à Historique.html desktop — lecture seule)
+// ══════════════════════════════════════════════════════════════
+const HIST_KEY = 'gymos-historique-v1';
+const EXO_KEY  = 'exercices-studio-autosave-v2';
+const OBJ_KEY  = 'exercices-objectifs-v1';
+const CHAMP_KEYS = ['series','reps','poids','rm1','duree','distance','puissance','inclinaison'];
+const RESSENTI = [
+  { key:'bien',      emoji:'😊', label:'Bien',      bg:'rgba(67,122,34,.18)',  color:'#437a22' },
+  { key:'moyen',     emoji:'😐', label:'Moyen',     bg:'rgba(166,124,0,.18)',  color:'#a67c00' },
+  { key:'dur',       emoji:'😤', label:'Dur',       bg:'rgba(194,101,10,.18)', color:'#c2650a' },
+  { key:'tres_dur',  emoji:'😰', label:'Très dur',  bg:'rgba(192,57,43,.18)',  color:'#c0392b' },
+  { key:'super_dur', emoji:'💀', label:'Super dur', bg:'rgba(40,37,29,.12)',   color:'#28251d' },
+];
+
+let _hist = [], _exoLib = [], _objectifs = {};
+
+function loadHist(){ try{ _hist=JSON.parse(localStorage.getItem(HIST_KEY)||'[]'); }catch{ _hist=[]; } }
+function loadExoLib(){ try{ _exoLib=JSON.parse(localStorage.getItem(EXO_KEY)||'{}').rows||[]; }catch{ _exoLib=[]; } }
+function loadObjectifs(){ try{ _objectifs=JSON.parse(localStorage.getItem(OBJ_KEY)||'{}'); }catch{ _objectifs={}; } }
+function getExoImage(nom) {
+  const e = _exoLib.find(x => x.exercice?.toLowerCase() === nom?.toLowerCase());
+  return e ? (e.image||'') : '';
+}
+function makeExoPh(hex) {
+  const ph = document.createElement('div'); ph.className='exo-mob-img-ph';
+  ph.style.cssText = `border-color:${hex}55;color:${hex}`;
+  ph.textContent = '🏋';
+  return ph;
+}
+function parseSecValue(str) {
+  if (!str) return [];
+  return str.split(',').map(s => {
+    const trimmed = s.trim();
+    const colon = trimmed.lastIndexOf(':');
+    if (colon > 0) { const m=trimmed.slice(0,colon).trim(); const l=parseInt(trimmed.slice(colon+1))||3; return {m,l}; }
+    return { m: trimmed, l: 3 };
+  }).filter(x=>x.m);
+}
+function renderStarsHtml(level) {
+  return Array.from({length:5},(_,i)=> i<level ? '<span style="color:#f5b731">★</span>' : '<span style="color:#d1d0ce">☆</span>').join('');
+}
+function openImageLightbox(src, title) {
+  const lb = document.createElement('div'); lb.className='m-lightbox';
+  const img = document.createElement('img'); img.src='./img/'+src; img.alt=title||'';
+  lb.appendChild(img);
+  lb.addEventListener('click', ()=>lb.remove());
+  document.body.appendChild(lb);
+}
+
+// ── Fiche exercice (récap, lecture seule) — même contenu que le récap de Corps-mobile.html ──
+function openExoRecapOverlay(exoId) {
+  const exo = _exoLib.find(e=>e.id===exoId);
+  if (!exo) return;
+
+  const ov = document.createElement('div'); ov.className='m-overlay';
+  const hdr = document.createElement('div'); hdr.className='m-overlay-hdr';
+  const backBtn = document.createElement('button'); backBtn.className='m-back-btn'; backBtn.textContent='←';
+  backBtn.addEventListener('click', ()=>ov.remove());
+  const titleWrap = document.createElement('div'); titleWrap.className='m-overlay-title';
+  const sub = [exo.muscle, exo.subdivision&&exo.subdivision!=='—'?exo.subdivision:''].filter(Boolean).join(' · ');
+  titleWrap.innerHTML = `<div class="m-overlay-name">${esc(exo.exercice||'')}</div><div class="m-overlay-sub">${esc(sub)}</div>`;
+  hdr.append(backBtn, titleWrap);
+  ov.appendChild(hdr);
+
+  const body = document.createElement('div'); body.className='m-overlay-body';
+
+  if (exo.image) {
+    const imgWrap = document.createElement('div'); imgWrap.className='m-dm-img-wrap';
+    const img = document.createElement('img'); img.src='./img/'+exo.image; img.alt='';
+    img.onerror=()=>{ imgWrap.innerHTML=''; imgWrap.appendChild(makeExoPh(grpc(exo.groupe_musculaire))); };
+    img.addEventListener('click', ()=>openImageLightbox(exo.image, exo.exercice||''));
+    imgWrap.appendChild(img);
+    body.appendChild(imgWrap);
+  }
+
+  const tagVals = [exo.equipement, exo.type_exercice, exo.type_mouvement, exo.pattern_mouvement, exo.niveau].filter(Boolean);
+  if (tagVals.length) {
+    const row = document.createElement('div'); row.className='m-erb-tags';
+    tagVals.forEach(t=>{ const s=document.createElement('span'); s.className='m-erb-tag'; s.textContent=t; row.appendChild(s); });
+    body.appendChild(row);
+  }
+
+  const sec = parseSecValue(exo.muscle_secondaire);
+  if (sec.length) {
+    const t = document.createElement('div'); t.className='m-sec-title'; t.textContent='Muscles secondaires';
+    body.appendChild(t);
+    const list = document.createElement('div'); list.style.cssText='display:flex;flex-direction:column;gap:.3rem';
+    sec.forEach(({m,l})=>{
+      const line = document.createElement('div'); line.style.cssText='display:flex;align-items:center;justify-content:space-between;font-size:.82rem';
+      line.innerHTML = `<span>${esc(m)}</span><span style="font-size:.78rem">${renderStarsHtml(l)}</span>`;
+      list.appendChild(line);
+    });
+    body.appendChild(list);
+  }
+
+  [{lbl:'Descriptif', val:exo.descriptif},{lbl:'Exécution / Technique', val:exo.execution}].forEach(({lbl,val})=>{
+    if (!val) return;
+    const t = document.createElement('div'); t.className='m-sec-title'; t.textContent=lbl;
+    const v = document.createElement('div'); v.className='m-sec-text'; v.textContent=val;
+    body.append(t,v);
+  });
+
+  // Objectif actuel
+  const objs = _objectifs[exo.id];
+  const lastObj = Array.isArray(objs) && objs.length ? objs.slice().sort((a,b)=>(a.date||'').localeCompare(b.date||'')).pop() : null;
+  const objTitle = document.createElement('div'); objTitle.className='m-sec-title'; objTitle.textContent='Objectif actuel';
+  body.appendChild(objTitle);
+  if (lastObj) {
+    const chips = [
+      lastObj.series&&`${lastObj.series} séries`, lastObj.reps&&`${lastObj.reps} reps`, lastObj.poids&&`${lastObj.poids} kg`,
+      lastObj.rm1&&`1RM estimé ${lastObj.rm1} kg`, lastObj.duree&&`${lastObj.duree}`, lastObj.distance&&`${lastObj.distance}`,
+      lastObj.recup&&`Récup ${lastObj.recup}s`,
+    ].filter(Boolean);
+    const row = document.createElement('div'); row.className='m-erb-series-row';
+    chips.forEach(c=>{ const s=document.createElement('span'); s.className='m-erb-chip'; s.textContent=c; row.appendChild(s); });
+    body.appendChild(row);
+    if (lastObj.date) { const d=document.createElement('div'); d.style.cssText='font-size:.7rem;color:var(--txf);margin-top:.2rem'; d.textContent='Défini le '+fmtDateShort(lastObj.date); body.appendChild(d); }
+    if (lastObj.note) { const n=document.createElement('div'); n.className='m-sec-text'; n.style.marginTop='.3rem'; n.textContent=lastObj.note; body.appendChild(n); }
+  } else {
+    const e = document.createElement('div'); e.className='m-sec-empty'; e.textContent='Aucun objectif défini.';
+    body.appendChild(e);
+  }
+
+  // Dernière séance
+  const matches = (_hist||[]).filter(h=>(h.exercices||[]).some(e=>e.nom===exo.exercice));
+  const lastSeance = matches.length ? matches.slice().sort((a,b)=>(a.date||'').localeCompare(b.date||'')).pop() : null;
+  const seanceTitle = document.createElement('div'); seanceTitle.className='m-sec-title'; seanceTitle.textContent='Dernière séance';
+  body.appendChild(seanceTitle);
+  if (lastSeance) {
+    const entry = (lastSeance.exercices||[]).find(e=>e.nom===exo.exercice);
+    const d = document.createElement('div'); d.style.cssText='font-size:.78rem;color:var(--txm);margin-bottom:.3rem';
+    d.textContent = fmtDateShort(lastSeance.date) + (lastSeance.seanceNom?' · '+lastSeance.seanceNom:'');
+    body.appendChild(d);
+    (entry?.series||[]).forEach((s,i)=>{
+      const chips = [s.reps&&`${s.reps} reps`, s.poids&&`${s.poids} kg`, s.duree&&`${s.duree}`, s.distance&&`${s.distance}`, s.ressenti&&s.ressenti].filter(Boolean);
+      if (!chips.length) return;
+      const row = document.createElement('div'); row.className='m-erb-series-row';
+      const lbl = document.createElement('span'); lbl.style.cssText='font-size:.72rem;color:var(--txf);flex-shrink:0'; lbl.textContent=`Série ${i+1} :`;
+      row.appendChild(lbl);
+      chips.forEach(c=>{ const s2=document.createElement('span'); s2.className='m-erb-chip'; s2.textContent=c; row.appendChild(s2); });
+      body.appendChild(row);
+    });
+    if (entry?.note) { const n=document.createElement('div'); n.className='m-sec-text'; n.style.marginTop='.3rem'; n.textContent=entry.note; body.appendChild(n); }
+  } else {
+    const e = document.createElement('div'); e.className='m-sec-empty'; e.textContent='Jamais pratiqué.';
+    body.appendChild(e);
+  }
+
+  ov.appendChild(body);
+  document.body.appendChild(ov);
+}
+function computeChampsActifs(nom) {
+  const row = _exoLib.find(e => e.exercice?.toLowerCase()===nom?.toLowerCase());
+  const entries = row ? (_objectifs[row.id]||[]) : [];
+  if (!entries.length) return new Set(CHAMP_KEYS);
+  const actifs = new Set();
+  entries.forEach(e => CHAMP_KEYS.forEach(k => { if (e[k]) actifs.add(k); }));
+  return actifs;
+}
+function fmtDur(min){ if(!min) return '—'; if(min<60) return min+'min'; return Math.floor(min/60)+'h'+String(min%60).padStart(2,'0'); }
+function epley1RM(w,r){ return r===1?w:Math.round(parseFloat(w)*(1+parseInt(r)/30)*10)/10; }
+// Même algorithme que Historique.html desktop (detectNewPRs) : records produits par cette séance précise.
+function detectNewPRs(targetHist){
+  const bestSoFar = {};
+  const found = [];
+  const chrono = _hist.slice().sort((a,b) => (a.date||'').localeCompare(b.date||''));
+  chrono.forEach(h => {
+    const perExoBest = {};
+    (h.exercices||[]).forEach(e => {
+      (e.series||[]).forEach(sr => {
+        const p=parseFloat(sr.poids)||0, r=parseInt(sr.reps)||1;
+        if(p<=0) return;
+        const est=epley1RM(p,r);
+        if(!perExoBest[e.nom] || est>perExoBest[e.nom].est1rm) perExoBest[e.nom]={poids:p,reps:r,est1rm:est};
+      });
+    });
+    Object.entries(perExoBest).forEach(([nom,best]) => {
+      if(!bestSoFar[nom] || best.est1rm>bestSoFar[nom]){
+        bestSoFar[nom]=best.est1rm;
+        if(h.id===targetHist.id) found.push(nom);
+      }
+    });
+  });
+  return found;
+}
+
+// ══════════════════════════════════════════════════════════════
+// LISTE
+// ══════════════════════════════════════════════════════════════
+function matchesQuery(h, q) {
+  if (!q) return true;
+  q = q.toLowerCase();
+  if ((h.seanceNom||'').toLowerCase().includes(q)) return true;
+  if ((h.programmeNom||'').toLowerCase().includes(q)) return true;
+  return (h.exercices||[]).some(e => (e.nom||'').toLowerCase().includes(q));
+}
+function renderList() {
+  const main = document.getElementById('mainArea');
+  main.innerHTML = '';
+  const search = document.createElement('input');
+  search.className = 'm-search'; search.placeholder = '🔎 Rechercher une séance, un exercice…';
+  main.appendChild(search);
+
+  const listWrap = document.createElement('div');
+  listWrap.style.cssText = 'display:flex;flex-direction:column;gap:.6rem';
+  main.appendChild(listWrap);
+
+  function draw(q) {
+    listWrap.innerHTML = '';
+    const filtered = _hist.filter(h => matchesQuery(h, q));
+    if (!filtered.length) {
+      const empty = document.createElement('div'); empty.className='m-empty';
+      empty.textContent = _hist.length ? 'Aucune séance ne correspond.' : 'Aucune séance enregistrée.';
+      listWrap.appendChild(empty);
+      return;
+    }
+    filtered.forEach(h => {
+      const hex = TC[h.seanceType]||'#9a9891';
+      const prs = detectNewPRs(h);
+      const nbSeries = h.exercices?.reduce((n,e)=>n+(e.series?.length||0),0)||0;
+      const d = new Date(h.date+'T00:00');
+      const card = document.createElement('div'); card.className='m-sess-card';
+      card.innerHTML = `<span class="m-sess-dot" style="background:${hex}"></span>
+        <div class="m-sess-date"><b>${d.getDate()}</b>${d.toLocaleDateString('fr-FR',{month:'short'})}</div>
+        <div class="m-sess-info"><div class="m-sess-seance">${esc(h.seanceNom)}${prs.length?' <span class="m-pr-flag">🏆</span>':''}</div><div class="m-sess-prog">${esc(h.programmeNom)}</div></div>
+        <div class="m-sess-stats"><span class="m-sess-stat">${fmtDur(h.dureeMin)}</span><span class="m-sess-stat">${nbSeries} séries</span></div>`;
+      card.addEventListener('click', ()=>openDetail(h));
+      listWrap.appendChild(card);
+    });
+  }
+  search.addEventListener('input', ()=>draw(search.value));
+  draw('');
+}
+
+// ══════════════════════════════════════════════════════════════
+// DÉTAIL (lecture seule)
+// ══════════════════════════════════════════════════════════════
+function openDetail(h) {
+  const prs = new Set(detectNewPRs(h));
+  const hex = TC[h.seanceType]||'#9a9891';
+  const nbSeries = h.exercices?.reduce((n,e)=>n+(e.series?.length||0),0)||0;
+  const d = new Date(h.date+'T00:00');
+
+  const ov = document.createElement('div'); ov.className='m-overlay';
+  const hdr = document.createElement('div'); hdr.className='m-overlay-hdr';
+  const backBtn = document.createElement('button'); backBtn.className='m-back-btn'; backBtn.textContent='←';
+  backBtn.addEventListener('click', ()=>ov.remove());
+  const titleWrap = document.createElement('div'); titleWrap.className='m-overlay-title';
+  titleWrap.innerHTML = `<div class="m-overlay-name">${esc(h.seanceNom)}</div><div class="m-overlay-sub">${d.toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long'})}${h.heure?' · '+esc(h.heure):''}</div>`;
+  hdr.append(backBtn, titleWrap);
+  ov.appendChild(hdr);
+
+  const body = document.createElement('div'); body.className='m-overlay-body';
+
+  const badgeRow = document.createElement('div'); badgeRow.className='m-badge-row';
+  badgeRow.innerHTML = `<span class="m-badge" style="background:${hex}26;color:${hex}">${esc(h.seanceType||'Autre')}</span>` + (h.programmeNom&&h.programmeNom!=='Libre' ? `<span class="m-badge" style="background:var(--surf2);color:var(--txm)">${esc(h.programmeNom)}</span>` : '');
+  if (h.statutSeance && h.statutSeance!=='normale') {
+    const c = h.statutSeance==='ratee' ? '#c0392b' : '#a67c00';
+    badgeRow.innerHTML += `<span class="m-badge" style="background:${c}22;color:${c}">${h.statutSeance==='ratee'?'Ratée':'Écourtée'}</span>`;
+  }
+  body.appendChild(badgeRow);
+
+  const stats = document.createElement('div'); stats.className='m-stat-grid';
+  [{val:fmtDur(h.dureeMin),lbl:'Durée'},{val:nbSeries,lbl:'Séries'},{val:h.volumeTotal>0?h.volumeTotal+'kg':'—',lbl:'Volume'}].forEach(({val,lbl})=>{
+    const c=document.createElement('div'); c.innerHTML=`<div class="m-stat-val">${val}</div><div class="m-stat-lbl">${lbl}</div>`;
+    stats.appendChild(c);
+  });
+  body.appendChild(stats);
+
+  (h.exercices||[]).forEach(e => {
+    const card = document.createElement('div'); card.className='exo-mob-card';
+    const ehdr = document.createElement('div'); ehdr.className='exo-mob-hdr';
+    const hex = grpc(e.groupe);
+    const exoRow = _exoLib.find(x => x.exercice?.toLowerCase() === e.nom?.toLowerCase());
+    const imgSrc = exoRow?.image || '';
+    let thumb;
+    if (imgSrc) {
+      thumb = document.createElement('img'); thumb.className='exo-mob-img'; thumb.src='./img/'+imgSrc; thumb.alt=e.nom;
+      thumb.onerror = ()=>thumb.replaceWith(makeExoPh(hex));
+    } else {
+      thumb = makeExoPh(hex);
+    }
+    if (exoRow) {
+      thumb.style.cursor = 'pointer';
+      thumb.title = "Voir la fiche de l'exercice";
+      thumb.addEventListener('click', () => openExoRecapOverlay(exoRow.id));
+    }
+    ehdr.appendChild(thumb);
+    const name = document.createElement('span'); name.className='exo-mob-name'; name.textContent=e.nom;
+    ehdr.append(name);
+    if (prs.has(e.nom)) { const pr=document.createElement('span'); pr.className='exo-mob-pr'; pr.textContent='🏆 PR'; ehdr.appendChild(pr); }
+    card.appendChild(ehdr);
+
+    const champs = computeChampsActifs(e.nom);
+    const series = e.series||[];
+    const hasRpe = series.some(s=>s.rpe);
+    const hasCote = series.some(s=>s.cote);
+    const cols = [];
+    if (champs.has('reps')) cols.push({key:'reps',label:'Reps'});
+    if (champs.has('poids')) cols.push({key:'poids',label:'Poids'});
+    if (champs.has('duree')) cols.push({key:'duree',label:'Durée'});
+    if (champs.has('distance')) cols.push({key:'distance',label:'Dist.'});
+    if (champs.has('puissance')) cols.push({key:'puissance',label:'Puiss.'});
+    if (champs.has('inclinaison')) cols.push({key:'inclinaison',label:'Inclin.'});
+    if (hasRpe) cols.push({key:'rpe',label:'RPE'});
+    if (hasCote) cols.push({key:'cote',label:'Côté'});
+
+    const wrap = document.createElement('div'); wrap.className='m-hist-series-wrap';
+    const table = document.createElement('table'); table.className='m-hist-series-table';
+    table.innerHTML = '<thead><tr><th>#</th>' + cols.map(c=>`<th>${esc(c.label)}</th>`).join('') + '<th class="m-th-ressenti">Ressenti</th></tr></thead>';
+    const tbody = document.createElement('tbody');
+    series.forEach((s,si) => {
+      const tr = document.createElement('tr');
+      if (s.echauffement) tr.classList.add('warmup');
+      let html = `<td>${si+1}${s.echauffement?' 🔥':''}</td>`;
+      cols.forEach(c => { html += `<td>${s[c.key] ? esc(s[c.key]) : '—'}</td>`; });
+      tr.innerHTML = html;
+      const tdRes = document.createElement('td'); tdRes.className='m-td-ressenti';
+      const r = s.ressenti ? RESSENTI.find(x=>x.key===s.ressenti) : null;
+      if (r) { tdRes.textContent = r.emoji; tdRes.title = r.label; } else { tdRes.textContent = '—'; }
+      tr.appendChild(tdRes);
+      tbody.appendChild(tr);
+    });
+    table.appendChild(tbody);
+    wrap.appendChild(table);
+    card.appendChild(wrap);
+    if (e.note) { const note=document.createElement('div'); note.className='m-exo-note'; note.textContent=e.note; card.appendChild(note); }
+    body.appendChild(card);
+  });
+
+  if (h.noteGlobale) {
+    const ng = document.createElement('div'); ng.className='m-note-global'; ng.textContent=h.noteGlobale;
+    body.appendChild(ng);
+  }
+
+  ov.appendChild(body);
+  document.body.appendChild(ov);
+}
+
+// ══════════════════════════════════════════════════════════════
+// WIRING / INIT
+// ══════════════════════════════════════════════════════════════
+document.getElementById('themeBtn').addEventListener('click', ()=>applyTheme(document.documentElement.getAttribute('data-theme')==='dark'?'light':'dark'));
+
+(async function init(){
+  applyTheme(localStorage.getItem('muscle-xml-theme')||'light');
+  loadHist(); loadExoLib(); loadObjectifs();
+  const dbState = await GymDB.init();
+  if (dbState === 'connected') {
+    try { const h=await GymDB.read('historique.json'); if(Array.isArray(h)){ _hist=h; localStorage.setItem(HIST_KEY,JSON.stringify(h)); } } catch{}
+    try { const d=await GymDB.read('exercices.json'); if(d&&Array.isArray(d.rows)){ _exoLib=d.rows; localStorage.setItem(EXO_KEY,JSON.stringify(d)); } } catch{}
+    try { const o=await GymDB.read('exercices-objectifs.json'); if(o){ _objectifs=o; localStorage.setItem(OBJ_KEY,JSON.stringify(o)); } } catch{}
+  }
+  renderList();
+})();
+</script>
+</body>
+</html>

@@ -206,7 +206,12 @@
   applyTheme(localStorage.getItem('muscle-xml-theme') || 'light');
 
   // ── Redirect ───────────────────────────────────────────────────────────────
-  function goToApp() { window.location.href = 'index.html'; }
+  // Détection simple d'un téléphone (pas les tablettes/desktop) : redirige vers la
+  // mini-interface mobile dédiée plutôt que l'interface PC multi-colonnes.
+  function isMobileDevice() {
+    return /Android|iPhone|iPod|Mobile|IEMobile|Opera Mini/i.test(navigator.userAgent);
+  }
+  function goToApp() { window.location.href = isMobileDevice() ? 'index-mobile.html' : 'index.html'; }
 
   // ── Rendu selon l'état ─────────────────────────────────────────────────────
   function renderState(state) {
