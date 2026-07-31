@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Progression — GymOS Mobile</title>
+<link rel="stylesheet" href="theme.css">
+<style>
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;height:100%;background:var(--bg);color:var(--tx);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;-webkit-tap-highlight-color:transparent}
+button,input,select{font-family:inherit;color:inherit}
+::-webkit-scrollbar{display:none}
+
+.m-app{display:flex;flex-direction:column;height:100dvh;overflow:hidden}
+.m-hdr{flex-shrink:0;display:flex;align-items:center;gap:.6rem;padding:.7rem .9rem;padding-top:calc(.7rem + env(safe-area-inset-top));border-bottom:1px solid var(--bord);background:var(--surf)}
+.m-hdr-title{flex:1;min-width:0;font-size:1.05rem;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.m-icon-btn-hdr{flex-shrink:0;width:36px;height:36px;border-radius:999px;border:1px solid var(--bord);background:var(--surf2);display:flex;align-items:center;justify-content:center;font-size:1rem}
+
+.m-main{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:.9rem .8rem;padding-bottom:calc(74px + env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:.8rem}
+.m-main > *{flex-shrink:0}
+
+.m-tabbar{position:fixed;left:0;right:0;bottom:0;height:calc(58px + env(safe-area-inset-bottom));padding-bottom:env(safe-area-inset-bottom);display:flex;overflow-x:auto;-webkit-overflow-scrolling:touch;background:var(--surf2);border-top:1px solid var(--bord);z-index:90}
+.m-tab{flex:0 0 auto;min-width:60px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.15rem;font-size:.62rem;font-weight:700;color:var(--txf);text-decoration:none;border:none;background:none;padding:0 .45rem}
+.m-tab .m-tab-ic{font-size:1.15rem;line-height:1}
+.m-tab.active{color:var(--prim)}
+
+.m-select-sm{min-height:38px;padding:.3rem .55rem;border-radius:.6rem;border:1px solid var(--bord);background:var(--surf2);font-size:.8rem}
+.m-card-title{font-size:.7rem;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:var(--txf)}
+.m-empty{text-align:center;color:var(--txf);font-size:.8rem;font-style:italic;padding:1rem}
+
+/* Stat cards */
+.m-stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:.6rem}
+.m-stat-card{background:var(--surf);border:1px solid var(--bord);border-radius:1rem;padding:.8rem;display:flex;flex-direction:column;gap:.2rem}
+.m-stat-icon{width:30px;height:30px;border-radius:.6rem;display:flex;align-items:center;justify-content:center;background:color-mix(in srgb, var(--sc-color) 15%, transparent);color:var(--sc-color)}
+.m-stat-icon svg{width:16px;height:16px}
+.m-stat-val{font-size:1.15rem;font-weight:800;font-variant-numeric:tabular-nums;margin-top:.2rem}
+.m-stat-lbl{font-size:.72rem;font-weight:700;color:var(--txm)}
+.m-stat-sub{font-size:.65rem;color:var(--txf)}
+
+/* Panel générique */
+.m-panel{background:var(--surf);border:1px solid var(--bord);border-radius:1rem;padding:.85rem .9rem;display:flex;flex-direction:column;gap:.6rem}
+.m-panel-hdr{display:flex;align-items:center;justify-content:space-between;gap:.5rem;flex-wrap:wrap}
+.m-panel-ctrl{display:flex;gap:.4rem;align-items:center}
+.m-icon-btn-sm{width:34px;height:34px;border-radius:.55rem;border:1px solid var(--bord);background:var(--surf2);display:flex;align-items:center;justify-content:center;font-size:.9rem;flex-shrink:0}
+
+.m-plateau-badge{display:inline-flex;align-items:center;gap:.35rem;font-size:.72rem;font-weight:700;padding:.3rem .65rem;border-radius:999px;background:rgba(150,66,25,.15);color:#964219}
+.m-chart-empty{text-align:center;color:var(--txf);font-size:.8rem;padding:1.2rem}
+.m-chart-wrap{width:100%}
+
+/* Barres génériques (volume, force, symétrie, plateau) */
+.m-bar-row{display:flex;align-items:center;gap:.5rem;font-size:.78rem}
+.m-bar-label{width:88px;flex-shrink:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--txm)}
+.m-bar-bg{flex:1;height:10px;border-radius:999px;background:var(--surf2);overflow:hidden}
+.m-bar-fill{height:100%;border-radius:999px;transition:width .5s}
+.m-bar-val{width:70px;flex-shrink:0;text-align:right;font-weight:700;font-variant-numeric:tabular-nums;font-size:.7rem}
+.m-strength-row{margin-bottom:.7rem}
+.m-strength-row:last-child{margin-bottom:0}
+.m-strength-hdr{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:.3rem}
+.m-strength-name{font-size:.82rem;font-weight:700}
+.m-strength-lvl{font-size:.72rem;font-weight:700}
+.m-strength-note{font-size:.65rem;color:var(--txf);margin-top:.25rem}
+
+/* PR list */
+.m-pr-row{display:flex;align-items:center;gap:.5rem;padding:.5rem 0;border-bottom:1px solid var(--bord)}
+.m-pr-row:last-child{border-bottom:none}
+.m-pr-rank{width:1.4rem;flex-shrink:0;font-weight:800;color:var(--txf);font-size:.75rem}
+.m-pr-info{flex:1;min-width:0}
+.m-pr-name{font-weight:700;font-size:.82rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.m-pr-meta{font-size:.7rem;color:var(--txf)}
+.m-pr-est{flex-shrink:0;text-align:right}
+.m-pr-est-val{font-weight:800;font-size:.85rem}
+.m-pr-est-lbl{font-size:.6rem;color:var(--txf)}
+
+.m-plateau-row{display:flex;align-items:center;gap:.5rem;padding:.4rem 0;border-bottom:1px solid var(--bord)}
+.m-plateau-row:last-child{border-bottom:none}
+.m-plateau-dot{width:8px;height:8px;border-radius:999px;flex-shrink:0}
+.m-plateau-name{flex:1;font-size:.8rem;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.m-plateau-flag{font-size:.68rem;color:#964219;font-weight:700;flex-shrink:0}
+
+.m-toast{position:fixed;left:50%;bottom:calc(74px + env(safe-area-inset-bottom) + .6rem);transform:translateX(-50%);background:var(--tx);color:var(--bg);padding:.6rem 1.1rem;border-radius:999px;font-size:.82rem;font-weight:700;z-index:500;opacity:0;transition:opacity .25s;max-width:85vw;text-align:center}
+.m-toast.show{opacity:1}
+</style>
+</head>
+<body>
+<div class="m-app">
+  <div class="m-hdr">
+    <div class="m-hdr-title">Progression</div>
+    <select class="m-select-sm" id="periodSel">
+      <option value="30">30j</option>
+      <option value="90">3 mois</option>
+      <option value="180">6 mois</option>
+      <option value="365">1 an</option>
+      <option value="0" selected>Tout</option>
+    </select>
+    <button class="m-icon-btn-hdr" id="themeBtn">🌓</button>
+  </div>
+  <div class="m-main" id="mainArea"></div>
+  <nav class="m-tabbar">
+    <a class="m-tab" href="./index-mobile.html"><span class="m-tab-ic">🏠</span>Accueil</a>
+    <a class="m-tab" href="./Dashboard-mobile.html"><span class="m-tab-ic">📊</span>Dashboard</a>
+    <button class="m-tab active" id="tabProgression"><span class="m-tab-ic">📈</span>Progression</button>
+    <a class="m-tab" href="./Seance-mobile.html"><span class="m-tab-ic">🏋</span>Séance</a>
+    <a class="m-tab" href="./Programme-mobile.html"><span class="m-tab-ic">🗓</span>Programme</a>
+    <a class="m-tab" href="./Historique-mobile.html"><span class="m-tab-ic">📅</span>Historique</a>
+    <a class="m-tab" href="./Corps-mobile.html"><span class="m-tab-ic">🫀</span>Corps</a>
+    <a class="m-tab" href="./Exercices-mobile.html"><span class="m-tab-ic">📋</span>Exercices</a>
+    <a class="m-tab" href="./Nutrition-mobile.html"><span class="m-tab-ic">🍽</span>Nutrition</a>
+    <a class="m-tab" href="./index.html"><span class="m-tab-ic">🖥</span>Version PC</a>
+  </nav>
+</div>
+<div class="m-toast" id="toast"></div>
+
+<script src="db.js"></script>
+<script src="gymos-utils.js"></script>
+<script>
+// ══════════════════════════════════════════════════════════════
+// CONSTANTES / DONNÉES (identiques à Progression.html desktop — lecture seule)
+// ══════════════════════════════════════════════════════════════
+const HIST_KEY = 'gymos-historique-v1';
+const EXO_KEY  = 'exercices-studio-autosave-v2';
+let _hist = [], _exoLib = [];
+let _selExo = '';
+
+function hexRgb(h){ return [parseInt(h.slice(1,3),16),parseInt(h.slice(3,5),16),parseInt(h.slice(5,7),16)]; }
+function epley1RM(w,r){ return r===1?w:Math.round(parseFloat(w)*(1+parseInt(r)/30)*10)/10; }
+function brzycki1RM(w,r){ if(r===1) return parseFloat(w); const d=1.0278-0.0278*parseInt(r); return d>0?Math.round(parseFloat(w)/d*10)/10:parseFloat(w); }
+function lombardi1RM(w,r){ return Math.round(parseFloat(w)*Math.pow(parseInt(r)||1,0.10)*10)/10; }
+function fmt1RMTip(p,r){ return `Epley ${epley1RM(p,r)}kg · Brzycki ${brzycki1RM(p,r)}kg · Lombardi ${lombardi1RM(p,r)}kg`; }
+function loadHist(){ try{ _hist=JSON.parse(localStorage.getItem(HIST_KEY)||'[]'); }catch{ _hist=[]; } }
+function loadExoLib(){ try{ _exoLib=JSON.parse(localStorage.getItem(EXO_KEY)||'{}').rows||[]; }catch{ _exoLib=[]; } }
+function patternForExo(nom){
+  const row=_exoLib.find(e=>e.exercice?.toLowerCase()===nom?.toLowerCase());
+  return row?.pattern_mouvement||'';
+}
+function filterByDays(days){
+  if(!days) return _hist;
+  const cutoff=new Date(); cutoff.setDate(cutoff.getDate()-days);
+  const cut=cutoff.toISOString().split('T')[0];
+  return _hist.filter(h=>h.date>=cut);
+}
+function getPeriod(){ return parseInt(document.getElementById('periodSel').value); }
+function showToast(msg) {
+  const t = document.getElementById('toast'); t.textContent=msg; t.classList.add('show');
+  clearTimeout(t._h); t._h = setTimeout(()=>t.classList.remove('show'), 2400);
+}
+
+// ══════════════════════════════════════════════════════════════
+// RENDU
+// ══════════════════════════════════════════════════════════════
+function render() {
+  const main = document.getElementById('mainArea');
+  main.innerHTML = '';
+  main.appendChild(buildStatCards());
+  main.appendChild(buildProgPanel());
+  renderProgChart();
+  main.appendChild(buildPRsPanel());
+  main.appendChild(buildStrengthPanel());
+  main.appendChild(buildPlateauPanel());
+  main.appendChild(buildVolLandmarksPanel());
+  main.appendChild(buildSymmetryPanel());
+}
+function refreshPeriodDependent() {
+  buildStatCardsInto(document.getElementById('statGrid'));
+  renderPRs(document.getElementById('prList'));
+}
+
+function buildStatCards() {
+  const grid = document.createElement('div'); grid.className='m-stat-grid'; grid.id='statGrid';
+  buildStatCardsInto(grid);
+  return grid;
+}
+function buildStatCardsInto(grid) {
+  const h = filterByDays(getPeriod());
+  const allExo = new Set(h.flatMap(s=>(s.exercices||[]).map(e=>e.nom)));
+  const vol = h.reduce((t,s)=>t+(s.volumeTotal||0),0);
+  const maxVol = Math.max(0,...h.map(s=>s.volumeTotal||0));
+  grid.innerHTML = '';
+  [
+    {val:h.length, lbl:'Séances', sub:'sur la période', color:'#01696f', ico:'<path d="M12 8v4l3 3"/><path d="M3.05 11a9 9 0 1 0 .5-3"/><polyline points="3 5 3 11 9 11"/>'},
+    {val:vol>0?vol.toLocaleString('fr-FR')+'kg':'—', lbl:'Volume total', sub:vol>0?`${Math.round(vol/Math.max(h.length,1)).toLocaleString('fr-FR')} kg/séance`:'', color:'#0161be', ico:'<path d="M6 18V8.5C6 6.57 7.57 5 9.5 5h.5v14H9.5A3.5 3.5 0 0 1 6 15.5"/><path d="M18 18V8.5C18 6.57 16.43 5 14.5 5H14v14h.5a3.5 3.5 0 0 0 3.5-3.5"/>'},
+    {val:allExo.size, lbl:'Exercices pratiqués', sub:'sur la période', color:'#437a22', ico:'<polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>'},
+    {val:maxVol>0?maxVol.toLocaleString('fr-FR')+'kg':'—', lbl:'Meilleure séance', sub:'volume total', color:'#964219', ico:'<polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>'},
+  ].forEach(({val,lbl,sub,color,ico})=>{
+    const c = document.createElement('div'); c.className='m-stat-card'; c.style.setProperty('--sc-color',color);
+    c.innerHTML = `<div class="m-stat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">${ico}</svg></div>
+      <div class="m-stat-val">${esc(String(val))}</div><div class="m-stat-lbl">${lbl}</div><div class="m-stat-sub">${sub}</div>`;
+    grid.appendChild(c);
+  });
+}
+
+function buildProgPanel() {
+  const panel = document.createElement('div'); panel.className='m-panel';
+  const hdr = document.createElement('div'); hdr.className='m-panel-hdr';
+  hdr.innerHTML = '<div class="m-card-title">Courbe de progression</div>';
+  const ctrl = document.createElement('div'); ctrl.className='m-panel-ctrl';
+  const exportBtn = document.createElement('button'); exportBtn.className='m-icon-btn-sm'; exportBtn.title='Exporter en image'; exportBtn.textContent='⬇';
+  exportBtn.addEventListener('click', exportProgressionChart);
+  ctrl.appendChild(exportBtn);
+  hdr.appendChild(ctrl);
+  panel.appendChild(hdr);
+
+  const sel = document.createElement('select'); sel.className='m-select-sm'; sel.id='exoSel'; sel.style.width='100%';
+  panel.appendChild(sel);
+  const badge = document.createElement('div'); badge.id='plateauBadge';
+  panel.appendChild(badge);
+  const chart = document.createElement('div'); chart.id='progChart';
+  panel.appendChild(chart);
+
+  const exoMap = {};
+  _hist.forEach(h=>(h.exercices||[]).forEach(e=>{
+    if (!exoMap[e.nom]) exoMap[e.nom]={nom:e.nom,groupe:e.groupe,count:0};
+    exoMap[e.nom].count += (e.series||[]).length;
+  }));
+  const sorted = Object.values(exoMap).sort((a,b)=>b.count-a.count);
+  sel.innerHTML = '<option value="">— Choisir un exercice —</option>'+sorted.map(e=>`<option value="${esc(e.nom)}">${esc(e.nom)}</option>`).join('');
+  if (sorted.length) { sel.value=sorted[0].nom; _selExo=sorted[0].nom; }
+  sel.addEventListener('change', ()=>{ _selExo=sel.value; renderProgChart(); renderSymmetryChart(document.getElementById('symmetryChart')); });
+  return panel;
+}
+
+function buildProgressionPoints(nom) {
+  const pts = [];
+  _hist.slice().reverse().forEach(h=>{
+    const e=(h.exercices||[]).find(x=>x.nom===nom); if (!e) return;
+    const maxPset=(e.series||[]).reduce((best,s)=>{
+      const p=parseFloat(s.poids)||0, r=parseInt(s.reps)||1;
+      const est=epley1RM(p,r); return est>best.est?{p,r,est}:best;
+    },{p:0,r:1,est:0});
+    if (maxPset.p>0) pts.push({date:h.date, poids:maxPset.p, reps:maxPset.r, est1rm:maxPset.est});
+  });
+  return pts;
+}
+function detectPlateau(pts, n=4) {
+  if (pts.length<n) return false;
+  const recent=pts.slice(-n);
+  const last=recent[recent.length-1];
+  const bestBefore=Math.max(...recent.slice(0,-1).map(p=>p.est1rm));
+  return last.est1rm<=bestBefore;
+}
+function renderProgChart() {
+  const nom = document.getElementById('exoSel').value;
+  const container = document.getElementById('progChart'); container.innerHTML='';
+  const badgeEl = document.getElementById('plateauBadge'); badgeEl.innerHTML='';
+  if (!nom) { container.innerHTML='<div class="m-chart-empty">Choisissez un exercice</div>'; return; }
+  const pts = buildProgressionPoints(nom);
+  if (detectPlateau(pts)) {
+    badgeEl.innerHTML = '<span class="m-plateau-badge">⚠ Plateau — aucune progression depuis 4 séances</span>';
+  }
+  if (pts.length<2) { container.innerHTML=`<div class="m-chart-empty">${pts.length===0?'Aucune donnée pour cet exercice':'Au moins 2 séances nécessaires'}</div>`; return; }
+
+  const exoGrp = ((_hist.flatMap(h=>h.exercices||[])).find(e=>e.nom===nom)||{}).groupe||'';
+  const hex = grpc(exoGrp);
+  const [r,g,b] = hexRgb(hex);
+  const W=320,H=180,PAD={t:22,r:12,b:24,l:38};
+  const cW=W-PAD.l-PAD.r, cH=H-PAD.t-PAD.b;
+  const minV=Math.min(...pts.map(p=>p.poids)), maxV=Math.max(...pts.map(p=>p.est1rm));
+  const rangeV=Math.max(maxV-minV,1);
+  const toX=i=>PAD.l+i*(cW/(pts.length-1));
+  const toY=v=>PAD.t+cH-(v-minV)/rangeV*cH;
+
+  const svg=document.createElementNS('http://www.w3.org/2000/svg','svg');
+  svg.setAttribute('viewBox',`0 0 ${W} ${H}`); svg.style.cssText='width:100%;height:auto;display:block';
+  for (let i=0;i<=3;i++){
+    const y=PAD.t+cH*i/3, val=maxV-(rangeV*i/3);
+    const line=document.createElementNS('http://www.w3.org/2000/svg','line');
+    line.setAttribute('x1',PAD.l); line.setAttribute('x2',W-PAD.r); line.setAttribute('y1',y); line.setAttribute('y2',y);
+    line.setAttribute('stroke','var(--bord)'); line.setAttribute('stroke-width','1'); svg.appendChild(line);
+    const lbl=document.createElementNS('http://www.w3.org/2000/svg','text');
+    lbl.setAttribute('x',PAD.l-4); lbl.setAttribute('y',y+3); lbl.setAttribute('text-anchor','end');
+    lbl.setAttribute('fill','var(--txf)'); lbl.setAttribute('font-size','7'); lbl.textContent=Math.round(val)+'kg'; svg.appendChild(lbl);
+  }
+  let pd=`M ${toX(0)} ${toY(pts[0].poids)}`; pts.slice(1).forEach((p,i)=>pd+=` L ${toX(i+1)} ${toY(p.poids)}`);
+  const areaPoids=document.createElementNS('http://www.w3.org/2000/svg','path');
+  areaPoids.setAttribute('d',pd+` L ${toX(pts.length-1)} ${PAD.t+cH} L ${toX(0)} ${PAD.t+cH} Z`);
+  areaPoids.setAttribute('fill',`rgba(${r},${g},${b},.12)`); svg.appendChild(areaPoids);
+  const linePoids=document.createElementNS('http://www.w3.org/2000/svg','path');
+  linePoids.setAttribute('d',pd); linePoids.setAttribute('fill','none'); linePoids.setAttribute('stroke',hex); linePoids.setAttribute('stroke-width','2.5'); linePoids.setAttribute('stroke-linecap','round'); svg.appendChild(linePoids);
+  let pe=`M ${toX(0)} ${toY(pts[0].est1rm)}`; pts.slice(1).forEach((p,i)=>pe+=` L ${toX(i+1)} ${toY(p.est1rm)}`);
+  const line1rm=document.createElementNS('http://www.w3.org/2000/svg','path');
+  line1rm.setAttribute('d',pe); line1rm.setAttribute('fill','none'); line1rm.setAttribute('stroke',hex); line1rm.setAttribute('stroke-width','1.5'); line1rm.setAttribute('stroke-dasharray','5,4'); line1rm.setAttribute('opacity','.55'); svg.appendChild(line1rm);
+  pts.forEach((p,i)=>{
+    const cx=toX(i), cy=toY(p.poids);
+    const dot=document.createElementNS('http://www.w3.org/2000/svg','circle');
+    dot.setAttribute('cx',cx); dot.setAttribute('cy',cy); dot.setAttribute('r',4);
+    dot.setAttribute('fill',hex); dot.setAttribute('stroke','var(--surf)'); dot.setAttribute('stroke-width',1.5);
+    dot.addEventListener('click', ()=>showToast(`${fmtDateShort(p.date)} · ${p.poids}kg × ${p.reps} — ${fmt1RMTip(p.poids,p.reps)}`));
+    svg.appendChild(dot);
+    const every=Math.max(1,Math.floor(pts.length/4));
+    if (i%every===0 || i===pts.length-1) {
+      const lbl=document.createElementNS('http://www.w3.org/2000/svg','text');
+      lbl.setAttribute('x',cx); lbl.setAttribute('y',H-6); lbl.setAttribute('text-anchor','middle');
+      lbl.setAttribute('fill','var(--txf)'); lbl.setAttribute('font-size','7'); lbl.textContent=fmtDateShort(p.date); svg.appendChild(lbl);
+    }
+  });
+  const legY=PAD.t-10;
+  [{color:hex,dash:false,label:'Poids réel'},{color:hex,dash:true,label:'1RM estimé'}].forEach(({color,dash,label},li)=>{
+    const gx=PAD.l+li*95;
+    const lline=document.createElementNS('http://www.w3.org/2000/svg','line');
+    lline.setAttribute('x1',gx); lline.setAttribute('x2',gx+16); lline.setAttribute('y1',legY); lline.setAttribute('y2',legY);
+    lline.setAttribute('stroke',color); lline.setAttribute('stroke-width',dash?1.5:2.5);
+    if (dash) lline.setAttribute('stroke-dasharray','5,4');
+    svg.appendChild(lline);
+    const ltxt=document.createElementNS('http://www.w3.org/2000/svg','text');
+    ltxt.setAttribute('x',gx+19); ltxt.setAttribute('y',legY+3); ltxt.setAttribute('fill','var(--txm)'); ltxt.setAttribute('font-size','7'); ltxt.textContent=label; svg.appendChild(ltxt);
+  });
+  const wrap=document.createElement('div'); wrap.className='m-chart-wrap'; wrap.appendChild(svg);
+  container.appendChild(wrap);
+}
+
+function resolveSvgCssVars(svgClone) {
+  const cs = getComputedStyle(document.documentElement);
+  const resolve = v => { const m=v&&v.match(/^var\((--[\w-]+)\)$/); return m ? (cs.getPropertyValue(m[1]).trim()||v) : v; };
+  svgClone.querySelectorAll('*').forEach(el=>{
+    ['fill','stroke'].forEach(attr=>{ const v=el.getAttribute(attr); if (v&&v.startsWith('var(')) el.setAttribute(attr,resolve(v)); });
+  });
+}
+function exportProgressionChart() {
+  const svg = document.querySelector('#progChart svg');
+  if (!svg) { showToast('Sélectionnez un exercice avec au moins 2 séances.'); return; }
+  const nom = document.getElementById('exoSel').value||'Exercice';
+  const clone = svg.cloneNode(true);
+  resolveSvgCssVars(clone);
+  clone.setAttribute('xmlns','http://www.w3.org/2000/svg');
+  const vb = svg.viewBox.baseVal;
+  const w = (vb&&vb.width)||320, h=(vb&&vb.height)||180;
+  clone.setAttribute('width',w); clone.setAttribute('height',h);
+  const svgStr = new XMLSerializer().serializeToString(clone);
+  const svgDataUrl = 'data:image/svg+xml;charset=utf-8,'+encodeURIComponent(svgStr);
+  const img = new Image();
+  img.onload = () => {
+    const scale=2, margin=56;
+    const canvas=document.createElement('canvas');
+    canvas.width=w*scale; canvas.height=(h+margin)*scale;
+    const ctx=canvas.getContext('2d'); ctx.scale(scale,scale);
+    const cs=getComputedStyle(document.documentElement);
+    const bg=cs.getPropertyValue('--surf').trim()||'#ffffff';
+    const tx=cs.getPropertyValue('--tx').trim()||'#000000';
+    const txf=cs.getPropertyValue('--txf').trim()||'#888888';
+    ctx.fillStyle=bg; ctx.fillRect(0,0,w,h+margin);
+    ctx.fillStyle=tx; ctx.font='bold 16px Georgia, serif';
+    ctx.fillText('GymOS — Progression : '+nom,12,26);
+    ctx.fillStyle=txf; ctx.font='11px Arial, sans-serif';
+    ctx.fillText('Exporté le '+new Date().toLocaleDateString('fr-FR'),12,44);
+    ctx.drawImage(img,0,margin,w,h);
+    const a=document.createElement('a');
+    a.href=canvas.toDataURL('image/png');
+    a.download=`gymos-progression-${nom.replace(/[^a-z0-9]+/gi,'-')}-${new Date().toISOString().split('T')[0]}.png`;
+    a.click();
+  };
+  img.src = svgDataUrl;
+}
+
+function buildPRsPanel() {
+  const panel = document.createElement('div'); panel.className='m-panel';
+  panel.innerHTML = '<div class="m-card-title">Records personnels</div>';
+  const list = document.createElement('div'); list.id='prList';
+  panel.appendChild(list);
+  renderPRs(list);
+  return panel;
+}
+function renderPRs(container) {
+  const h = filterByDays(getPeriod());
+  const prs = {};
+  h.forEach(s=>(s.exercices||[]).forEach(e=>{
+    (e.series||[]).forEach(sr=>{
+      const p=parseFloat(sr.poids)||0, r=parseInt(sr.reps)||1;
+      if (p<=0) return;
+      const est=epley1RM(p,r);
+      if (!prs[e.nom]||est>prs[e.nom].est) prs[e.nom]={nom:e.nom,groupe:e.groupe,p,r,est,date:s.date};
+    });
+  }));
+  const sorted = Object.values(prs).sort((a,b)=>b.est-a.est);
+  container.innerHTML = '';
+  if (!sorted.length) { container.innerHTML='<div class="m-empty">Aucune donnée</div>'; return; }
+  sorted.slice(0,20).forEach((pr,i)=>{
+    const row = document.createElement('button'); row.className='m-pr-row'; row.style.cssText='width:100%;text-align:left;background:none;border:none;border-bottom:1px solid var(--bord)';
+    row.innerHTML = `<span class="m-pr-rank">${i+1}</span>
+      <div class="m-pr-info"><div class="m-pr-name">${esc(pr.nom)}</div><div class="m-pr-meta">${pr.p}kg × ${pr.r} · ${fmtDateShort(pr.date)}</div></div>
+      <div class="m-pr-est"><div class="m-pr-est-val">${pr.est}kg</div><div class="m-pr-est-lbl">1RM est.</div></div>`;
+    row.addEventListener('click', ()=>showToast(fmt1RMTip(pr.p,pr.r)));
+    container.appendChild(row);
+  });
+}
+
+const STRENGTH_LANDMARKS = {
+  'Squat': { debutant:80, intermediaire:160 },
+  'Poussée': { debutant:40, intermediaire:80 },
+  'Charnière de hanche': { debutant:60, intermediaire:120 },
+};
+function bestEst1RMForPattern(pattern) {
+  let best=0;
+  _hist.forEach(h=>(h.exercices||[]).forEach(e=>{
+    if (patternForExo(e.nom)!==pattern) return;
+    (e.series||[]).forEach(s=>{
+      const p=parseFloat(s.poids)||0, r=parseInt(s.reps)||1;
+      if (p<=0) return;
+      const est=epley1RM(p,r);
+      if (est>best) best=est;
+    });
+  }));
+  return best;
+}
+function buildStrengthPanel() {
+  const panel = document.createElement('div'); panel.className='m-panel';
+  panel.innerHTML = '<div class="m-card-title">Repères de force par mouvement</div>';
+  let anyData=false;
+  Object.keys(STRENGTH_LANDMARKS).forEach(pattern=>{
+    const {debutant,intermediaire} = STRENGTH_LANDMARKS[pattern];
+    const best = bestEst1RMForPattern(pattern);
+    if (best>0) anyData=true;
+    let niveau='Débutant', niveauColor='#964219', nextTarget=debutant, nextLabel='Intermédiaire';
+    if (best>=intermediaire) { niveau='Avancé'; niveauColor='#437a22'; nextTarget=null; }
+    else if (best>=debutant) { niveau='Intermédiaire'; niveauColor='#01696f'; nextTarget=intermediaire; nextLabel='Avancé'; }
+    const cap = intermediaire*1.4;
+    const pct = Math.min(100, Math.round(best/cap*100));
+    const row = document.createElement('div'); row.className='m-strength-row';
+    row.innerHTML = `<div class="m-strength-hdr"><span class="m-strength-name">${esc(pattern)}</span><span class="m-strength-lvl" style="color:${niveauColor}">${niveau}${best>0?` · ${best}kg`:''}</span></div>
+      <div class="m-bar-bg"><div class="m-bar-fill" style="width:${pct}%;background:${niveauColor}"></div></div>
+      <div class="m-strength-note">${best>0?(nextTarget?`Prochain palier (${nextLabel}) : ${nextTarget}kg`:'Palier maximal atteint'):'Aucune donnée pour ce mouvement'}</div>`;
+    panel.appendChild(row);
+  });
+  if (!anyData) {
+    const note = document.createElement('div'); note.className='m-empty';
+    note.textContent = "Pratiquez un exercice Squat/Poussée/Charnière de hanche pour voir apparaître vos repères.";
+    panel.appendChild(note);
+  }
+  return panel;
+}
+
+function buildPlateauPanel() {
+  const panel = document.createElement('div'); panel.className='m-panel';
+  panel.innerHTML = '<div class="m-card-title">Exercices en plateau</div>';
+  const exoMap = {};
+  _hist.forEach(h=>(h.exercices||[]).forEach(e=>{ if(!exoMap[e.nom]) exoMap[e.nom]={nom:e.nom,groupe:e.groupe}; }));
+  const plateaued = Object.values(exoMap).filter(e=>detectPlateau(buildProgressionPoints(e.nom)));
+  if (!plateaued.length) {
+    const note = document.createElement('div'); note.className='m-empty';
+    note.textContent = 'Aucun plateau détecté — bravo, ça progresse partout 💪';
+    panel.appendChild(note);
+  } else {
+    plateaued.forEach(e=>{
+      const hex = grpc(e.groupe);
+      const row = document.createElement('div'); row.className='m-plateau-row';
+      row.innerHTML = `<span class="m-plateau-dot" style="background:${hex}"></span><span class="m-plateau-name">${esc(e.nom)}</span><span class="m-plateau-flag">⚠ Plateau</span>`;
+      panel.appendChild(row);
+    });
+  }
+  return panel;
+}
+
+const VOL_LANDMARKS = { mev:8, mav:16, mrv:22 };
+function computeWeeklySetsByGroup() {
+  const cutoff = new Date(); cutoff.setDate(cutoff.getDate()-7);
+  const cut = cutoff.toISOString().split('T')[0];
+  const sets = {};
+  _hist.filter(h=>h.date>=cut).forEach(h=>(h.exercices||[]).forEach(e=>{
+    (e.groupe||'').split(',').map(g=>g.trim()).filter(Boolean).forEach(g=>{ sets[g]=(sets[g]||0)+(e.series||[]).length; });
+  }));
+  return Object.keys(MC).map(g=>({groupe:g, sets:sets[g]||0})).sort((a,b)=>b.sets-a.sets);
+}
+function buildVolLandmarksPanel() {
+  const panel = document.createElement('div'); panel.className='m-panel';
+  panel.innerHTML = '<div class="m-card-title">Repères de volume hebdomadaire</div>';
+  const {mev,mav,mrv} = VOL_LANDMARKS;
+  const cap = mrv*1.3;
+  computeWeeklySetsByGroup().forEach(({groupe,sets})=>{
+    let color='#9a9891';
+    if (sets>=mrv) color='#a12c2c'; else if (sets>=mav) color='#964219'; else if (sets>=mev) color='#437a22';
+    const pct = Math.min(100, Math.round(sets/cap*100));
+    const row = document.createElement('div'); row.className='m-bar-row';
+    row.innerHTML = `<div class="m-bar-label" title="${esc(groupe)}">${esc(groupe)}</div>
+      <div class="m-bar-bg"><div class="m-bar-fill" style="width:${pct}%;background:${color}"></div></div>
+      <div class="m-bar-val">${sets} séries</div>`;
+    panel.appendChild(row);
+  });
+  const legend = document.createElement('div'); legend.style.cssText='font-size:.62rem;color:var(--txf);margin-top:.2rem';
+  legend.textContent = `Repères génériques indicatifs : MEV ≈ ${mev} séries/sem. · MAV ≈ ${mav} · MRV ≈ ${mrv}`;
+  panel.appendChild(legend);
+  return panel;
+}
+
+function buildSymmetryPanel() {
+  const panel = document.createElement('div'); panel.className='m-panel';
+  panel.innerHTML = '<div class="m-card-title">Symétrie gauche/droite</div>';
+  const body = document.createElement('div'); body.id='symmetryChart';
+  panel.appendChild(body);
+  renderSymmetryChart(body);
+  return panel;
+}
+function renderSymmetryChart(container) {
+  const nom = document.getElementById('exoSel')?.value;
+  container.innerHTML = '';
+  if (!nom) { container.innerHTML='<div class="m-empty">Choisissez un exercice</div>'; return; }
+  const sides = {gauche:0, droit:0};
+  _hist.forEach(h=>{
+    const e=(h.exercices||[]).find(x=>x.nom===nom); if (!e) return;
+    (e.series||[]).forEach(s=>{
+      if (s.cote!=='gauche' && s.cote!=='droit') return;
+      const p=parseFloat(s.poids)||0, r=parseInt(s.reps)||1;
+      if (p<=0) return;
+      const est=epley1RM(p,r);
+      if (est>sides[s.cote]) sides[s.cote]=est;
+    });
+  });
+  if (!sides.gauche && !sides.droit) {
+    container.innerHTML = `<div class="m-empty">Aucune donnée gauche/droite pour "${esc(nom)}" — pensez à renseigner le côté lors de la saisie en séance.</div>`;
+    return;
+  }
+  const maxV = Math.max(sides.gauche, sides.droit, 1);
+  [['Gauche',sides.gauche,'#0161be'],['Droit',sides.droit,'#01696f']].forEach(([label,val,color])=>{
+    const pct = Math.round(val/maxV*100);
+    const row = document.createElement('div'); row.className='m-bar-row';
+    row.innerHTML = `<div class="m-bar-label">${label}</div><div class="m-bar-bg"><div class="m-bar-fill" style="width:${pct}%;background:${color}"></div></div><div class="m-bar-val">${val?val+'kg':'—'}</div>`;
+    container.appendChild(row);
+  });
+  if (sides.gauche>0 && sides.droit>0) {
+    const diff = Math.round(Math.abs(sides.droit-sides.gauche)/Math.min(sides.gauche,sides.droit)*100);
+    const stronger = sides.droit>sides.gauche?'Droit':(sides.gauche>sides.droit?'Gauche':null);
+    const msg = document.createElement('div'); msg.style.cssText='font-size:.72rem;color:var(--txm);margin-top:.3rem';
+    msg.textContent = stronger?`${stronger} ${diff}% plus fort que l'autre côté (1RM estimé).`:'Équilibre parfait entre les deux côtés.';
+    container.appendChild(msg);
+  }
+}
+
+// ══════════════════════════════════════════════════════════════
+// WIRING / INIT
+// ══════════════════════════════════════════════════════════════
+document.getElementById('themeBtn').addEventListener('click', ()=>applyTheme(document.documentElement.getAttribute('data-theme')==='dark'?'light':'dark'));
+document.getElementById('periodSel').addEventListener('change', refreshPeriodDependent);
+
+(async function init(){
+  applyTheme(localStorage.getItem('muscle-xml-theme')||'light');
+  loadHist(); loadExoLib();
+  const dbState = await GymDB.init();
+  if (dbState === 'connected') {
+    try { const h=await GymDB.read('historique.json'); if(Array.isArray(h)&&h.length){ _hist=h; localStorage.setItem(HIST_KEY,JSON.stringify(h)); } } catch{}
+    try { const d=await GymDB.read('exercices.json'); if(d&&Array.isArray(d.rows)&&d.rows.length){ _exoLib=d.rows; localStorage.setItem(EXO_KEY,JSON.stringify(d)); } } catch{}
+  }
+  render();
+})();
+</script>
+</body>
+</html>

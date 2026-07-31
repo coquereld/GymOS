@@ -23,9 +23,9 @@ button,input{font-family:inherit;color:inherit}
    dépasser (scroll). */
 .m-main > *{flex-shrink:0}
 
-.m-tabbar{position:fixed;left:0;right:0;bottom:0;height:calc(58px + env(safe-area-inset-bottom));padding-bottom:env(safe-area-inset-bottom);display:flex;background:var(--surf2);border-top:1px solid var(--bord);z-index:90}
-.m-tab{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.12rem;font-size:.5rem;font-weight:700;color:var(--txf);text-decoration:none;border:none;background:none}
-.m-tab .m-tab-ic{font-size:1.05rem;line-height:1}
+.m-tabbar{position:fixed;left:0;right:0;bottom:0;height:calc(58px + env(safe-area-inset-bottom));padding-bottom:env(safe-area-inset-bottom);display:flex;overflow-x:auto;-webkit-overflow-scrolling:touch;background:var(--surf2);border-top:1px solid var(--bord);z-index:90}
+.m-tab{flex:0 0 auto;min-width:60px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.15rem;font-size:.62rem;font-weight:700;color:var(--txf);text-decoration:none;border:none;background:none;padding:0 .45rem}
+.m-tab .m-tab-ic{font-size:1.15rem;line-height:1}
 .m-tab.active{color:var(--prim)}
 
 .m-search{width:100%;min-height:46px;border-radius:.8rem;border:1px solid var(--bord);background:var(--surf2);padding:.5rem .8rem;font-size:.95rem}
@@ -99,11 +99,14 @@ button,input{font-family:inherit;color:inherit}
   <div class="m-main" id="mainArea"></div>
   <nav class="m-tabbar">
     <a class="m-tab" href="./index-mobile.html"><span class="m-tab-ic">🏠</span>Accueil</a>
+    <a class="m-tab" href="./Dashboard-mobile.html"><span class="m-tab-ic">📊</span>Dashboard</a>
+    <a class="m-tab" href="./Progression-mobile.html"><span class="m-tab-ic">📈</span>Progression</a>
     <a class="m-tab" href="./Seance-mobile.html"><span class="m-tab-ic">🏋</span>Séance</a>
     <a class="m-tab" href="./Programme-mobile.html"><span class="m-tab-ic">🗓</span>Programme</a>
     <button class="m-tab active" id="tabHist"><span class="m-tab-ic">📅</span>Historique</button>
     <a class="m-tab" href="./Corps-mobile.html"><span class="m-tab-ic">🫀</span>Corps</a>
     <a class="m-tab" href="./Exercices-mobile.html"><span class="m-tab-ic">📋</span>Exercices</a>
+    <a class="m-tab" href="./Nutrition-mobile.html"><span class="m-tab-ic">🍽</span>Nutrition</a>
     <a class="m-tab" href="./index.html"><span class="m-tab-ic">🖥</span>Version PC</a>
   </nav>
 </div>

@@ -19,9 +19,9 @@ button,input{font-family:inherit;color:inherit}
 .m-main{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:.9rem .8rem;padding-bottom:calc(74px + env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:.9rem}
 .m-main > *{flex-shrink:0}
 
-.m-tabbar{position:fixed;left:0;right:0;bottom:0;height:calc(58px + env(safe-area-inset-bottom));padding-bottom:env(safe-area-inset-bottom);display:flex;background:var(--surf2);border-top:1px solid var(--bord);z-index:90}
-.m-tab{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.12rem;font-size:.5rem;font-weight:700;color:var(--txf);text-decoration:none;border:none;background:none}
-.m-tab .m-tab-ic{font-size:1.05rem;line-height:1}
+.m-tabbar{position:fixed;left:0;right:0;bottom:0;height:calc(58px + env(safe-area-inset-bottom));padding-bottom:env(safe-area-inset-bottom);display:flex;overflow-x:auto;-webkit-overflow-scrolling:touch;background:var(--surf2);border-top:1px solid var(--bord);z-index:90}
+.m-tab{flex:0 0 auto;min-width:60px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.15rem;font-size:.62rem;font-weight:700;color:var(--txf);text-decoration:none;border:none;background:none;padding:0 .45rem}
+.m-tab .m-tab-ic{font-size:1.15rem;line-height:1}
 .m-tab.active{color:var(--prim)}
 
 .m-welcome-title{font-size:1.2rem;font-weight:800}
@@ -58,11 +58,14 @@ button,input{font-family:inherit;color:inherit}
   <div class="m-main" id="mainArea"></div>
   <nav class="m-tabbar">
     <button class="m-tab active" id="tabAccueil"><span class="m-tab-ic">🏠</span>Accueil</button>
+    <a class="m-tab" href="./Dashboard-mobile.html"><span class="m-tab-ic">📊</span>Dashboard</a>
+    <a class="m-tab" href="./Progression-mobile.html"><span class="m-tab-ic">📈</span>Progression</a>
     <a class="m-tab" href="./Seance-mobile.html"><span class="m-tab-ic">🏋</span>Séance</a>
     <a class="m-tab" href="./Programme-mobile.html"><span class="m-tab-ic">🗓</span>Programme</a>
     <a class="m-tab" href="./Historique-mobile.html"><span class="m-tab-ic">📅</span>Historique</a>
     <a class="m-tab" href="./Corps-mobile.html"><span class="m-tab-ic">🫀</span>Corps</a>
     <a class="m-tab" href="./Exercices-mobile.html"><span class="m-tab-ic">📋</span>Exercices</a>
+    <a class="m-tab" href="./Nutrition-mobile.html"><span class="m-tab-ic">🍽</span>Nutrition</a>
     <a class="m-tab" href="./index.html"><span class="m-tab-ic">🖥</span>Version PC</a>
   </nav>
 </div>
@@ -111,6 +114,18 @@ function render(){
     main.appendChild(a);
   }
 
+  const tileDash = document.createElement('a'); tileDash.className='m-tile'; tileDash.href='./Dashboard-mobile.html';
+  tileDash.innerHTML = `<div class="m-tile-icon" style="background:#01696f22;color:#01696f">📊</div>
+    <div class="m-tile-info"><div class="m-tile-name">Dashboard</div><div class="m-tile-sub">Statistiques et progression</div></div>
+    <div class="m-tile-arrow">›</div>`;
+  main.appendChild(tileDash);
+
+  const tileProgression = document.createElement('a'); tileProgression.className='m-tile'; tileProgression.href='./Progression-mobile.html';
+  tileProgression.innerHTML = `<div class="m-tile-icon" style="background:#0161be22;color:#0161be">📈</div>
+    <div class="m-tile-info"><div class="m-tile-name">Progression</div><div class="m-tile-sub">Courbes, records et plateaux</div></div>
+    <div class="m-tile-arrow">›</div>`;
+  main.appendChild(tileProgression);
+
   const tileSeance = document.createElement('a'); tileSeance.className='m-tile'; tileSeance.href='./Seance-mobile.html';
   tileSeance.innerHTML = `<div class="m-tile-icon" style="background:#b9020722;color:#b90207">🏋</div>
     <div class="m-tile-info"><div class="m-tile-name">Séance</div><div class="m-tile-sub">Démarrer ou continuer une séance</div></div>
@@ -140,6 +155,12 @@ function render(){
     <div class="m-tile-info"><div class="m-tile-name">Exercices</div><div class="m-tile-sub">Galerie, filtres et références</div></div>
     <div class="m-tile-arrow">›</div>`;
   main.appendChild(tileExo);
+
+  const tileNutrition = document.createElement('a'); tileNutrition.className='m-tile'; tileNutrition.href='./Nutrition-mobile.html';
+  tileNutrition.innerHTML = `<div class="m-tile-icon" style="background:#e05a0022;color:#e05a00">🍽</div>
+    <div class="m-tile-info"><div class="m-tile-name">Nutrition</div><div class="m-tile-sub">Repas, aliments, recettes et suivi</div></div>
+    <div class="m-tile-arrow">›</div>`;
+  main.appendChild(tileNutrition);
 
   const statsRow = document.createElement('div'); statsRow.className='m-stats-row';
   const nbSeances = _historique.length;
