@@ -41,6 +41,7 @@ document.body.insertAdjacentHTML('beforeend', `
     {href:'Historique.html',label:'Historique', emoji:'📅', color:'#0161be'},
     {href:'Progression.html',label:'Progression',emoji:'📈',color:'#5a9d24'},
     {href:'Nutrition.html', label:'Nutrition',  emoji:'🥗', color:'#964219'},
+    {href:'Parametres.html',label:'Paramètres', emoji:'⚙️', color:'#6e6b64'},
   ];
   const cur=(window.location.pathname.split('/').pop()||'index.html');
   const nav=document.getElementById('gymosNavItems');

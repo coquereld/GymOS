@@ -405,9 +405,20 @@
     .obj-panel-close{margin-left:auto;background:none;border:none;color:var(--color-text-faint);cursor:pointer;padding:.3rem;border-radius:var(--radius-sm);display:grid;place-items:center;transition:all var(--transition)}
     .obj-panel-close:hover{color:var(--color-text);background:var(--color-surface-offset)}
     .obj-panel-close svg{width:16px;height:16px}
-    .obj-body{display:grid;grid-template-columns:1fr 340px;gap:0}
+    .obj-body{display:block}
     /* Historique */
-    .obj-history{padding:var(--space-4) var(--space-5);border-right:1px solid var(--color-border)}
+    .obj-history{padding:var(--space-4) var(--space-5)}
+    .obj-add-ref-btn{
+      display:inline-flex;align-items:center;gap:.3rem;flex-shrink:0;
+      padding:.3rem .65rem;border-radius:999px;
+      border:1px solid var(--obj-color,var(--color-primary));
+      background:color-mix(in oklab,var(--obj-color,var(--color-primary)) 10%,var(--color-surface));
+      color:var(--obj-color,var(--color-primary));
+      font-size:.65rem;font-weight:700;letter-spacing:normal;text-transform:none;cursor:pointer;
+      transition:all var(--transition)
+    }
+    .obj-add-ref-btn:hover{background:var(--obj-color,var(--color-primary));color:#fff}
+    .obj-add-ref-btn svg{width:12px;height:12px}
     .obj-history-label{font-size:.65rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--color-text-faint);margin-bottom:var(--space-3)}
     .obj-table-wrap{overflow-x:auto;border-radius:var(--radius-md);border:1px solid var(--color-border)}
     .obj-table{width:100%;border-collapse:collapse;font-size:var(--text-xs)}
@@ -432,10 +443,10 @@
       border:1px solid color-mix(in oklab,var(--obj-color,var(--color-primary)) 25%,transparent)
     }
     /* Formulaire ajout */
-    .obj-form{padding:var(--space-4) var(--space-5);background:var(--color-surface-offset)}
+    .obj-form{padding:var(--space-4) var(--space-5);background:var(--color-surface-offset);min-width:0}
     .obj-form-label{font-size:.65rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--color-text-faint);margin-bottom:var(--space-3)}
     .obj-form-grid{display:grid;grid-template-columns:1fr 1fr;gap:var(--space-3)}
-    .obj-field{display:grid;gap:.3rem}
+    .obj-field{display:grid;gap:.3rem;min-width:0}
     .obj-field label{font-size:.7rem;font-weight:600;color:var(--color-text-muted)}
     .obj-field input{
       padding:.45rem .6rem;border-radius:var(--radius-md);
@@ -487,11 +498,6 @@
     }
     .obj-search-btn:hover{background:color-mix(in oklab,var(--obj-color,var(--color-primary)) 10%,var(--color-surface))}
     .obj-search-btn svg{width:13px;height:13px}
-
-    @media(max-width:900px){
-      .obj-body{grid-template-columns:1fr}
-      .obj-history{border-right:none;border-bottom:1px solid var(--color-border)}
-    }
 
     /* ── RESPONSIVE ── */
     @media(max-width:1200px){
@@ -698,7 +704,13 @@
       <div class="obj-body">
         <!-- Historique -->
         <div class="obj-history">
-          <div class="obj-history-label">Historique des références</div>
+          <div class="obj-history-label" style="display:flex;align-items:center;justify-content:space-between;gap:.5rem">
+            <span>Historique des références</span>
+            <button type="button" class="obj-add-ref-btn" id="objOpenFormBtn" title="Ajouter une référence">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+              Ajouter
+            </button>
+          </div>
           <div class="obj-table-wrap">
             <table class="obj-table">
               <thead>
@@ -718,14 +730,21 @@
                 </tr>
               </thead>
               <tbody id="objHistoryBody">
-                <tr><td colspan="12" class="obj-empty">Aucune référence enregistrée.</td></tr>
+                <tr><td colspan="12" class="obj-empty">Aucune référence. Cliquez sur + pour en ajouter.</td></tr>
               </tbody>
             </table>
           </div>
         </div>
-        <!-- Formulaire ajout -->
-        <div class="obj-form">
-          <div class="obj-form-label">Ajouter une référence</div>
+      </div>
+      <!-- Formulaire ajout (en modale) -->
+      <div class="modal-overlay" id="objFormModal" role="dialog" aria-modal="true" aria-labelledby="objFormModalTitle">
+        <div class="modal">
+          <div class="modal-add-header">
+            <div class="modal-add-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            </div>
+            <div class="modal-title" id="objFormModalTitle">Ajouter une référence</div>
+          </div>
           <div class="obj-form-grid">
             <div class="obj-field" style="grid-column:1/-1">
               <label>Date *</label>
@@ -2651,6 +2670,7 @@ document.addEventListener('keydown',e=>{
   if(document.getElementById('imgModal').classList.contains('open')){closeImgModal();return;}
   if(document.getElementById('videoEditModal').classList.contains('open')){closeVideoEditModal();return;}
   if(document.getElementById('pwdModal').classList.contains('open')){document.getElementById('pwdModal').classList.remove('open');}
+  if(document.getElementById('objFormModal').classList.contains('open')){closeObjFormModal();return;}
 });
 
 // ─── RÉFÉRENCE & OBJECTIF ────────────────────────────────────────────────────
@@ -2737,13 +2757,22 @@ function closeObjPanel() {
   document.getElementById('objPanel').style.display = 'none';
 }
 
+function openObjFormModal() {
+  document.getElementById('objFormModal').classList.add('open');
+  setTimeout(() => document.getElementById('obj-series').focus(), 50);
+}
+
+function closeObjFormModal() {
+  document.getElementById('objFormModal').classList.remove('open');
+}
+
 function renderObjHistory(rowId, hex) {
   const body = document.getElementById('objHistoryBody');
   const entries = (_objectifs[rowId] || []).slice().sort((a, b) => b.date.localeCompare(a.date));
   const color = hex || 'var(--color-primary)';
 
   if (!entries.length) {
-    body.innerHTML = '<tr><td colspan="12" class="obj-empty">Aucune référence. Ajoutez la première ci-contre.</td></tr>';
+    body.innerHTML = '<tr><td colspan="12" class="obj-empty">Aucune référence. Cliquez sur + pour en ajouter.</td></tr>';
     return;
   }
 
@@ -2952,12 +2981,17 @@ function addObjectif(rowId) {
     document.getElementById('obj-' + f).value = '');
   document.getElementById('obj-note').value = '';
   setStatus('Référence enregistrée.', 'ok');
+  closeObjFormModal();
 }
 
 // Wiring panel
 document.getElementById('objPanelClose').addEventListener('click', closeObjPanel);
 document.getElementById('objAddBtn').addEventListener('click', () => {
   if (state.selectedId) addObjectif(state.selectedId);
+});
+document.getElementById('objOpenFormBtn').addEventListener('click', openObjFormModal);
+document.getElementById('objFormModal').addEventListener('click', e => {
+  if (e.target === document.getElementById('objFormModal')) closeObjFormModal();
 });
 
 // ─── INIT ─────────────────────────────────────────────────────────────────────

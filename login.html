@@ -157,6 +157,20 @@
     }
     .theme-btn-sm:hover{background:var(--surf);color:var(--tx)}
     .theme-btn-sm svg{width:15px;height:15px}
+
+    /* ── FORMULAIRE DE CONNEXION ── */
+    .login-input{
+      width:100%;padding:.8rem .9rem;border-radius:.875rem;
+      border:1px solid var(--bord);background:var(--surf2);color:var(--tx);
+      font:inherit;font-size:.9rem;outline:none;transition:border-color .2s;
+    }
+    .login-input:focus{border-color:var(--prim)}
+    .login-error{
+      width:100%;font-size:.78rem;color:var(--err);text-align:center;
+      background:color-mix(in oklab,var(--err) 10%,transparent);
+      border:1px solid color-mix(in oklab,var(--err) 30%,transparent);
+      border-radius:.625rem;padding:.5rem .75rem;
+    }
   </style>
 </head>
 <body>
@@ -182,6 +196,14 @@
 
   <!-- Zone bouton -->
   <div id="actionZone" style="width:100%;display:flex;flex-direction:column;align-items:center;gap:.5rem"></div>
+
+  <!-- Formulaire de connexion (affiché une fois le serveur confirmé joignable) -->
+  <form id="loginForm" style="display:none;width:100%;flex-direction:column;gap:.75rem" novalidate>
+    <input type="text" id="loginUser" class="login-input" name="username" placeholder="Identifiant" autocomplete="username" required>
+    <input type="password" id="loginPass" class="login-input" name="password" placeholder="Mot de passe" autocomplete="current-password" required>
+    <div id="loginError" class="login-error" style="display:none"></div>
+    <button type="submit" class="btn-continue" id="loginSubmitBtn">Se connecter</button>
+  </form>
 
   <!-- Footer -->
   <div class="card-footer">
@@ -220,26 +242,17 @@
     const desc  = document.getElementById('statusDesc');
     const zone  = document.getElementById('actionZone');
     zone.innerHTML = '';
+    document.getElementById('loginForm').style.display = 'none';
 
     if (state === 'connected') {
       icon.className  = 'status-icon connected';
       icon.textContent = '✓';
       title.textContent = 'Serveur connecté';
-      desc.textContent  = 'Redirection automatique…';
+      desc.textContent  = 'Connectez-vous pour continuer';
 
-      // Barre de progression + redirect
-      const barWrap = document.createElement('div'); barWrap.className = 'redirect-bar-wrap';
-      const bar = document.createElement('div'); bar.className = 'redirect-bar';
-      barWrap.appendChild(bar); zone.appendChild(barWrap);
-      setTimeout(() => { bar.style.transition = 'width 1s linear'; bar.style.width = '100%'; }, 50);
-      setTimeout(goToApp, 1100);
-
-      // Bouton "Continuer maintenant"
-      const skip = document.createElement('button');
-      skip.className   = 'btn-continue';
-      skip.innerHTML   = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="13 17 18 12 13 7"/><polyline points="6 17 11 12 6 7"/></svg> Continuer`;
-      skip.addEventListener('click', goToApp);
-      zone.appendChild(skip);
+      const form = document.getElementById('loginForm');
+      form.style.display = 'flex';
+      document.getElementById('loginUser').focus();
 
     } else {
       // disconnected
@@ -266,6 +279,41 @@
       zone.appendChild(skip);
     }
   }
+
+  // ── Connexion ──────────────────────────────────────────────────────────────
+  document.getElementById('loginForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const btn   = document.getElementById('loginSubmitBtn');
+    const errEl = document.getElementById('loginError');
+    errEl.style.display = 'none';
+    btn.disabled = true;
+    btn.textContent = 'Connexion…';
+    try {
+      const r = await fetch('/api/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          username: document.getElementById('loginUser').value.trim(),
+          password: document.getElementById('loginPass').value,
+        }),
+      });
+      if (r.ok) { goToApp(); return; }
+      const data = await r.json().catch(() => ({}));
+      if (r.status === 429) {
+        const mins = Math.max(1, Math.ceil((data.retryAfterMs || 0) / 60000));
+        errEl.textContent = `Trop de tentatives. Réessayez dans ${mins} min.`;
+      } else {
+        errEl.textContent = 'Identifiant ou mot de passe incorrect.';
+      }
+      errEl.style.display = 'block';
+    } catch (err) {
+      errEl.textContent = 'Erreur réseau, réessayez.';
+      errEl.style.display = 'block';
+    } finally {
+      btn.disabled = false;
+      btn.textContent = 'Se connecter';
+    }
+  });
 
   // ── Init ───────────────────────────────────────────────────────────────────
   (async () => {

@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="fr" data-theme="light">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>GymOS — Paramètres</title>
+<link href="https://api.fontshare.com/v2/css?f[]=satoshi@400,500,700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="theme.css">
+<style>
+:root,[data-theme="light"]{
+  --bg:#f7f6f2;--surf:#f9f8f5;--surf2:#fbfbf9;--surfoff:#f3f0ec;--bord:#d4d1ca;
+  --tx:#28251d;--txm:#6e6b64;--txf:#9a9891;
+  --prim:#01696f;--primh:#0c4e54;--primhi:#cedcd8;
+  --ok:#437a22;--warn:#964219;--err:#a12c7b;
+  --rsm:.375rem;--rmd:.5rem;--rlg:.75rem;--rxl:1rem;
+  --shsm:0 1px 3px rgba(40,37,29,.08);--shmd:0 12px 32px rgba(40,37,29,.12);
+  --tr:180ms cubic-bezier(.16,1,.3,1);--font:'Satoshi',system-ui,sans-serif;
+}
+[data-theme="dark"]{
+  --bg:#131211;--surf:#1a1918;--surf2:#1e1d1b;--surfoff:#222120;--bord:#333230;
+  --tx:#d0cfcd;--txm:#9e9d9a;--txf:#6e6c68;
+  --prim:#4f98a3;--primh:#227f8b;--primhi:#1a2e30;
+  --shmd:0 12px 32px rgba(0,0,0,.4);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{min-height:100%;font-family:var(--font);background:var(--bg);color:var(--tx);font-size:clamp(14px,1.4vw,16px)}
+button,input,select{font:inherit} button{cursor:pointer} a{text-decoration:none;color:inherit}
+
+/* ── LAYOUT ── */
+.page{max-width:900px;margin:0 auto;padding:1.5rem}
+.hdr{display:flex;align-items:center;justify-content:space-between;gap:1rem;margin-bottom:2rem;flex-wrap:wrap}
+.hdr-left h1{font-size:clamp(1.3rem,2.5vw,1.8rem);font-weight:700;letter-spacing:-.02em}
+.hdr-left p{color:var(--txm);font-size:.85rem;margin-top:.2rem}
+.hdr-actions{display:flex;gap:.5rem;align-items:center}
+.btn-icon{width:38px;height:38px;border-radius:50%;border:1px solid var(--bord);background:var(--surf);display:grid;place-items:center;cursor:pointer;color:var(--txm);transition:all var(--tr)}
+.btn-icon:hover{background:var(--surfoff);color:var(--tx)}
+.btn-icon svg{width:17px;height:17px}
+.btn-home{display:inline-flex;align-items:center;gap:.4rem;padding:.45rem .9rem;border-radius:var(--rmd);border:1px solid var(--bord);background:var(--surf);color:var(--txm);font-size:.78rem;font-weight:600;cursor:pointer;transition:all var(--tr)}
+.btn-home:hover{background:var(--surfoff);color:var(--tx)}
+
+/* ── PANEL ── */
+.panel{background:var(--surf);border:1px solid var(--bord);border-radius:var(--rxl);box-shadow:var(--shsm);overflow:hidden;margin-bottom:1.25rem}
+.panel-hdr{display:flex;align-items:center;justify-content:space-between;padding:.9rem 1.25rem;border-bottom:1px solid var(--bord)}
+.panel-title{font-weight:700;font-size:.95rem;display:flex;align-items:center;gap:.5rem}
+.panel-title svg{width:17px;height:17px;color:var(--prim)}
+.panel-sub{font-size:.75rem;color:var(--txm);margin-top:.15rem}
+.panel-body{padding:1.25rem}
+
+/* ── MODULE LIST ── */
+.mod-select-all{display:flex;align-items:center;gap:.5rem;padding-bottom:.75rem;margin-bottom:.75rem;border-bottom:1px solid var(--bord);font-size:.78rem;font-weight:700;color:var(--txm)}
+.mod-list{display:flex;flex-direction:column;gap:.15rem}
+.mod-row{display:flex;align-items:center;gap:.75rem;padding:.55rem .5rem;border-radius:var(--rmd);transition:background var(--tr)}
+.mod-row:hover{background:var(--surfoff)}
+.mod-row input[type=checkbox]{width:17px;height:17px;accent-color:var(--prim);cursor:pointer;flex-shrink:0}
+.mod-row label{flex:1;cursor:pointer}
+.mod-name{font-size:.85rem;font-weight:600}
+.mod-desc{font-size:.72rem;color:var(--txf);margin-top:.1rem}
+.mod-empty-tag{font-size:.62rem;font-weight:700;color:var(--txf);background:var(--surfoff);padding:.15rem .5rem;border-radius:999px;flex-shrink:0}
+
+/* ── BOUTONS ── */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:.5rem;padding:.65rem 1.1rem;border-radius:var(--rmd);border:1px solid var(--bord);background:var(--surf2);color:var(--tx);font-size:.82rem;font-weight:700;transition:all var(--tr)}
+.btn:hover{background:var(--surfoff)}
+.btn svg{width:16px;height:16px}
+.btn-primary{background:var(--prim);color:#fff;border-color:transparent}
+.btn-primary:hover{background:var(--primh)}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.panel-actions{display:flex;justify-content:flex-end;gap:.6rem;margin-top:1rem;padding-top:1rem;border-top:1px solid var(--bord)}
+
+/* ── IMPORT ── */
+.import-drop{border:1.5px dashed var(--bord);border-radius:var(--rlg);padding:1.25rem;text-align:center;color:var(--txm);font-size:.82rem;transition:all var(--tr);cursor:pointer}
+.import-drop:hover{border-color:var(--prim);background:var(--surfoff)}
+.import-drop svg{width:22px;height:22px;color:var(--txf);margin-bottom:.4rem}
+.import-file-info{display:flex;align-items:center;justify-content:space-between;gap:.75rem;background:var(--surfoff);border:1px solid var(--bord);border-radius:var(--rmd);padding:.6rem .85rem;margin-bottom:.9rem;font-size:.78rem}
+.import-file-info strong{font-weight:700}
+.link-btn{background:none;border:none;color:var(--prim);font-size:.75rem;font-weight:700;cursor:pointer;padding:0}
+.link-btn:hover{text-decoration:underline}
+
+/* ── STATUT ── */
+.status-msg{font-size:.78rem;font-weight:600;padding:.55rem .8rem;border-radius:var(--rmd);margin-top:.9rem;display:none}
+.status-msg.ok{display:block;color:var(--ok);background:color-mix(in oklab,var(--ok) 12%,var(--surf))}
+.status-msg.warn{display:block;color:var(--warn);background:color-mix(in oklab,var(--warn) 12%,var(--surf))}
+.status-msg.err{display:block;color:var(--err);background:color-mix(in oklab,var(--err) 12%,var(--surf))}
+</style>
+</head>
+<body>
+<div class="page">
+  <!-- HEADER -->
+  <div class="hdr">
+    <div class="hdr-left">
+      <h1>Paramètres</h1>
+      <p>Sauvegarde et restauration des données GymOS</p>
+    </div>
+    <div class="hdr-actions">
+      <button class="btn-home" id="homeBtn">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 9.5L12 3l9 6.5V20a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1z"/><polyline points="9 21 9 12 15 12 15 21"/></svg>
+        Accueil
+      </button>
+      <button class="btn-icon" id="themeBtn">
+        <svg id="thDark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+        <svg id="thLight" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:none"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- EXPORT -->
+  <div class="panel">
+    <div class="panel-hdr">
+      <div>
+        <div class="panel-title">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Exporter une sauvegarde
+        </div>
+        <div class="panel-sub">Choisissez les modules à inclure dans le fichier JSON</div>
+      </div>
+    </div>
+    <div class="panel-body">
+      <div class="mod-select-all">
+        <input type="checkbox" id="exp-select-all" checked>
+        <label for="exp-select-all">Tout sélectionner</label>
+      </div>
+      <div class="mod-list" id="exportModList"></div>
+      <div class="panel-actions">
+        <button class="btn btn-primary" id="exportBtn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Exporter la sélection (JSON)
+        </button>
+      </div>
+      <div class="status-msg" id="exportStatus"></div>
+    </div>
+  </div>
+
+  <!-- IMPORT -->
+  <div class="panel">
+    <div class="panel-hdr">
+      <div>
+        <div class="panel-title">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+          Importer une sauvegarde
+        </div>
+        <div class="panel-sub">Restaure tout ou partie d'un fichier de sauvegarde GymOS</div>
+      </div>
+    </div>
+    <div class="panel-body">
+      <input type="file" id="importFile" accept=".json,application/json" style="display:none">
+      <div id="importDropZone" class="import-drop">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+        <div>Cliquez pour choisir un fichier de sauvegarde GymOS (.json)</div>
+      </div>
+      <div id="importLoaded" style="display:none">
+        <div class="import-file-info">
+          <span>Fichier : <strong id="importFileName">—</strong> · exporté le <strong id="importFileDate">—</strong></span>
+          <button class="link-btn" id="importChangeFileBtn">Changer de fichier</button>
+        </div>
+        <div class="mod-select-all">
+          <input type="checkbox" id="imp-select-all" checked>
+          <label for="imp-select-all">Tout sélectionner</label>
+        </div>
+        <div class="mod-list" id="importModList"></div>
+        <div class="panel-actions">
+          <button class="btn btn-primary" id="importBtn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+            Importer la sélection
+          </button>
+        </div>
+      </div>
+      <div class="status-msg" id="importStatus"></div>
+    </div>
+  </div>
+</div>
+
+<script src="db.js"></script>
+<script src="gymos-utils.js"></script>
+<script>
+// ══════════════════════════════════════════════════════════════
+// MODULES
+// ══════════════════════════════════════════════════════════════
+const MODULES = [
+  { key: 'historique',          label: 'Historique des séances',        desc: 'Toutes les séances enregistrées' },
+  { key: 'exercices',           label: 'Bibliothèque d\'exercices',     desc: 'Liste des exercices, descriptifs, images associées' },
+  { key: 'exercices_objectifs', label: 'Références par exercice',       desc: 'Historique des poids / séries de référence par exercice' },
+  { key: 'programmes',          label: 'Programmes',                    desc: 'Programmes d\'entraînement' },
+  { key: 'corps',                label: 'Suivi corporel',                desc: 'Poids, mensurations, photos de suivi' },
+  { key: 'group_images',        label: 'Images des groupes musculaires', desc: 'Illustrations personnalisées par groupe' },
+  { key: 'nutrition',           label: 'Nutrition',                     desc: 'Objectifs, aliments, recettes, journal alimentaire' },
+  { key: 'agenda_notes',        label: 'Agenda & notes',                desc: 'Notes et évènements de l\'agenda' },
+];
+
+function setStatus(elId, msg, type){
+  const el = document.getElementById(elId);
+  el.textContent = msg;
+  el.className = 'status-msg' + (type ? ' ' + type : '');
+}
+
+// ══════════════════════════════════════════════════════════════
+// EXPORT
+// ══════════════════════════════════════════════════════════════
+function renderExportModList(){
+  const wrap = document.getElementById('exportModList');
+  wrap.innerHTML = MODULES.map(m => `
+    <div class="mod-row">
+      <input type="checkbox" class="exp-mod-check" id="exp-${m.key}" data-key="${m.key}" checked>
+      <label for="exp-${m.key}">
+        <div class="mod-name">${m.label}</div>
+        <div class="mod-desc">${m.desc}</div>
+      </label>
+    </div>
+  `).join('');
+  wrap.querySelectorAll('.exp-mod-check').forEach(cb => cb.addEventListener('change', syncExportSelectAll));
+}
+function syncExportSelectAll(){
+  const boxes = [...document.querySelectorAll('.exp-mod-check')];
+  document.getElementById('exp-select-all').checked = boxes.every(b => b.checked);
+}
+document.getElementById('exp-select-all').addEventListener('change', function(){
+  document.querySelectorAll('.exp-mod-check').forEach(cb => cb.checked = this.checked);
+});
+
+function downloadJSON(data, filename){
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = filename;
+  a.click();
+  URL.revokeObjectURL(a.href);
+}
+
+async function exportSelected(){
+  const selected = MODULES.filter(m => document.getElementById('exp-' + m.key).checked);
+  if (!selected.length){ setStatus('exportStatus', 'Sélectionnez au moins un module.', 'warn'); return; }
+
+  const btn = document.getElementById('exportBtn');
+  btn.disabled = true;
+  setStatus('exportStatus', 'Lecture des données…', '');
+
+  const modules = {};
+  const empty = [];
+  for (const m of selected){
+    let data = null;
+    try { data = await GymDB.read(m.key); } catch(e) { data = null; }
+    if (data === null) { empty.push(m.label); continue; }
+    modules[m.key] = data;
+  }
+
+  const payload = { gymos_backup: true, version: 1, exported_at: new Date().toISOString(), modules };
+  const filename = `gymos-backup-${new Date().toISOString().slice(0,10)}.json`;
+  downloadJSON(payload, filename);
+
+  btn.disabled = false;
+  const includedCount = Object.keys(modules).length;
+  let msg = `Sauvegarde exportée (${includedCount} module${includedCount>1?'s':''}).`;
+  if (empty.length) msg += ` Ignoré(s) car vide(s) : ${empty.join(', ')}.`;
+  setStatus('exportStatus', msg, includedCount ? 'ok' : 'warn');
+}
+document.getElementById('exportBtn').addEventListener('click', exportSelected);
+
+// ══════════════════════════════════════════════════════════════
+// IMPORT
+// ══════════════════════════════════════════════════════════════
+let _importPayload = null;
+
+document.getElementById('importDropZone').addEventListener('click', () => document.getElementById('importFile').click());
+document.getElementById('importChangeFileBtn').addEventListener('click', () => {
+  _importPayload = null;
+  document.getElementById('importFile').value = '';
+  document.getElementById('importLoaded').style.display = 'none';
+  document.getElementById('importDropZone').style.display = 'block';
+  setStatus('importStatus', '', '');
+});
+
+document.getElementById('importFile').addEventListener('change', function(){
+  const file = this.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = () => {
+    let data;
+    try { data = JSON.parse(reader.result); }
+    catch(e){ setStatus('importStatus', 'Fichier JSON invalide.', 'err'); return; }
+    if (!data || typeof data !== 'object' || !data.modules || typeof data.modules !== 'object'){
+      setStatus('importStatus', "Ce fichier ne ressemble pas à une sauvegarde GymOS (structure 'modules' introuvable).", 'err');
+      return;
+    }
+    _importPayload = data;
+    renderImportModList(file.name);
+  };
+  reader.readAsText(file);
+});
+
+function renderImportModList(filename){
+  const present = MODULES.filter(m => Object.prototype.hasOwnProperty.call(_importPayload.modules, m.key));
+  document.getElementById('importFileName').textContent = filename;
+  document.getElementById('importFileDate').textContent = _importPayload.exported_at
+    ? new Date(_importPayload.exported_at).toLocaleString('fr-FR')
+    : 'date inconnue';
+
+  const wrap = document.getElementById('importModList');
+  if (!present.length){
+    wrap.innerHTML = '<div class="mod-desc">Aucun module reconnu dans ce fichier.</div>';
+  } else {
+    wrap.innerHTML = present.map(m => `
+      <div class="mod-row">
+        <input type="checkbox" class="imp-mod-check" id="imp-${m.key}" data-key="${m.key}" checked>
+        <label for="imp-${m.key}">
+          <div class="mod-name">${m.label}</div>
+          <div class="mod-desc">${m.desc}</div>
+        </label>
+      </div>
+    `).join('');
+    wrap.querySelectorAll('.imp-mod-check').forEach(cb => cb.addEventListener('change', syncImportSelectAll));
+  }
+
+  document.getElementById('imp-select-all').checked = true;
+  document.getElementById('importDropZone').style.display = 'none';
+  document.getElementById('importLoaded').style.display = 'block';
+  setStatus('importStatus', '', '');
+}
+function syncImportSelectAll(){
+  const boxes = [...document.querySelectorAll('.imp-mod-check')];
+  document.getElementById('imp-select-all').checked = boxes.length > 0 && boxes.every(b => b.checked);
+}
+document.getElementById('imp-select-all').addEventListener('change', function(){
+  document.querySelectorAll('.imp-mod-check').forEach(cb => cb.checked = this.checked);
+});
+
+async function writeDoc(docKey, data){
+  const r = await fetch(`/api/data/${docKey}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data),
+  });
+  if (!r.ok) throw new Error('HTTP ' + r.status);
+}
+
+async function importSelected(){
+  if (!_importPayload) return;
+  const checked = MODULES.filter(m =>
+    Object.prototype.hasOwnProperty.call(_importPayload.modules, m.key) &&
+    document.getElementById('imp-' + m.key) &&
+    document.getElementById('imp-' + m.key).checked
+  );
+  if (!checked.length){ setStatus('importStatus', 'Sélectionnez au moins un module à importer.', 'warn'); return; }
+
+  const names = checked.map(m => m.label).join(', ');
+  if (!confirm(`Ceci va REMPLACER les données actuelles pour : ${names}.\n\nCette action est irréversible. Continuer ?`)) return;
+
+  const btn = document.getElementById('importBtn');
+  btn.disabled = true;
+  setStatus('importStatus', 'Import en cours…', '');
+
+  const failed = [];
+  for (const m of checked){
+    try { await writeDoc(m.key, _importPayload.modules[m.key]); }
+    catch(e){ failed.push(m.label); }
+  }
+
+  btn.disabled = false;
+  if (failed.length){
+    setStatus('importStatus', `Import partiel — échec pour : ${failed.join(', ')}.`, 'err');
+  } else {
+    setStatus('importStatus', `${checked.length} module(s) importé(s) avec succès. Rechargez les pages concernées pour voir les changements.`, 'ok');
+  }
+}
+document.getElementById('importBtn').addEventListener('click', importSelected);
+
+// ══════════════════════════════════════════════════════════════
+// THÈME
+// ══════════════════════════════════════════════════════════════
+document.getElementById('themeBtn').addEventListener('click', () =>
+  applyTheme(document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark')
+);
+
+// ══════════════════════════════════════════════════════════════
+// INIT
+// ══════════════════════════════════════════════════════════════
+(async function init(){
+  applyTheme(localStorage.getItem('muscle-xml-theme') || 'light');
+  renderExportModList();
+  await GymDB.init();
+})();
+</script>
+<script src="nav-panel.js"></script>
+</body>
+</html>

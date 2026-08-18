@@ -1,14 +1,90 @@
 const path = require('path');
 const os = require('os');
 const express = require('express');
-const { isValidDocKey, getDoc, setDoc } = require('./db');
+const { isValidDocKey, getDoc, setDoc, getUser } = require('./db');
+const auth = require('./auth');
 
 const PORT = 4600;
 const HOST = '0.0.0.0'; // écoute sur toutes les interfaces (accès LAN depuis le téléphone, etc.)
 const ROOT = path.join(__dirname, '..'); // racine du projet GymOS (fichiers statiques)
 
+// Routes accessibles sans session valide : la page de login, ses assets, et le
+// ping santé (sans donnée sensible) dont login.html a besoin pour vérifier que
+// le serveur répond avant même d'afficher le formulaire.
+const PUBLIC_PATHS = new Set(['/login.html', '/theme.css', '/db.js', '/gymos-utils.js', '/api/health']);
+
 const app = express();
 app.use(express.json({ limit: '5mb' }));
+
+// Le process Node ne voit jamais de TLS directement : tailscale serve termine le
+// HTTPS et proxy en clair vers 127.0.0.1:4600 en ajoutant x-forwarded-proto=https.
+// Un accès direct par l'IP LAN (http://192.168.x.x:4600) n'a pas cet en-tête —
+// on l'utilise pour ne marquer le cookie Secure que quand la requête est
+// réellement passée par le tunnel HTTPS.
+function isHttpsRequest(req) {
+  return req.headers['x-forwarded-proto'] === 'https';
+}
+
+function parseCookies(req) {
+  const header = req.headers.cookie;
+  const out = {};
+  if (!header) return out;
+  header.split(';').forEach(pair => {
+    const idx = pair.indexOf('=');
+    if (idx === -1) return;
+    out[pair.slice(0, idx).trim()] = decodeURIComponent(pair.slice(idx + 1).trim());
+  });
+  return out;
+}
+
+function setSessionCookie(req, res, value) {
+  const attrs = [`sid=${value}`, 'HttpOnly', 'SameSite=Lax', 'Path=/', `Max-Age=${30 * 24 * 60 * 60}`];
+  if (isHttpsRequest(req)) attrs.push('Secure');
+  res.setHeader('Set-Cookie', attrs.join('; '));
+}
+
+function clearSessionCookie(req, res) {
+  const attrs = ['sid=', 'HttpOnly', 'SameSite=Lax', 'Path=/', 'Max-Age=0'];
+  if (isHttpsRequest(req)) attrs.push('Secure');
+  res.setHeader('Set-Cookie', attrs.join('; '));
+}
+
+app.use((req, res, next) => {
+  if (PUBLIC_PATHS.has(req.path) || (req.path === '/api/login' && req.method === 'POST')) return next();
+  const cookies = parseCookies(req);
+  const username = auth.validateSessionCookie(cookies.sid);
+  if (!username) {
+    if (req.path.startsWith('/api/')) return res.status(401).json({ error: 'authentification requise' });
+    return res.redirect('/login.html');
+  }
+  req.username = username;
+  next();
+});
+
+app.post('/api/login', (req, res) => {
+  const ip = req.socket.remoteAddress || 'unknown';
+  const { allowed, retryAfterMs } = auth.checkLoginRateLimit(ip);
+  if (!allowed) {
+    return res.status(429).json({ error: 'trop de tentatives, réessayez plus tard', retryAfterMs });
+  }
+  const { username, password } = req.body || {};
+  const user = typeof username === 'string' ? getUser(username) : null;
+  if (!user || !auth.verifyPassword(password || '', user.password_hash)) {
+    auth.recordLoginFailure(ip);
+    return res.status(401).json({ error: 'identifiants invalides' });
+  }
+  auth.recordLoginSuccess(ip);
+  const cookieValue = auth.createSession(user.username);
+  setSessionCookie(req, res, cookieValue);
+  res.json({ ok: true });
+});
+
+app.post('/api/logout', (req, res) => {
+  const cookies = parseCookies(req);
+  auth.destroySessionCookie(cookies.sid);
+  clearSessionCookie(req, res);
+  res.json({ ok: true });
+});
 
 app.get('/api/data/:docKey', (req, res) => {
   const { docKey } = req.params;
