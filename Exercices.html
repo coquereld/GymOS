@@ -923,6 +923,12 @@
           <option value="Avancé">Avancé</option>
         </select>
       </div>
+      <div class="field field-full">
+        <label style="display:flex;align-items:center;gap:.5rem;cursor:pointer">
+          <input type="checkbox" id="am-unilateral" style="width:16px;height:16px;accent-color:var(--color-primary);cursor:pointer">
+          Exercice unilatéral (travaillé un côté à la fois — affiche la colonne « Côté » en séance)
+        </label>
+      </div>
       <!-- Descriptif -->
       <div class="field field-full">
         <label>Descriptif</label>
@@ -1993,6 +1999,7 @@ function openAddModal() {
   document.getElementById('am-video-name').classList.remove('has-file');
   document.getElementById('am-equipement').value='';
   document.getElementById('am-type-exercice').value='';
+  document.getElementById('am-unilateral').checked=false;
   resetSecMultisel([]);
   document.getElementById('am-error').style.display='none';
   document.getElementById('addModal').classList.add('open');
@@ -2025,6 +2032,7 @@ function confirmAddModal(){
     type_mouvement:   document.getElementById('am-type-mouvement').value,
     pattern_mouvement:document.getElementById('am-pattern-mouvement').value,
     niveau:           document.getElementById('am-niveau').value,
+    unilateral:       document.getElementById('am-unilateral').checked,
     alternatives:     [],
     historique_modifs:[]
   });
@@ -3187,6 +3195,13 @@ document.getElementById('objFormModal').addEventListener('click', e => {
             <option value="Avancé">Avancé</option>
           </select>
         </div>
+        <!-- Unilatéral -->
+        <div class="em-field">
+          <label class="em-label" style="display:flex;align-items:center;gap:.5rem;cursor:pointer;color:var(--color-text)">
+            <input type="checkbox" id="em-unilateral" style="width:16px;height:16px;accent-color:var(--color-primary);cursor:pointer">
+            Exercice unilatéral (affiche la colonne « Côté » en séance)
+          </label>
+        </div>
         <!-- Exercices alternatifs -->
         <div class="em-field"><label class="em-label">Exercices alternatifs</label>
           <select class="em-select" id="em-alternatives" multiple size="5" style="min-height:110px"></select>
@@ -3280,6 +3295,7 @@ function openExoEditModal(rowId) {
   document.getElementById('em-type-mouvement').value    = row.type_mouvement || '';
   document.getElementById('em-pattern-mouvement').value = row.pattern_mouvement || '';
   document.getElementById('em-niveau').value            = row.niveau || '';
+  document.getElementById('em-unilateral').checked      = !!row.unilateral;
   document.getElementById('em-descriptif').value = row.descriptif || '';
   document.getElementById('em-execution').value  = row.execution || '';
   document.getElementById('em-video').value      = row.video || '';
@@ -3486,6 +3502,7 @@ function confirmExoEditModal() {
   row.type_mouvement    = document.getElementById('em-type-mouvement').value;
   row.pattern_mouvement = document.getElementById('em-pattern-mouvement').value;
   row.niveau            = document.getElementById('em-niveau').value;
+  row.unilateral        = document.getElementById('em-unilateral').checked;
   row.descriptif        = document.getElementById('em-descriptif').value.trim();
   row.execution         = document.getElementById('em-execution').value.trim();
   row.video             = document.getElementById('em-video').value.trim();

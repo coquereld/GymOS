@@ -40,12 +40,21 @@ function getDoc(docKey) {
   return JSON.parse(row.data);
 }
 
+// Horodatage de dernière écriture, utilisé pour détecter les écrasements
+// concurrents (un onglet resté ouvert avec des données périmées).
+function getDocVersion(docKey) {
+  const row = db.prepare('SELECT updated_at FROM gymos_data WHERE doc_key = ?').get(docKey);
+  return row ? row.updated_at : null;
+}
+
 function setDoc(docKey, data) {
+  const updatedAt = new Date().toISOString();
   db.prepare(`
     INSERT INTO gymos_data (doc_key, data, updated_at)
     VALUES (@docKey, @data, @updatedAt)
     ON CONFLICT(doc_key) DO UPDATE SET data = excluded.data, updated_at = excluded.updated_at
-  `).run({ docKey, data: JSON.stringify(data), updatedAt: new Date().toISOString() });
+  `).run({ docKey, data: JSON.stringify(data), updatedAt });
+  return updatedAt;
 }
 
 function getUser(username) {
@@ -80,7 +89,7 @@ function deleteExpiredSessions() {
 }
 
 module.exports = {
-  db, isValidDocKey, getDoc, setDoc,
+  db, isValidDocKey, getDoc, getDocVersion, setDoc,
   getUser, upsertUser,
   createSession, getSession, deleteSession, deleteExpiredSessions,
 };

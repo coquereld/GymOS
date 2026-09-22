@@ -1,7 +1,7 @@
 const path = require('path');
 const os = require('os');
 const express = require('express');
-const { isValidDocKey, getDoc, setDoc, getUser } = require('./db');
+const { isValidDocKey, getDoc, getDocVersion, setDoc, getUser } = require('./db');
 const auth = require('./auth');
 
 const PORT = 4600;
@@ -89,16 +89,36 @@ app.post('/api/logout', (req, res) => {
 app.get('/api/data/:docKey', (req, res) => {
   const { docKey } = req.params;
   if (!isValidDocKey(docKey)) return res.status(400).json({ error: 'doc_key inconnu' });
-  const data = getDoc(docKey);
-  if (data === null) return res.status(404).json(null);
-  res.json(data);
+  try {
+    const data = getDoc(docKey);
+    if (data === null) return res.status(404).json(null);
+    const version = getDocVersion(docKey);
+    if (version) res.setHeader('X-Doc-Version', version);
+    res.json(data);
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
 });
 
 app.put('/api/data/:docKey', (req, res) => {
   const { docKey } = req.params;
   if (!isValidDocKey(docKey)) return res.status(400).json({ error: 'doc_key inconnu' });
   try {
-    setDoc(docKey, req.body);
+    // Détection d'écrasement concurrent : un client qui a lu le document envoie
+    // la version qu'il avait alors dans X-Expected-Version. Si le document a
+    // changé depuis (autre onglet/appareil), on refuse l'écriture plutôt que
+    // d'écraser silencieusement des données plus récentes. Un client qui n'a
+    // pas cet en-tête (ex. restauration explicite d'une sauvegarde) n'est pas
+    // soumis à ce contrôle — c'est un remplacement volontaire, pas une course.
+    const expected = req.headers['x-expected-version'];
+    if (expected) {
+      const current = getDocVersion(docKey);
+      if (current && current !== expected) {
+        return res.status(409).json({ error: 'conflit : données plus récentes sur le serveur', currentVersion: current });
+      }
+    }
+    const updatedAt = setDoc(docKey, req.body);
+    res.setHeader('X-Doc-Version', updatedAt);
     res.json({ ok: true });
   } catch (e) {
     res.status(500).json({ error: e.message });
@@ -174,6 +194,12 @@ app.get('/api/fetch-recipe', async (req, res) => {
     res.status(500).json({ error: e.message });
   }
 });
+
+// Ne jamais exposer le dossier server/ via les fichiers statiques : il contient
+// le secret de session (.session-secret) et la base SQLite complète (gymos.db),
+// qu'un simple GET pourrait sinon télécharger tel quel pour n'importe quel
+// utilisateur authentifié.
+app.use('/server', (req, res) => res.status(404).end());
 
 app.use(express.static(ROOT));
 

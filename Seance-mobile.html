@@ -292,9 +292,9 @@ function loadData() {
   try { _objectifs = JSON.parse(localStorage.getItem(OBJ_KEY)||'{}'); } catch { _objectifs={}; }
   try { _historique = JSON.parse(localStorage.getItem(HIST_KEY)||'[]'); } catch { _historique=[]; }
 }
-function saveHistorique() {
+async function saveHistorique() {
   localStorage.setItem(HIST_KEY, JSON.stringify(_historique));
-  GymDB.write('historique.json', _historique);
+  return await GymDB.write('historique.json', _historique);
 }
 function saveCurrentSession() {
   if (S.phase === 'session' || S.phase === 'summary') localStorage.setItem(CUR_KEY, JSON.stringify(S));
@@ -946,9 +946,16 @@ function renderSummary(main) {
     const bar = document.getElementById('actionBar');
     bar.classList.remove('resting');
     bar.innerHTML = `<button class="m-btn-ghost" id="discardBtn">Abandonner</button><button class="m-finish-btn" id="saveBtn" style="flex:1">Sauvegarder</button>`;
-    document.getElementById('saveBtn').addEventListener('click', ()=>{
-      saveSession();
-      const b=document.getElementById('saveBtn'); if(b){ b.disabled=true; b.textContent = GymDB.getState()!=='connected' ? '⚠ Local uniquement' : '✓ Sauvegardée'; }
+    document.getElementById('saveBtn').addEventListener('click', async ()=>{
+      const b=document.getElementById('saveBtn');
+      b.disabled=true; b.textContent='Enregistrement…';
+      const ok = await saveSession();
+      if (ok) {
+        b.textContent = '✓ Sauvegardée';
+      } else {
+        b.disabled = false;
+        b.textContent = '⚠ Réessayer';
+      }
     });
     document.getElementById('discardBtn').addEventListener('click', ()=>{
       if (confirm('Abandonner cette séance sans l\'enregistrer ?')) {
@@ -987,7 +994,7 @@ function finishSession() {
   S.dureeMin = Math.round((Date.now()-S.chronoStart)/60000);
   S.phase='summary'; saveCurrentSession(); render();
 }
-function saveSession() {
+async function saveSession() {
   const seance = getSeance(); const prog = getProg();
   const entry = {
     id: uid(), date: S.dateDebut.split('T')[0],
@@ -1003,9 +1010,20 @@ function saveSession() {
     volumeTotal: computeVolume(S.exercices),
   };
   _historique.unshift(entry);
-  saveHistorique();
-  localStorage.removeItem(CUR_KEY);
-  showToast('Séance enregistrée ✅');
+  // On n'attend la confirmation RÉELLE du serveur (pas seulement l'état de
+  // connexion) avant de dire à l'utilisateur que la séance est enregistrée —
+  // sinon une session expirée ou un conflit passe inaperçu en fin de séance.
+  const ok = await saveHistorique();
+  if (ok) {
+    localStorage.removeItem(CUR_KEY);
+    showToast('Séance enregistrée ✅');
+  } else {
+    // On garde le brouillon (CUR_KEY) pour permettre de réessayer plus tard
+    // sans perdre la séance — elle reste aussi visible localement dans
+    // l'historique de cet appareil en attendant.
+    showToast('⚠ Non confirmée par le serveur — vérifiez la connexion et réessayez');
+  }
+  return ok;
 }
 
 // ══════════════════════════════════════════════════════════════

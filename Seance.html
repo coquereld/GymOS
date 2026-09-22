@@ -172,13 +172,6 @@
     .serie-input:focus{border-color:var(--prim)}
     .serie-input.done{background:var(--surfoff);color:var(--txm);border-color:transparent}
     .serie-ref{font-size:.7rem;color:var(--txf);text-align:center}
-    .warmup-toggle{
-      padding:.25rem .5rem;border-radius:999px;border:1px solid var(--bord);
-      background:var(--surf);color:var(--txm);font-size:.65rem;font-weight:700;
-      cursor:pointer;white-space:nowrap;transition:all var(--tr);
-    }
-    .warmup-toggle.active{background:rgba(166,124,0,.18);color:#a67c00;border-color:rgba(166,124,0,.4)}
-    tr.warmup-row{opacity:.7;font-style:italic}
     .check-btn{
       width:32px;height:32px;border-radius:50%;border:2px solid var(--bord);
       background:transparent;cursor:pointer;display:grid;place-items:center;
@@ -454,8 +447,12 @@ function getLatestRef(nom) {
     return entries.slice().sort((a,b)=>b.date.localeCompare(a.date))[0];
   } catch { return null; }
 }
+function isUnilateral(nom) {
+  const row = _exoLib.find(e => e.exercice?.toLowerCase()===nom?.toLowerCase());
+  return !!(row && row.unilateral);
+}
 function computeVolume(exos) {
-  return exos.reduce((tot,e) => tot + e.series.filter(s=>s.done && !s.echauffement).reduce((v,s)=>{
+  return exos.reduce((tot,e) => tot + e.series.filter(s=>s.done).reduce((v,s)=>{
     const p=parseFloat(s.poids)||0, r=parseInt(s.reps)||0; return v+p*r;
   },0), 0);
 }
@@ -469,9 +466,9 @@ function loadData() {
   try { _objectifs = JSON.parse(localStorage.getItem(OBJ_KEY)||'{}'); } catch { _objectifs={}; }
   try { _historique = JSON.parse(localStorage.getItem(HIST_KEY)||'[]'); } catch { _historique=[]; }
 }
-function saveHistorique() {
+async function saveHistorique() {
   localStorage.setItem(HIST_KEY, JSON.stringify(_historique));
-  GymDB.write('historique.json', _historique);
+  return await GymDB.write('historique.json', _historique);
 }
 function saveCurrentSession() {
   // Le brouillon reste tant que la séance n'est pas réellement enregistrée dans
@@ -862,16 +859,19 @@ function buildExoCard(exo, ei) {
 
   // Table séries avec scroll horizontal
   const champs = computeChampsActifs(exo.nom);
+  const unilateral = isUnilateral(exo.nom);
   const tblWrap=document.createElement('div'); tblWrap.className='series-table-wrap';
   const tbl=document.createElement('table'); tbl.className='series-table';
-  let thHtml=`<thead><tr><th style="width:32px">#</th><th style="width:64px">Type</th>`;
+  let thHtml=`<thead><tr><th style="width:32px">#</th>`;
   if(champs.has('reps')) thHtml+=`<th>Reps</th>`;
   if(champs.has('poids')) thHtml+=`<th>Kg</th>`;
   if(champs.has('duree')) thHtml+=`<th>Durée</th>`;
   if(champs.has('distance')) thHtml+=`<th>Distance</th>`;
   if(champs.has('puissance')) thHtml+=`<th>Puissance</th>`;
   if(champs.has('inclinaison')) thHtml+=`<th>Inclin.</th>`;
-  thHtml+=`<th style="width:64px">Réf.</th><th style="width:64px">RPE</th><th style="width:64px">Côté</th><th>Ressenti</th><th style="width:36px"></th></tr></thead>`;
+  thHtml+=`<th style="width:64px">Réf.</th><th style="width:64px">RPE</th>`;
+  if(unilateral) thHtml+=`<th style="width:64px">Côté</th>`;
+  thHtml+=`<th>Ressenti</th><th style="width:36px"></th></tr></thead>`;
   tbl.innerHTML=thHtml;
   const tbody=document.createElement('tbody');
   const lastHist = getLastHistSeries(exo.nom);
@@ -925,26 +925,12 @@ function makePh(hex, nom) {
 
 function buildSerieRow(exo,ei,serie,si,lastHist,champs) {
   champs = champs || computeChampsActifs(exo.nom);
+  const unilateral = isUnilateral(exo.nom);
   const tr=document.createElement('tr');
   if(serie.done) tr.classList.add('done-row');
-  if(serie.echauffement) tr.classList.add('warmup-row');
 
   // Num
   const tdNum=document.createElement('td'); tdNum.className='serie-num'; tdNum.textContent=si+1;
-
-  // Type (échauffement / travail)
-  const tdType=document.createElement('td'); tdType.style.textAlign='center';
-  const warmBtn=document.createElement('button'); warmBtn.type='button';
-  warmBtn.className='warmup-toggle'+(serie.echauffement?' active':'');
-  warmBtn.title='Marquer comme échauffement / série de travail';
-  warmBtn.textContent = serie.echauffement ? '🔥 Éch.' : 'Travail';
-  warmBtn.addEventListener('click',()=>{
-    serie.echauffement=!serie.echauffement;
-    saveCurrentSession();
-    const card=document.getElementById(`exo-card-${ei}`);
-    if(card) refreshExoCard(card,exo,ei);
-  });
-  tdType.appendChild(warmBtn);
 
   // Reps
   const tdReps=document.createElement('td');
@@ -1017,15 +1003,18 @@ function buildSerieRow(exo,ei,serie,si,lastHist,champs) {
   selRpe.addEventListener('change',()=>{ serie.rpe=selRpe.value; saveCurrentSession(); });
   tdRpe.appendChild(selRpe);
 
-  // Côté (pour le suivi de symétrie gauche/droite sur les exercices unilatéraux — optionnel)
-  const tdCote=document.createElement('td');
-  const COTE_OPTS=[{v:'',l:'—'},{v:'gauche',l:'Gauche'},{v:'droit',l:'Droit'}];
-  const selCote=document.createElement('select'); selCote.className='serie-input'+(serie.done?' done':'');
-  selCote.disabled=serie.done;
-  selCote.innerHTML=COTE_OPTS.map(o=>`<option value="${o.v}">${o.l}</option>`).join('');
-  selCote.value=serie.cote||'';
-  selCote.addEventListener('change',()=>{ serie.cote=selCote.value; saveCurrentSession(); });
-  tdCote.appendChild(selCote);
+  // Côté (pour le suivi de symétrie gauche/droite — uniquement sur les exercices marqués unilatéraux)
+  let tdCote=null;
+  if(unilateral){
+    tdCote=document.createElement('td');
+    const COTE_OPTS=[{v:'',l:'—'},{v:'gauche',l:'Gauche'},{v:'droit',l:'Droit'}];
+    const selCote=document.createElement('select'); selCote.className='serie-input'+(serie.done?' done':'');
+    selCote.disabled=serie.done;
+    selCote.innerHTML=COTE_OPTS.map(o=>`<option value="${o.v}">${o.l}</option>`).join('');
+    selCote.value=serie.cote||'';
+    selCote.addEventListener('change',()=>{ serie.cote=selCote.value; saveCurrentSession(); });
+    tdCote.appendChild(selCote);
+  }
 
   // Ressenti — 4 emojis ou badge si déjà validé
   const tdRes=document.createElement('td'); tdRes.style.cssText='padding:.3rem .5rem';
@@ -1109,7 +1098,10 @@ function buildSerieRow(exo,ei,serie,si,lastHist,champs) {
   if(champs.has('distance')) optionalCells.push(tdDist);
   if(champs.has('puissance')) optionalCells.push(tdPuissance);
   if(champs.has('inclinaison')) optionalCells.push(tdInclinaison);
-  tr.append(tdNum,tdType,...optionalCells,tdRef,tdRpe,tdCote,tdRes,tdDel);
+  const trailCells=[tdRef,tdRpe];
+  if(tdCote) trailCells.push(tdCote);
+  trailCells.push(tdRes,tdDel);
+  tr.append(tdNum,...optionalCells,...trailCells);
   return tr;
 }
 
@@ -1179,13 +1171,15 @@ function renderSummary(main) {
   const saveBtn=document.createElement('button'); saveBtn.className='btn btn-p';
   saveBtn.style.cssText='min-width:180px;font-size:.95rem;font-weight:700';
   saveBtn.innerHTML=`<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/></svg> Sauvegarder`;
-  saveBtn.addEventListener('click',()=>{
-    saveSession(); saveBtn.disabled=true;
-    if (GymDB.getState()!=='connected') {
-      saveBtn.textContent='⚠ Sauvegardée localement uniquement';
-      saveBtn.title='Le dossier de données n\'est pas connecté : cette séance n\'est enregistrée que dans ce navigateur (localStorage), pas sur le disque. Reconnectez le dossier Db pour éviter toute perte.';
-    } else {
+  saveBtn.addEventListener('click',async ()=>{
+    saveBtn.disabled=true; saveBtn.textContent='Enregistrement…';
+    const ok = await saveSession();
+    if (ok) {
       saveBtn.textContent='✓ Sauvegardée';
+    } else {
+      saveBtn.disabled=false;
+      saveBtn.textContent='⚠ Réessayer';
+      saveBtn.title='La séance n\'a pas été confirmée par le serveur (déconnecté, session expirée, ou données plus récentes sur un autre appareil). Elle reste dans ce navigateur en attendant — vérifiez la connexion puis réessayez.';
     }
   });
   const newBtn=document.createElement('button'); newBtn.className='btn';
@@ -1232,7 +1226,7 @@ function finishSession() {
   S.phase='summary'; saveCurrentSession(); render();
 }
 
-function saveSession() {
+async function saveSession() {
   // Capturer les valeurs actuelles des inputs DOM avant de sauvegarder
   document.querySelectorAll('.exo-card').forEach((card,ei)=>{
     const exo=S.exercices[ei]; if(!exo) return;
@@ -1261,10 +1255,16 @@ function saveSession() {
     volumeTotal:computeVolume(S.exercices),
   };
   _historique.unshift(entry);
-  saveHistorique();
-  // La séance est bien enregistrée dans l'historique : le brouillon n'est plus nécessaire.
-  localStorage.removeItem(CUR_KEY);
+  // On attend la confirmation RÉELLE du serveur (pas seulement l'état de
+  // connexion) avant de considérer la séance enregistrée — sinon une session
+  // expirée ou un conflit avec un autre appareil passe inaperçu.
+  const ok = await saveHistorique();
+  if (ok) {
+    // La séance est bien enregistrée dans l'historique : le brouillon n'est plus nécessaire.
+    localStorage.removeItem(CUR_KEY);
+  }
   renderSidebar();
+  return ok;
 }
 
 // ══════════════════════════════════════════════════════════════
