@@ -1,5 +1,7 @@
 const path = require('path');
 const os = require('os');
+const http = require('http');
+const https = require('https');
 const express = require('express');
 const { isValidDocKey, getDoc, getDocVersion, setDoc, getUser } = require('./db');
 const auth = require('./auth');
@@ -157,19 +159,73 @@ app.get('/api/lookup-barcode/:code', async (req, res) => {
 });
 
 // Proxy de récupération d'une page de recette externe — extrait le JSON-LD
-// schema.org/Recipe si présent. Garde anti-SSRF basique : bloque les hôtes
-// locaux/privés puisque l'URL est fournie par le client.
-const BLOCKED_HOST_RE = /^(localhost|127\.|0\.0\.0\.0|::1|10\.|192\.168\.|169\.254\.|172\.(1[6-9]|2\d|3[01])\.)/i;
+// schema.org/Recipe si présent. Garde anti-SSRF : bloque les hôtes locaux/
+// privés (IPv4 et IPv6) puisque l'URL est fournie par le client, et revalide
+// chaque redirection HTTP une à une plutôt que de les suivre en aveugle (une
+// page publique pourrait sinon rediriger vers une adresse interne).
+function isBlockedHost(hostname) {
+  const h = String(hostname || '').toLowerCase().replace(/^\[|\]$/g, ''); // retire les crochets IPv6 ([::1] -> ::1)
+  if (h === 'localhost') return true;
+  const IPV4_PRIVATE_RE = /^(127\.|0\.0\.0\.0$|10\.|192\.168\.|169\.254\.|172\.(1[6-9]|2\d|3[01])\.)/;
+  if (IPV4_PRIVATE_RE.test(h)) return true;
+  if (h === '::1' || h === '::') return true; // boucle locale / adresse non spécifiée
+  if (/^(fe80:|f[cd][0-9a-f]{2}:)/.test(h)) return true; // lien-local / adresse locale unique
+  // IPv4 mappée en IPv6 (ex. ::ffff:127.0.0.1) — Node normalise toujours en
+  // notation hexadécimale pure (::ffff:7f00:1), jamais en decimal pointé,
+  // donc on reconvertit les deux derniers groupes de 16 bits en 4 octets.
+  const mapped = h.match(/^::ffff:([0-9a-f]{1,4}):([0-9a-f]{1,4})$/);
+  if (mapped) {
+    const hi = parseInt(mapped[1], 16), lo = parseInt(mapped[2], 16);
+    const ipv4 = [(hi >> 8) & 0xff, hi & 0xff, (lo >> 8) & 0xff, lo & 0xff].join('.');
+    if (IPV4_PRIVATE_RE.test(ipv4)) return true;
+  }
+  return false;
+}
+function isBlockedUrl(parsed) {
+  if (!/^https?:$/.test(parsed.protocol)) return true;
+  return isBlockedHost(parsed.hostname);
+}
+
+function fetchFollowingSafeRedirects(startUrl, maxHops = 5) {
+  return new Promise((resolve, reject) => {
+    function attempt(urlObj, hopsLeft) {
+      if (isBlockedUrl(urlObj)) return reject(new Error('hôte non autorisé'));
+      const mod = urlObj.protocol === 'https:' ? https : http;
+      const req = mod.get(urlObj, { headers: { 'User-Agent': 'Mozilla/5.0 (compatible; GymOS/1.0)' } }, (r) => {
+        const { statusCode, headers } = r;
+        if (statusCode >= 300 && statusCode < 400 && headers.location) {
+          r.resume();
+          if (hopsLeft <= 0) return reject(new Error('trop de redirections'));
+          let next;
+          try { next = new URL(headers.location, urlObj); } catch { return reject(new Error('redirection invalide')); }
+          return attempt(next, hopsLeft - 1);
+        }
+        if (statusCode < 200 || statusCode >= 300) {
+          r.resume();
+          return reject(new Error(`page inaccessible (${statusCode})`));
+        }
+        let body = '';
+        r.setEncoding('utf8');
+        r.on('data', chunk => {
+          body += chunk;
+          if (body.length > 3_000_000) { req.destroy(); reject(new Error('page trop volumineuse')); }
+        });
+        r.on('end', () => resolve(body));
+      });
+      req.on('error', reject);
+      req.setTimeout(10000, () => req.destroy(new Error('délai dépassé')));
+    }
+    attempt(startUrl, maxHops);
+  });
+}
+
 app.get('/api/fetch-recipe', async (req, res) => {
   const { url } = req.query;
   let parsed;
   try { parsed = new URL(String(url || '')); } catch { return res.status(400).json({ error: 'URL invalide' }); }
-  if (!/^https?:$/.test(parsed.protocol)) return res.status(400).json({ error: 'URL invalide' });
-  if (BLOCKED_HOST_RE.test(parsed.hostname)) return res.status(400).json({ error: 'hôte non autorisé' });
+  if (isBlockedUrl(parsed)) return res.status(400).json({ error: 'hôte non autorisé' });
   try {
-    const r = await fetch(parsed.href, { headers: { 'User-Agent': 'Mozilla/5.0 (compatible; GymOS/1.0)' } });
-    if (!r.ok) return res.status(502).json({ error: 'page inaccessible' });
-    const html = await r.text();
+    const html = await fetchFollowingSafeRedirects(parsed);
     const blocks = [...html.matchAll(/<script[^>]+type=["']application\/ld\+json["'][^>]*>([\s\S]*?)<\/script>/gi)];
     let recipe = null;
     for (const m of blocks) {
@@ -191,7 +247,7 @@ app.get('/api/fetch-recipe', async (req, res) => {
     }
     res.json({ found: true, name: recipe.name || '', ingredients, instructions });
   } catch (e) {
-    res.status(500).json({ error: e.message });
+    res.status(502).json({ error: e.message });
   }
 });
 
