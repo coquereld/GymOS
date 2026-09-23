@@ -8,9 +8,12 @@
  * page (localhost, 127.0.0.1, plus tard un nom Tailscale...).
  * Le serveur doit être lancé au préalable (start-gymos.bat).
  *
- * 2 états possibles :
+ * 3 états possibles :
  *   'connected'    → le serveur local répond, lecture/écriture actives
  *   'disconnected' → le serveur ne répond pas (pas lancé, ou coupé)
+ *   'unauthorized' → le serveur répond mais la session a expiré/est invalide —
+ *                     à distinguer de 'disconnected' : ici relancer le
+ *                     serveur ne sert à rien, il faut se reconnecter
  *
  * API (signatures conservées pour ne pas changer les appels dans les pages) :
  *   await GymDB.init()                 → retourne l'état initial
@@ -19,7 +22,7 @@
  *                                         retourne maintenant une Promise<boolean> que le code
  *                                         existant peut continuer à ignorer, et qu'un appel
  *                                         plus récent peut `await` pour connaître le vrai résultat)
- *   GymDB.getState()                   → 'connected' | 'disconnected'
+ *   GymDB.getState()                   → 'connected' | 'disconnected' | 'unauthorized'
  *   GymDB.isConnected()                → bool
  *   GymDB.onChange(cb)                 → callback(state) appelé à chaque changement
  *   GymDB.onConflict(cb)               → callback(filename) appelé quand une écriture est
@@ -54,11 +57,24 @@ const GymDB = (() => {
   let _callbacks = [];
   let _conflictCallbacks = [];
   const _versions = {}; // docKey -> dernière version connue (X-Doc-Version)
+  let _unauthorizedAlerted = false; // évite de spammer l'alerte à chaque appel
 
   function _setState(s) {
     if (s === _state) return;
     _state = s;
     _callbacks.forEach(cb => { try { cb(s); } catch(e) {} });
+  }
+
+  // Un 401 signifie que le serveur répond mais que la session a expiré ou est
+  // invalide — très différent d'un serveur injoignable (à qui il suffirait de
+  // relancer le service). Sans ça, une session expirée en cours d'usage (ex.
+  // sur téléphone, loin du serveur) ressemblait à une simple coupure réseau,
+  // sans indication qu'il fallait se reconnecter.
+  function _handleUnauthorized() {
+    _setState('unauthorized');
+    if (_unauthorizedAlerted) return;
+    _unauthorizedAlerted = true;
+    alert("Votre session a expiré (ou n'est plus valide). Les données affichées peuvent être obsolètes et vos modifications ne sont plus enregistrées. Rechargez la page pour vous reconnecter.");
   }
 
   function onChange(cb)    { _callbacks.push(cb); }
@@ -84,6 +100,7 @@ const GymDB = (() => {
     try {
       const r = await fetch(`/api/data/${docKey}`, { cache: 'no-store' });
       if (r.status === 404) { _setState('connected'); _versions[docKey] = null; return null; }
+      if (r.status === 401) { _handleUnauthorized(); return null; }
       if (!r.ok) { _setState('disconnected'); return null; }
       _setState('connected');
       const v = r.headers.get('X-Doc-Version');
@@ -117,6 +134,7 @@ const GymDB = (() => {
           headers,
           body: JSON.stringify(data),
         });
+        if (r.status === 401) { _handleUnauthorized(); return false; }
         if (r.status === 409) {
           _setState('connected'); // le serveur répond bien, c'est un conflit, pas une panne
           console.error(`GymDB write(${filename}): conflit — des données plus récentes existent sur le serveur, écriture annulée pour ne pas les écraser.`);

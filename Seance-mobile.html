@@ -17,6 +17,7 @@ button,input,select,textarea{font-family:inherit;color:inherit}
 .m-hdr{flex-shrink:0;display:flex;align-items:center;gap:.6rem;padding:.7rem .9rem;padding-top:calc(.7rem + env(safe-area-inset-top));border-bottom:1px solid var(--bord);background:var(--surf)}
 .m-hdr-title{flex:1;min-width:0;font-size:1.05rem;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .m-theme-btn{flex-shrink:0;width:36px;height:36px;border-radius:999px;border:1px solid var(--bord);background:var(--surf2);display:flex;align-items:center;justify-content:center;font-size:1rem}
+.m-hdr-chrono{flex-shrink:0;font-size:.85rem;font-weight:800;font-variant-numeric:tabular-nums;color:var(--prim);background:var(--primhi);padding:.3rem .6rem;border-radius:999px}
 
 /* Main */
 .m-main{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:.9rem .8rem;padding-bottom:calc(150px + env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:.8rem}
@@ -97,12 +98,9 @@ button,input,select,textarea{font-family:inherit;color:inherit}
 .m-series-table td{padding:.3rem .25rem;text-align:center;white-space:nowrap;border-bottom:1px solid var(--bord)}
 .m-series-table tr:last-child td{border-bottom:none}
 .m-series-table tr.done{background:var(--surf2)}
-.m-series-table tr.warmup td{background:color-mix(in srgb, var(--warn) 10%, transparent)}
 .m-st-input{width:46px;min-height:38px;border-radius:.4rem;border:1px solid var(--bord);background:var(--bg);padding:.15rem;font-size:.85rem;text-align:center;font-variant-numeric:tabular-nums}
 .m-st-select{min-height:38px;border-radius:.4rem;border:1px solid var(--bord);background:var(--bg);font-size:.72rem;padding:.15rem}
 .m-st-input:disabled,.m-st-select:disabled{opacity:.6}
-.m-st-warmbtn{width:32px;height:32px;border-radius:.4rem;border:1px solid var(--bord);background:var(--surf2);font-size:.9rem}
-.m-st-warmbtn.active{background:var(--warn);border-color:var(--warn)}
 .m-st-ressenti-badge{display:flex;align-items:center;justify-content:center;width:30px;height:32px;border-radius:.4rem;background:var(--surf2);font-size:1.05rem;margin:0 auto}
 .m-th-ressenti,.m-st-select-ressenti{width:38px}
 .m-st-select-ressenti{padding:.15rem .05rem;text-align:center}
@@ -135,6 +133,9 @@ button,input,select,textarea{font-family:inherit;color:inherit}
 .m-overlay-hdr{flex-shrink:0;display:flex;align-items:center;gap:.5rem;padding:.7rem .8rem;padding-top:calc(.7rem + env(safe-area-inset-top));border-bottom:1px solid var(--bord);background:var(--surf)}
 .m-search{flex:1;min-height:44px;border-radius:.7rem;border:1px solid var(--bord);background:var(--surf2);padding:.4rem .8rem;font-size:.95rem}
 .m-overlay-close{flex-shrink:0;width:40px;height:40px;border-radius:999px;border:1px solid var(--bord);background:var(--surf2);font-size:1.2rem}
+.m-overlay-groups{flex-shrink:0;display:flex;gap:.4rem;overflow-x:auto;padding:.55rem .8rem;border-bottom:1px solid var(--bord);background:var(--surf)}
+.m-pg-chip{flex-shrink:0;min-height:34px;padding:.3rem .75rem;border-radius:999px;border:1px solid var(--bord);background:var(--surf2);font-size:.75rem;font-weight:700;color:var(--txm);white-space:nowrap}
+.m-pg-chip.active{color:#fff;border-color:transparent}
 .m-overlay-list{flex:1;overflow-y:auto;padding:.6rem .8rem;display:flex;flex-direction:column;gap:.5rem;padding-bottom:calc(1rem + env(safe-area-inset-bottom))}
 .m-picker-item{display:flex;align-items:center;gap:.65rem;padding:.55rem .6rem;border-radius:.8rem;border:1px solid var(--bord);background:var(--surf);text-align:left}
 .m-picker-img{width:40px;height:40px;border-radius:.55rem;object-fit:cover;flex-shrink:0}
@@ -170,6 +171,7 @@ button,input,select,textarea{font-family:inherit;color:inherit}
 <div class="m-app">
   <div class="m-hdr">
     <div class="m-hdr-title" id="hdrTitle">Séance</div>
+    <span class="m-hdr-chrono" id="hdrChrono" style="display:none">⏱ <span id="chronoDisplay">0:00</span></span>
     <button class="m-theme-btn" id="themeBtn">🌓</button>
   </div>
   <div class="m-main" id="mainArea"></div>
@@ -260,8 +262,12 @@ function getLatestRef(nom) {
     return entries.slice().sort((a,b)=>b.date.localeCompare(a.date))[0];
   } catch { return null; }
 }
+function isUnilateral(nom) {
+  const row = _exoLib.find(e => e.exercice?.toLowerCase()===nom?.toLowerCase());
+  return !!(row && row.unilateral);
+}
 function computeVolume(exos) {
-  return exos.reduce((tot,e) => tot + e.series.filter(s=>s.done && !s.echauffement).reduce((v,s)=>{
+  return exos.reduce((tot,e) => tot + e.series.filter(s=>s.done).reduce((v,s)=>{
     const p=parseFloat(s.poids)||0, r=parseInt(s.reps)||0; return v+p*r;
   },0), 0);
 }
@@ -270,7 +276,10 @@ function getSeance() { return getProg()?.seances?.find(s=>s.id===S.seanceId); }
 function buildExercicesFromSeance(seance) {
   return (seance?.exercices||[]).map(e => {
     const ref = getLatestRef(e.nom);
-    const nbSeries = parseInt(e.series)||3;
+    // Le programme peut ne pas préciser de nombre de séries (cas fréquent pour
+    // le cardio) : dans ce cas, se caler sur la dernière référence réelle
+    // plutôt que de toujours retomber sur 3 par défaut.
+    const nbSeries = parseInt(e.series) || parseInt(ref?.series) || 3;
     return {
       id: uid(), nom: e.nom, groupe: e.groupe||'', groupId: e.groupId||null,
       image: e.image || getExoImage(e.nom),
@@ -323,10 +332,14 @@ function fmtDuration(min) { const h=Math.floor(min/60), m=min%60; return h>0?`${
 // ══════════════════════════════════════════════════════════════
 function startChrono() {
   stopChrono();
+  const el = document.getElementById('hdrChrono'); if (el) el.style.display = 'inline-flex';
   updateChrono();
   _chronoInterval = setInterval(updateChrono, 1000);
 }
-function stopChrono() { if (_chronoInterval) { clearInterval(_chronoInterval); _chronoInterval=null; } }
+function stopChrono() {
+  if (_chronoInterval) { clearInterval(_chronoInterval); _chronoInterval=null; }
+  const el = document.getElementById('hdrChrono'); if (el) el.style.display = 'none';
+}
 function updateChrono() {
   const el = document.getElementById('chronoDisplay');
   if (!el || !S.chronoStart) return;
@@ -353,14 +366,21 @@ function playBeep() {
   } catch {}
 }
 function setActionBar(builderFn) { _currentActionBarBuilder = builderFn; builderFn(); }
+// Construit/reconstruit la barre de repos avec le temps restant courant — appelée
+// à la fois au lancement du minuteur et à chaque nouveau rendu (ex. changement
+// d'exercice) pendant qu'il tourne, pour qu'il reste visible et à jour.
+function renderRestingBar() {
+  const bar = document.getElementById('actionBar');
+  bar.classList.add('resting');
+  const remain = Math.max(0, Math.round((_timerEnd-Date.now())/1000));
+  bar.innerHTML = `<div class="m-rest-info"><span class="m-rest-label">Repos — ${esc(_timerLabel)}</span><span class="m-rest-time" id="restTime">${fmtMMSS(remain)}</span></div><button class="m-btn-ghost" id="restSkip">Passer</button>`;
+  document.getElementById('restSkip').addEventListener('click', stopTimer);
+}
 function startTimer(seconds, label) {
   clearInterval(_timerInterval); _timerInterval=null;
   if (!seconds || seconds<=0) return;
   _timerEnd = Date.now()+seconds*1000; _timerLabel = label||'';
-  const bar = document.getElementById('actionBar');
-  bar.classList.add('resting');
-  bar.innerHTML = `<div class="m-rest-info"><span class="m-rest-label">Repos — ${esc(_timerLabel)}</span><span class="m-rest-time" id="restTime">${fmtMMSS(seconds)}</span></div><button class="m-btn-ghost" id="restSkip">Passer</button>`;
-  document.getElementById('restSkip').addEventListener('click', stopTimer);
+  renderRestingBar();
   _timerInterval = setInterval(()=>{
     const remain = Math.max(0, Math.round((_timerEnd-Date.now())/1000));
     const tEl = document.getElementById('restTime'); if (tEl) tEl.textContent = fmtMMSS(remain);
@@ -384,7 +404,7 @@ function render() {
   bar.classList.remove('resting'); bar.innerHTML=''; bar.style.display='none';
   const main = document.getElementById('mainArea');
   if (S.phase==='choice')  renderChoice(main);
-  else if (S.phase==='session') { bar.style.display='flex'; renderSession(main); }
+  else if (S.phase==='session') { bar.style.display='flex'; startChrono(); renderSession(main); }
   else if (S.phase==='summary') { bar.style.display='flex'; renderSummary(main); }
 }
 
@@ -755,14 +775,15 @@ function openExoRecapOverlay(exoId) {
 function buildSeriesTable(wrap, exo, ei, champs) {
   wrap.innerHTML = '';
   const table = document.createElement('table'); table.className='m-series-table';
-  let thHtml = '<thead><tr><th>#</th><th>Type</th>';
+  let thHtml = '<thead><tr><th>#</th>';
   if (champs.has('reps')) thHtml += '<th>Reps</th>';
   if (champs.has('poids')) thHtml += '<th>Kg</th>';
   if (champs.has('duree')) thHtml += '<th>Durée</th>';
   if (champs.has('distance')) thHtml += '<th>Dist.</th>';
   if (champs.has('puissance')) thHtml += '<th>Puiss.</th>';
   if (champs.has('inclinaison')) thHtml += '<th>Inclin.</th>';
-  thHtml += '<th>Côté</th><th class="m-th-ressenti">Ressenti</th><th></th></tr></thead>';
+  if (isUnilateral(exo.nom)) thHtml += '<th>Côté</th>';
+  thHtml += '<th class="m-th-ressenti">Ressenti</th><th></th></tr></thead>';
   table.innerHTML = thHtml;
   const tbody = document.createElement('tbody');
   exo.series.forEach((serie,si) => tbody.appendChild(buildSerieTableRow(exo,ei,serie,si,champs)));
@@ -787,21 +808,9 @@ function refreshSeriesTable(exo, ei) {
 function buildSerieTableRow(exo,ei,serie,si,champs) {
   const tr = document.createElement('tr');
   if (serie.done) tr.classList.add('done');
-  if (serie.echauffement) tr.classList.add('warmup');
 
   const tdNum = document.createElement('td'); tdNum.textContent = si+1; tdNum.style.fontWeight='800';
   tr.appendChild(tdNum);
-
-  const tdType = document.createElement('td');
-  const warmBtn = document.createElement('button'); warmBtn.className='m-st-warmbtn'+(serie.echauffement?' active':'');
-  warmBtn.textContent = serie.echauffement ? '🔥' : '—';
-  warmBtn.title = serie.echauffement ? 'Échauffement (toucher pour repasser en travail)' : 'Série de travail (toucher pour marquer échauffement)';
-  warmBtn.disabled = serie.done;
-  warmBtn.addEventListener('click', ()=>{
-    serie.echauffement = !serie.echauffement; saveCurrentSession(); refreshSeriesTable(exo,ei);
-  });
-  tdType.appendChild(warmBtn);
-  tr.appendChild(tdType);
 
   function mkInputTd(key, placeholder) {
     const td = document.createElement('td');
@@ -822,12 +831,14 @@ function buildSerieTableRow(exo,ei,serie,si,champs) {
   if (champs.has('puissance')) tr.appendChild(mkInputTd('puissance', exo.refPuissance));
   if (champs.has('inclinaison')) tr.appendChild(mkInputTd('inclinaison', exo.refInclinaison));
 
-  const tdCote = document.createElement('td');
-  const selCote = document.createElement('select'); selCote.className='m-st-select'; selCote.disabled=serie.done;
-  selCote.innerHTML = [{v:'',l:'—'},{v:'gauche',l:'G'},{v:'droit',l:'D'}].map(o=>`<option value="${o.v}">${o.l}</option>`).join('');
-  selCote.value = serie.cote||'';
-  selCote.addEventListener('change', ()=>{ serie.cote=selCote.value; saveCurrentSession(); });
-  tdCote.appendChild(selCote); tr.appendChild(tdCote);
+  if (isUnilateral(exo.nom)) {
+    const tdCote = document.createElement('td');
+    const selCote = document.createElement('select'); selCote.className='m-st-select'; selCote.disabled=serie.done;
+    selCote.innerHTML = [{v:'',l:'—'},{v:'gauche',l:'G'},{v:'droit',l:'D'}].map(o=>`<option value="${o.v}">${o.l}</option>`).join('');
+    selCote.value = serie.cote||'';
+    selCote.addEventListener('change', ()=>{ serie.cote=selCote.value; saveCurrentSession(); });
+    tdCote.appendChild(selCote); tr.appendChild(tdCote);
+  }
 
   const tdRes = document.createElement('td');
   if (serie.done && serie.ressenti) {
@@ -887,11 +898,14 @@ function moveExo(ei, dir) {
 
 function renderFooterActions() {
   setActionBar(()=>{
+    // Un repos en cours reste affiché (avec son bouton Passer) même en changeant
+    // d'exercice — sans ça, la navigation entre exercices coupait visuellement
+    // le décompte, qui continuait pourtant à tourner en silence derrière.
+    if (_timerInterval && _timerEnd > Date.now()) { renderRestingBar(); return; }
     const bar = document.getElementById('actionBar');
     bar.classList.remove('resting');
-    bar.innerHTML = `<span class="m-chrono" id="chronoDisplay">0:00</span><button class="m-finish-btn" id="finishBtn" style="flex:1">Terminer la séance ✓</button>`;
+    bar.innerHTML = `<button class="m-finish-btn" id="finishBtn" style="flex:1">Terminer la séance ✓</button>`;
     document.getElementById('finishBtn').addEventListener('click', finishSession);
-    startChrono();
   });
 }
 
@@ -1031,13 +1045,36 @@ async function saveSession() {
 // ══════════════════════════════════════════════════════════════
 function openAddExoModal() {
   const ov = document.createElement('div'); ov.className='m-overlay';
-  ov.innerHTML = `<div class="m-overlay-hdr"><input class="m-search" id="addExoSearch" placeholder="🔎 Rechercher un exercice…"><button class="m-overlay-close" id="addExoClose">×</button></div><div class="m-overlay-list" id="addExoList"></div>`;
+  ov.innerHTML = `<div class="m-overlay-hdr"><input class="m-search" id="addExoSearch" placeholder="🔎 Rechercher un exercice…"><button class="m-overlay-close" id="addExoClose">×</button></div><div class="m-overlay-groups" id="addExoGroups"></div><div class="m-overlay-list" id="addExoList"></div>`;
   document.body.appendChild(ov);
   const listEl = ov.querySelector('#addExoList');
+  const groupsEl = ov.querySelector('#addExoGroups');
+  const searchInp = ov.querySelector('#addExoSearch');
   const allExos = _exoLib.filter(e=>e.exercice).slice().sort((a,b)=>a.exercice.localeCompare(b.exercice,'fr'));
+  let groupFilter = '';
+
+  function matchesGroup(e) {
+    if (!groupFilter) return true;
+    return (e.groupe_musculaire||'').split(',').map(s=>s.trim()).includes(groupFilter);
+  }
+
+  function renderGroups() {
+    groupsEl.innerHTML = '';
+    ['', ...Object.keys(MC)].forEach(g => {
+      const chip = document.createElement('button'); chip.type='button';
+      chip.className = 'm-pg-chip' + (groupFilter===g ? ' active' : '');
+      chip.textContent = g || 'Tous';
+      if (groupFilter===g) {
+        const hex = g ? MC[g] : 'var(--prim)';
+        chip.style.background = hex; chip.style.borderColor = hex;
+      }
+      chip.addEventListener('click', ()=>{ groupFilter = g; renderGroups(); renderList(searchInp.value); });
+      groupsEl.appendChild(chip);
+    });
+  }
 
   function renderList(q) {
-    const filtered = allExos.filter(e => !q || e.exercice.toLowerCase().includes(q.toLowerCase()));
+    const filtered = allExos.filter(e => matchesGroup(e) && (!q || e.exercice.toLowerCase().includes(q.toLowerCase())));
     listEl.innerHTML = filtered.length ? '' : '<div class="m-empty">Aucun résultat</div>';
     filtered.forEach(e => {
       const hex = grpc(e.groupe_musculaire);
@@ -1045,12 +1082,13 @@ function openAddExoModal() {
       item.innerHTML = `${e.image?`<img class="m-picker-img" src="./img/${esc(e.image)}" onerror="this.style.display='none'">`:`<div class="m-picker-ph" style="background:${hex}22;color:${hex}">🏋</div>`}<div class="m-picker-info"><div class="m-picker-name">${esc(e.exercice)}</div><div class="m-picker-grp">${esc(e.groupe_musculaire||'')}</div></div>`;
       item.addEventListener('click', ()=>{
         const ref = getLatestRef(e.exercice);
+        const nbSeries = parseInt(ref?.series) || 3;
         S.exercices.push({
           id: uid(), nom: e.exercice, groupe: e.groupe_musculaire||'', groupId: null,
           image: e.image||'',
-          refSeries:'3', refReps: ref?.reps||'', refPoids: ref?.poids||'', refDuree:'', refDistance:'', refPuissance:'', refInclinaison:'',
+          refSeries:String(nbSeries), refReps: ref?.reps||'', refPoids: ref?.poids||'', refDuree:'', refDistance:'', refPuissance:'', refInclinaison:'',
           refRecup: ref?.recup||'90 s',
-          series: Array.from({length:3},(_,i)=>({num:i+1,reps:ref?.reps||'',poids:ref?.poids||'',duree:'',distance:'',puissance:'',inclinaison:'',done:false,ressenti:'',rpe:'',echauffement:false,cote:''})),
+          series: Array.from({length:nbSeries},(_,i)=>({num:i+1,reps:ref?.reps||'',poids:ref?.poids||'',duree:'',distance:'',puissance:'',inclinaison:'',done:false,ressenti:'',rpe:'',echauffement:false,cote:''})),
           note:'',
         });
         _selExoIndex = S.exercices.length-1;
@@ -1061,10 +1099,11 @@ function openAddExoModal() {
       listEl.appendChild(item);
     });
   }
+  renderGroups();
   renderList('');
-  ov.querySelector('#addExoSearch').addEventListener('input', e=>renderList(e.target.value));
+  searchInp.addEventListener('input', e=>renderList(e.target.value));
   ov.querySelector('#addExoClose').addEventListener('click', ()=>ov.remove());
-  setTimeout(()=>ov.querySelector('#addExoSearch').focus(),60);
+  setTimeout(()=>searchInp.focus(),60);
 }
 
 // ══════════════════════════════════════════════════════════════

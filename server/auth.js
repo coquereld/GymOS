@@ -37,6 +37,20 @@ function verifyPassword(password, stored) {
   return crypto.timingSafeEqual(actual, expected);
 }
 
+// Hash factice, calculé une fois au démarrage, utilisé uniquement pour que la
+// vérification d'un identifiant INEXISTANT coûte le même temps qu'un mot de
+// passe FAUX sur un compte réel — sinon la différence de temps de réponse
+// révèle quels identifiants existent.
+const DUMMY_PASSWORD_HASH = hashPassword(crypto.randomBytes(16).toString('hex'));
+
+function verifyLogin(user, password) {
+  if (!user) {
+    verifyPassword(password || '', DUMMY_PASSWORD_HASH); // coût équivalent, résultat ignoré
+    return false;
+  }
+  return verifyPassword(password || '', user.password_hash);
+}
+
 // ── Sessions ──────────────────────────────────────────────────────────────────
 // Cookie = "<tokenHex>.<hmacHex>" : le token opaque sert de clé de recherche en
 // base (source de vérité), le HMAC détecte toute altération côté client avant
@@ -111,6 +125,7 @@ function recordLoginSuccess(ip) {
 module.exports = {
   hashPassword,
   verifyPassword,
+  verifyLogin,
   createSession,
   validateSessionCookie,
   destroySessionCookie,

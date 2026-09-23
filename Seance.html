@@ -42,18 +42,6 @@
     .sb-inner{flex:1;overflow-y:auto;padding:.75rem}
     .sb-footer{padding:.75rem;border-top:1px solid var(--bord);flex-shrink:0}
 
-    /* Chrono sidebar */
-    .sb-chrono{
-      background:color-mix(in oklab,var(--prim) 8%,var(--surf));
-      border:1px solid color-mix(in oklab,var(--prim) 25%,var(--bord));
-      border-radius:var(--rxl);padding:.75rem 1rem;margin-bottom:.75rem;
-      display:flex;align-items:center;gap:.75rem;
-    }
-    .sb-chrono-icon{width:32px;height:32px;border-radius:50%;display:grid;place-items:center;background:var(--prim);color:#fff;flex-shrink:0}
-    .sb-chrono-icon svg{width:16px;height:16px}
-    .sb-chrono-time{font-size:1.4rem;font-weight:700;letter-spacing:-.02em;font-variant-numeric:tabular-nums;color:var(--prim)}
-    .sb-chrono-label{font-size:.65rem;color:var(--txm);text-transform:uppercase;letter-spacing:.06em}
-
     /* Progress liste exercices sidebar */
     .sb-exo-label{font-size:.62rem;font-weight:700;text-transform:uppercase;letter-spacing:.09em;color:var(--txf);margin-bottom:.4rem;padding:0 .25rem}
     .sb-exo-item{
@@ -70,6 +58,8 @@
 
     /* ── HEADER ── */
     .hdr-title{font-size:1.1rem;font-weight:700;flex:1}
+    .hdr-chrono{display:flex;align-items:center;gap:.4rem;padding:.35rem .7rem;border-radius:999px;background:var(--primhi);color:var(--prim);font-weight:700;font-size:.9rem;font-variant-numeric:tabular-nums}
+    .hdr-chrono svg{width:15px;height:15px}
     .btn{display:inline-flex;align-items:center;justify-content:center;gap:.4rem;min-height:40px;padding:.6rem .9rem;border-radius:var(--rmd);border:1px solid var(--bord);background:var(--surf2);color:var(--tx);transition:all var(--tr);font-size:.875rem;font-weight:500}
     .btn:hover:not(:disabled){background:var(--surfoff)}
     .btn:disabled{opacity:.45;cursor:not-allowed}
@@ -227,6 +217,9 @@
     .epp-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
     .exo-pick-list{position:absolute;top:calc(100% + 4px);left:0;right:0;z-index:400;background:var(--surf);border:1px solid var(--bord);border-radius:var(--rlg);box-shadow:var(--shmd);max-height:260px;overflow-y:auto;display:none}
     .exo-pick.open .exo-pick-list{display:block}
+    .exo-pick-groups{position:sticky;top:0;z-index:1;display:flex;gap:.35rem;overflow-x:auto;padding:.5rem .5rem;background:var(--surf);border-bottom:1px solid var(--bord)}
+    .epg-chip{flex-shrink:0;padding:.3rem .65rem;border-radius:999px;border:1px solid var(--bord);background:var(--surf2);font-size:.7rem;font-weight:700;cursor:pointer;white-space:nowrap;color:var(--txm);transition:all var(--tr)}
+    .epg-chip.active{color:#fff;border-color:transparent}
     .epi{display:flex;align-items:center;gap:.6rem;padding:.5rem .75rem;cursor:pointer;transition:background var(--tr);border-bottom:1px solid var(--bord)}
     .epi:last-child{border-bottom:none}
     .epi:hover,.epi.active{background:color-mix(in oklab,var(--prim) 6%,var(--surf))}
@@ -303,7 +296,11 @@
   <!-- HEADER -->
   <header class="hdr">
     <div class="hdr-title" id="hdrTitle">Séance</div>
-    <div style="display:flex;align-items:center;gap:.5rem">
+    <div style="display:flex;align-items:center;gap:.75rem">
+      <div class="hdr-chrono" id="hdrChrono" style="display:none">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        <span id="hdrChronoTime">0:00</span>
+      </div>
       <button class="btn btn-icon" id="themeBtn"><svg id="thDark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg><svg id="thLight" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:none"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg></button>
     </div>
   </header>
@@ -330,7 +327,10 @@
             <input type="text" class="exo-pick-search" id="seaPickSearch" placeholder="Rechercher ou saisir…" autocomplete="off">
             <svg class="exo-pick-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="6 9 12 15 18 9"/></svg>
           </div>
-          <div class="exo-pick-list" id="seaPickList"></div>
+          <div class="exo-pick-list" id="seaPickList">
+            <div class="exo-pick-groups" id="seaPickGroups"></div>
+            <div id="seaPickItems"></div>
+          </div>
         </div>
         <input type="hidden" id="lm-nom">
         <div id="seaGrpDisplay" style="display:none;margin-top:.3rem">
@@ -499,13 +499,16 @@ window.addEventListener('beforeunload', (e) => {
 // ══════════════════════════════════════════════════════════════
 function startChrono() {
   stopChrono();
+  const wrap = document.getElementById('hdrChrono'); if (wrap) wrap.style.display = 'flex';
+  updateChrono();
   _chronoInterval = setInterval(updateChrono, 1000);
 }
 function stopChrono() {
   if (_chronoInterval) clearInterval(_chronoInterval);
+  const wrap = document.getElementById('hdrChrono'); if (wrap) wrap.style.display = 'none';
 }
 function updateChrono() {
-  const el = document.getElementById('sbChronoTime');
+  const el = document.getElementById('hdrChronoTime');
   if (el && S.chronoStart) el.textContent = fmtChrono(Date.now() - S.chronoStart);
 }
 
@@ -589,12 +592,6 @@ function renderSidebar() {
   document.getElementById('sbSubtitle').textContent = seance?.nom || 'Séance libre';
   inner.innerHTML = '';
 
-  // Chrono
-  const chrono = document.createElement('div'); chrono.className='sb-chrono';
-  chrono.innerHTML =`<div class="sb-chrono-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
-    <div><div class="sb-chrono-time" id="sbChronoTime">${fmtChrono(S.chronoStart ? Date.now()-S.chronoStart : 0)}</div><div class="sb-chrono-label">Durée de séance</div></div>`;
-  inner.appendChild(chrono);
-
   if (!S.exercices.length) return;
 
   // Liste exercices
@@ -623,7 +620,10 @@ function getSeance() { return getProg()?.seances?.find(s=>s.id===S.seanceId); }
 function buildExercicesFromSeance(seance) {
   return (seance?.exercices||[]).map(e => {
     const ref = getLatestRef(e.nom);
-    const nbSeries = parseInt(e.series)||3;
+    // Le programme peut ne pas préciser de nombre de séries (cas fréquent pour
+    // le cardio) : dans ce cas, se caler sur la dernière référence réelle
+    // plutôt que de toujours retomber sur 3 par défaut.
+    const nbSeries = parseInt(e.series) || parseInt(ref?.series) || 3;
     return {
       id: uid(), nom: e.nom, groupe: e.groupe||'', groupId: e.groupId||null,
       image: e.image || getExoImage(e.nom),
@@ -1282,9 +1282,43 @@ function moveExo(ei, dir) {
 
 // ─── MODALE AJOUT EXERCICE (picker riche) ────────────────────────────────────
 let _seaSelectedExo = null; // exercice sélectionné dans le picker
+let _seaGroupFilter = '';   // groupe musculaire actif dans le picker ('' = tous)
+
+function seaMatchesGroup(e) {
+  if (!_seaGroupFilter) return true;
+  return (e.groupe_musculaire||'').split(',').map(s=>s.trim()).includes(_seaGroupFilter);
+}
+
+function seaBuildGroupChips() {
+  const wrap = document.getElementById('seaPickGroups');
+  wrap.innerHTML = '';
+  const groups = ['', ...Object.keys(MC)]; // '' = Tous
+  groups.forEach(g => {
+    const chip = document.createElement('button');
+    chip.type = 'button';
+    chip.className = 'epg-chip' + (_seaGroupFilter===g ? ' active' : '');
+    chip.textContent = g || 'Tous';
+    if (_seaGroupFilter===g) {
+      const hex = g ? MC[g] : 'var(--prim)';
+      chip.style.background = hex; chip.style.borderColor = hex;
+    }
+    chip.addEventListener('mousedown', ev => {
+      ev.preventDefault();
+      _seaGroupFilter = g;
+      seaBuildGroupChips();
+      seaApplyPickerFilters();
+    });
+    wrap.appendChild(chip);
+  });
+}
+
+function seaApplyPickerFilters() {
+  const term = (document.getElementById('seaPickSearch').value||'').toLowerCase();
+  seaPickerRender(_exoLib.filter(e => seaMatchesGroup(e) && (!term || e.exercice?.toLowerCase().includes(term))));
+}
 
 function seaPickerRender(items) {
-  const list = document.getElementById('seaPickList');
+  const list = document.getElementById('seaPickItems');
   list.innerHTML = '';
   if (!items.length) {
     const d=document.createElement('div'); d.className='epi-empty'; d.textContent='Aucun exercice trouvé.'; list.appendChild(d); return;
@@ -1365,13 +1399,14 @@ function openLibreModal() {
   document.getElementById('seaGrpDisplay').style.display='none';
   document.getElementById('libreModal').classList.add('open');
   const search=document.getElementById('seaPickSearch');
-  // Remplir la liste complète
+  // Filtre groupe musculaire + liste complète
+  _seaGroupFilter = '';
+  seaBuildGroupChips();
   seaPickerRender(_exoLib);
   // Wiring picker (re-bind à chaque ouverture pour éviter les doublons)
   const picker=document.getElementById('seaExoPick');
-  const list=document.getElementById('seaPickList');
-  search.onfocus=()=>{ picker.classList.add('open'); seaPickerRender(_exoLib.filter(e=>!search.value||e.exercice?.toLowerCase().includes(search.value.toLowerCase()))); };
-  search.oninput=()=>{ picker.classList.add('open'); seaPickerRender(_exoLib.filter(e=>e.exercice?.toLowerCase().includes(search.value.toLowerCase()))); };
+  search.onfocus=()=>{ picker.classList.add('open'); seaApplyPickerFilters(); };
+  search.oninput=()=>{ picker.classList.add('open'); seaApplyPickerFilters(); };
   setTimeout(()=>search.focus(),60);
 }
 

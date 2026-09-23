@@ -1734,12 +1734,20 @@ async function handleBarcodeResult(code,mealTarget){
   }
   showToast('Recherche du produit en ligne…');
   let data={found:false};
-  try{ const r=await fetch(`/api/lookup-barcode/${encodeURIComponent(code)}`); data=await r.json(); }
+  let unauthorized=false;
+  try{
+    const r=await fetch(`/api/lookup-barcode/${encodeURIComponent(code)}`);
+    if(r.status===401){ unauthorized=true; } else { data=await r.json(); }
+  }
   catch{}
   openFoodModal(null, mealTarget);
   setTimeout(()=>{
     document.getElementById('fv-barcode').value=code;
-    if(data.found){
+    if(unauthorized){
+      // Distinct d'un produit introuvable : ici la recherche n'a pas pu avoir
+      // lieu du tout (session expirée), pas "ce code-barre n'existe pas".
+      showToast('Session expirée — reconnectez-vous pour rechercher en ligne, saisie manuelle',true);
+    } else if(data.found){
       if(data.name) document.getElementById('fv-name').value=data.name;
       document.getElementById('fv-cal').value=data.cal||0;
       document.getElementById('fv-prot').value=data.prot||0;

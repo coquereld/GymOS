@@ -483,6 +483,7 @@ function openDetailOverlay(rowId) {
     { label:'Type de mouvement', val: row.type_mouvement },
     { label:'Pattern de mouvement', val: row.pattern_mouvement },
     { label:'Niveau', val: row.niveau },
+    { label:'Unilatéral', val: row.unilateral ? 'Oui — un côté à la fois' : '' },
     { label:'Descriptif', val: row.descriptif },
     { label:'Exécution / Technique', val: row.execution },
   ].forEach(({label,val}) => {

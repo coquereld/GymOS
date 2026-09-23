@@ -48,6 +48,35 @@ button,input,select,textarea{font:inherit} button{cursor:pointer}
 .chart-empty svg{width:36px;height:36px;opacity:.25}
 .sel{padding:.5rem .65rem;border-radius:var(--rmd);border:1px solid var(--bord);background:var(--surf);color:var(--tx);font-size:.8rem;outline:none;cursor:pointer;transition:border-color var(--tr)}
 .sel:focus{border-color:var(--prim)}
+
+/* Sélecteur d'exercice riche (image + filtre par groupe musculaire) */
+.exo-pick{position:relative;user-select:none;min-width:200px}
+.exo-pick-trigger{display:flex;align-items:center;gap:.5rem;padding:.5rem .65rem;border-radius:var(--rmd);border:1px solid var(--bord);background:var(--surf);cursor:pointer;transition:border-color var(--tr);min-height:38px;min-width:0;overflow:hidden}
+.exo-pick.open .exo-pick-trigger{border-color:var(--prim)}
+.exo-pick-label{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:.8rem;color:var(--tx)}
+.exo-pick-arrow{width:14px;height:14px;flex-shrink:0;color:var(--txf);transition:transform var(--tr)}
+.exo-pick.open .exo-pick-arrow{transform:rotate(180deg)}
+.exo-pick-prev{display:flex;align-items:center;gap:.4rem;flex-shrink:0}
+.exo-pick-prev img{width:24px;height:24px;border-radius:.3rem;object-fit:contain;background:var(--surfoff);border:1px solid var(--bord);padding:1px;flex-shrink:0}
+.exo-pick-list{position:absolute;top:calc(100% + 4px);left:0;right:0;z-index:400;background:var(--surf);border:1px solid var(--bord);border-radius:var(--rlg);box-shadow:var(--shmd);max-height:320px;overflow-y:auto;display:none;width:max(100%,300px)}
+.exo-pick.open .exo-pick-list{display:block}
+.exo-pick-groups{position:sticky;top:0;z-index:1;display:flex;gap:.35rem;overflow-x:auto;padding:.5rem .5rem;background:var(--surf);border-bottom:1px solid var(--bord)}
+.epg-chip{flex-shrink:0;padding:.3rem .65rem;border-radius:999px;border:1px solid var(--bord);background:var(--surf2);font-size:.7rem;font-weight:700;cursor:pointer;white-space:nowrap;color:var(--txm);transition:all var(--tr)}
+.epg-chip.active{color:#fff;border-color:transparent}
+.epi{display:flex;align-items:center;gap:.6rem;padding:.5rem .75rem;cursor:pointer;transition:background var(--tr);border-bottom:1px solid var(--bord)}
+.epi:last-child{border-bottom:none}
+.epi:hover{background:var(--surfoff)}
+.epi.active{background:color-mix(in oklab,var(--prim) 10%,var(--surf))}
+.epi-img{width:34px;height:34px;border-radius:.4rem;object-fit:contain;background:var(--surfoff);border:1px solid var(--bord);padding:2px;flex-shrink:0}
+.epi-ph{width:34px;height:34px;border-radius:.4rem;border:1px solid var(--bord);display:grid;place-items:center;flex-shrink:0}
+.epi-ph svg{width:16px;height:16px}
+.epi-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.epi-info{flex:1;min-width:0}
+.epi-name{font-size:.82rem;font-weight:600;color:var(--tx);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.epi-grp{font-size:.68rem;color:var(--txf);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.epi-count{font-size:.65rem;color:var(--txf);flex-shrink:0}
+.epi-empty{padding:1.25rem;text-align:center;color:var(--txf);font-size:.8rem}
+
 /* PR Table */
 .pr-table{width:100%;border-collapse:collapse;font-size:.8rem}
 .pr-table th{padding:.4rem .75rem;text-align:left;font-size:.62rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--txm);background:var(--surfoff);border-bottom:1px solid var(--bord)}
@@ -95,12 +124,24 @@ button,input,select,textarea{font:inherit} button{cursor:pointer}
   <!-- Progression chart + Sélecteur exercice -->
   <div class="grid-2" style="margin-bottom:1.25rem">
     <div class="panel">
-      <div class="panel-hdr">
-        <div><div class="panel-title">Courbe de progression</div><div style="font-size:.7rem;color:var(--txm);margin-top:.1rem">Poids max par séance · Estimation 1RM</div></div>
-        <div style="display:flex;align-items:center;gap:.5rem">
-          <select class="sel" id="exoSel" style="min-width:180px"><option value="">— Choisir un exercice —</option></select>
+      <div class="panel-hdr" style="flex-direction:column;align-items:stretch;gap:.65rem">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:.5rem">
+          <div><div class="panel-title">Courbe de progression</div><div style="font-size:.7rem;color:var(--txm);margin-top:.1rem">Poids max par séance · Estimation 1RM</div></div>
           <button class="btn-icon" id="exportChartBtn" title="Exporter la courbe en image"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></button>
         </div>
+        <div class="exo-pick" id="progExoPick" style="width:min(420px,100%);align-self:flex-start">
+          <div class="exo-pick-trigger" id="progPickTrigger">
+            <div class="exo-pick-prev" id="progPickPrev" style="display:none"></div>
+            <span class="exo-pick-label" id="progPickLabel">— Choisir un exercice —</span>
+            <svg class="exo-pick-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="6 9 12 15 18 9"/></svg>
+          </div>
+          <div class="exo-pick-list" id="progPickList">
+            <div class="exo-pick-groups" id="progPickGroups"></div>
+            <input type="text" id="progPickSearch" placeholder="Rechercher…" style="display:block;width:calc(100% - 1rem);margin:.5rem .5rem;padding:.4rem .6rem;border-radius:var(--rmd);border:1px solid var(--bord);background:var(--surf2);color:var(--tx);font-size:.8rem;outline:none;font-family:inherit">
+            <div id="progPickItems"></div>
+          </div>
+        </div>
+        <input type="hidden" id="exoSel">
       </div>
       <div class="panel-body" style="padding:.85rem 1.25rem 1rem">
         <div id="plateauBadge"></div>
@@ -219,19 +260,120 @@ function renderStats(){
   });
 }
 
-// ── EXERCICE LIST ──
+// ── EXERCICE LIST (sélecteur riche : image + filtre par groupe musculaire) ──
+let _progExoList=[]; // exercices pratiqués, enrichis (image/groupe depuis la bibliothèque), triés par usage
+let _progGroupFilter='';
+
 function buildExoList(){
   const exoMap={};
   _hist.forEach(h=>(h.exercices||[]).forEach(e=>{
     if(!exoMap[e.nom]) exoMap[e.nom]={nom:e.nom,groupe:e.groupe,count:0};
     exoMap[e.nom].count+=(e.series||[]).length;
   }));
-  const sel=document.getElementById('exoSel');
-  const sorted=Object.values(exoMap).sort((a,b)=>b.count-a.count);
-  sel.innerHTML='<option value="">— Choisir un exercice —</option>'+sorted.map(e=>`<option value="${esc(e.nom)}">${esc(e.nom)}</option>`).join('');
-  if(sorted.length){sel.value=sorted[0].nom;renderProgChart();renderSymmetryChart();}
-  sel.addEventListener('change',()=>{renderProgChart();renderSymmetryChart();});
+  _progExoList=Object.values(exoMap).sort((a,b)=>b.count-a.count).map(e=>{
+    const row=_exoLib.find(r=>r.exercice?.toLowerCase()===e.nom.toLowerCase());
+    return {...e, groupe: row?.groupe_musculaire||e.groupe||'', image: row?.image||''};
+  });
+  progBuildGroupChips();
+  progPickerRender(_progExoList);
+  if(_progExoList.length) progSelectExo(_progExoList[0]);
 }
+
+function progMatchesGroup(e){
+  if(!_progGroupFilter) return true;
+  return (e.groupe||'').split(',').map(s=>s.trim()).includes(_progGroupFilter);
+}
+
+function progBuildGroupChips(){
+  const wrap=document.getElementById('progPickGroups');
+  wrap.innerHTML='';
+  const present=new Set();
+  _progExoList.forEach(e=>(e.groupe||'').split(',').forEach(g=>{ g=g.trim(); if(g) present.add(g); }));
+  const groups=['', ...Object.keys(MC).filter(g=>present.has(g))];
+  groups.forEach(g=>{
+    const chip=document.createElement('button'); chip.type='button';
+    chip.className='epg-chip'+(_progGroupFilter===g?' active':'');
+    chip.textContent=g||'Tous';
+    if(_progGroupFilter===g){ const hex=g?MC[g]:'var(--prim)'; chip.style.background=hex; chip.style.borderColor=hex; }
+    chip.addEventListener('mousedown', ev=>{
+      ev.preventDefault();
+      _progGroupFilter=g;
+      progBuildGroupChips();
+      progApplyPickerFilters();
+    });
+    wrap.appendChild(chip);
+  });
+}
+
+function progApplyPickerFilters(){
+  const term=(document.getElementById('progPickSearch').value||'').toLowerCase();
+  progPickerRender(_progExoList.filter(e=>progMatchesGroup(e) && (!term||e.nom.toLowerCase().includes(term))));
+}
+
+function progMakePh(hex){
+  const ph=document.createElement('div'); ph.className='epi-ph'; ph.style.cssText=`border-color:${hex}55;color:${hex}`;
+  ph.innerHTML=`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6 18V8.5C6 6.57 7.57 5 9.5 5h.5v14H9.5A3.5 3.5 0 0 1 6 15.5"/><path d="M18 18V8.5C18 6.57 16.43 5 14.5 5H14v14h.5a3.5 3.5 0 0 0 3.5-3.5"/></svg>`;
+  return ph;
+}
+
+function progPickerRender(items){
+  const list=document.getElementById('progPickItems');
+  list.innerHTML='';
+  if(!items.length){
+    const d=document.createElement('div'); d.className='epi-empty'; d.textContent='Aucun exercice trouvé.'; list.appendChild(d); return;
+  }
+  const current=document.getElementById('exoSel').value;
+  items.forEach(e=>{
+    const hex=grpc(e.groupe);
+    const item=document.createElement('div'); item.className='epi'+(e.nom===current?' active':'');
+    if(e.image){
+      const img=document.createElement('img'); img.className='epi-img'; img.src='./img/'+e.image; img.alt=e.nom;
+      img.onerror=()=>img.replaceWith(progMakePh(hex));
+      item.appendChild(img);
+    } else { item.appendChild(progMakePh(hex)); }
+    const dot=document.createElement('span'); dot.className='epi-dot'; dot.style.background=hex;
+    const info=document.createElement('div'); info.className='epi-info';
+    const name=document.createElement('div'); name.className='epi-name'; name.textContent=e.nom;
+    const grp=document.createElement('div'); grp.className='epi-grp'; grp.textContent=e.groupe||'';
+    info.append(name,grp);
+    const count=document.createElement('span'); count.className='epi-count'; count.textContent=e.count+' série'+(e.count>1?'s':'');
+    item.append(dot,info,count);
+    item.addEventListener('mousedown', ev=>{ ev.preventDefault(); progSelectExo(e); });
+    list.appendChild(item);
+  });
+}
+
+function progSelectExo(e){
+  document.getElementById('exoSel').value=e.nom;
+  document.getElementById('progPickLabel').textContent=e.nom;
+  const prev=document.getElementById('progPickPrev'); prev.innerHTML='';
+  if(e.image){
+    const img=document.createElement('img'); img.src='./img/'+e.image; img.alt=e.nom; img.onerror=()=>img.remove();
+    prev.appendChild(img);
+    prev.style.display='flex';
+  } else {
+    prev.style.display='none';
+  }
+  document.getElementById('progExoPick').classList.remove('open');
+  renderProgChart(); renderSymmetryChart();
+}
+
+// Wiring picker (une seule fois — buildExoList() ne fait que (re)peupler la liste)
+document.getElementById('progPickTrigger').addEventListener('click', ()=>{
+  const picker=document.getElementById('progExoPick');
+  const opening=!picker.classList.contains('open');
+  picker.classList.toggle('open');
+  if(opening){
+    document.getElementById('progPickSearch').value='';
+    progApplyPickerFilters();
+    setTimeout(()=>document.getElementById('progPickSearch').focus(),30);
+  }
+});
+document.getElementById('progPickSearch').addEventListener('input', progApplyPickerFilters);
+document.addEventListener('click', e=>{
+  const picker=document.getElementById('progExoPick');
+  if(picker && !picker.contains(e.target)) picker.classList.remove('open');
+});
 
 // ── PROGRESSION CHART ──
 // Construit la série chronologique {date, poids, reps, est1rm} d'un exercice (meilleure série par séance,

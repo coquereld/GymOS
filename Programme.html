@@ -604,29 +604,6 @@ function showStatus(msg, ok=true){
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════
-// DB STATUS UI
-// ═══════════════════════════════════════════════════════════════════════════════
-function updateDbBtn(state) {
-  const btn = document.getElementById('dbBtn');
-  const txt = document.getElementById('dbTxt');
-  if(!btn) return;
-  const name = GymDB.getFolderName();
-  if (state === 'connected') {
-    btn.style.cssText = 'display:inline-flex;align-items:center;gap:.4rem;padding:.35rem .85rem;border-radius:999px;border:1px solid rgba(67,122,34,.4);background:rgba(67,122,34,.07);font-size:var(--text-xs);font-weight:600;cursor:pointer;color:#437a22;white-space:nowrap;transition:all var(--tr)';
-    txt.textContent = '📁 ' + (name || 'Db');
-    btn.title = 'Connecté — cliquer pour changer';
-  } else if (state === 'needs-permission') {
-    btn.style.cssText = 'display:inline-flex;align-items:center;gap:.4rem;padding:.35rem .85rem;border-radius:999px;border:1px solid rgba(150,66,25,.4);background:rgba(150,66,25,.07);font-size:var(--text-xs);font-weight:600;cursor:pointer;color:#964219;white-space:nowrap;transition:all var(--tr)';
-    txt.textContent = '🔓 ' + (name||'Db') + ' — reconnecter';
-    btn.title = 'Cliquer pour réautoriser (pas de sélection nécessaire)';
-  } else {
-    btn.style.cssText = 'display:inline-flex;align-items:center;gap:.4rem;padding:.35rem .85rem;border-radius:999px;border:1px solid var(--bord);background:var(--surf2);font-size:var(--text-xs);font-weight:600;cursor:pointer;color:var(--txm);white-space:nowrap;transition:all var(--tr)';
-    txt.textContent = '📂 Db';
-    btn.title = 'Connecter le dossier Db';
-  }
-}
-
-// ═══════════════════════════════════════════════════════════════════════════════
 // PERSISTANCE
 // ═══════════════════════════════════════════════════════════════════════════════
 function save(){

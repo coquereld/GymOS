@@ -3,8 +3,21 @@ const os = require('os');
 const http = require('http');
 const https = require('https');
 const express = require('express');
-const { isValidDocKey, getDoc, getDocVersion, setDoc, getUser } = require('./db');
+const { isValidDocKey, getDoc, getDocVersion, setDoc, getUser, deleteExpiredSessions } = require('./db');
+const { DOC_SHAPE } = require('./doc-keys');
 const auth = require('./auth');
+
+// Repère une écriture dont la forme JSON racine ne correspond manifestement
+// pas à ce doc_key (ex. restauration d'une sauvegarde corrompue) avant
+// qu'elle n'écrase les données existantes. Aucune forme connue pour la clé
+// (ex. agenda_notes) => pas de contrôle.
+function matchesExpectedShape(docKey, body) {
+  const expected = DOC_SHAPE[docKey];
+  if (!expected) return true;
+  if (expected === 'array') return Array.isArray(body);
+  if (expected === 'object') return body !== null && typeof body === 'object' && !Array.isArray(body);
+  return true;
+}
 
 const PORT = 4600;
 const HOST = '0.0.0.0'; // écoute sur toutes les interfaces (accès LAN depuis le téléphone, etc.)
@@ -71,7 +84,7 @@ app.post('/api/login', (req, res) => {
   }
   const { username, password } = req.body || {};
   const user = typeof username === 'string' ? getUser(username) : null;
-  if (!user || !auth.verifyPassword(password || '', user.password_hash)) {
+  if (!auth.verifyLogin(user, password)) {
     auth.recordLoginFailure(ip);
     return res.status(401).json({ error: 'identifiants invalides' });
   }
@@ -105,6 +118,9 @@ app.get('/api/data/:docKey', (req, res) => {
 app.put('/api/data/:docKey', (req, res) => {
   const { docKey } = req.params;
   if (!isValidDocKey(docKey)) return res.status(400).json({ error: 'doc_key inconnu' });
+  if (!matchesExpectedShape(docKey, req.body)) {
+    return res.status(400).json({ error: `forme de données invalide pour "${docKey}" (attendu : ${DOC_SHAPE[docKey]})` });
+  }
   try {
     // Détection d'écrasement concurrent : un client qui a lu le document envoie
     // la version qu'il avait alors dans X-Expected-Version. Si le document a
@@ -258,6 +274,11 @@ app.get('/api/fetch-recipe', async (req, res) => {
 app.use('/server', (req, res) => res.status(404).end());
 
 app.use(express.static(ROOT));
+
+// Purge les sessions expirées au démarrage puis toutes les 6h — la table
+// grandissait sinon indéfiniment (une ligne par connexion, jamais nettoyée).
+deleteExpiredSessions();
+setInterval(deleteExpiredSessions, 6 * 60 * 60 * 1000);
 
 app.listen(PORT, HOST, () => {
   console.log(`GymOS server running at http://localhost:${PORT}/index.html`);

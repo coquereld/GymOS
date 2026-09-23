@@ -843,7 +843,7 @@ function renderTopExos(){
     container.innerHTML='<div class="empty-box"><p>Aucune donnée disponible</p></div>';
     return;
   }
-  const maxSeries=sorted[0].series;
+  const maxSeries=sorted[0].series||1;
   const grid=document.createElement('div'); grid.className='top-exo-grid';
   sorted.forEach(e=>{
     const hex=grpc(e.groupe);

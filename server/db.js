@@ -67,6 +67,10 @@ function upsertUser(username, passwordHash) {
     VALUES (@username, @passwordHash, @createdAt)
     ON CONFLICT(username) DO UPDATE SET password_hash = excluded.password_hash
   `).run({ username, passwordHash, createdAt: new Date().toISOString() });
+  // Un changement de mot de passe invalide tous les cookies de session déjà
+  // émis pour ce compte — sinon un ancien cookie (volé ou oublié sur un
+  // appareil) reste valable jusqu'à 30 jours même après réinitialisation.
+  deleteSessionsForUser(username);
 }
 
 function createSession(token, username, expiresAt) {
@@ -84,6 +88,10 @@ function deleteSession(token) {
   db.prepare('DELETE FROM gymos_sessions WHERE token = ?').run(token);
 }
 
+function deleteSessionsForUser(username) {
+  db.prepare('DELETE FROM gymos_sessions WHERE username = ?').run(username);
+}
+
 function deleteExpiredSessions() {
   db.prepare('DELETE FROM gymos_sessions WHERE expires_at < ?').run(new Date().toISOString());
 }
@@ -91,5 +99,5 @@ function deleteExpiredSessions() {
 module.exports = {
   db, isValidDocKey, getDoc, getDocVersion, setDoc,
   getUser, upsertUser,
-  createSession, getSession, deleteSession, deleteExpiredSessions,
+  createSession, getSession, deleteSession, deleteSessionsForUser, deleteExpiredSessions,
 };

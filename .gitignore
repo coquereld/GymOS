@@ -7,3 +7,4 @@ server/node_modules/
 server/gymos.db
 server/gymos.db-*
 server/.session-secret
+server/service.log
