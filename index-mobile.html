@@ -66,6 +66,7 @@ button,input{font-family:inherit;color:inherit}
     <a class="m-tab" href="./Corps-mobile.html"><span class="m-tab-ic">🫀</span>Corps</a>
     <a class="m-tab" href="./Exercices-mobile.html"><span class="m-tab-ic">📋</span>Exercices</a>
     <a class="m-tab" href="./Nutrition-mobile.html"><span class="m-tab-ic">🍽</span>Nutrition</a>
+    <a class="m-tab" href="./Lexique.html"><span class="m-tab-ic">📖</span>Lexique</a>
     <a class="m-tab" href="./index.html"><span class="m-tab-ic">🖥</span>Version PC</a>
   </nav>
 </div>
@@ -161,6 +162,12 @@ function render(){
     <div class="m-tile-info"><div class="m-tile-name">Nutrition</div><div class="m-tile-sub">Repas, aliments, recettes et suivi</div></div>
     <div class="m-tile-arrow">›</div>`;
   main.appendChild(tileNutrition);
+
+  const tileLexique = document.createElement('a'); tileLexique.className='m-tile'; tileLexique.href='./Lexique.html';
+  tileLexique.innerHTML = `<div class="m-tile-icon" style="background:#01969b22;color:#01969b">📖</div>
+    <div class="m-tile-info"><div class="m-tile-name">Lexique</div><div class="m-tile-sub">Glossaire de la musculation</div></div>
+    <div class="m-tile-arrow">›</div>`;
+  main.appendChild(tileLexique);
 
   const statsRow = document.createElement('div'); statsRow.className='m-stats-row';
   const nbSeances = _historique.length;

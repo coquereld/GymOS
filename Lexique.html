@@ -1,0 +1,622 @@
+<!DOCTYPE html>
+<html lang="fr" data-theme="light">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>GymOS — Lexique</title>
+<link href="https://api.fontshare.com/v2/css?f[]=satoshi@400,500,700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="theme.css">
+<style>
+:root,[data-theme="light"]{
+  --bg:#f7f6f2;--surf:#f9f8f5;--surf2:#fbfbf9;--surfoff:#f3f0ec;--bord:#d4d1ca;
+  --tx:#28251d;--txm:#6e6b64;--txf:#9a9891;
+  --prim:#01696f;--primh:#0c4e54;--primhi:#cedcd8;
+  --ok:#437a22;--warn:#964219;--err:#a12c7b;
+  --rsm:.375rem;--rmd:.5rem;--rlg:.75rem;--rxl:1rem;
+  --shsm:0 1px 3px rgba(40,37,29,.08);--shmd:0 12px 32px rgba(40,37,29,.12);
+  --tr:180ms cubic-bezier(.16,1,.3,1);--font:'Satoshi',system-ui,sans-serif;
+}
+[data-theme="dark"]{
+  --bg:#131211;--surf:#1a1918;--surf2:#1e1d1b;--surfoff:#222120;--bord:#333230;
+  --tx:#d0cfcd;--txm:#9e9d9a;--txf:#6e6c68;
+  --prim:#4f98a3;--primh:#227f8b;--primhi:#1a2e30;
+  --shmd:0 12px 32px rgba(0,0,0,.4);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+html,body{min-height:100%;font-family:var(--font);background:var(--bg);color:var(--tx);font-size:clamp(14px,1.4vw,16px)}
+button,input,select{font:inherit} button{cursor:pointer} a{text-decoration:none;color:inherit}
+
+/* ── LAYOUT ── */
+.page{max-width:1200px;margin:0 auto;padding:1.5rem}
+.hdr{display:flex;align-items:center;justify-content:space-between;gap:1rem;margin-bottom:1.5rem;flex-wrap:wrap}
+.hdr-left h1{font-size:clamp(1.3rem,2.5vw,1.8rem);font-weight:700;letter-spacing:-.02em}
+.hdr-left p{color:var(--txm);font-size:.85rem;margin-top:.2rem}
+.hdr-actions{display:flex;gap:.5rem;align-items:center}
+.btn-icon{width:38px;height:38px;border-radius:50%;border:1px solid var(--bord);background:var(--surf);display:grid;place-items:center;cursor:pointer;color:var(--txm);transition:all var(--tr)}
+.btn-icon:hover{background:var(--surfoff);color:var(--tx)}
+.btn-icon svg{width:17px;height:17px}
+.btn-home{display:inline-flex;align-items:center;gap:.4rem;padding:.45rem .9rem;border-radius:var(--rmd);border:1px solid var(--bord);background:var(--surf);color:var(--txm);font-size:.78rem;font-weight:600;cursor:pointer;transition:all var(--tr)}
+.btn-home:hover{background:var(--surfoff);color:var(--tx)}
+
+/* ── PANEL ── */
+.panel{background:var(--surf);border:1px solid var(--bord);border-radius:var(--rxl);box-shadow:var(--shsm);overflow:hidden}
+.panel-hdr{display:flex;align-items:center;justify-content:space-between;padding:.85rem 1.25rem;border-bottom:1px solid var(--bord)}
+.panel-title{font-weight:700;font-size:.9rem}
+.panel-sub{font-size:.7rem;color:var(--txm);margin-top:.1rem}
+
+/* ── RECHERCHE ── */
+.lex-search-panel{margin-bottom:1.5rem}
+.lex-search-panel .panel-body{display:flex;align-items:center;gap:.85rem;padding:.9rem 1.25rem}
+.lex-search-box{flex:1;position:relative}
+.lex-search-box svg{position:absolute;left:.7rem;top:50%;transform:translateY(-50%);width:16px;height:16px;color:var(--txf);pointer-events:none}
+.lex-search-input{width:100%;padding:.65rem .9rem .65rem 2.3rem;border-radius:var(--rmd);border:1px solid var(--bord);background:var(--surf2);color:var(--tx);font-size:.85rem;outline:none;transition:border-color var(--tr)}
+.lex-search-input:focus{border-color:var(--prim)}
+.lex-count{font-size:.75rem;color:var(--txm);white-space:nowrap;flex-shrink:0}
+
+/* ── GALERIE "À RETENIR EN PRIORITÉ" ── */
+.lex-gallery{margin-bottom:1.75rem}
+.lex-gallery-title{font-size:1rem;font-weight:700;margin-bottom:.85rem;display:flex;align-items:center;gap:.45rem}
+.lex-gallery-title small{font-weight:500;font-size:.72rem;color:var(--txm)}
+.lex-gal-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:1rem}
+.lex-gal-card{background:var(--surf);border:1px solid var(--bord);border-radius:var(--rxl);padding:1rem 1.1rem;box-shadow:var(--shsm)}
+.lex-gal-hdr{display:flex;align-items:center;gap:.5rem;margin-bottom:.75rem}
+.lex-gal-emoji{font-size:1.15rem}
+.lex-gal-title{font-weight:700;font-size:.82rem;color:var(--tx)}
+.lex-gal-chips{display:flex;flex-wrap:wrap;gap:.4rem}
+.lex-chip{border:1px solid var(--bord);background:var(--surf2);color:var(--tx);font-size:.72rem;font-weight:600;padding:.32rem .65rem;border-radius:999px;cursor:pointer;transition:all var(--tr)}
+.lex-chip:hover{background:var(--primhi);border-color:var(--prim);color:var(--primh)}
+
+/* ── BARRE DE NAVIGATION RAPIDE ── */
+.lex-jump-bar{display:flex;flex-wrap:wrap;gap:.5rem;margin-bottom:1.5rem}
+.lex-jump-pill{padding:.4rem .85rem;border-radius:999px;border:1px solid var(--bord);background:var(--surf);color:var(--txm);font-size:.75rem;font-weight:600;transition:all var(--tr)}
+.lex-jump-pill:hover{background:var(--surfoff);color:var(--tx);border-color:var(--prim)}
+
+/* ── CATÉGORIES ── */
+.lex-cat-panel{margin-bottom:1.25rem;scroll-margin-top:14px}
+.lex-panel-body{padding:.3rem 1.25rem 1rem}
+.lex-intro{font-size:.8rem;color:var(--txm);line-height:1.6;font-style:italic;padding:.85rem 0;border-bottom:1px solid var(--bord);margin-bottom:.2rem}
+.lex-note{font-size:.75rem;color:var(--txf);line-height:1.6;padding-top:.85rem;margin-top:.3rem;border-top:1px solid var(--bord)}
+.lex-row{display:flex;gap:1.25rem;padding:.6rem 0;border-bottom:1px solid var(--bord)}
+.lex-row:last-child{border-bottom:none}
+.lex-row[hidden]{display:none}
+.lex-term{flex:0 0 240px;font-weight:700;font-size:.82rem;color:var(--tx)}
+.lex-def{flex:1;font-size:.82rem;color:var(--txm);line-height:1.55}
+mark{background:var(--primhi);color:var(--primh);border-radius:.2rem;padding:0 .15rem;font-weight:700}
+
+@keyframes lexFlash{0%{background:var(--primhi)}100%{background:transparent}}
+.lex-row.lex-flash{animation:lexFlash 1.5s ease-out;border-radius:.4rem}
+
+/* ── VIDE ── */
+.lex-empty{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:3rem 1rem;gap:.6rem;color:var(--txf);text-align:center}
+.lex-empty svg{width:40px;height:40px;opacity:.3}
+.lex-empty p{font-size:.82rem}
+
+@media(max-width:700px){
+  .lex-row{flex-direction:column;gap:.15rem}
+  .lex-term{flex:none}
+}
+@media(max-width:600px){
+  .page{padding:1rem}
+  .lex-search-panel .panel-body{flex-direction:column;align-items:stretch}
+  .lex-count{text-align:right}
+}
+</style>
+</head>
+<body>
+<div class="page">
+  <!-- HEADER -->
+  <div class="hdr">
+    <div class="hdr-left">
+      <h1>Lexique 📖</h1>
+      <p>Glossaire de la musculation — termes, abréviations et méthodes expliqués simplement</p>
+    </div>
+    <div class="hdr-actions">
+      <button class="btn-home" id="homeBtn">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 9.5L12 3l9 6.5V20a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1z"/><polyline points="9 21 9 12 15 12 15 21"/></svg>
+        Accueil
+      </button>
+      <button class="btn-icon" id="themeBtn">
+        <svg id="thDark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+        <svg id="thLight" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:none"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- RECHERCHE -->
+  <div class="panel lex-search-panel">
+    <div class="panel-body">
+      <div class="lex-search-box">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input class="lex-search-input" id="lexSearchInput" type="text" placeholder="Rechercher un terme, une abréviation, une explication…">
+      </div>
+      <div class="lex-count" id="lexCount">—</div>
+    </div>
+  </div>
+
+  <!-- GALERIE : À RETENIR EN PRIORITÉ -->
+  <div class="lex-gallery" id="lexGallery">
+    <div class="lex-gallery-title">⭐ À retenir en priorité <small>— cliquez un terme pour le retrouver dans le lexique</small></div>
+    <div class="lex-gal-grid" id="lexGalleryGrid"></div>
+  </div>
+
+  <!-- NAVIGATION RAPIDE -->
+  <div class="lex-jump-bar" id="lexJumpBar"></div>
+
+  <!-- CATÉGORIES -->
+  <div id="lexCategories"></div>
+
+  <!-- VIDE -->
+  <div class="lex-empty" id="lexEmpty" hidden>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+    <p>Aucun terme ne correspond à votre recherche</p>
+  </div>
+</div>
+
+<script src="db.js"></script>
+<script src="gymos-utils.js"></script>
+<script>
+// ══════════════════════════════════════════════════════════════
+// DONNÉES DU LEXIQUE
+// ══════════════════════════════════════════════════════════════
+const LEXIQUE=[
+{title:"1. Les bases d'une séance",terms:[
+["Répétition — rep","Un mouvement complet d'un exercice. Exemple : descendre puis remonter sur un développé couché."],
+["Série — set","Groupe de répétitions réalisées à la suite. Exemple : 10 répétitions constituent une série."],
+["Charge","Poids utilisé pour effectuer l'exercice."],
+["Échauffement","Activité réalisée avant l'entraînement pour préparer les muscles et les articulations."],
+["Série d'échauffement","Série légère effectuée avant les séries lourdes."],
+["Série effective","Série suffisamment difficile pour stimuler réellement le muscle, généralement proche de l'échec."],
+["Repos","Temps de récupération entre deux séries."],
+["Tempo","Vitesse d'exécution du mouvement. Exemple : 3-1-1 signifie 3 secondes en descente, 1 seconde de pause, 1 seconde en montée."],
+["Amplitude","Distance parcourue par l'articulation pendant le mouvement."],
+["Amplitude complète","Mouvement réalisé sur toute la course possible, avec une technique correcte."],
+["Amplitude partielle","Mouvement réalisé sur une partie seulement de la course."],
+["Technique d'exécution","Manière de réaliser un exercice en contrôlant la posture, la trajectoire et la vitesse."],
+["Stabilité","Capacité à maintenir une position correcte sans mouvements parasites."],
+["Tricher — cheating","Utiliser l'élan ou d'autres muscles pour terminer une répétition. Cela peut être volontaire ou accidentel."],
+["Mind-muscle connection","Capacité à se concentrer sur la contraction du muscle travaillé."],
+["Pump — congestion","Sensation de gonflement du muscle pendant ou juste après l'entraînement."],
+["Courbatures — DOMS","Douleurs musculaires apparaissant généralement entre 12 et 72 heures après l'entraînement."],
+["Fatigue centrale","Fatigue du système nerveux qui réduit la capacité générale à produire un effort."],
+["Fatigue périphérique","Fatigue située principalement dans le muscle sollicité."],
+],note:"Le volume d'entraînement peut être estimé avec la formule séries × répétitions × charge, même si, pour l'hypertrophie, le nombre de séries difficiles reste souvent plus pratique à suivre."},
+{title:"2. Intensité et difficulté",terms:[
+["Intensité","Difficulté relative de la charge utilisée, souvent exprimée en pourcentage du maximum."],
+["Effort","Difficulté réellement ressentie pendant la série."],
+["RPE","Échelle de difficulté de 1 à 10. RPE 10 signifie que la série est maximale."],
+["RIR — Reps In Reserve","Nombre de répétitions qu'il resterait possible de faire avant l'échec."],
+["RIR 0","Aucune répétition supplémentaire possible : échec musculaire."],
+["RIR 1","Il restait environ une répétition possible."],
+["RIR 2","Il restait environ deux répétitions possibles."],
+["Échec musculaire","Moment où il est impossible de terminer une répétition supplémentaire avec une bonne technique."],
+["Échec technique","Moment où la technique se dégrade fortement, même si le muscle pourrait encore bouger la charge."],
+["Échec concentrique","Impossible de terminer la phase de montée du mouvement."],
+["1RM","Charge maximale que l'on peut soulever une seule fois."],
+["3RM, 5RM, 10RM","Charge maximale permettant respectivement 3, 5 ou 10 répétitions."],
+["PR — Personal Record","Record personnel sur un exercice ou une charge."],
+["RM — Repetition Maximum","Charge maximale correspondant à un certain nombre de répétitions."],
+["Charge relative","Charge comparée à son 1RM. Exemple : travailler à 80% de son 1RM."],
+["Surcharge progressive","Augmentation progressive de la difficulté au fil du temps."],
+["Progressive overload","Terme anglais désignant la surcharge progressive."],
+["Densité d'entraînement","Quantité de travail réalisée dans une durée donnée."],
+["TUT — Time Under Tension","Temps pendant lequel le muscle reste sous tension pendant une série."],
+["Stress métabolique","Accumulation de fatigue, de métabolites et de sensation de brûlure dans le muscle."],
+["Tension mécanique","Force exercée par le muscle lorsqu'il produit un effort contre une résistance."],
+["Volume junk","Volume d'entraînement supplémentaire qui fatigue beaucoup mais apporte peu de stimulation utile."],
+],note:"Exemple de surcharge progressive : faire 3 séries de 10 répétitions à 20 kg, puis passer à 3 séries de 11 répétitions, avant d'augmenter la charge."},
+{title:"3. Méthodes d'intensification",
+intro:"Un superset consiste à enchaîner deux exercices avec peu ou pas de repos entre eux. Il peut cibler deux muscles opposés, le même muscle ou deux zones différentes. Exemples : développé couché + rowing · curl biceps + extension triceps · élévations latérales + extensions mollets.",
+terms:[
+["Superset antagoniste","Deux exercices pour des muscles opposés. Exemple : biceps puis triceps."],
+["Superset agoniste","Deux exercices qui ciblent principalement le même muscle."],
+["Compound set","Enchaînement de deux exercices pour le même groupe musculaire."],
+["Pré-fatigue — pre-exhaustion","Isolation d'un muscle avant un exercice composé. Exemple : écartés avant développé couché."],
+["Post-fatigue — post-exhaustion","Exercice composé suivi d'un exercice d'isolation."],
+["Tri-set","Enchaînement de trois exercices sans repos important."],
+["Giant set","Enchaînement d'au moins quatre exercices, souvent pour le même groupe musculaire."],
+["Circuit training","Plusieurs exercices enchaînés sous forme de circuit, avec peu de repos."],
+["Drop set","Réaliser une série, réduire immédiatement la charge, puis continuer."],
+["Double drop set","Réduire la charge deux fois au cours de la même série."],
+["Strip set","Autre nom donné à une série où l'on retire progressivement du poids."],
+["Rest-pause","Faire une série difficile, se reposer quelques secondes, puis reprendre avec la même charge."],
+["Myo-reps","Série d'activation proche de l'échec, suivie de plusieurs mini-séries très courtes."],
+["Cluster set","Diviser une série en petits groupes de répétitions avec de courtes pauses."],
+["Série dégressive","Même principe qu'un drop set : la charge baisse et les répétitions continuent."],
+["Série ascendante","La charge augmente d'une série à l'autre."],
+["Série descendante","La charge diminue d'une série à l'autre."],
+["Série pyramidale","La charge augmente ou diminue progressivement entre les séries."],
+["Pyramide montante","Charge croissante et nombre de répétitions généralement décroissant."],
+["Pyramide descendante","Charge décroissante et nombre de répétitions généralement croissant."],
+["Série géante","Série composée de plusieurs exercices ou variations successives."],
+["21s","Méthode souvent utilisée au curl : 7 répétitions partielles basses, 7 partielles hautes, puis 7 complètes."],
+["100 reps","Objectif de réaliser 100 répétitions avec une charge légère, souvent en plusieurs pauses."],
+["1,5 répétition","Une répétition complète suivie d'une demi-répétition, ou inversement."],
+["Reps forcées","Répétitions réalisées avec l'aide d'un partenaire après l'échec."],
+["Répétitions négatives","Travail concentré sur la phase descendante du mouvement."],
+["Isométrie","Maintien d'une position sans mouvement."],
+["Contraction volontaire maximale","Contracter consciemment le muscle le plus fort possible, souvent en fin de répétition."],
+["Partielles en fin de série","Continuer avec des mouvements incomplets après ne plus pouvoir faire de répétitions complètes."],
+["Cheat reps","Répétitions effectuées avec un peu d'élan pour prolonger la série."],
+["Super 7","Nom parfois utilisé pour une méthode composée de 7 mini-séries, souvent avec peu de repos et une charge modérée. Ce n'est pas une méthode universellement standardisée : le contenu peut varier selon le programme."],
+]},
+{title:"4. Types de mouvements",terms:[
+["Concentrique","Phase où le muscle se raccourcit. Exemple : monter la barre au curl."],
+["Excentrique","Phase où le muscle s'allonge sous tension. Exemple : redescendre la barre au curl."],
+["Isométrique","Le muscle produit une force sans modifier sa longueur. Exemple : tenir une planche."],
+["Contraction","Production de force par un muscle."],
+["Étirement sous charge","Muscle allongé alors qu'il supporte une résistance."],
+["Mouvement composé — compound","Exercice sollicitant plusieurs articulations et plusieurs groupes musculaires."],
+["Mouvement d'isolation","Exercice ciblant principalement un muscle et une articulation."],
+["Chaîne cinétique ouverte","Extrémité du membre libre de bouger. Exemple : extension de jambes."],
+["Chaîne cinétique fermée","Extrémité du membre fixe ou en contact avec une surface. Exemple : squat ou pompe."],
+["Exercice unilatéral","Un seul côté travaille à la fois. Exemple : curl haltère alterné."],
+["Exercice bilatéral","Les deux côtés travaillent en même temps. Exemple : squat avec barre."],
+["Plan sagittal","Mouvements vers l'avant et l'arrière. Exemple : curl ou squat."],
+["Plan frontal","Mouvements latéraux. Exemple : élévation latérale."],
+["Plan transverse","Mouvements de rotation. Exemple : rotation du buste."],
+["Stabilisateur","Muscle qui maintient une articulation ou une posture."],
+["Agoniste","Muscle principalement responsable du mouvement."],
+["Antagoniste","Muscle qui réalise l'action opposée. Exemple : biceps et triceps."],
+["Synergiste","Muscle qui aide le muscle principal."],
+["Fixateur","Muscle qui stabilise une partie du corps afin de permettre le mouvement."],
+]},
+{title:"5. Pronation, supination et prises",terms:[
+["Pronation","Paumes tournées vers le sol ou vers l'arrière selon la position du bras."],
+["Supination","Paumes tournées vers le haut ou vers soi."],
+["Position neutre","Paumes face à face, comme pour tenir deux poignées parallèles."],
+["Prise pronation","Prise avec les paumes vers le bas. Exemple : traction en pronation."],
+["Prise supination","Prise avec les paumes vers soi. Exemple : traction supination."],
+["Prise neutre","Paumes face à face. Exemple : traction avec poignées parallèles."],
+["Prise serrée","Mains rapprochées sur la barre."],
+["Prise moyenne","Écartement classique des mains."],
+["Prise large","Mains largement écartées."],
+["Fausse prise","Pouce non fermé autour de la barre ou de la poignée."],
+["Prise mixte","Une main en pronation et l'autre en supination, souvent utilisée au soulevé de terre."],
+["Hook grip","Pouce coincé sous les doigts pour sécuriser la prise sur une barre."],
+["Sangle de tirage — straps","Sangles qui aident à maintenir la barre lors des exercices de tirage."],
+["Corde","Accessoire de poulie permettant une prise séparée et une meilleure liberté des poignets."],
+["Manchon ou poignée","Accessoire fixé à une poulie ou une machine."],
+],note:"La pronation correspond globalement à une paume orientée vers le bas et la supination à une paume orientée vers le haut, même si l'orientation exacte dépend de la position du bras."},
+{title:"6. Organisation de l'entraînement",terms:[
+["Programme","Plan global indiquant les exercices, séries, répétitions et jours d'entraînement."],
+["Séance","Entraînement réalisé à un moment donné."],
+["Split","Répartition des groupes musculaires sur plusieurs séances."],
+["Full body","Tous les principaux groupes musculaires sont travaillés dans chaque séance."],
+["Half body","Séparation entre le haut et le bas du corps."],
+["Upper/Lower","Programme alternant séances du haut et séances du bas du corps."],
+["Push/Pull/Legs — PPL","Répartition en poussée, tirage et jambes."],
+["Push","Exercices de poussée : pectoraux, épaules et triceps."],
+["Pull","Exercices de tirage : dos, arrière d'épaules et biceps."],
+["Legs","Entraînement des jambes."],
+["Bro split","Un ou deux groupes musculaires travaillés par jour, souvent sur cinq jours."],
+["Fréquence","Nombre de fois où un muscle est entraîné sur une période donnée."],
+["Microcycle","Petite période d'entraînement, souvent une semaine."],
+["Mésocycle","Bloc d'entraînement de plusieurs semaines."],
+["Macrocycle","Planification globale sur plusieurs mois."],
+["Périodisation","Organisation planifiée des périodes d'entraînement."],
+["Cycle de force","Bloc destiné principalement à améliorer la force maximale."],
+["Cycle d'hypertrophie","Bloc destiné principalement à développer la masse musculaire."],
+["Cycle de sèche","Période visant à réduire le taux de graisse tout en conservant le muscle."],
+["Deload","Semaine ou période avec moins de charge, moins de volume ou moins d'intensité pour récupérer."],
+["Semaine de récupération","Période volontairement plus légère."],
+["Déload actif","Récupération avec un entraînement léger plutôt qu'un arrêt total."],
+["Volume hebdomadaire","Nombre total de séries, répétitions ou charge réalisées sur une semaine."],
+["Volume par muscle","Quantité de travail destinée à un groupe musculaire précis."],
+["Fréquence d'entraînement","Nombre de séances réalisées par semaine."],
+["Adhérence","Capacité à suivre son programme régulièrement sur la durée."],
+["Surentraînement","Accumulation excessive de fatigue avec baisse durable des performances."],
+["Récupération","Processus permettant au corps de revenir à un niveau normal après l'effort."],
+]},
+{title:"7. Objectifs physiques",terms:[
+["Hypertrophie","Augmentation de la taille des fibres musculaires."],
+["Force maximale","Capacité à déplacer une charge très lourde une seule fois."],
+["Force relative","Force rapportée au poids du corps."],
+["Force-endurance","Capacité à produire un effort répété pendant longtemps."],
+["Endurance musculaire","Capacité d'un muscle à répéter un effort sans s'arrêter rapidement."],
+["Puissance","Capacité à produire beaucoup de force rapidement."],
+["Explosivité","Capacité à accélérer fortement un mouvement."],
+["Mobilité","Capacité à bouger une articulation avec contrôle et amplitude."],
+["Flexibilité","Capacité d'un muscle ou d'un groupe musculaire à s'étirer."],
+["Stabilité articulaire","Capacité à maintenir une articulation correctement pendant un mouvement."],
+["Conditionnement physique","Niveau général de capacité cardiovasculaire et musculaire."],
+["Composition corporelle","Répartition entre masse musculaire, masse grasse, eau et autres tissus."],
+["Masse maigre","Poids du corps hors masse grasse."],
+["Masse musculaire","Quantité de muscle présente dans le corps."],
+["Masse grasse","Quantité de graisse corporelle."],
+["Taux de masse grasse","Pourcentage du poids total correspondant à la graisse."],
+["Prise de masse","Période où l'on cherche à construire du muscle, généralement avec un apport calorique supérieur aux dépenses."],
+["Sèche","Période où l'on cherche à diminuer la masse grasse."],
+["Maintien","Phase où l'apport calorique correspond approximativement aux dépenses."],
+["Recomposition corporelle","Perdre du gras tout en gagnant ou conservant du muscle."],
+["Définition musculaire","Apparence plus visible des muscles grâce à davantage de muscle et moins de gras."],
+["Look dense","Apparence musculaire épaisse et compacte."],
+["Vascularité","Visibilité des veines, influencée par le taux de masse grasse, la congestion et la génétique."],
+["Symétrie","Équilibre visuel entre les différents groupes musculaires et les deux côtés du corps."],
+["Proportion","Rapport harmonieux entre les différentes parties du physique."],
+]},
+{title:"8. Anatomie utilisée en salle",terms:[
+["Pectoraux","Muscles situés à l'avant de la poitrine."],
+["Grand dorsal","Grand muscle du dos qui participe aux mouvements de tirage."],
+["Trapèzes","Muscles situés entre la nuque, les épaules et le haut du dos."],
+["Rhomboïdes","Muscles situés entre les omoplates."],
+["Deltoïdes","Muscles des épaules. Ils comprennent les faisceaux antérieur, moyen et postérieur."],
+["Biceps brachial","Muscle situé à l'avant du bras, qui fléchit le coude."],
+["Triceps brachial","Muscle situé à l'arrière du bras, qui étend le coude."],
+["Brachial","Muscle situé sous le biceps, participant à la flexion du coude."],
+["Avant-bras","Groupe de muscles contrôlant le poignet et les doigts."],
+["Droit de l'abdomen","Muscle vertical souvent appelé « six-pack »."],
+["Obliques","Muscles situés sur les côtés de l'abdomen."],
+["Transverse","Muscle profond qui contribue à la stabilité du tronc."],
+["Érecteurs du rachis","Muscles longeant la colonne vertébrale."],
+["Fessiers","Muscles principaux de la hanche et de l'extension de la cuisse."],
+["Quadriceps","Muscles situés à l'avant de la cuisse."],
+["Ischio-jambiers","Muscles situés à l'arrière de la cuisse."],
+["Adducteurs","Muscles de l'intérieur de la cuisse."],
+["Abducteurs","Muscles qui écartent la jambe du corps."],
+["Moyen fessier","Muscle latéral de la hanche, important pour la stabilité du bassin."],
+["Mollets","Muscles situés à l'arrière de la jambe."],
+["Gastrocnémien","Partie visible et volumineuse du mollet."],
+["Soléaire","Muscle profond du mollet, particulièrement sollicité genou fléchi."],
+["Coiffe des rotateurs","Ensemble de petits muscles stabilisant l'épaule."],
+["Muscles stabilisateurs","Muscles qui maintiennent une articulation ou une posture."],
+["Muscles posturaux","Muscles qui contribuent au maintien de la position du corps."],
+]},
+{title:"9. Exercices courants et leurs appellations",terms:[
+["Bench press","Développé couché."],
+["Incline bench press","Développé incliné."],
+["Overhead press — OHP","Développé au-dessus de la tête."],
+["Shoulder press","Presse à épaules."],
+["Squat","Flexion-extension des jambes avec une charge."],
+["Front squat","Squat avec la barre placée à l'avant des épaules."],
+["Hack squat","Squat réalisé sur une machine guidée."],
+["Leg press","Presse à jambes."],
+["Deadlift","Soulevé de terre."],
+["Romanian deadlift — RDL","Soulevé de terre jambes semi-tendues, ciblant particulièrement les ischio-jambiers."],
+["Sumo deadlift","Soulevé de terre avec une position de jambes très écartée."],
+["Rowing","Mouvement de tirage horizontal pour le dos."],
+["Barbell row","Rowing à la barre."],
+["Dumbbell row","Rowing avec haltère."],
+["Pull-up","Traction généralement réalisée en pronation."],
+["Chin-up","Traction généralement réalisée en supination."],
+["Lat pulldown","Tirage vertical à la poulie haute."],
+["Pull-over","Mouvement d'extension de l'épaule ciblant notamment les dorsaux ou les pectoraux."],
+["Curl","Flexion du coude ciblant principalement le biceps."],
+["Hammer curl","Curl en prise neutre, comme si l'on tenait un marteau."],
+["Skull crusher","Extension des triceps allongé avec barre ou haltères."],
+["Pushdown","Extension des triceps à la poulie."],
+["Lateral raise","Élévation latérale pour les épaules."],
+["Front raise","Élévation frontale."],
+["Face pull","Tirage vers le visage ciblant l'arrière d'épaule et le haut du dos."],
+["Fly / flyes","Écarté pour les pectoraux."],
+["Reverse fly","Écarté inversé ciblant l'arrière d'épaule."],
+["Lunge","Fente avant, arrière ou marchée."],
+["Bulgarian split squat","Fente avec le pied arrière surélevé."],
+["Hip thrust","Extension de hanche avec le dos généralement appuyé sur un banc."],
+["Glute bridge","Extension de hanche réalisée depuis le sol."],
+["Leg extension","Extension des jambes à la machine pour les quadriceps."],
+["Leg curl","Flexion des jambes à la machine pour les ischio-jambiers."],
+["Calf raise","Extension des chevilles pour les mollets."],
+["Plank","Gainage en position statique."],
+["Crunch","Flexion du tronc ciblant principalement les abdominaux."],
+["Hanging leg raise","Relevé de jambes suspendu."],
+]},
+{title:"10. Matériel et environnement",terms:[
+["Barre olympique","Barre longue standardisée utilisée pour les exercices avec charges libres."],
+["Barre EZ","Barre courbée, souvent utilisée pour les curls et les extensions triceps."],
+["Haltère","Poids tenu dans une seule main."],
+["Kettlebell","Poids avec une poignée, adapté aux mouvements balistiques et fonctionnels."],
+["Disque","Plaque de poids ajoutée sur une barre ou une machine."],
+["Rack","Structure permettant de poser la barre et de réaliser squats ou développés."],
+["Power rack","Rack équipé de sécurités réglables."],
+["Smith machine","Barre guidée verticalement ou selon un angle fixe."],
+["Poulie haute","Poulie située en hauteur, utilisée pour les tirages."],
+["Poulie basse","Poulie située près du sol, utilisée pour les rowings et curls."],
+["Poulie vis-à-vis","Deux poulies réglables placées face à face."],
+["Machine convergente","Machine dont les poignées se rapprochent pendant le mouvement."],
+["Machine guidée","Appareil qui impose une trajectoire prédéfinie."],
+["Banc plat","Banc sans inclinaison."],
+["Banc incliné","Banc permettant de travailler avec le torse incliné."],
+["Banc réglable","Banc dont l'inclinaison peut être modifiée."],
+["Ceinture de lest","Ceinture permettant d'ajouter une charge aux tractions ou dips."],
+["Lest","Poids supplémentaire ajouté au poids du corps."],
+["Ceinture de force","Ceinture large utilisée pour augmenter le maintien du tronc sur certains exercices lourds."],
+["Genouillères","Protections ou équipements de soutien pour les genoux."],
+["Coudières","Protections ou équipements de soutien pour les coudes."],
+["Magnésie","Produit qui améliore l'adhérence des mains sur la barre."],
+["Sangles","Accessoires qui aident à maintenir une charge lors des tirages."],
+["Chaussures d'haltérophilie","Chaussures rigides avec talon surélevé, utiles pour certains squats et mouvements olympiques."],
+["Ceinture cardiofréquencemètre","Capteur qui mesure la fréquence cardiaque."],
+]},
+{title:"11. Nutrition et récupération",terms:[
+["Calories","Quantité d'énergie fournie par l'alimentation."],
+["Dépense calorique","Énergie utilisée par le corps."],
+["Maintenance calorique","Niveau de calories permettant de maintenir approximativement le poids."],
+["Surplus calorique","Consommer plus de calories que l'on en dépense."],
+["Déficit calorique","Consommer moins de calories que l'on en dépense."],
+["Protéines","Nutriments essentiels à la réparation et au développement musculaire."],
+["Glucides","Source importante d'énergie pour l'entraînement."],
+["Lipides","Nutriments importants pour l'énergie, les hormones et la santé générale."],
+["Macros","Abréviation de macronutriments : protéines, glucides et lipides."],
+["Micronutriments","Vitamines et minéraux nécessaires en petites quantités."],
+["TDEE","Dépense énergétique quotidienne totale."],
+["BMR","Métabolisme de base, c'est-à-dire l'énergie dépensée au repos."],
+["Meal prep","Préparation des repas à l'avance."],
+["Timing nutritionnel","Organisation des repas autour de l'entraînement."],
+["Pré-workout","Repas ou complément consommé avant l'entraînement."],
+["Post-workout","Repas ou complément consommé après l'entraînement."],
+["Whey","Protéine en poudre issue du lait."],
+["Créatine","Complément pouvant améliorer les performances sur les efforts courts et répétés."],
+["BCAA","Trois acides aminés : leucine, isoleucine et valine."],
+["EAA","Acides aminés essentiels."],
+["Caféine","Stimulant parfois utilisé avant l'entraînement."],
+["Hydratation","Apport d'eau nécessaire au fonctionnement et à la performance du corps."],
+["Sommeil","Élément essentiel à la récupération musculaire et nerveuse."],
+["Récupération active","Activité légère destinée à bouger sans ajouter une forte fatigue."],
+["Mobilité active","Exercices contrôlés réalisés pour améliorer l'amplitude articulaire."],
+["Étirements statiques","Maintien d'une position d'étirement pendant plusieurs secondes."],
+["Étirements dynamiques","Mouvements contrôlés réalisés progressivement dans l'amplitude."],
+]},
+{title:"12. Force athlétique et haltérophilie",terms:[
+["Powerlifting","Discipline basée sur le squat, le développé couché et le soulevé de terre."],
+["Force athlétique","Nom français du powerlifting."],
+["Weightlifting","Haltérophilie olympique."],
+["Arraché — snatch","Amener la barre du sol au-dessus de la tête en un seul mouvement."],
+["Épaulé-jeté — clean and jerk","Amener la barre aux épaules puis au-dessus de la tête en deux phases."],
+["Épaulé — clean","Amener la barre du sol jusqu'aux épaules."],
+["Jeté — jerk","Pousser la barre des épaules au-dessus de la tête."],
+["Lockout","Position finale avec les articulations verrouillées ou presque verrouillées."],
+["Haltérophilie","Sport basé principalement sur l'arraché et l'épaulé-jeté."],
+["Strongman","Discipline comprenant des épreuves de force variées et souvent lourdes."],
+["Rep max","Nombre maximal de répétitions réalisables avec une charge."],
+["Tentative","Essai réalisé lors d'une compétition."],
+["No rep","Répétition refusée car elle ne respecte pas les règles ou l'amplitude demandée."],
+["Raw","Compétition ou entraînement avec peu d'équipements de soutien."],
+["Équipé — equipped","Utilisation de matériel de soutien spécifique, comme une combinaison ou une combinaison de développé."],
+["PR","Record personnel."],
+["WR","Record mondial."],
+]},
+];
+
+const PRIORITY_GROUPS=[
+{title:"Les fondamentaux",emoji:"🎯",terms:["Série — set","Répétition — rep","Charge","Repos"]},
+{title:"Paramètres d'entraînement",emoji:"📐",terms:["Volume hebdomadaire","Intensité","Fréquence"]},
+{title:"Mesurer l'effort",emoji:"🔥",terms:["RPE","RIR — Reps In Reserve","Échec musculaire"]},
+{title:"Objectifs & progression",emoji:"📈",terms:["Hypertrophie","Force maximale","Surcharge progressive"]},
+{title:"Méthodes d'intensification",emoji:"⚡",terms:["Superset antagoniste","Drop set","Rest-pause","Tri-set","Giant set"]},
+{title:"Types de contraction",emoji:"🔄",terms:["Concentrique","Excentrique","Isométrique"]},
+{title:"Prises de main",emoji:"✋",terms:["Pronation","Supination","Prise neutre"]},
+{title:"Organisation du programme",emoji:"🗓",terms:["Full body","Push/Pull/Legs — PPL","Upper/Lower","Deload"]},
+{title:"Mécanismes de croissance",emoji:"🧬",terms:["Tension mécanique","Stress métabolique","TUT — Time Under Tension"]},
+{title:"Nutrition",emoji:"🥗",terms:["Prise de masse","Sèche","Maintenance calorique","Macros"]},
+];
+
+const TOTAL_TERMS=LEXIQUE.reduce((s,c)=>s+c.terms.length,0);
+const TERM_INDEX=new Map();
+
+// ══════════════════════════════════════════════════════════════
+// RENDU
+// ══════════════════════════════════════════════════════════════
+function renderGallery(){
+  const grid=document.getElementById('lexGalleryGrid');
+  grid.innerHTML='';
+  PRIORITY_GROUPS.forEach(g=>{
+    const card=document.createElement('div'); card.className='lex-gal-card';
+    card.innerHTML=`<div class="lex-gal-hdr"><span class="lex-gal-emoji">${g.emoji}</span><span class="lex-gal-title">${esc(g.title)}</span></div><div class="lex-gal-chips"></div>`;
+    const chips=card.querySelector('.lex-gal-chips');
+    g.terms.forEach(t=>{
+      const chip=document.createElement('button'); chip.type='button'; chip.className='lex-chip'; chip.textContent=t;
+      chip.addEventListener('click',()=>jumpToTerm(t));
+      chips.appendChild(chip);
+    });
+    grid.appendChild(card);
+  });
+}
+
+function renderJumpBar(){
+  const bar=document.getElementById('lexJumpBar');
+  bar.innerHTML='';
+  LEXIQUE.forEach((cat,ci)=>{
+    const a=document.createElement('a'); a.href='#cat-'+ci; a.className='lex-jump-pill';
+    a.textContent=cat.title.replace(/^\d+\.\s*/,'');
+    bar.appendChild(a);
+  });
+}
+
+function renderLexicon(){
+  const container=document.getElementById('lexCategories');
+  container.innerHTML='';
+  LEXIQUE.forEach((cat,ci)=>{
+    const panel=document.createElement('div'); panel.className='panel lex-cat-panel'; panel.id='cat-'+ci;
+    const introHtml=cat.intro?`<div class="lex-intro">${esc(cat.intro)}</div>`:'';
+    const noteHtml=cat.note?`<div class="lex-note">${esc(cat.note)}</div>`:'';
+    panel.innerHTML=`<div class="panel-hdr"><div><div class="panel-title">${esc(cat.title)}</div><div class="panel-sub">${cat.terms.length} terme${cat.terms.length!==1?'s':''}</div></div></div>
+      <div class="lex-panel-body">${introHtml}<div class="lex-list" id="list-${ci}"></div>${noteHtml}</div>`;
+    container.appendChild(panel);
+    const list=panel.querySelector('.lex-list');
+    cat.terms.forEach(([t,d],ti)=>{
+      const row=document.createElement('div'); row.className='lex-row'; row.id=`term-${ci}-${ti}`;
+      row.dataset.term=t; row.dataset.def=d;
+      row.innerHTML=`<div class="lex-term">${esc(t)}</div><div class="lex-def">${esc(d)}</div>`;
+      list.appendChild(row);
+      TERM_INDEX.set(t,row.id);
+    });
+  });
+}
+
+// ══════════════════════════════════════════════════════════════
+// RECHERCHE
+// ══════════════════════════════════════════════════════════════
+function highlightHtml(text,q){
+  const escaped=esc(text);
+  if(!q) return escaped;
+  const escQ=q.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
+  const re=new RegExp('('+escQ+')','ig');
+  return escaped.replace(re,'<mark>$1</mark>');
+}
+
+function applyLexFilter(qRaw){
+  const q=(qRaw||'').trim();
+  const ql=q.toLowerCase();
+  let total=0;
+  document.querySelectorAll('.lex-cat-panel').forEach(panel=>{
+    let catCount=0;
+    panel.querySelectorAll('.lex-row').forEach(row=>{
+      const t=row.dataset.term, d=row.dataset.def;
+      const match=!ql||t.toLowerCase().includes(ql)||d.toLowerCase().includes(ql);
+      row.hidden=!match;
+      if(match){
+        catCount++;
+        row.querySelector('.lex-term').innerHTML=highlightHtml(t,ql);
+        row.querySelector('.lex-def').innerHTML=highlightHtml(d,ql);
+      }
+    });
+    panel.hidden=catCount===0;
+    total+=catCount;
+  });
+  document.getElementById('lexGallery').hidden=!!q;
+  document.getElementById('lexJumpBar').hidden=!!q;
+  document.getElementById('lexEmpty').hidden=!(q&&total===0);
+  document.getElementById('lexCount').textContent=q
+    ? `${total} terme${total!==1?'s':''} trouvé${total!==1?'s':''}`
+    : `${TOTAL_TERMS} termes au total`;
+}
+
+function jumpToTerm(t){
+  const input=document.getElementById('lexSearchInput');
+  input.value='';
+  applyLexFilter('');
+  const id=TERM_INDEX.get(t);
+  if(!id) return;
+  const el=document.getElementById(id);
+  if(!el) return;
+  el.scrollIntoView({behavior:'smooth',block:'center'});
+  el.classList.add('lex-flash');
+  setTimeout(()=>el.classList.remove('lex-flash'),1500);
+}
+
+// ══════════════════════════════════════════════════════════════
+// EVENTS + INIT
+// ══════════════════════════════════════════════════════════════
+const lexSearchInput=document.getElementById('lexSearchInput');
+lexSearchInput.addEventListener('input',()=>applyLexFilter(lexSearchInput.value));
+lexSearchInput.addEventListener('keydown',e=>{
+  if(e.key==='Escape'){ lexSearchInput.value=''; applyLexFilter(''); lexSearchInput.blur(); }
+});
+document.getElementById('themeBtn').addEventListener('click',()=>applyTheme(document.documentElement.getAttribute('data-theme')==='dark'?'light':'dark'));
+
+(function init(){
+  applyTheme(localStorage.getItem('muscle-xml-theme')||'light');
+  renderGallery();
+  renderJumpBar();
+  renderLexicon();
+  const qp=new URLSearchParams(location.search).get('q')||'';
+  if(qp) lexSearchInput.value=qp;
+  applyLexFilter(lexSearchInput.value);
+})();
+</script>
+
+<script src="nav-panel.js"></script>
+
+</body>
+</html>
