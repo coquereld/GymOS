@@ -220,8 +220,11 @@
     .epp-ph{width:30px;height:30px;border-radius:var(--rsm);background:var(--surfoff);border:1px solid var(--bord);display:grid;place-items:center;flex-shrink:0}
     .epp-ph svg{width:14px;height:14px;color:var(--txf)}
     .epp-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
-    .exo-picker-list{position:absolute;top:calc(100% + 4px);left:0;right:0;z-index:300;background:var(--surf);border:1px solid var(--bord);border-radius:var(--rlg);box-shadow:var(--shmd);max-height:240px;overflow-y:auto;display:none}
+    .exo-picker-list{position:absolute;top:calc(100% + 4px);left:0;right:0;z-index:300;background:var(--surf);border:1px solid var(--bord);border-radius:var(--rlg);box-shadow:var(--shmd);max-height:280px;overflow-y:auto;display:none}
     .exo-picker.open .exo-picker-list{display:block}
+    .exo-pick-groups{position:sticky;top:0;z-index:1;display:flex;gap:.35rem;overflow-x:auto;padding:.5rem .5rem;background:var(--surf);border-bottom:1px solid var(--bord)}
+    .epg-chip{flex-shrink:0;padding:.3rem .65rem;border-radius:999px;border:1px solid var(--bord);background:var(--surf2);font-size:.7rem;font-weight:700;cursor:pointer;white-space:nowrap;color:var(--txm);transition:all var(--tr)}
+    .epg-chip.active{color:#fff;border-color:transparent}
     .epi-empty{padding:var(--sp4);text-align:center;color:var(--txf);font-size:var(--text-sm);font-style:italic}
     .epi{display:flex;align-items:center;gap:var(--sp3);padding:.55rem .75rem;cursor:pointer;transition:background var(--tr);border-bottom:1px solid var(--bord)}
     .epi:last-child{border-bottom:none}
@@ -380,7 +383,10 @@
           <input type="text" id="exoSearch" class="exo-picker-search" placeholder="Rechercher un exercice…" autocomplete="off">
           <svg class="exo-picker-arrow" id="exoArrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="6 9 12 15 18 9"/></svg>
         </div>
-        <div class="exo-picker-list" id="exoList"></div>
+        <div class="exo-picker-list" id="exoList">
+          <div class="exo-pick-groups" id="exoPickGroups"></div>
+          <div id="exoPickItems"></div>
+        </div>
       </div>
       <input type="hidden" id="exNom">
       <div id="exHint" style="display:none;font-size:.7rem;font-weight:600;margin-top:.4rem;color:var(--prim)"></div>
@@ -1148,12 +1154,45 @@ let _exoSeanceId=null;
 let _exoLibCache=[];
 
 function buildExoPicker(lib) {
-  let filtered = [...lib];
   const picker  = document.getElementById('exoPicker');
   const search  = document.getElementById('exoSearch');
-  const list    = document.getElementById('exoList');
+  const groupsWrap = document.getElementById('exoPickGroups');
+  const list    = document.getElementById('exoPickItems');
   const preview = document.getElementById('exoPreview');
   const nomInp  = document.getElementById('exNom');
+  let groupFilter = ''; // groupe musculaire actif dans le picker ('' = tous)
+
+  function matchesGroup(e) {
+    if (!groupFilter) return true;
+    return (e.groupe_musculaire||'').split(',').map(s=>s.trim()).includes(groupFilter);
+  }
+
+  function buildGroupChips() {
+    groupsWrap.innerHTML = '';
+    const groups = ['', ...Object.keys(MC)]; // '' = Tous
+    groups.forEach(g => {
+      const chip = document.createElement('button');
+      chip.type = 'button';
+      chip.className = 'epg-chip' + (groupFilter===g ? ' active' : '');
+      chip.textContent = g || 'Tous';
+      if (groupFilter===g) {
+        const hex = g ? MC[g] : 'var(--prim)';
+        chip.style.background = hex; chip.style.borderColor = hex;
+      }
+      chip.addEventListener('mousedown', ev => {
+        ev.preventDefault();
+        groupFilter = g;
+        buildGroupChips();
+        applyFilters();
+      });
+      groupsWrap.appendChild(chip);
+    });
+  }
+
+  function applyFilters() {
+    const term = (search.value||'').toLowerCase();
+    renderList(lib.filter(e => matchesGroup(e) && (!term || e.exercice?.toLowerCase().includes(term))));
+  }
 
   function renderList(items) {
     list.innerHTML = '';
@@ -1228,18 +1267,17 @@ function buildExoPicker(lib) {
 
   search.addEventListener('focus', () => {
     picker.classList.add('open');
-    filtered = lib.filter(e => !search.value || e.exercice?.toLowerCase().includes(search.value.toLowerCase()));
-    renderList(filtered);
+    applyFilters();
   });
   search.addEventListener('input', () => {
     picker.classList.add('open');
-    filtered = lib.filter(e => e.exercice?.toLowerCase().includes(search.value.toLowerCase()));
-    renderList(filtered);
+    applyFilters();
   });
   document.addEventListener('click', e => {
     if (!picker.contains(e.target)) picker.classList.remove('open');
   }, { capture: true });
 
+  buildGroupChips();
   renderList(lib);
 }
 

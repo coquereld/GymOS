@@ -90,6 +90,9 @@ button,input,select,textarea{font-family:inherit;color:inherit}
 .m-overlay-sub{font-size:.75rem;color:var(--txf);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .m-overlay-body{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:.9rem .8rem;padding-bottom:calc(1.2rem + env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:.9rem}
 .m-overlay-body > *{flex-shrink:0}
+.m-overlay-groups{flex-shrink:0;display:flex;gap:.4rem;overflow-x:auto;padding:.55rem .8rem;border-bottom:1px solid var(--bord);background:var(--surf)}
+.m-pg-chip{flex-shrink:0;min-height:34px;padding:.3rem .75rem;border-radius:999px;border:1px solid var(--bord);background:var(--surf2);font-size:.75rem;font-weight:700;color:var(--txm);white-space:nowrap}
+.m-pg-chip.active{color:#fff;border-color:transparent}
 
 /* Formulaires */
 .m-fld{display:flex;flex-direction:column;gap:.15rem;min-width:0}
@@ -965,13 +968,36 @@ function openExoModal(progId, seanceId, exoId, onSaved) {
 // Overlay plein écran de sélection d'exercice (recherche + liste illustrée)
 function openExoPickerOverlay(onPick) {
   const ov = document.createElement('div'); ov.className='m-overlay';
-  ov.innerHTML = `<div class="m-overlay-hdr"><input class="m-search" id="pickSearch" placeholder="🔎 Rechercher un exercice…"><button class="m-back-btn" id="pickClose">×</button></div><div class="m-overlay-list" id="pickList"></div>`;
+  ov.innerHTML = `<div class="m-overlay-hdr"><input class="m-search" id="pickSearch" placeholder="🔎 Rechercher un exercice…"><button class="m-back-btn" id="pickClose">×</button></div><div class="m-overlay-groups" id="pickGroups"></div><div class="m-overlay-list" id="pickList"></div>`;
   document.body.appendChild(ov);
   const listEl = ov.querySelector('#pickList');
+  const groupsEl = ov.querySelector('#pickGroups');
+  const searchInp = ov.querySelector('#pickSearch');
   const allExos = _exoLib.filter(e=>e.exercice).slice().sort((a,b)=>a.exercice.localeCompare(b.exercice,'fr'));
+  let groupFilter = '';
+
+  function matchesGroup(e) {
+    if (!groupFilter) return true;
+    return (e.groupe_musculaire||'').split(',').map(s=>s.trim()).includes(groupFilter);
+  }
+
+  function renderGroups() {
+    groupsEl.innerHTML = '';
+    ['', ...Object.keys(MC)].forEach(g => {
+      const chip = document.createElement('button'); chip.type='button';
+      chip.className = 'm-pg-chip' + (groupFilter===g ? ' active' : '');
+      chip.textContent = g || 'Tous';
+      if (groupFilter===g) {
+        const chex = g ? MC[g] : 'var(--prim)';
+        chip.style.background = chex; chip.style.borderColor = chex;
+      }
+      chip.addEventListener('click', ()=>{ groupFilter = g; renderGroups(); draw(searchInp.value); });
+      groupsEl.appendChild(chip);
+    });
+  }
 
   function draw(q) {
-    const filtered = allExos.filter(e=>!q || e.exercice.toLowerCase().includes(q.toLowerCase()));
+    const filtered = allExos.filter(e => matchesGroup(e) && (!q || e.exercice.toLowerCase().includes(q.toLowerCase())));
     listEl.innerHTML = filtered.length ? '' : '<div class="m-empty">Aucun résultat</div>';
     filtered.forEach(e => {
       const hex = MC[e.groupe_musculaire]||'#9a9891';
@@ -982,10 +1008,11 @@ function openExoPickerOverlay(onPick) {
       listEl.appendChild(item);
     });
   }
+  renderGroups();
   draw('');
-  ov.querySelector('#pickSearch').addEventListener('input', e=>draw(e.target.value));
+  searchInp.addEventListener('input', e=>draw(e.target.value));
   ov.querySelector('#pickClose').addEventListener('click', ()=>ov.remove());
-  setTimeout(()=>ov.querySelector('#pickSearch').focus(), 60);
+  setTimeout(()=>searchInp.focus(), 60);
 }
 
 // ══════════════════════════════════════════════════════════════
