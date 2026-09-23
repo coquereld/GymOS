@@ -536,7 +536,7 @@
     <div class="sidebar-inner">
       <div class="sidebar-section">
         <div class="sidebar-anatomy">
-          <img src="./img/Anatomie-Full-Color.png" alt="Anatomie musculaire">
+          <img src="./img/Anatomie-Full-Color.webp" alt="Anatomie musculaire">
         </div>
         <div class="sidebar-label">Groupes musculaires</div>
         <div class="group-nav" id="groupNav"></div>
@@ -831,7 +831,7 @@
         <input type="hidden" id="am-img">
         <div class="img-pick" id="am-img-wrap">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
-          <span class="img-pick-name" id="am-img-name">Choisir une image (.png)…</span>
+          <span class="img-pick-name" id="am-img-name">Choisir une image (.webp)…</span>
         </div>
       </div>
       <div class="field">
@@ -986,8 +986,8 @@
   <div class="modal modal-img-small">
     <div class="modal-title" id="imgModalTitle">Modifier l'image</div>
     <div class="field">
-      <label>Nom du fichier (.png)</label>
-      <div class="field-input-wrap"><input type="text" id="imgModalInput" placeholder="ex: bench_press.png"></div>
+      <label>Nom du fichier (.webp)</label>
+      <div class="field-input-wrap"><input type="text" id="imgModalInput" placeholder="ex: bench_press.webp"></div>
     </div>
     <div class="field">
       <label>Ou choisir un fichier local</label>
@@ -1993,7 +1993,7 @@ function openAddModal() {
   document.getElementById('am-video').value='';
   document.getElementById('am-img-file').value='';
   document.getElementById('am-video-file').value='';
-  document.getElementById('am-img-name').textContent='Choisir une image (.png)…';
+  document.getElementById('am-img-name').textContent='Choisir une image (.webp)…';
   document.getElementById('am-img-name').classList.remove('has-file');
   document.getElementById('am-video-name').textContent='Choisir une vidéo (.mp4)…';
   document.getElementById('am-video-name').classList.remove('has-file');
@@ -2444,7 +2444,7 @@ document.getElementById('am-img-wrap').addEventListener('click',()=>document.get
 document.getElementById('am-img-file').addEventListener('change',function(){
   const f=this.files?.[0];const n=f?f.name:'';
   document.getElementById('am-img').value=n;
-  const s=document.getElementById('am-img-name');s.textContent=n||'Choisir une image (.png)…';s.classList.toggle('has-file',!!n);
+  const s=document.getElementById('am-img-name');s.textContent=n||'Choisir une image (.webp)…';s.classList.toggle('has-file',!!n);
 });
 document.getElementById('am-video-wrap').addEventListener('click',()=>document.getElementById('am-video-file').click());
 document.getElementById('am-video-file').addEventListener('change',function(){

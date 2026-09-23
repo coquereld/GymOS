@@ -8,3 +8,6 @@ server/gymos.db
 server/gymos.db-*
 server/.session-secret
 server/service.log
+
+# Sauvegarde locale des PNG originaux avant conversion WebP (voir img_png_backup/_rename-map.csv)
+img_png_backup/
