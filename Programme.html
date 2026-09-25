@@ -244,6 +244,11 @@
     .grp-display-name{font-size:var(--text-sm);font-weight:700}
     .grp-display-muscle{font-size:var(--text-xs);color:var(--txf);margin-top:.1rem}
     .grp-display-badge{font-size:.65rem;font-weight:700;padding:.2rem .55rem;border-radius:999px;white-space:nowrap;flex-shrink:0}
+    .ex-hist-panel{display:flex;flex-direction:column;gap:.4rem}
+    .ex-hist-row{display:flex;align-items:baseline;gap:.6rem;padding:.45rem .65rem;border:1px solid var(--bord);border-radius:var(--rmd);background:var(--surf2)}
+    .ex-hist-date{font-weight:700;color:var(--prim);flex-shrink:0;white-space:nowrap;font-size:.72rem;text-transform:capitalize}
+    .ex-hist-recap{color:var(--txm);flex:1;min-width:0;font-size:.78rem}
+    .ex-hist-empty{font-size:.78rem;color:var(--txf);font-style:italic}
 
     /* RESPONSIVE */
     @media(max-width:1100px){
@@ -407,6 +412,11 @@
         </div>
         <span class="grp-display-badge" id="grpBadge"></span>
       </div>
+    </div>
+    <!-- Dernières fois : historique réel des séances passées avec cet exercice -->
+    <div class="field ffull" id="fldExHist" style="display:none">
+      <label>Dernières fois</label>
+      <div class="ex-hist-panel" id="exHistPanel"></div>
     </div>
     <div class="field" id="fldExSeries"><label>Séries</label><div class="finp"><input type="number" id="exSeries" placeholder="4" min="1"></div></div>
     <div class="field" id="fldExReps"><label>Répétitions</label><div class="finp"><input type="text" id="exReps" placeholder="8-12"></div></div>
@@ -694,6 +704,36 @@ function checkProgressionSuggestion(nomExercice, targetSeries, targetReps, targe
   });
   if(!allSuccess) return null;
   return { lastDate: last.date, suggestedPoids: Math.round((poidsNum+2.5)*10)/10 };
+}
+
+// Récapitulatif compact d'une série passée (poids×reps, ou durée/distance pour le cardio)
+function fmtSeriesRecap(s){
+  if(s.poids && s.reps) return `${s.poids}×${s.reps}`;
+  if(s.duree || s.distance) return [s.duree?`${s.duree}min`:'', s.distance?`${s.distance}`:''].filter(Boolean).join(' · ');
+  if(s.reps) return `${s.reps} reps`;
+  return '—';
+}
+// Dernières séances réelles (historique) où cet exercice a été pratiqué — pour se rappeler
+// des charges/répétitions utilisées la dernière fois avant de planifier la séance.
+function getExoHistory(nom, limit){
+  return (_hist||[])
+    .filter(h => (h.exercices||[]).some(e => e.nom===nom))
+    .slice()
+    .sort((a,b) => `${b.date||''} ${b.heure||''}`.localeCompare(`${a.date||''} ${a.heure||''}`))
+    .slice(0, limit||3)
+    .map(h => ({ date:h.date, entry:(h.exercices||[]).find(e => e.nom===nom) }));
+}
+function renderExoHistPanel(nom){
+  const fld = document.getElementById('fldExHist');
+  const panel = document.getElementById('exHistPanel');
+  if(!nom){ fld.style.display='none'; panel.innerHTML=''; return; }
+  const sessions = getExoHistory(nom, 3);
+  fld.style.display = 'block';
+  if(!sessions.length){ panel.innerHTML = '<div class="ex-hist-empty">Aucune séance précédente enregistrée pour cet exercice.</div>'; return; }
+  panel.innerHTML = sessions.map(({date, entry}) => {
+    const recap = (entry.series||[]).map(fmtSeriesRecap).join(' · ') || '—';
+    return `<div class="ex-hist-row"><span class="ex-hist-date">${esc(fmtDateShort(date))}</span><span class="ex-hist-recap">${esc(recap)}</span></div>`;
+  }).join('');
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -1255,6 +1295,7 @@ function buildExoPicker(lib) {
     updateGroupDisplay(e);
     applyChampsVisibility(e.exercice);
     autoFillRef(e.exercice);
+    renderExoHistPanel(e.exercice);
   }
 
   function makePph(hex) {
@@ -1377,6 +1418,7 @@ function openExoModal(seanceId, exoId){
     document.getElementById('exNote').value=editing.note||'';
   }
   applyChampsVisibility(editing?editing.nom:null);
+  renderExoHistPanel(editing?editing.nom:null);
   document.getElementById('exHint').style.display='none';
   document.getElementById('exErr').style.display='none';
   document.getElementById('exOk').disabled=false;

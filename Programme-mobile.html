@@ -117,6 +117,12 @@ button,input,select,textarea{font-family:inherit;color:inherit}
 .m-ref-hint{font-size:.75rem;font-weight:700;color:var(--prim);background:var(--primhi);border-radius:.6rem;padding:.4rem .6rem}
 .m-prog-suggest{display:flex;align-items:center;gap:.5rem;flex-wrap:wrap;font-size:.75rem;font-weight:600;color:var(--ok);background:rgba(67,122,34,.1);border-radius:.6rem;padding:.4rem .6rem}
 .m-prog-suggest button{min-height:30px;padding:.15rem .55rem;border-radius:.5rem;border:1px solid var(--ok);background:none;color:var(--ok);font-weight:700;font-size:.72rem}
+.m-ex-hist-panel{display:flex;flex-direction:column;gap:.4rem}
+.m-ex-hist-label{font-size:.68rem;font-weight:700;color:var(--txf);text-transform:uppercase;letter-spacing:.04em}
+.m-ex-hist-row{display:flex;align-items:baseline;gap:.6rem;padding:.45rem .65rem;border:1px solid var(--bord);border-radius:.7rem;background:var(--surf2)}
+.m-ex-hist-date{font-weight:700;color:var(--prim);flex-shrink:0;white-space:nowrap;font-size:.72rem;text-transform:capitalize}
+.m-ex-hist-recap{color:var(--txm);flex:1;min-width:0;font-size:.8rem}
+.m-ex-hist-empty{font-size:.78rem;color:var(--txf);font-style:italic}
 
 .m-search{width:100%;min-height:46px;border-radius:.8rem;border:1px solid var(--bord);background:var(--surf2);padding:.5rem .8rem;font-size:.95rem}
 .m-picker-item{display:flex;align-items:center;gap:.65rem;padding:.55rem .6rem;border-radius:.8rem;border:1px solid var(--bord);background:var(--surf);text-align:left;width:100%}
@@ -327,6 +333,22 @@ function checkProgressionSuggestion(nomExercice, targetSeries, targetReps, targe
   });
   if (!allSuccess) return null;
   return { lastDate: last.date, suggestedPoids: Math.round((poidsNum+2.5)*10)/10 };
+}
+// Récapitulatif compact d'une série passée (poids×reps, ou durée/distance pour le cardio)
+function fmtSeriesRecap(s){
+  if (s.poids && s.reps) return `${s.poids}×${s.reps}`;
+  if (s.duree || s.distance) return [s.duree?`${s.duree}min`:'', s.distance?`${s.distance}`:''].filter(Boolean).join(' · ');
+  if (s.reps) return `${s.reps} reps`;
+  return '—';
+}
+// Dernières séances réelles (historique) où cet exercice a été pratiqué
+function getExoHistory(nom, limit) {
+  return (_hist||[])
+    .filter(h => (h.exercices||[]).some(e => e.nom===nom))
+    .slice()
+    .sort((a,b) => `${b.date||''} ${b.heure||''}`.localeCompare(`${a.date||''} ${a.heure||''}`))
+    .slice(0, limit||3)
+    .map(h => ({ date:h.date, entry:(h.exercices||[]).find(e => e.nom===nom) }));
 }
 function snapshotFields(obj, fields) {
   const s={}; fields.forEach(f => { s[f] = Array.isArray(obj[f]) ? obj[f].join(', ') : (obj[f]||''); }); return s;
@@ -841,7 +863,30 @@ function openExoModal(progId, seanceId, exoId, onSaved) {
   }
   drawGrpDisplay();
 
-  body.append(pickTrigger, grpDisplay);
+  // Dernières fois : historique réel des séances passées avec cet exercice
+  const histPanel = document.createElement('div'); histPanel.className='m-ex-hist-panel';
+  function drawHistPanel() {
+    histPanel.innerHTML = '';
+    if (!selected) { histPanel.style.display='none'; return; }
+    histPanel.style.display = 'flex';
+    const label = document.createElement('div'); label.className='m-ex-hist-label'; label.textContent='Dernières fois';
+    histPanel.appendChild(label);
+    const sessions = getExoHistory(selected.exercice, 3);
+    if (!sessions.length) {
+      const empty = document.createElement('div'); empty.className='m-ex-hist-empty'; empty.textContent='Aucune séance précédente enregistrée pour cet exercice.';
+      histPanel.appendChild(empty);
+      return;
+    }
+    sessions.forEach(({date, entry}) => {
+      const recap = (entry.series||[]).map(fmtSeriesRecap).join(' · ') || '—';
+      const row = document.createElement('div'); row.className='m-ex-hist-row';
+      row.innerHTML = `<span class="m-ex-hist-date">${esc(fmtDateShort(date))}</span><span class="m-ex-hist-recap">${esc(recap)}</span>`;
+      histPanel.appendChild(row);
+    });
+  }
+  drawHistPanel();
+
+  body.append(pickTrigger, grpDisplay, histPanel);
 
   const errBox = document.createElement('div'); errBox.className='m-err'; errBox.style.display='none';
   const refHint = document.createElement('div'); refHint.className='m-ref-hint'; refHint.style.display='none';
@@ -925,7 +970,7 @@ function openExoModal(progId, seanceId, exoId, onSaved) {
   pickTrigger.addEventListener('click', ()=>{
     openExoPickerOverlay(exoData => {
       selected = { exercice: exoData.exercice, groupe_musculaire: exoData.groupe_musculaire||'', image: exoData.image||exoData.image_muscle||exoData.image_groupe||'' };
-      drawTrigger(); drawGrpDisplay();
+      drawTrigger(); drawGrpDisplay(); drawHistPanel();
       applyChampsVisibility(selected.exercice);
       autoFillRef(selected.exercice);
       errBox.style.display = 'none';

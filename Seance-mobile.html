@@ -354,14 +354,22 @@ function fmtMMSS(totalSec) {
 function playBeep() {
   try {
     const ctx = new (window.AudioContext||window.webkitAudioContext)();
-    [0,0.28,0.56].forEach(delay => {
+    // Triangle (plus riche qu'un sinus pur, pour mieux ressortir par-dessus de la musique)
+    // + une dernière tonalité plus grave et plus longue pour bien marquer la fin du repos.
+    const beeps = [
+      {delay:0,    freq:880,  dur:0.22, peak:0.55},
+      {delay:0.28, freq:880,  dur:0.22, peak:0.55},
+      {delay:0.56, freq:880,  dur:0.22, peak:0.55},
+      {delay:0.90, freq:1320, dur:0.45, peak:0.65},
+    ];
+    beeps.forEach(({delay,freq,dur,peak}) => {
       const o=ctx.createOscillator(), g=ctx.createGain();
-      o.type='sine'; o.frequency.value=880;
+      o.type='triangle'; o.frequency.value=freq;
       o.connect(g); g.connect(ctx.destination);
       g.gain.setValueAtTime(0.0001, ctx.currentTime+delay);
-      g.gain.exponentialRampToValueAtTime(0.3, ctx.currentTime+delay+0.02);
-      g.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime+delay+0.22);
-      o.start(ctx.currentTime+delay); o.stop(ctx.currentTime+delay+0.24);
+      g.gain.exponentialRampToValueAtTime(peak, ctx.currentTime+delay+0.02);
+      g.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime+delay+dur);
+      o.start(ctx.currentTime+delay); o.stop(ctx.currentTime+delay+dur+0.02);
     });
   } catch {}
 }
