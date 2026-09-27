@@ -466,20 +466,29 @@
     }
     .poids-help-btn:hover{background:var(--color-primary);border-color:var(--color-primary);color:#fff}
     .poids-helper-list{display:flex;flex-direction:column;gap:2px;padding:.3rem}
+    .poids-helper-hdr{display:flex;align-items:center;justify-content:space-between;gap:.5rem;padding:.4rem .6rem .1rem}
+    .poids-helper-type{font-size:.68rem;font-weight:700;color:var(--color-text-faint);text-transform:uppercase;letter-spacing:.04em}
+    .poids-reset-btn{font-size:.68rem;font-weight:700;color:var(--color-primary);background:none;border:none;cursor:pointer;padding:.15rem .3rem}
     .poids-row{
-      display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:.6rem;
+      display:flex;flex-direction:column;gap:.15rem;
       padding:.45rem .7rem;border-radius:var(--radius-md);cursor:pointer;
       transition:background var(--transition),color var(--transition);
       font-size:.82rem;color:var(--color-text);
     }
     .poids-row:hover{background:var(--color-surface-offset)}
+    .poids-row-main{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:.6rem;width:100%}
+    .poids-row-solo{grid-template-columns:1fr;text-align:center}
     .poids-row .poids-lbs{color:var(--color-text-muted);font-size:.76rem}
     .poids-row .poids-kg{font-weight:700;text-align:right}
+    .poids-row-solo .poids-kg{text-align:center}
     .poids-row .poids-dot{width:7px;height:7px;border-radius:50%;background:var(--color-border);justify-self:center}
+    .poids-p1b-sub{font-size:.66rem;color:var(--color-text-faint);padding-left:.1rem}
     .poids-row.active{background:color-mix(in oklab,#c0392b 12%,var(--color-surface));color:#c0392b}
     .poids-row.active .poids-lbs{color:#c0392b;opacity:.85}
     .poids-row.active .poids-dot{background:#c0392b}
     .poids-row.active .poids-kg{color:#c0392b}
+    .poids-row.active .poids-p1b-sub{color:#c0392b;opacity:.75}
+    .poids-empty{padding:.9rem .7rem;text-align:center;color:var(--color-text-faint);font-size:.8rem;font-style:italic}
     .obj-add-btn{
       display:inline-flex;align-items:center;gap:var(--space-2);
       padding:.5rem 1rem;border-radius:var(--radius-md);
@@ -923,6 +932,17 @@
           <option value="Avancé">Avancé</option>
         </select>
       </div>
+      <div class="field">
+        <label>Repère de poids <span style="font-size:.68rem;color:var(--color-text-faint);font-weight:400">(lbs → kg)</span></label>
+        <select id="am-repere-poids" class="select-styled">
+          <option value="">— Aucun —</option>
+          <option value="Machine 1">Machine 1</option>
+          <option value="Machine 2">Machine 2</option>
+          <option value="Poulie 1">Poulie 1</option>
+          <option value="Disque">Disque</option>
+          <option value="Haltères">Haltères</option>
+        </select>
+      </div>
       <div class="field field-full">
         <label style="display:flex;align-items:center;gap:.5rem;cursor:pointer">
           <input type="checkbox" id="am-unilateral" style="width:16px;height:16px;accent-color:var(--color-primary);cursor:pointer">
@@ -1031,8 +1051,12 @@
 <div class="modal-overlay" id="poidsHelperOverlay" role="dialog" aria-modal="true">
   <div class="modal" style="max-width:320px;padding:0;overflow:hidden">
     <div style="display:flex;align-items:center;justify-content:space-between;padding:.9rem 1.1rem .7rem;border-bottom:1px solid var(--color-border)">
-      <div style="font-weight:700;font-size:.86rem">Repères de poids (lbs → kg)</div>
+      <div style="font-weight:700;font-size:.86rem">Repères de poids</div>
       <button id="poidsHelperClose" style="border:none;background:none;cursor:pointer;color:var(--color-text-muted);font-size:1.1rem;line-height:1;padding:.2rem" aria-label="Fermer">×</button>
+    </div>
+    <div class="poids-helper-hdr">
+      <span class="poids-helper-type" id="poidsHelperType"></span>
+      <button type="button" class="poids-reset-btn" id="poidsHelperReset" style="display:none">Réinitialiser</button>
     </div>
     <div class="poids-helper-list" id="poidsHelperList" style="max-height:60vh;overflow-y:auto"></div>
   </div>
@@ -1063,6 +1087,7 @@
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
       </button>
       <video id="videoPlayer" controls></video>
+      <div id="videoPlayerError" class="img-placeholder" style="display:none;width:280px;height:200px;font-size:var(--text-sm);border-radius:0">Vidéo introuvable — le fichier n'est pas présent dans le dossier <code>mp4/</code> du serveur.</div>
     </div>
     <div class="lightbox-meta">
       <div class="lightbox-filename" id="videoModalFilename"></div>
@@ -1310,14 +1335,15 @@ function serializeSecValue(arr){
 }
 
 const STORAGE_KEY  = 'exercices-studio-autosave-v2';
-const fields = ['image','exercice','descriptif','execution','video','groupe_musculaire','muscle','subdivision','muscle_secondaire','equipement','type_exercice','type_mouvement','pattern_mouvement','niveau'];
-const searchableFields = ['exercice','descriptif','groupe_musculaire','muscle','subdivision','muscle_secondaire','equipement','type_exercice','type_mouvement','pattern_mouvement','niveau'];
+const fields = ['image','exercice','descriptif','execution','video','groupe_musculaire','muscle','subdivision','muscle_secondaire','equipement','type_exercice','type_mouvement','pattern_mouvement','niveau','type_repere_poids'];
+const searchableFields = ['exercice','descriptif','groupe_musculaire','muscle','subdivision','muscle_secondaire','equipement','type_exercice','type_mouvement','pattern_mouvement','niveau','type_repere_poids'];
 const labels = {
   image:'Image',exercice:'Exercice',descriptif:'Descriptif',execution:'Exécution',
   video:'Vidéo',groupe_musculaire:'Groupe',muscle:'Muscle',
   subdivision:'Subdivision',muscle_secondaire:'Muscle secondaire',
   equipement:'Équipement',type_exercice:'Type',
-  type_mouvement:'Type de mouvement',pattern_mouvement:'Pattern de mouvement',niveau:'Niveau'
+  type_mouvement:'Type de mouvement',pattern_mouvement:'Pattern de mouvement',niveau:'Niveau',
+  type_repere_poids:'Repère de poids'
 };
 const EQUIPEMENT_OPTS = ['Machine','Poids du corps','Haltères','Élastique','Barre'];
 const TYPE_OPTS       = ['Renforcement Musculaire','Cardio'];
@@ -1677,6 +1703,9 @@ function openVideoModal(rowId) {
   const row = state.rows.find(r=>r.id===rowId);
   if (!row?.video) return;
   const player = document.getElementById('videoPlayer');
+  const errEl = document.getElementById('videoPlayerError');
+  player.style.display=''; errEl.style.display='none';
+  player.onerror = () => { player.style.display='none'; errEl.style.display='grid'; };
   player.src = './mp4/'+row.video;
   document.getElementById('videoModalFilename').textContent = row.video;
   document.getElementById('videoModalContext').textContent  = row.exercice;
@@ -1999,6 +2028,7 @@ function openAddModal() {
   document.getElementById('am-video-name').classList.remove('has-file');
   document.getElementById('am-equipement').value='';
   document.getElementById('am-type-exercice').value='';
+  document.getElementById('am-repere-poids').value='';
   document.getElementById('am-unilateral').checked=false;
   resetSecMultisel([]);
   document.getElementById('am-error').style.display='none';
@@ -2032,6 +2062,7 @@ function confirmAddModal(){
     type_mouvement:   document.getElementById('am-type-mouvement').value,
     pattern_mouvement:document.getElementById('am-pattern-mouvement').value,
     niveau:           document.getElementById('am-niveau').value,
+    type_repere_poids:document.getElementById('am-repere-poids').value,
     unilateral:       document.getElementById('am-unilateral').checked,
     alternatives:     [],
     historique_modifs:[]
@@ -2241,6 +2272,7 @@ function renderCards() {
       vBadge.className = 'video-badge';
       vBadge.style.cssText = 'font-size:.6rem;padding:.2rem .5rem';
       vBadge.textContent = '▶ Vidéo';
+      vBadge.addEventListener('click', e => { e.stopPropagation(); openVideoModal(row.id); });
       rightGroup.appendChild(vBadge);
     }
     footer.appendChild(rightGroup);
@@ -2261,6 +2293,15 @@ function renderCards() {
       else if (hasImg) openLightbox(row.id);
       else if (hasVideo) openVideoModal(row.id);
     });
+
+    // Clic sur le badge "MP4" superposé à la vignette → lecture directe de la vidéo
+    if (hasVideo) {
+      const vidBadgeEl = card.querySelector('.exo-card-video-badge');
+      if (vidBadgeEl) {
+        vidBadgeEl.style.cursor = 'pointer';
+        vidBadgeEl.addEventListener('click', e => { e.stopPropagation(); openVideoModal(row.id); });
+      }
+    }
 
     els.cardGrid.appendChild(card);
   });
@@ -2538,7 +2579,7 @@ function renderSecMuscleCell(val) {
 }
 els.tableBody.addEventListener('click',e=>{
   const tdVid=e.target.closest('td.cell-video');
-  if(tdVid&&state.viewMode==='read'){
+  if(tdVid){
     const row=state.rows.find(r=>r.id===tdVid.dataset.id);
     if(row?.video) openVideoModal(row.id);
     return;
@@ -2693,33 +2734,23 @@ function saveObjectifs() {
   GymDB.write('exercices-objectifs.json', _objectifs);
 }
 
-// ── Aide repères de poids (lbs → kg), table standard des disques/haltères ──
-const WEIGHT_TABLE = [
-  {lbs:5,kg:2.3},{lbs:10,kg:4.5},{lbs:15,kg:6.8},{lbs:20,kg:9},{lbs:25,kg:11.3},
-  {lbs:30,kg:13.5},{lbs:35,kg:15.8},{lbs:40,kg:18},{lbs:45,kg:20.3},{lbs:50,kg:22.5},
-  {lbs:55,kg:24.8},{lbs:60,kg:27},{lbs:65,kg:29.3},{lbs:70,kg:31.5},{lbs:75,kg:33.8},
-  {lbs:80,kg:36},{lbs:85,kg:38.3},{lbs:90,kg:40.5},{lbs:95,kg:42.8},{lbs:100,kg:45},
-];
+// ── Aide repères de poids (lbs → kg), propre au type assigné à l'exercice sélectionné ──
 function renderPoidsHelperList(){
+  const row = state.rows.find(r => r.id === state.selectedId);
+  const type = row?.type_repere_poids || '';
+  const input = document.getElementById('obj-poids');
   const list = document.getElementById('poidsHelperList');
-  const current = parseFloat(document.getElementById('obj-poids').value);
-  list.innerHTML = WEIGHT_TABLE.map(w=>{
-    const active = current === w.kg;
-    return `<div class="poids-row${active?' active':''}" data-kg="${w.kg}">
-      <span class="poids-lbs">${w.lbs} lbs</span>
-      <span class="poids-dot"></span>
-      <span class="poids-kg">${w.kg} kg</span>
-    </div>`;
-  }).join('');
-  list.querySelectorAll('.poids-row').forEach(row=>{
-    row.addEventListener('click', ()=>{
-      document.getElementById('obj-poids').value = row.dataset.kg;
-      renderPoidsHelperList();
-    });
-  });
+  const resetBtn = document.getElementById('poidsHelperReset');
+  document.getElementById('poidsHelperType').textContent = type || 'Aucun type assigné';
+  resetBtn.style.display = type==='Disque' ? '' : 'none';
+  list.innerHTML = type
+    ? renderPoidsLadderHtml(type, input.value)
+    : '<div class="poids-empty">Choisissez un « Repère de poids » pour cet exercice dans sa fiche (Équipement) pour afficher les valeurs correspondantes.</div>';
+  wirePoidsLadderClicks(list, input, renderPoidsHelperList);
 }
 function openPoidsHelper(){ renderPoidsHelperList(); document.getElementById('poidsHelperOverlay').classList.add('open'); }
 function closePoidsHelper(){ document.getElementById('poidsHelperOverlay').classList.remove('open'); }
+document.getElementById('poidsHelperReset').addEventListener('click', ()=>{ document.getElementById('obj-poids').value=''; renderPoidsHelperList(); });
 document.getElementById('obj-poids-help').addEventListener('click', openPoidsHelper);
 document.getElementById('poidsHelperClose').addEventListener('click', closePoidsHelper);
 document.getElementById('poidsHelperOverlay').addEventListener('click', e=>{ if(e.target.id==='poidsHelperOverlay') closePoidsHelper(); });
@@ -3195,6 +3226,17 @@ document.getElementById('objFormModal').addEventListener('click', e => {
             <option value="Avancé">Avancé</option>
           </select>
         </div>
+        <!-- Repère de poids -->
+        <div class="em-field"><label class="em-label">Repère de poids (lbs → kg)</label>
+          <select class="em-select" id="em-repere-poids">
+            <option value="">— Aucun —</option>
+            <option value="Machine 1">Machine 1</option>
+            <option value="Machine 2">Machine 2</option>
+            <option value="Poulie 1">Poulie 1</option>
+            <option value="Disque">Disque</option>
+            <option value="Haltères">Haltères</option>
+          </select>
+        </div>
         <!-- Unilatéral -->
         <div class="em-field">
           <label class="em-label" style="display:flex;align-items:center;gap:.5rem;cursor:pointer;color:var(--color-text)">
@@ -3295,6 +3337,7 @@ function openExoEditModal(rowId) {
   document.getElementById('em-type-mouvement').value    = row.type_mouvement || '';
   document.getElementById('em-pattern-mouvement').value = row.pattern_mouvement || '';
   document.getElementById('em-niveau').value            = row.niveau || '';
+  document.getElementById('em-repere-poids').value      = row.type_repere_poids || '';
   document.getElementById('em-unilateral').checked      = !!row.unilateral;
   document.getElementById('em-descriptif').value = row.descriptif || '';
   document.getElementById('em-execution').value  = row.execution || '';
@@ -3483,7 +3526,7 @@ function closeExoEditModal() {
 }
 
 // Champs suivis dans l'historique des modifications (diff avant/après)
-const HISTORIQUE_MODIF_FIELDS = ['exercice','groupe_musculaire','muscle','subdivision','muscle_secondaire','equipement','type_exercice','type_mouvement','pattern_mouvement','niveau','descriptif','execution'];
+const HISTORIQUE_MODIF_FIELDS = ['exercice','groupe_musculaire','muscle','subdivision','muscle_secondaire','equipement','type_exercice','type_mouvement','pattern_mouvement','niveau','type_repere_poids','descriptif','execution'];
 
 function confirmExoEditModal() {
   const row = state.rows.find(r => r.id === _editExoId);
@@ -3502,6 +3545,7 @@ function confirmExoEditModal() {
   row.type_mouvement    = document.getElementById('em-type-mouvement').value;
   row.pattern_mouvement = document.getElementById('em-pattern-mouvement').value;
   row.niveau            = document.getElementById('em-niveau').value;
+  row.type_repere_poids = document.getElementById('em-repere-poids').value;
   row.unilateral        = document.getElementById('em-unilateral').checked;
   row.descriptif        = document.getElementById('em-descriptif').value.trim();
   row.execution         = document.getElementById('em-execution').value.trim();
@@ -3851,9 +3895,11 @@ function openExoInfoModal(rowId) {
   const tagsRow = document.getElementById('exoInfoTagsRow');
   tagsRow.innerHTML = '';
   if (row.video) {
-    const vb = document.createElement('span');
-    vb.style.cssText = 'display:inline-flex;align-items:center;gap:.4rem;font-size:.72rem;font-weight:600;padding:.3rem .7rem;border-radius:.5rem;border:1px solid var(--color-border);background:var(--color-surface)';
-    vb.innerHTML = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg> ${row.video}`;
+    const vb = document.createElement('button');
+    vb.type = 'button';
+    vb.style.cssText = 'display:inline-flex;align-items:center;gap:.4rem;font-size:.72rem;font-weight:600;padding:.3rem .7rem;border-radius:.5rem;border:1px solid var(--color-border);background:var(--color-surface);color:var(--color-text);cursor:pointer;font-family:inherit;transition:all var(--transition)';
+    vb.innerHTML = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg> ${escapeXml(row.video)}`;
+    vb.addEventListener('click', () => openVideoModal(row.id));
     tagsRow.appendChild(vb);
   }
   tagsRow.style.display = tagsRow.children.length ? '' : 'none';
@@ -3867,6 +3913,7 @@ function openExoInfoModal(rowId) {
     { label:'Type de mouvement',     val: row.type_mouvement },
     { label:'Pattern de mouvement',  val: row.pattern_mouvement },
     { label:'Niveau',                val: row.niveau },
+    { label:'Repère de poids',       val: row.type_repere_poids },
     { label:'Descriptif',            val: row.descriptif },
     { label:'Exécution / Technique', val: row.execution },
   ].forEach(({ label, val }) => {

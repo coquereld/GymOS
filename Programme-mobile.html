@@ -101,6 +101,23 @@ button,input,select,textarea{font-family:inherit;color:inherit}
 .m-fld input,.m-fld textarea,.m-fld select{width:100%;min-width:0;min-height:44px;border-radius:.6rem;border:1px solid var(--bord);background:var(--surf2);padding:.4rem .6rem;font-size:.9rem}
 .m-fld textarea{min-height:64px;resize:vertical}
 .m-form-grid{display:grid;grid-template-columns:1fr 1fr;gap:.55rem}
+.m-poids-row{display:flex;gap:.4rem;min-width:0}
+.m-poids-row input{flex:1;min-width:0}
+.m-poids-help-btn{flex-shrink:0;width:44px;height:44px;border-radius:.6rem;border:1px solid var(--bord);background:var(--surf2);font-weight:800}
+.poids-helper-hdr{display:flex;align-items:center;justify-content:space-between;gap:.5rem;padding:0 0 .6rem}
+.poids-helper-type{font-size:.7rem;font-weight:800;color:var(--txf);text-transform:uppercase;letter-spacing:.03em}
+.poids-reset-btn{font-size:.75rem;font-weight:700;color:var(--prim);background:none;border:none;padding:.2rem .3rem}
+.poids-helper-list{display:flex;flex-direction:column;gap:.4rem}
+.poids-row{padding:.6rem .8rem;border-radius:.75rem;border:1px solid var(--bord);background:var(--surf);display:flex;flex-direction:column;gap:.2rem}
+.poids-row-main{display:flex;align-items:center;justify-content:space-between;gap:.5rem}
+.poids-row-solo{justify-content:center}
+.poids-row .poids-lbs{font-weight:700}
+.poids-row .poids-kg{font-weight:800}
+.poids-row .poids-dot{display:none}
+.poids-row.active{border-color:var(--prim);background:var(--primhi);color:var(--primh)}
+.poids-p1b-sub{font-size:.68rem;color:var(--txf)}
+.poids-row.active .poids-p1b-sub{color:var(--primh);opacity:.8}
+.poids-empty{padding:1rem;text-align:center;color:var(--txf);font-size:.82rem;font-style:italic}
 .m-err{font-size:.78rem;color:var(--err);background:color-mix(in srgb, var(--err) 10%, transparent);border:1px solid color-mix(in srgb, var(--err) 30%, transparent);border-radius:.6rem;padding:.5rem .7rem}
 .m-jours-toggle-row{display:flex;flex-wrap:wrap;gap:.4rem}
 .m-jour-toggle{padding:.4rem .8rem;border-radius:999px;border:1px solid var(--bord);background:var(--surf2);color:var(--txm);font-size:.78rem;font-weight:700}
@@ -821,6 +838,7 @@ function openExoModal(progId, seanceId, exoId, onSaved) {
   let selected = editing ? {
     exercice: editing.nom, groupe_musculaire: editing.groupe||'',
     image: editing.image || getExoImage(editing.nom),
+    type_repere_poids: (_exoLib.find(x=>x.exercice?.toLowerCase()===editing.nom.toLowerCase())||{}).type_repere_poids||'',
   } : null;
 
   const ov = document.createElement('div'); ov.className='m-overlay';
@@ -905,7 +923,14 @@ function openExoModal(progId, seanceId, exoId, onSaved) {
   }
   const seriesFld = mkFld('Séries','exSeries','number',false,'1');
   const repsFld = mkFld('Répétitions','exReps','text');
-  const poidsFld = mkFld('Poids (kg)','exPoids','number',false,'0.5');
+  const poidsFld = document.createElement('div'); poidsFld.className='m-fld'; poidsFld.dataset.champKey='poids';
+  const poidsLbl = document.createElement('label'); poidsLbl.textContent = 'Poids (kg)';
+  const poidsRow = document.createElement('div'); poidsRow.className='m-poids-row';
+  const poidsInp = document.createElement('input'); poidsInp.type='number'; poidsInp.inputMode='decimal'; poidsInp.min='0'; poidsInp.step='0.5'; poidsInp.id='exPoids';
+  const poidsHelpBtn = document.createElement('button'); poidsHelpBtn.type='button'; poidsHelpBtn.className='m-poids-help-btn'; poidsHelpBtn.textContent='?';
+  poidsHelpBtn.addEventListener('click', ()=>openPoidsHelperOverlay(poidsInp, selected?.type_repere_poids||''));
+  poidsRow.append(poidsInp, poidsHelpBtn);
+  poidsFld.append(poidsLbl, poidsRow);
   const recupFld = mkFld('Récupération','exRecup','text');
   const dureeFld = mkFld('Durée','exDuree','text');
   const distFld = mkFld('Distance','exDist','text');
@@ -969,7 +994,7 @@ function openExoModal(progId, seanceId, exoId, onSaved) {
   // Sélection d'un exercice via l'overlay picker plein écran
   pickTrigger.addEventListener('click', ()=>{
     openExoPickerOverlay(exoData => {
-      selected = { exercice: exoData.exercice, groupe_musculaire: exoData.groupe_musculaire||'', image: exoData.image||exoData.image_muscle||exoData.image_groupe||'' };
+      selected = { exercice: exoData.exercice, groupe_musculaire: exoData.groupe_musculaire||'', image: exoData.image||exoData.image_muscle||exoData.image_groupe||'', type_repere_poids: exoData.type_repere_poids||'' };
       drawTrigger(); drawGrpDisplay(); drawHistPanel();
       applyChampsVisibility(selected.exercice);
       autoFillRef(selected.exercice);
@@ -1011,6 +1036,42 @@ function openExoModal(progId, seanceId, exoId, onSaved) {
 }
 
 // Overlay plein écran de sélection d'exercice (recherche + liste illustrée)
+// Repères de poids (lbs → kg), propres au type assigné à l'exercice sélectionné
+function openPoidsHelperOverlay(targetInput, type) {
+  const ov = document.createElement('div'); ov.className='m-overlay';
+  const hdr = document.createElement('div'); hdr.className='m-overlay-hdr';
+  const backBtn = document.createElement('button'); backBtn.className='m-back-btn'; backBtn.textContent='←';
+  backBtn.addEventListener('click', ()=>ov.remove());
+  const title = document.createElement('div'); title.className='m-overlay-title'; title.innerHTML='<div class="m-overlay-name">Repères de poids</div>';
+  hdr.append(backBtn, title);
+  ov.appendChild(hdr);
+
+  const body = document.createElement('div'); body.className='m-overlay-body';
+  const topRow = document.createElement('div'); topRow.className='poids-helper-hdr';
+  const typeLbl = document.createElement('span'); typeLbl.className='poids-helper-type'; typeLbl.textContent = type || 'Aucun type assigné';
+  topRow.appendChild(typeLbl);
+  let resetBtn = null;
+  if (type === 'Disque') {
+    resetBtn = document.createElement('button'); resetBtn.type='button'; resetBtn.className='poids-reset-btn'; resetBtn.textContent='Réinitialiser';
+    topRow.appendChild(resetBtn);
+  }
+  body.appendChild(topRow);
+  const list = document.createElement('div'); list.className='poids-helper-list';
+  body.appendChild(list);
+
+  function draw() {
+    list.innerHTML = type
+      ? renderPoidsLadderHtml(type, targetInput.value)
+      : '<div class="poids-empty">Aucun repère de poids défini pour cet exercice. Choisissez-en un dans sa fiche, dans Exercices.</div>';
+    wirePoidsLadderClicks(list, targetInput, draw);
+  }
+  draw();
+  if (resetBtn) resetBtn.addEventListener('click', ()=>{ targetInput.value=''; draw(); });
+
+  ov.appendChild(body);
+  document.body.appendChild(ov);
+}
+
 function openExoPickerOverlay(onPick) {
   const ov = document.createElement('div'); ov.className='m-overlay';
   ov.innerHTML = `<div class="m-overlay-hdr"><input class="m-search" id="pickSearch" placeholder="🔎 Rechercher un exercice…"><button class="m-back-btn" id="pickClose">×</button></div><div class="m-overlay-groups" id="pickGroups"></div><div class="m-overlay-list" id="pickList"></div>`;

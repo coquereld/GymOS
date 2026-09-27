@@ -101,6 +101,23 @@ button,input,select,textarea{font-family:inherit;color:inherit}
 .m-st-input{width:46px;min-height:38px;border-radius:.4rem;border:1px solid var(--bord);background:var(--bg);padding:.15rem;font-size:.85rem;text-align:center;font-variant-numeric:tabular-nums}
 .m-st-select{min-height:38px;border-radius:.4rem;border:1px solid var(--bord);background:var(--bg);font-size:.72rem;padding:.15rem}
 .m-st-input:disabled,.m-st-select:disabled{opacity:.6}
+.m-st-poids-wrap{display:flex;align-items:center;gap:.2rem}
+.m-st-poids-wrap .m-st-input{width:40px}
+.m-poids-help-btn-sm{flex-shrink:0;width:20px;height:20px;border-radius:50%;border:1px solid var(--bord);background:var(--surf2);color:var(--txf);font-size:.6rem;font-weight:800;line-height:1;display:inline-grid;place-items:center;padding:0}
+.poids-helper-hdr{display:flex;align-items:center;justify-content:space-between;gap:.5rem;padding:0 0 .6rem}
+.poids-helper-type{font-size:.7rem;font-weight:800;color:var(--txf);text-transform:uppercase;letter-spacing:.03em}
+.poids-reset-btn{font-size:.75rem;font-weight:700;color:var(--prim);background:none;border:none;padding:.2rem .3rem}
+.poids-helper-list{display:flex;flex-direction:column;gap:.4rem}
+.poids-row{padding:.6rem .8rem;border-radius:.75rem;border:1px solid var(--bord);background:var(--surf);display:flex;flex-direction:column;gap:.2rem}
+.poids-row-main{display:flex;align-items:center;justify-content:space-between;gap:.5rem}
+.poids-row-solo{justify-content:center}
+.poids-row .poids-lbs{font-weight:700}
+.poids-row .poids-kg{font-weight:800}
+.poids-row .poids-dot{display:none}
+.poids-row.active{border-color:var(--prim);background:var(--primhi);color:var(--primh)}
+.poids-p1b-sub{font-size:.68rem;color:var(--txf)}
+.poids-row.active .poids-p1b-sub{color:var(--primh);opacity:.8}
+.poids-empty{padding:1rem;text-align:center;color:var(--txf);font-size:.82rem;font-style:italic}
 .m-st-ressenti-badge{display:flex;align-items:center;justify-content:center;width:30px;height:32px;border-radius:.4rem;background:var(--surf2);font-size:1.05rem;margin:0 auto}
 .m-th-ressenti,.m-st-select-ressenti{width:38px}
 .m-st-select-ressenti{padding:.15rem .05rem;text-align:center}
@@ -162,6 +179,8 @@ button,input,select,textarea{font-family:inherit;color:inherit}
 .m-erb-chip{font-size:.72rem;font-weight:700;padding:.2rem .5rem;border-radius:.5rem;background:var(--surf2);color:var(--tx)}
 .m-lightbox{position:fixed;inset:0;background:rgba(0,0,0,.92);z-index:400;display:flex;align-items:center;justify-content:center;padding:1rem}
 .m-lightbox img{max-width:100%;max-height:100%;object-fit:contain}
+.m-lightbox-close{position:fixed;top:calc(.7rem + env(safe-area-inset-top));right:.7rem;width:44px;height:44px;border-radius:999px;border:none;background:rgba(255,255,255,.15);color:#fff;font-size:1.6rem;line-height:1;display:flex;align-items:center;justify-content:center;z-index:401}
+.m-erb-video-btn{display:inline-flex;align-items:center;gap:.4rem;font-size:.78rem;font-weight:700;padding:.5rem .9rem;border-radius:999px;border:1px solid var(--bord);background:var(--surf2);color:var(--tx);width:fit-content}
 
 .m-toast{position:fixed;left:50%;bottom:calc(140px + env(safe-area-inset-bottom));transform:translateX(-50%);background:var(--tx);color:var(--bg);padding:.6rem 1.1rem;border-radius:999px;font-size:.85rem;font-weight:700;z-index:300;opacity:0;transition:opacity .25s}
 .m-toast.show{opacity:1}
@@ -668,11 +687,33 @@ function parseSecValue(str) {
 function renderStarsHtml(level) {
   return Array.from({length:5},(_,i)=> i<level ? '<span style="color:#f5b731">★</span>' : '<span style="color:#d1d0ce">☆</span>').join('');
 }
+function makeLightboxCloseBtn(lb) {
+  const closeBtn = document.createElement('button'); closeBtn.type='button'; closeBtn.className='m-lightbox-close';
+  closeBtn.textContent='×'; closeBtn.setAttribute('aria-label','Fermer');
+  closeBtn.addEventListener('click', e=>{ e.stopPropagation(); lb.remove(); });
+  return closeBtn;
+}
 function openImageLightbox(src, title) {
   const lb = document.createElement('div'); lb.className='m-lightbox';
   const img = document.createElement('img'); img.src='./img/'+src; img.alt=title||'';
-  lb.appendChild(img);
-  lb.addEventListener('click', ()=>lb.remove());
+  lb.append(makeLightboxCloseBtn(lb), img);
+  lb.addEventListener('click', e=>{ if(e.target===lb) lb.remove(); });
+  document.body.appendChild(lb);
+}
+function openVideoLightbox(src, title) {
+  const lb = document.createElement('div'); lb.className='m-lightbox';
+  lb.appendChild(makeLightboxCloseBtn(lb));
+  const video = document.createElement('video'); video.src='./mp4/'+src; video.controls=true; video.autoplay=true; video.playsInline=true;
+  video.setAttribute('webkit-playsinline','');
+  video.style.cssText='max-width:100%;max-height:100%';
+  video.addEventListener('error', ()=>{
+    video.remove();
+    const err=document.createElement('div'); err.style.cssText='color:#fff;text-align:center;padding:1.5rem;font-size:.85rem';
+    err.textContent = 'Vidéo introuvable : ' + title;
+    lb.appendChild(err);
+  });
+  lb.appendChild(video);
+  lb.addEventListener('click', e=>{ if(e.target===lb) lb.remove(); });
   document.body.appendChild(lb);
 }
 
@@ -707,6 +748,13 @@ function openExoRecapOverlay(exoId) {
     const row = document.createElement('div'); row.className='m-erb-tags';
     tagVals.forEach(t=>{ const s=document.createElement('span'); s.className='m-erb-tag'; s.textContent=t; row.appendChild(s); });
     body.appendChild(row);
+  }
+
+  if (exo.video) {
+    const vBtn = document.createElement('button'); vBtn.type='button'; vBtn.className='m-erb-video-btn';
+    vBtn.innerHTML = '▶ Voir la vidéo';
+    vBtn.addEventListener('click', ()=>openVideoLightbox(exo.video, exo.exercice));
+    body.appendChild(vBtn);
   }
 
   const sec = parseSecValue(exo.muscle_secondaire);
@@ -829,6 +877,17 @@ function buildSerieTableRow(exo,ei,serie,si,champs) {
     inp.placeholder = placeholder||'—';
     inp.disabled = serie.done;
     inp.addEventListener('input', ()=>{ serie[key]=inp.value; saveCurrentSession(); });
+    if (key==='poids') {
+      const poidsType = (_exoLib.find(e=>e.exercice?.toLowerCase()===exo.nom?.toLowerCase())||{}).type_repere_poids;
+      if (poidsType && !serie.done) {
+        const wrap = document.createElement('div'); wrap.className='m-st-poids-wrap';
+        const helpBtn = document.createElement('button'); helpBtn.type='button'; helpBtn.className='m-poids-help-btn-sm'; helpBtn.textContent='?';
+        helpBtn.addEventListener('click', ()=>openPoidsHelperOverlay(inp, poidsType));
+        wrap.append(inp, helpBtn);
+        td.appendChild(wrap);
+        return td;
+      }
+    }
     td.appendChild(inp);
     return td;
   }
@@ -1051,6 +1110,42 @@ async function saveSession() {
 // ══════════════════════════════════════════════════════════════
 // AJOUT D'EXERCICE (séance libre / ajout en cours de séance)
 // ══════════════════════════════════════════════════════════════
+// Repères de poids (lbs → kg), propres au type assigné à l'exercice
+function openPoidsHelperOverlay(targetInput, type) {
+  const ov = document.createElement('div'); ov.className='m-overlay';
+  const hdr = document.createElement('div'); hdr.className='m-overlay-hdr';
+  const backBtn = document.createElement('button'); backBtn.className='m-back-btn'; backBtn.textContent='←';
+  backBtn.addEventListener('click', ()=>ov.remove());
+  const title = document.createElement('div'); title.className='m-overlay-title'; title.innerHTML='<div class="m-overlay-name">Repères de poids</div>';
+  hdr.append(backBtn, title);
+  ov.appendChild(hdr);
+
+  const body = document.createElement('div'); body.className='m-overlay-body';
+  const topRow = document.createElement('div'); topRow.className='poids-helper-hdr';
+  const typeLbl = document.createElement('span'); typeLbl.className='poids-helper-type'; typeLbl.textContent = type || 'Aucun type assigné';
+  topRow.appendChild(typeLbl);
+  let resetBtn = null;
+  if (type === 'Disque') {
+    resetBtn = document.createElement('button'); resetBtn.type='button'; resetBtn.className='poids-reset-btn'; resetBtn.textContent='Réinitialiser';
+    topRow.appendChild(resetBtn);
+  }
+  body.appendChild(topRow);
+  const list = document.createElement('div'); list.className='poids-helper-list';
+  body.appendChild(list);
+
+  function draw() {
+    list.innerHTML = type
+      ? renderPoidsLadderHtml(type, targetInput.value)
+      : '<div class="poids-empty">Aucun repère de poids défini pour cet exercice.</div>';
+    wirePoidsLadderClicks(list, targetInput, draw);
+  }
+  draw();
+  if (resetBtn) resetBtn.addEventListener('click', ()=>{ targetInput.value=''; draw(); });
+
+  ov.appendChild(body);
+  document.body.appendChild(ov);
+}
+
 function openAddExoModal() {
   const ov = document.createElement('div'); ov.className='m-overlay';
   ov.innerHTML = `<div class="m-overlay-hdr"><input class="m-search" id="addExoSearch" placeholder="🔎 Rechercher un exercice…"><button class="m-overlay-close" id="addExoClose">×</button></div><div class="m-overlay-groups" id="addExoGroups"></div><div class="m-overlay-list" id="addExoList"></div>`;

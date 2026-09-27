@@ -35,6 +35,10 @@ button,input,select,textarea{font-family:inherit;color:inherit}
 .m-panel-hdr{display:flex;align-items:center;justify-content:space-between;gap:.5rem}
 
 .m-btn{display:inline-flex;align-items:center;gap:.3rem;padding:.4rem .75rem;min-height:34px;border-radius:.6rem;border:1px solid var(--bord);background:var(--surf2);color:var(--tx);font-size:.76rem;font-weight:600}
+.calc-fac-chip{justify-content:center}
+.calc-fac-chip.active{background:var(--prim);border-color:var(--prim);color:#fff}
+.calc-result-line{display:flex;justify-content:space-between;gap:.5rem}
+.calc-result-line b{color:var(--tx)}
 .m-btn-p{background:var(--prim);color:#fff;border-color:transparent}
 .m-btn-sm{min-height:28px;padding:.25rem .55rem;font-size:.7rem}
 .m-btn-err{color:var(--err);border-color:color-mix(in srgb, var(--err) 45%, transparent)}
@@ -368,6 +372,28 @@ button,input,select,textarea{font-family:inherit;color:inherit}
 <div class="m-sheet-ov" id="goalsOv">
   <div class="m-sheet">
     <div class="m-sheet-title">⚙ Objectifs quotidiens</div>
+
+    <button type="button" class="m-btn m-btn-sm" id="calcToggleBtn" style="width:100%;justify-content:center">🧮 Calculatrice calories &amp; macros</button>
+    <div id="calcBox" style="display:none;flex-direction:column;gap:.55rem;background:var(--surfoff);border-radius:.7rem;padding:.7rem .75rem;margin-top:.5rem">
+      <div class="m-fld"><label>Poids (kg)</label><input class="m-inp" type="number" inputmode="decimal" id="calc-poids" step="0.1" min="0" placeholder="ex: 80"></div>
+      <div class="m-fld">
+        <label>Facteur d'activité (kcal/kg)</label>
+        <input class="m-inp" type="number" inputmode="decimal" id="calc-facteur" step="0.5" min="20" max="45" value="32">
+        <div style="display:flex;gap:.35rem;flex-wrap:wrap;margin-top:.3rem">
+          <button type="button" class="m-btn m-btn-sm calc-fac-chip" data-fac="30" style="flex:1">Sédentaire (30)</button>
+          <button type="button" class="m-btn m-btn-sm calc-fac-chip" data-fac="32" style="flex:1">Standard (32)</button>
+          <button type="button" class="m-btn m-btn-sm calc-fac-chip" data-fac="35" style="flex:1">Très actif (35)</button>
+        </div>
+      </div>
+      <div class="m-fld-row">
+        <div class="m-fld"><label>Protéines (g/kg)</label><input class="m-inp" type="number" inputmode="decimal" id="calc-protkg" step="0.1" min="0" value="2"></div>
+        <div class="m-fld"><label>Lipides (% kcal)</label><input class="m-inp" type="number" inputmode="decimal" id="calc-lipperc" step="1" min="0" max="60" value="25"></div>
+      </div>
+      <div id="calcResult" style="font-size:.8rem;line-height:1.7;color:var(--txm)"></div>
+      <button type="button" class="m-btn m-btn-sm m-btn-p" id="calcApplyBtn" style="width:100%;justify-content:center" disabled>Appliquer aux objectifs ci-dessous</button>
+    </div>
+    <hr class="m-sep">
+
     <div class="m-fld-row"><div class="m-fld"><label>Calories (kcal)</label><input class="m-inp" type="number" inputmode="numeric" id="go-cal"></div><div class="m-fld"><label>Protéines (g)</label><input class="m-inp" type="number" inputmode="decimal" id="go-prot"></div></div>
     <div class="m-fld-row"><div class="m-fld"><label>Glucides (g)</label><input class="m-inp" type="number" inputmode="decimal" id="go-carb"></div><div class="m-fld"><label>Lipides (g)</label><input class="m-inp" type="number" inputmode="decimal" id="go-fat"></div></div>
     <div class="m-fld"><label>💧 Eau (ml/jour)</label><input class="m-inp" type="number" inputmode="numeric" id="go-water" min="0" step="50"></div>
@@ -1831,6 +1857,8 @@ document.getElementById('goalsBtn').addEventListener('click',()=>{
   document.getElementById('go-weightDir').value=_d.goals.weightDir;
   document.getElementById('go-weightRate').value=_d.goals.weightRate;
   openSheet('goalsOv');
+  const wDates=Object.keys(_d.weight||{}).sort();
+  if(wDates.length) document.getElementById('calc-poids').value=_d.weight[wDates[wDates.length-1]];
 });
 document.getElementById('go-save').addEventListener('click',()=>{
   ['cal','prot','carb','fat','water'].forEach(k=>_d.goals[k]=parseFloat(document.getElementById('go-'+k).value)||_d.goals[k]);
@@ -1841,6 +1869,60 @@ document.getElementById('go-save').addEventListener('click',()=>{
   if(_activeSub==='dash') switchSub('dash');
 });
 document.getElementById('go-cancel').addEventListener('click',()=>closeSheet('goalsOv'));
+
+// ══ CALCULATRICE CALORIES & MACROS ══
+document.getElementById('calcToggleBtn').addEventListener('click',()=>{
+  const box=document.getElementById('calcBox');
+  const show=box.style.display==='none';
+  box.style.display=show?'flex':'none';
+  if(show) computeCalc();
+});
+document.querySelectorAll('.calc-fac-chip').forEach(chip=>{
+  chip.addEventListener('click',()=>{
+    document.getElementById('calc-facteur').value=chip.dataset.fac;
+    computeCalc();
+  });
+});
+['calc-poids','calc-facteur','calc-protkg','calc-lipperc'].forEach(id=>{
+  document.getElementById(id).addEventListener('input',computeCalc);
+});
+let _calcVals=null;
+function computeCalc(){
+  const poids=parseFloat(document.getElementById('calc-poids').value)||0;
+  const facteur=parseFloat(document.getElementById('calc-facteur').value)||0;
+  const protKg=parseFloat(document.getElementById('calc-protkg').value)||0;
+  const lipPerc=parseFloat(document.getElementById('calc-lipperc').value)||0;
+  document.querySelectorAll('.calc-fac-chip').forEach(c=>c.classList.toggle('active',parseFloat(c.dataset.fac)===facteur));
+  const resultEl=document.getElementById('calcResult');
+  const applyBtn=document.getElementById('calcApplyBtn');
+  if(!poids||!facteur){
+    resultEl.innerHTML='<em>Renseigne au moins ton poids et le facteur d\'activité.</em>';
+    applyBtn.disabled=true; _calcVals=null; return;
+  }
+  const cal=poids*facteur;
+  const protG=poids*protKg, protKcal=protG*4;
+  const lipKcal=cal*(lipPerc/100), lipG=lipKcal/9;
+  const carbKcal=Math.max(0,cal-protKcal-lipKcal), carbG=carbKcal/4;
+  const fibresG=(cal/1000)*14;
+  _calcVals={cal:Math.round(cal),prot:Math.round(protG),fat:Math.round(lipG),carb:Math.round(carbG)};
+  resultEl.innerHTML=[
+    ['🔥 Calories',Math.round(cal)+' kcal'],
+    ['🥩 Protéines',n1(protG)+' g <span style="color:var(--txf)">('+Math.round(protKcal)+' kcal)</span>'],
+    ['🥑 Lipides',n1(lipG)+' g <span style="color:var(--txf)">('+Math.round(lipKcal)+' kcal)</span>'],
+    ['🍞 Glucides',n1(carbG)+' g <span style="color:var(--txf)">('+Math.round(carbKcal)+' kcal)</span>'],
+    ['🌾 Fibres conseillées',n1(fibresG)+' g'],
+  ].map(([l,v])=>`<div class="calc-result-line"><span>${l}</span><b>${v}</b></div>`).join('');
+  applyBtn.disabled=(cal-protKcal-lipKcal<0);
+}
+document.getElementById('calcApplyBtn').addEventListener('click',()=>{
+  if(!_calcVals) return;
+  document.getElementById('go-cal').value=_calcVals.cal;
+  document.getElementById('go-prot').value=_calcVals.prot;
+  document.getElementById('go-fat').value=_calcVals.fat;
+  document.getElementById('go-carb').value=_calcVals.carb;
+  document.getElementById('calcBox').style.display='none';
+  showToast('Valeurs appliquées — vérifie puis clique sur Enregistrer.');
+});
 
 // ══════════════════════════════════════════════════════════════
 // COPIER JOUR

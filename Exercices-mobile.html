@@ -44,7 +44,7 @@ button,input,select,textarea{font-family:inherit;color:inherit}
 .m-exo-img-ph{width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.3rem;color:var(--txf);opacity:.55;font-size:.72rem}
 .m-exo-img-ph svg{width:30px;height:30px}
 .m-exo-badge-group{position:absolute;top:.5rem;left:.5rem;font-size:.6rem;font-weight:800;padding:.2rem .55rem;border-radius:999px;background:rgba(0,0,0,.55);color:#fff}
-.m-exo-badge-video{position:absolute;top:.5rem;right:.5rem;font-size:.6rem;font-weight:800;padding:.2rem .5rem;border-radius:999px;background:rgba(0,0,0,.55);color:#fff;display:flex;align-items:center;gap:.25rem}
+.m-exo-badge-video{position:absolute;top:.5rem;right:.5rem;font-size:.6rem;font-weight:800;padding:.2rem .5rem;border-radius:999px;background:rgba(0,0,0,.55);color:#fff;display:flex;align-items:center;gap:.25rem;border:none;cursor:pointer;font-family:inherit}
 .m-exo-body{padding:.7rem .8rem .3rem}
 .m-exo-name{font-weight:800;font-size:.98rem}
 .m-exo-muscle{font-size:.78rem;color:var(--txm);margin-top:.1rem}
@@ -107,14 +107,24 @@ button,input,select,textarea{font-family:inherit;color:inherit}
 .m-obj-note{font-size:.78rem;color:var(--txm);font-style:italic}
 
 /* Poids-helper */
+.poids-helper-hdr{display:flex;align-items:center;justify-content:space-between;gap:.5rem;padding:0 0 .6rem}
+.poids-helper-type{font-size:.7rem;font-weight:800;color:var(--txf);text-transform:uppercase;letter-spacing:.03em}
+.poids-reset-btn{font-size:.75rem;font-weight:700;color:var(--prim);background:none;border:none;padding:.2rem .3rem}
 .m-poids-list{display:flex;flex-direction:column;gap:.4rem}
-.m-poids-row-item{display:flex;align-items:center;justify-content:space-between;padding:.6rem .8rem;border-radius:.75rem;border:1px solid var(--bord);background:var(--surf)}
-.m-poids-row-item.active{border-color:var(--prim);background:var(--primhi);color:var(--primh)}
-.m-poids-lbs{font-weight:700}
-.m-poids-kg{font-weight:800}
+.poids-row{padding:.6rem .8rem;border-radius:.75rem;border:1px solid var(--bord);background:var(--surf);display:flex;flex-direction:column;gap:.2rem}
+.poids-row-main{display:flex;align-items:center;justify-content:space-between;gap:.5rem}
+.poids-row-solo{justify-content:center}
+.poids-row .poids-lbs{font-weight:700}
+.poids-row .poids-kg{font-weight:800}
+.poids-row .poids-dot{display:none}
+.poids-row.active{border-color:var(--prim);background:var(--primhi);color:var(--primh)}
+.poids-p1b-sub{font-size:.68rem;color:var(--txf)}
+.poids-row.active .poids-p1b-sub{color:var(--primh);opacity:.8}
+.poids-empty{padding:1rem;text-align:center;color:var(--txf);font-size:.82rem;font-style:italic}
 
 .m-lightbox{position:fixed;inset:0;background:rgba(0,0,0,.92);z-index:400;display:flex;align-items:center;justify-content:center;padding:1rem}
 .m-lightbox img{max-width:100%;max-height:100%;object-fit:contain}
+.m-lightbox-close{position:fixed;top:calc(.7rem + env(safe-area-inset-top));right:.7rem;width:44px;height:44px;border-radius:999px;border:none;background:rgba(255,255,255,.15);color:#fff;font-size:1.6rem;line-height:1;display:flex;align-items:center;justify-content:center;z-index:401}
 
 /* Overlay filtres */
 .m-filter-section{display:flex;flex-direction:column;gap:.4rem}
@@ -159,12 +169,6 @@ const TYPE_OPTS       = ['Renforcement Musculaire','Cardio'];
 const MOUVEMENT_OPTS  = ['Polyarticulaire','Isolation'];
 const NIVEAU_OPTS     = ['Débutant','Intermédiaire','Avancé'];
 const STAR_LABELS = ['','Peu sollicité','Légèrement','Moyennement','Bien sollicité','Très sollicité'];
-const WEIGHT_TABLE = [
-  {lbs:5,kg:2.3},{lbs:10,kg:4.5},{lbs:15,kg:6.8},{lbs:20,kg:9},{lbs:25,kg:11.3},
-  {lbs:30,kg:13.5},{lbs:35,kg:15.8},{lbs:40,kg:18},{lbs:45,kg:20.3},{lbs:50,kg:22.5},
-  {lbs:55,kg:24.8},{lbs:60,kg:27},{lbs:65,kg:29.3},{lbs:70,kg:31.5},{lbs:75,kg:33.8},
-  {lbs:80,kg:36},{lbs:85,kg:38.3},{lbs:90,kg:40.5},{lbs:95,kg:42.8},{lbs:100,kg:45},
-];
 
 let _rows = [], _objectifs = {}, _hist = [], _corpsRows = [];
 let _activeGroup = '';
@@ -327,7 +331,11 @@ function buildExoCard(row) {
     imgWrap.appendChild(makeExoPh(row));
   }
   if (row.groupe_musculaire) { const b=document.createElement('span'); b.className='m-exo-badge-group'; b.textContent=row.groupe_musculaire; imgWrap.appendChild(b); }
-  if (hasVideo) { const b=document.createElement('span'); b.className='m-exo-badge-video'; b.textContent='▶ MP4'; imgWrap.appendChild(b); }
+  if (hasVideo) {
+    const b=document.createElement('button'); b.type='button'; b.className='m-exo-badge-video'; b.textContent='▶ MP4';
+    b.addEventListener('click', e=>{ e.stopPropagation(); openVideoLightbox(row.video, row.exercice); });
+    imgWrap.appendChild(b);
+  }
   card.appendChild(imgWrap);
 
   const body = document.createElement('div'); body.className='m-exo-body';
@@ -483,6 +491,7 @@ function openDetailOverlay(rowId) {
     { label:'Type de mouvement', val: row.type_mouvement },
     { label:'Pattern de mouvement', val: row.pattern_mouvement },
     { label:'Niveau', val: row.niveau },
+    { label:'Repère de poids', val: row.type_repere_poids },
     { label:'Unilatéral', val: row.unilateral ? 'Oui — un côté à la fois' : '' },
     { label:'Descriptif', val: row.descriptif },
     { label:'Exécution / Technique', val: row.execution },
@@ -495,8 +504,9 @@ function openDetailOverlay(rowId) {
     body.appendChild(sec);
   });
   if (row.video) {
-    const vb = document.createElement('span'); vb.className='m-ei-tag'; vb.style.cssText='background:var(--surf2);color:var(--txm)';
+    const vb = document.createElement('button'); vb.type='button'; vb.className='m-ei-tag'; vb.style.cssText='background:var(--surf2);color:var(--txm);cursor:pointer;border:none;font:inherit';
     vb.textContent = '▶ ' + row.video;
+    vb.addEventListener('click', ()=>openVideoLightbox(row.video, row.exercice));
     body.appendChild(vb);
   }
 
@@ -525,7 +535,7 @@ function openDetailOverlay(rowId) {
   const poidsRow = document.createElement('div'); poidsRow.className='m-poids-row';
   const poidsInp = document.createElement('input'); poidsInp.type='number'; poidsInp.inputMode='decimal'; poidsInp.min='0'; poidsInp.step='0.5'; poidsInp.id='obj-poids';
   const poidsHelpBtn = document.createElement('button'); poidsHelpBtn.className='m-poids-help-btn'; poidsHelpBtn.type='button'; poidsHelpBtn.textContent='?';
-  poidsHelpBtn.addEventListener('click', ()=>openPoidsHelper(poidsInp));
+  poidsHelpBtn.addEventListener('click', ()=>openPoidsHelper(poidsInp, row.type_repere_poids));
   poidsRow.append(poidsInp, poidsHelpBtn);
   poidsFld.append(poidsLbl, poidsRow);
   form.appendChild(poidsFld);
@@ -633,25 +643,37 @@ function renderObjHistory(rowId, hex, wrap) {
 // ══════════════════════════════════════════════════════════════
 // POIDS-HELPER (lbs → kg)
 // ══════════════════════════════════════════════════════════════
-function openPoidsHelper(targetInput) {
+function openPoidsHelper(targetInput, type) {
   const ov = document.createElement('div'); ov.className='m-overlay';
   const hdr = document.createElement('div'); hdr.className='m-overlay-hdr';
   const backBtn = document.createElement('button'); backBtn.className='m-back-btn'; backBtn.textContent='←';
   backBtn.addEventListener('click', ()=>ov.remove());
-  const title = document.createElement('div'); title.className='m-overlay-title'; title.innerHTML='<div class="m-overlay-name">Repères de poids (lbs → kg)</div>';
+  const title = document.createElement('div'); title.className='m-overlay-title'; title.innerHTML='<div class="m-overlay-name">Repères de poids</div>';
   hdr.append(backBtn, title);
   ov.appendChild(hdr);
 
   const body = document.createElement('div'); body.className='m-overlay-body';
+  const topRow = document.createElement('div'); topRow.className='poids-helper-hdr';
+  const typeLbl = document.createElement('span'); typeLbl.className='poids-helper-type'; typeLbl.textContent = type || 'Aucun type assigné';
+  topRow.appendChild(typeLbl);
+  let resetBtn = null;
+  if (type === 'Disque') {
+    resetBtn = document.createElement('button'); resetBtn.type='button'; resetBtn.className='poids-reset-btn'; resetBtn.textContent='Réinitialiser';
+    topRow.appendChild(resetBtn);
+  }
+  body.appendChild(topRow);
   const list = document.createElement('div'); list.className='m-poids-list';
-  const current = parseFloat(targetInput.value);
-  WEIGHT_TABLE.forEach(w => {
-    const row = document.createElement('div'); row.className='m-poids-row-item'+(current===w.kg?' active':'');
-    row.innerHTML = `<span class="m-poids-lbs">${w.lbs} lbs</span><span class="m-poids-kg">${w.kg} kg</span>`;
-    row.addEventListener('click', ()=>{ targetInput.value = w.kg; ov.remove(); });
-    list.appendChild(row);
-  });
   body.appendChild(list);
+
+  function draw() {
+    list.innerHTML = type
+      ? renderPoidsLadderHtml(type, targetInput.value)
+      : '<div class="poids-empty">Choisissez un « Repère de poids » pour cet exercice depuis la version PC pour afficher les valeurs correspondantes.</div>';
+    wirePoidsLadderClicks(list, targetInput, draw);
+  }
+  draw();
+  if (resetBtn) resetBtn.addEventListener('click', ()=>{ targetInput.value=''; draw(); });
+
   ov.appendChild(body);
   document.body.appendChild(ov);
 }
@@ -659,11 +681,33 @@ function openPoidsHelper(targetInput) {
 // ══════════════════════════════════════════════════════════════
 // LIGHTBOX / TOAST
 // ══════════════════════════════════════════════════════════════
+function makeLightboxCloseBtn(lb) {
+  const closeBtn = document.createElement('button'); closeBtn.type='button'; closeBtn.className='m-lightbox-close';
+  closeBtn.textContent='×'; closeBtn.setAttribute('aria-label','Fermer');
+  closeBtn.addEventListener('click', e=>{ e.stopPropagation(); lb.remove(); });
+  return closeBtn;
+}
 function openImageLightbox(src, title) {
   const lb = document.createElement('div'); lb.className='m-lightbox';
   const img = document.createElement('img'); img.src='./img/'+src; img.alt=title||'';
-  lb.appendChild(img);
-  lb.addEventListener('click', ()=>lb.remove());
+  lb.append(makeLightboxCloseBtn(lb), img);
+  lb.addEventListener('click', e=>{ if(e.target===lb) lb.remove(); });
+  document.body.appendChild(lb);
+}
+function openVideoLightbox(src, title) {
+  const lb = document.createElement('div'); lb.className='m-lightbox';
+  lb.appendChild(makeLightboxCloseBtn(lb));
+  const video = document.createElement('video'); video.src='./mp4/'+src; video.controls=true; video.autoplay=true; video.playsInline=true;
+  video.setAttribute('webkit-playsinline','');
+  video.style.cssText='max-width:100%;max-height:100%';
+  video.addEventListener('error', ()=>{
+    video.remove();
+    const err=document.createElement('div'); err.style.cssText='color:#fff;text-align:center;padding:1.5rem;font-size:.85rem';
+    err.textContent = 'Vidéo introuvable : ' + title;
+    lb.appendChild(err);
+  });
+  lb.appendChild(video);
+  lb.addEventListener('click', e=>{ if(e.target===lb) lb.remove(); });
   document.body.appendChild(lb);
 }
 function showToast(msg) {
