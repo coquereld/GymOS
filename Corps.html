@@ -1384,6 +1384,23 @@ function setStatus(text, kind='') {
   els.statusText.className = 'status ' + kind;
   els.statusText.textContent = text;
 }
+// Envoie un fichier image choisi localement vers le serveur (img/), en désactivant
+// le(s) bouton(s) de confirmation le temps du transfert. Retourne le nom de fichier
+// une fois l'envoi confirmé, ou null si l'envoi a échoué (déjà signalé via setStatus).
+async function pickAndUpload(file, kind, confirmBtnIds){
+  confirmBtnIds.forEach(id=>{ const b=document.getElementById(id); if(b) b.disabled=true; });
+  setStatus(`Envoi de "${file.name}"…`);
+  try {
+    const filename = await uploadMedia(file, kind);
+    setStatus(`Fichier envoyé : ${filename}`,'ok');
+    return filename;
+  } catch(e) {
+    setStatus(e.message || "Échec de l'envoi du fichier.",'warn');
+    return null;
+  } finally {
+    confirmBtnIds.forEach(id=>{ const b=document.getElementById(id); if(b) b.disabled=false; });
+  }
+}
 function escapeXml(v) {
   return String(v ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
     .replace(/"/g,'&quot;').replace(/'/g,'&apos;');
@@ -2015,7 +2032,14 @@ function makeInputPick(row, fieldKey, onConfirm) {
   pickBtn.className='dm-img-pick-btn';
   pickBtn.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg> Choisir';
   pickBtn.addEventListener('click', ()=>fileInp.click());
-  fileInp.addEventListener('change', ()=>{ if(fileInp.files?.[0]) inp.value=fileInp.files[0].name; if(onConfirm) onConfirm(inp.value); });
+  fileInp.addEventListener('change', async ()=>{
+    const f = fileInp.files?.[0]; if (!f) return;
+    const orig = inp.value; inp.value = 'Envoi en cours…'; inp.disabled = true;
+    const filename = await pickAndUpload(f, 'image', ['dmSaveBtn']);
+    inp.disabled = false;
+    inp.value = filename || orig;
+    if (onConfirm) onConfirm(inp.value);
+  });
   inp.addEventListener('change', ()=>{ if(onConfirm) onConfirm(inp.value); });
   wrap.append(inp, pickBtn, fileInp);
   return { wrap, inp };
@@ -2432,12 +2456,18 @@ function buildImgSlots(allImages) {
     }
 
     slot.querySelector('.img-slot-pick').addEventListener('click', () => document.getElementById(fileId).click());
-    document.getElementById(fileId).addEventListener('change', function() {
+    document.getElementById(fileId).addEventListener('change', async function() {
       const f = this.files?.[0]; if (!f) return;
-      document.getElementById(inpId).value = f.name;
+      const inp = document.getElementById(inpId);
       const img = document.getElementById(previewId);
-      img.src = URL.createObjectURL(f);
+      img.src = URL.createObjectURL(f); // aperçu immédiat pendant l'envoi
       img.onload = () => { img.style.display='block'; document.getElementById(phId).style.display='none'; };
+      const orig = inp.value; inp.value = 'Envoi en cours…'; inp.disabled = true;
+      const filename = await pickAndUpload(f, 'image', ['multiImgConfirm']);
+      inp.disabled = false;
+      inp.value = filename || orig;
+      if (filename) { img.src = './img/'+filename; }
+      else if (!orig) { img.style.display='none'; document.getElementById(phId).style.display='grid'; }
     });
     document.getElementById(inpId).addEventListener('input', function() {
       const v = this.value.trim();
@@ -2771,12 +2801,18 @@ function buildGroupImgList() {
 
     // File picker
     row.querySelector('.gi-pick').addEventListener('click', () => document.getElementById(fileId).click());
-    document.getElementById(fileId).addEventListener('change', function() {
+    document.getElementById(fileId).addEventListener('change', async function() {
       const f = this.files?.[0]; if (!f) return;
-      document.getElementById(inpId).value = f.name;
+      const inp = document.getElementById(inpId);
       const img = document.getElementById(previewId);
-      img.src = URL.createObjectURL(f);
+      img.src = URL.createObjectURL(f); // aperçu immédiat pendant l'envoi
       img.onload = () => { img.style.display='block'; document.getElementById(phId).style.display='none'; };
+      const orig = inp.value; inp.value = 'Envoi en cours…'; inp.disabled = true;
+      const filename = await pickAndUpload(f, 'image', ['groupImgConfirm']);
+      inp.disabled = false;
+      inp.value = filename || orig;
+      if (filename) { img.src = './img/'+filename; }
+      else if (!orig) { img.style.display='none'; document.getElementById(phId).style.display='grid'; }
     });
 
     // Input change → update preview
@@ -2915,13 +2951,14 @@ document.addEventListener('keydown', e => {
 // File pickers modale ajout
 ['img-group','img-muscle'].forEach(key => {
   document.getElementById(`am-${key}-wrap`).addEventListener('click', () => document.getElementById(`am-${key}-file`).click());
-  document.getElementById(`am-${key}-file`).addEventListener('change', function() {
-    const file = this.files?.[0];
-    const name = file ? file.name : '';
-    document.getElementById(`am-${key}`).value = name;
+  document.getElementById(`am-${key}-file`).addEventListener('change', async function() {
+    const file = this.files?.[0]; if (!file) return;
     const span = document.getElementById(`am-${key}-name`);
-    span.textContent = name || 'Choisir un fichier…';
-    span.classList.toggle('has-file', !!name);
+    span.textContent = 'Envoi en cours…'; span.classList.remove('has-file');
+    const filename = await pickAndUpload(file, 'image', ['addModalConfirm']);
+    document.getElementById(`am-${key}`).value = filename || '';
+    span.textContent = filename || 'Choisir un fichier…';
+    span.classList.toggle('has-file', !!filename);
   });
 });
 // Modale image
@@ -2933,12 +2970,14 @@ document.getElementById('imgModalInput').addEventListener('keydown', e => {
   if (e.key === 'Escape') closeImgModal();
 });
 document.getElementById('imgModalPickWrap').addEventListener('click', () => document.getElementById('imgModalFile').click());
-document.getElementById('imgModalFile').addEventListener('change', function() {
-  const file = this.files?.[0];
-  if (!file) return;
-  document.getElementById('imgModalInput').value = file.name;
+document.getElementById('imgModalFile').addEventListener('change', async function() {
+  const file = this.files?.[0]; if (!file) return;
   const span = document.getElementById('imgModalPickName');
-  span.textContent = file.name; span.classList.add('has-file');
+  span.textContent = 'Envoi en cours…'; span.classList.remove('has-file');
+  const filename = await pickAndUpload(file, 'image', ['imgModalConfirm']);
+  document.getElementById('imgModalInput').value = filename || '';
+  span.textContent = filename || 'Choisir un fichier…';
+  span.classList.toggle('has-file', !!filename);
 });
 
 // Modale suppression

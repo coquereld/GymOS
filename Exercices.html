@@ -1392,6 +1392,23 @@ const els = {
 
 // ─── UTILS ────────────────────────────────────────────────────────────────────
 function setStatus(t,k=''){els.statusText.className='status '+k;els.statusText.textContent=t}
+// Envoie un fichier (image/vidéo) choisi localement vers le serveur, en désactivant
+// le(s) bouton(s) de confirmation le temps du transfert. Retourne le nom de fichier
+// une fois l'envoi confirmé, ou null si l'envoi a échoué (déjà signalé via setStatus).
+async function pickAndUpload(file, kind, confirmBtnIds){
+  confirmBtnIds.forEach(id=>{ const b=document.getElementById(id); if(b) b.disabled=true; });
+  setStatus(`Envoi de "${file.name}"…`);
+  try {
+    const filename = await uploadMedia(file, kind);
+    setStatus(`Fichier envoyé : ${filename}`,'ok');
+    return filename;
+  } catch(e) {
+    setStatus(e.message || "Échec de l'envoi du fichier.",'warn');
+    return null;
+  } finally {
+    confirmBtnIds.forEach(id=>{ const b=document.getElementById(id); if(b) b.disabled=false; });
+  }
+}
 function escapeXml(v){return String(v??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&apos;')}
 function hexToRgb(hex){return[parseInt(hex.slice(1,3),16),parseInt(hex.slice(3,5),16),parseInt(hex.slice(5,7),16)]}
 
@@ -2482,16 +2499,20 @@ document.getElementById('am-muscle').addEventListener('change',function(){
 
 // File pickers modale ajout
 document.getElementById('am-img-wrap').addEventListener('click',()=>document.getElementById('am-img-file').click());
-document.getElementById('am-img-file').addEventListener('change',function(){
-  const f=this.files?.[0];const n=f?f.name:'';
-  document.getElementById('am-img').value=n;
-  const s=document.getElementById('am-img-name');s.textContent=n||'Choisir une image (.webp)…';s.classList.toggle('has-file',!!n);
+document.getElementById('am-img-file').addEventListener('change',async function(){
+  const f=this.files?.[0]; if(!f) return;
+  const s=document.getElementById('am-img-name'); s.textContent='Envoi en cours…'; s.classList.remove('has-file');
+  const filename=await pickAndUpload(f,'image',['addModalConfirm']);
+  if(filename){ document.getElementById('am-img').value=filename; s.textContent=filename; s.classList.add('has-file'); }
+  else { document.getElementById('am-img').value=''; s.textContent='Choisir une image (.webp)…'; }
 });
 document.getElementById('am-video-wrap').addEventListener('click',()=>document.getElementById('am-video-file').click());
-document.getElementById('am-video-file').addEventListener('change',function(){
-  const f=this.files?.[0];const n=f?f.name:'';
-  document.getElementById('am-video').value=n;
-  const s=document.getElementById('am-video-name');s.textContent=n||'Choisir une vidéo (.mp4)…';s.classList.toggle('has-file',!!n);
+document.getElementById('am-video-file').addEventListener('change',async function(){
+  const f=this.files?.[0]; if(!f) return;
+  const s=document.getElementById('am-video-name'); s.textContent='Envoi en cours…'; s.classList.remove('has-file');
+  const filename=await pickAndUpload(f,'video',['addModalConfirm']);
+  if(filename){ document.getElementById('am-video').value=filename; s.textContent=filename; s.classList.add('has-file'); }
+  else { document.getElementById('am-video').value=''; s.textContent='Choisir une vidéo (.mp4)…'; }
 });
 
 // ─── COLONNES AFFICHABLES/MASQUABLES ─────────────────────────────────────────
@@ -2658,10 +2679,12 @@ document.getElementById('imgModal').addEventListener('click',e=>{if(e.target===d
 document.getElementById('imgModalCancel').addEventListener('click',closeImgModal);
 document.getElementById('imgModalConfirm').addEventListener('click',confirmImgModal);
 document.getElementById('imgModalPickWrap').addEventListener('click',()=>document.getElementById('imgModalFile').click());
-document.getElementById('imgModalFile').addEventListener('change',function(){
-  const f=this.files?.[0];if(!f)return;
-  document.getElementById('imgModalInput').value=f.name;
-  const s=document.getElementById('imgModalPickName');s.textContent=f.name;s.classList.add('has-file');
+document.getElementById('imgModalFile').addEventListener('change',async function(){
+  const f=this.files?.[0]; if(!f) return;
+  const s=document.getElementById('imgModalPickName'); s.textContent='Envoi en cours…'; s.classList.remove('has-file');
+  const filename=await pickAndUpload(f,'image',['imgModalConfirm']);
+  if(filename){ document.getElementById('imgModalInput').value=filename; s.textContent=filename; s.classList.add('has-file'); }
+  else { s.textContent='Choisir un fichier…'; }
 });
 document.getElementById('imgModalInput').addEventListener('keydown',e=>{if(e.key==='Enter')confirmImgModal();if(e.key==='Escape')closeImgModal();});
 
@@ -2670,10 +2693,12 @@ document.getElementById('videoEditModal').addEventListener('click',e=>{if(e.targ
 document.getElementById('videoEditCancel').addEventListener('click',closeVideoEditModal);
 document.getElementById('videoEditConfirm').addEventListener('click',confirmVideoEditModal);
 document.getElementById('videoEditPickWrap').addEventListener('click',()=>document.getElementById('videoEditFile').click());
-document.getElementById('videoEditFile').addEventListener('change',function(){
-  const f=this.files?.[0];if(!f)return;
-  document.getElementById('videoEditInput').value=f.name;
-  const s=document.getElementById('videoEditPickName');s.textContent=f.name;s.classList.add('has-file');
+document.getElementById('videoEditFile').addEventListener('change',async function(){
+  const f=this.files?.[0]; if(!f) return;
+  const s=document.getElementById('videoEditPickName'); s.textContent='Envoi en cours…'; s.classList.remove('has-file');
+  const filename=await pickAndUpload(f,'video',['videoEditConfirm']);
+  if(filename){ document.getElementById('videoEditInput').value=filename; s.textContent=filename; s.classList.add('has-file'); }
+  else { s.textContent='Choisir un fichier…'; }
 });
 document.getElementById('videoEditInput').addEventListener('keydown',e=>{if(e.key==='Enter')confirmVideoEditModal();if(e.key==='Escape')closeVideoEditModal();});
 
@@ -3655,11 +3680,13 @@ document.getElementById('em-muscle').addEventListener('change', function() {
 
 // File pickers
 document.getElementById('em-image-pick-btn').addEventListener('click', () => document.getElementById('em-image-file').click());
-document.getElementById('em-image-file').addEventListener('change', function() {
+document.getElementById('em-image-file').addEventListener('change', async function() {
   const f = this.files?.[0]; if (!f) return;
-  document.getElementById('em-image').value = f.name;
   const prev = document.getElementById('em-image-preview');
-  prev.src = URL.createObjectURL(f); prev.style.display = 'block';
+  prev.src = URL.createObjectURL(f); prev.style.display = 'block'; // aperçu immédiat pendant l'envoi
+  const filename = await pickAndUpload(f, 'image', ['exoEditSave']);
+  if (filename) { document.getElementById('em-image').value = filename; prev.src = './img/'+filename; }
+  else { document.getElementById('em-image').value = ''; prev.style.display = 'none'; }
 });
 document.getElementById('em-image').addEventListener('input', function() {
   const prev = document.getElementById('em-image-preview');
@@ -3667,9 +3694,11 @@ document.getElementById('em-image').addEventListener('input', function() {
   else { prev.style.display='none'; }
 });
 document.getElementById('em-video-pick-btn').addEventListener('click', () => document.getElementById('em-video-file').click());
-document.getElementById('em-video-file').addEventListener('change', function() {
+document.getElementById('em-video-file').addEventListener('change', async function() {
   const f = this.files?.[0]; if (!f) return;
-  document.getElementById('em-video').value = f.name;
+  document.getElementById('em-video').value = 'Envoi en cours…';
+  const filename = await pickAndUpload(f, 'video', ['exoEditSave']);
+  document.getElementById('em-video').value = filename || '';
 });
 
 // Wiring

@@ -534,6 +534,22 @@ function dayTotals(d){return(_d.logs[d]||[]).reduce((t,e)=>({cal:t.cal+(e.cal||0
 function fmtD(iso){const d=new Date(iso+'T00:00'),t=todayISO(),y=addDaysTo(t,-1);if(iso===t)return"Aujourd'hui";if(iso===y)return'Hier';return d.toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long'});}
 function fmtShort(iso){const d=new Date(iso+'T00:00');return d.toLocaleDateString('fr-FR',{day:'numeric',month:'short'});}
 function recipeCalc(ings){return ings.reduce((t,ing)=>{const f=_d.foods.find(x=>x.id===ing.foodId);if(!f)return t;const m=macros4qty(f,ing.qty);return{cal:t.cal+m.cal,prot:t.prot+m.prot,carb:t.carb+m.carb,fat:t.fat+m.fat,fibres:t.fibres+m.fibres,sucres:t.sucres+m.sucres,sodium:t.sodium+m.sodium};},{cal:0,prot:0,carb:0,fat:0,fibres:0,sucres:0,sodium:0});}
+// Envoie un fichier image choisi localement vers le serveur (img/), en désactivant
+// le(s) bouton(s) de confirmation le temps du transfert. Retourne le nom de fichier
+// une fois l'envoi confirmé, ou null si l'envoi a échoué (déjà signalé via showToast).
+async function pickAndUpload(file, kind, confirmBtnIds){
+  confirmBtnIds.forEach(id=>{ const b=document.getElementById(id); if(b) b.disabled=true; });
+  try {
+    const filename = await uploadMedia(file, kind);
+    showToast('Fichier envoyé : '+filename);
+    return filename;
+  } catch(e) {
+    showToast(e.message || "Échec de l'envoi du fichier.", true);
+    return null;
+  } finally {
+    confirmBtnIds.forEach(id=>{ const b=document.getElementById(id); if(b) b.disabled=false; });
+  }
+}
 function showToast(msg, isErr=false){
   const t=document.getElementById('toast');
   t.textContent=msg;
@@ -1493,10 +1509,15 @@ document.getElementById('fv-pricekg').addEventListener('input',syncPriceFromKg);
 document.getElementById('fv-priceunit').addEventListener('input',syncPriceFromUnit);
 document.getElementById('fv-unit').addEventListener('input',()=>{updateFvUnit();updatePricePreview();});
 document.getElementById('fv-imgPick').addEventListener('click',()=>document.getElementById('fv-imgFile').click());
-document.getElementById('fv-imgFile').addEventListener('change',function(){
-  const f=this.files?.[0];if(!f)return;
-  document.getElementById('fv-img').value=f.name; document.getElementById('fv-imgName').textContent=f.name;
-  const p=document.getElementById('fv-imgPrev');p.src=URL.createObjectURL(f);p.style.display='block';
+document.getElementById('fv-imgFile').addEventListener('change',async function(){
+  const f=this.files?.[0]; if(!f) return;
+  const p=document.getElementById('fv-imgPrev');
+  p.src=URL.createObjectURL(f); p.style.display='block'; // aperçu immédiat pendant l'envoi
+  document.getElementById('fv-imgName').textContent='Envoi en cours…';
+  const filename=await pickAndUpload(f,'image',['fv-save']);
+  document.getElementById('fv-img').value=filename||'';
+  document.getElementById('fv-imgName').textContent=filename||'';
+  if(filename) p.src='./img/'+filename; else p.style.display='none';
 });
 document.getElementById('fv-calc').addEventListener('click',()=>{
   const qty=parseFloat(document.getElementById('fv-cqty').value)||0;
@@ -1636,9 +1657,12 @@ document.getElementById('rv-addIng').addEventListener('click',()=>{
 });
 document.getElementById('rv-portions').addEventListener('input',updateRvMacros);
 document.getElementById('rv-imgPick').addEventListener('click',()=>document.getElementById('rv-imgFile').click());
-document.getElementById('rv-imgFile').addEventListener('change',function(){
-  const f=this.files?.[0];if(!f)return;
-  document.getElementById('rv-img').value=f.name; document.getElementById('rv-imgName').textContent=f.name;
+document.getElementById('rv-imgFile').addEventListener('change',async function(){
+  const f=this.files?.[0]; if(!f) return;
+  document.getElementById('rv-imgName').textContent='Envoi en cours…';
+  const filename=await pickAndUpload(f,'image',['rv-save']);
+  document.getElementById('rv-img').value=filename||'';
+  document.getElementById('rv-imgName').textContent=filename||'';
 });
 document.getElementById('rv-save').addEventListener('click',()=>{
   const name=document.getElementById('rv-name').value.trim(); if(!name)return;

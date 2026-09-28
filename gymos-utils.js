@@ -9,6 +9,26 @@ function esc(v){ return String(v??'').replace(/&/g,'&amp;').replace(/</g,'&lt;')
 function fmtDateShort(iso){ return new Date(iso+'T00:00').toLocaleDateString('fr-FR',{day:'numeric',month:'short'}); }
 function uid(){ return Math.random().toString(36).slice(2,10)+Date.now().toString(36).slice(-4); }
 
+// Envoie un fichier choisi localement (image ou vidéo) vers le serveur, qui
+// l'écrit dans img/ ou mp4/ sous son propre nom — remplace le simple mémo du
+// nom de fichier par un vrai transfert, pour ne plus avoir à le copier soi-
+// même sur le serveur. Retourne le nom de fichier une fois l'envoi confirmé ;
+// lève une erreur (avec message lisible) si l'envoi échoue.
+async function uploadMedia(file, kind){
+  const endpoint = (kind==='video' ? '/api/upload/video/' : '/api/upload/image/') + encodeURIComponent(file.name);
+  const res = await fetch(endpoint, {
+    method: 'POST',
+    headers: { 'Content-Type': file.type || 'application/octet-stream' },
+    body: file,
+  });
+  if (!res.ok) {
+    let msg = "Échec de l'envoi du fichier (" + res.status + ')';
+    try { const j = await res.json(); if (j.error) msg = j.error; } catch {}
+    throw new Error(msg);
+  }
+  return file.name;
+}
+
 // Bascule clair/sombre — attend des icônes SVG #thDark / #thLight dans la page.
 function applyTheme(t){
   document.documentElement.setAttribute('data-theme', t);

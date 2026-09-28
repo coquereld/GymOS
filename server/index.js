@@ -145,6 +145,45 @@ app.put('/api/data/:docKey', (req, res) => {
 
 app.get('/api/health', (req, res) => res.json({ ok: true }));
 
+// ── Envoi de fichiers média (images/vidéos d'exercices) ────────────────────
+// Corps brut (pas de multipart) : le nom de fichier voyage dans l'URL, déjà
+// encodé côté client — plus simple et sans dépendance supplémentaire.
+const fs = require('fs');
+const IMG_DIR = path.join(ROOT, 'img');
+const MP4_DIR = path.join(ROOT, 'mp4');
+const IMAGE_EXTS = new Set(['.webp', '.png', '.jpg', '.jpeg', '.gif']);
+const VIDEO_EXTS = new Set(['.mp4']);
+
+// Le nom ne doit désigner qu'un fichier dans le dossier cible : aucun
+// séparateur de chemin ni référence au parent (protection contre une
+// traversée de répertoire via un nom de fichier forgé).
+function isSafeFilename(name) {
+  return !!name && !name.includes('/') && !name.includes('\\') && !name.includes('\0')
+    && name !== '.' && name !== '..' && path.basename(name) === name;
+}
+
+function registerUploadRoute(routePath, dir, allowedExts, maxBytes) {
+  app.post(routePath, express.raw({ limit: maxBytes, type: () => true }), (req, res) => {
+    const filename = req.params.filename;
+    if (!isSafeFilename(filename)) return res.status(400).json({ error: 'nom de fichier invalide' });
+    const ext = path.extname(filename).toLowerCase();
+    if (!allowedExts.has(ext)) {
+      return res.status(400).json({ error: `extension non autorisée (attendu : ${[...allowedExts].join(', ')})` });
+    }
+    if (!Buffer.isBuffer(req.body) || !req.body.length) return res.status(400).json({ error: 'fichier vide' });
+    try {
+      fs.mkdirSync(dir, { recursive: true });
+      fs.writeFileSync(path.join(dir, filename), req.body);
+      res.json({ ok: true, filename });
+    } catch (e) {
+      res.status(500).json({ error: e.message });
+    }
+  });
+}
+
+registerUploadRoute('/api/upload/image/:filename', IMG_DIR, IMAGE_EXTS, '20mb');
+registerUploadRoute('/api/upload/video/:filename', MP4_DIR, VIDEO_EXTS, '300mb');
+
 // Proxy Open Food Facts — lookup d'un produit par code-barres (EAN/UPC).
 // Le scan lui-même reste local (caméra + API navigateur) ; ce lookup ne sert
 // qu'à préremplir les macros d'un produit jamais saisi localement.
